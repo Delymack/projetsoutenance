@@ -34,8 +34,9 @@
             <div class="cart-line__main">
               <div class="cart-line__product">
                 <div>
+                  <span class="cart-line__cat">{{ ('CATALOGUE.categories.' + ligne.vin.categorie) | translate }}</span>
                   <h2><a [routerLink]="['/vin', ligne.vin.id]">{{ ligne.vin.nom }}</a></h2>
-                  <p>{{ ligne.vin.cepage }} · {{ ligne.vin.millesime }}</p>
+                  <p>{{ ligne.vin.millesime }}</p>
                 </div>
                 <button
                   mat-icon-button

@@ -653,3 +653,187 @@ body {
 .lb-card {
   border-color: rgba(118, 0, 31, 0.1);
 }
+
+/* ==========================================================================
+   ULTRA DESIGN — Polish global (bénéficie à toutes les pages)
+   ========================================================================== */
+
+/* --- Titres : dégradé bordeaux→or sur le texte, plus de présence --------- */
+h1, h2 {
+  background: linear-gradient(120deg, var(--lb-text) 0%, var(--lb-primary) 55%, var(--lb-accent) 130%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+/* Les titres encrent sur un fond sombre restent pleinement lisibles : on
+   annule le dégradé sur les zones à fond coloré (hero bordeaux, cartes
+   d'en-tête admin) via .lb-titre-plein. */
+.lb-titre-plein,
+.lb-hero-text h1, .lb-hero-text h2 {
+  -webkit-text-fill-color: currentColor;
+  color: var(--lb-hero-text, inherit);
+  background: none;
+}
+
+/* --- Sélection de texte à la charte ------------------------------------- */
+::selection {
+  background: color-mix(in srgb, var(--lb-accent) 38%, transparent);
+  color: var(--lb-text);
+}
+
+/* --- Cartes : halo doré diffus + reflet au survol ----------------------- */
+.lb-card {
+  position: relative;
+}
+.lb-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(120% 80% at 50% -20%, color-mix(in srgb, var(--lb-accent) 12%, transparent), transparent 60%);
+  opacity: 0;
+  transition: opacity var(--lb-transition);
+  pointer-events: none;
+}
+.lb-card--hover:hover::before {
+  opacity: 1;
+}
+.lb-card--hover:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--lb-shadow-3);
+  border-color: color-mix(in srgb, var(--lb-accent) 55%, var(--lb-border));
+}
+
+/* --- Boutons Material : plus ronds, plus vivants ------------------------ */
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-outlined-button,
+.mat-mdc-stroked-button {
+  letter-spacing: 0.01em;
+  font-weight: 700;
+}
+.mat-mdc-raised-button.mat-primary:hover,
+.mat-mdc-unelevated-button.mat-primary:hover {
+  transform: translateY(-1px);
+  filter: saturate(1.05);
+}
+
+/* --- Champs Material : focus doré doux --------------------------------- */
+.mat-mdc-form-field-focus-overlay {
+  background-color: color-mix(in srgb, var(--lb-accent) 6%, transparent);
+}
+
+/* --- Apparition en cascade réutilisable -------------------------------- */
+.lb-stagger > * {
+  animation: lb-fade-in-up 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+/* ==========================================================================
+   ULTRA DESIGN — Patterns réutilisables (dashboard, promos, listes)
+   ========================================================================== */
+
+/* --- Cartes KPI / statistiques : icône en pastille + valeur affirmée ---- */
+.lb-kpi,
+.dashboard__kpis > article {
+  position: relative;
+  display: grid;
+  gap: 0.35rem;
+  padding: 1.1rem 1.2rem;
+  overflow: hidden;
+}
+.dashboard__kpis > article mat-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 0.35rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--lb-primary) 12%, transparent);
+  color: var(--lb-primary);
+  font-size: 1.35rem;
+}
+.dashboard__kpis > article span {
+  color: var(--lb-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.dashboard__kpis > article strong {
+  font-family: var(--lb-font-display);
+  font-size: 1.7rem;
+  line-height: 1.1;
+  color: var(--lb-text);
+}
+/* Filet doré décoratif en haut de la carte KPI */
+.dashboard__kpis > article::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--lb-primary), var(--lb-accent));
+  opacity: 0.85;
+}
+
+/* --- Badges de remise : éclat doré ------------------------------------- */
+.lb-badge-promo,
+.promo__badge {
+  background: linear-gradient(120deg, var(--lb-primary), var(--lb-primary-hover));
+  color: #fff;
+  border: 0;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--lb-primary) 28%, transparent);
+  letter-spacing: 0.02em;
+}
+
+/* --- Puces / chips (accords, catégories) : halo au survol --------------- */
+.vin-detail__chip,
+.lb-chip {
+  border: 1px solid var(--lb-border);
+  background: var(--lb-surface-2);
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition:
+    transform var(--lb-transition),
+    border-color var(--lb-transition),
+    background var(--lb-transition);
+}
+.vin-detail__chip:hover,
+.lb-chip:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--lb-accent) 55%, var(--lb-border));
+  background: color-mix(in srgb, var(--lb-accent) 10%, var(--lb-surface-2));
+}
+
+/* --- Pages auth (connexion / inscription) : fond immersif ------------- */
+.ws-auth {
+  min-height: 100vh;
+  padding: 2.5rem 1rem;
+  background:
+    radial-gradient(circle at 12% 8%, color-mix(in srgb, var(--lb-primary) 12%, transparent), transparent 32rem),
+    radial-gradient(circle at 88% 92%, color-mix(in srgb, var(--lb-accent) 14%, transparent), transparent 30rem),
+    linear-gradient(180deg, var(--lb-bg) 0%, var(--lb-bg-alt) 100%);
+}
+
+/* --- Onglets de section (profil) : pilule active dégradée -------------- */
+.profil__onglet.is-actif {
+  background: linear-gradient(120deg, var(--lb-primary), var(--lb-primary-hover));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--lb-primary) 26%, transparent);
+}
+.profil__onglet.is-actif mat-icon {
+  color: #fff;
+}
+
+/* --- Listes de commandes / historique : reflet doré au survol --------- */
+.commande:hover,
+.dashboard__sale:hover {
+  border-color: color-mix(in srgb, var(--lb-accent) 50%, var(--lb-border));
+  box-shadow: var(--lb-shadow-2);
+}
+
+

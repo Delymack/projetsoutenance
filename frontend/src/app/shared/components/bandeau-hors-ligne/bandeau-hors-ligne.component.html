@@ -8,6 +8,7 @@
     class="hors-ligne"
     [class.hors-ligne--succes]="variante() === 'succes'"
     [class.hors-ligne--alerte]="variante() === 'alerte'"
+    [class.hors-ligne--installation]="installationDisponible() && !horsLigne() && !nouvelleVersion()"
     [class.hors-ligne--info]="!horsLigne() && !nouvelleVersion() && !installationDisponible()"
     role="status"
     aria-live="polite"

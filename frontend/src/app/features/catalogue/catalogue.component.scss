@@ -285,6 +285,66 @@
   gap: 1px;
 }
 
+/* Producteur / région au-dessus du nom */
+.wine-card__domaine {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lb-accent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Millésime · cépage sous le titre */
+.wine-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  color: var(--lb-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wine-card__meta-sep {
+  color: var(--lb-border);
+}
+
+/* Note en étoiles */
+.wine-card__note {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 1px;
+}
+
+.wine-card__etoiles {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.wine-card__etoiles mat-icon {
+  font-size: 0.9rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  color: var(--lb-accent);
+  opacity: 0.4;
+}
+
+.wine-card__etoiles mat-icon.est-pleine {
+  opacity: 1;
+}
+
+.wine-card__note-val {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--lb-text);
+}
+
 .wine-card__prix {
   align-items: flex-start;
 }

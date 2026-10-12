@@ -54,6 +54,11 @@
           <span><mat-icon>inventory_2</mat-icon>{{ bouteille.stock }} {{ 'VIN.stock' | translate }}</span>
         </div>
 
+        <div class="vin-detail__attributs">
+          <span class="vin-detail__attribut"><mat-icon aria-hidden="true">wine_bar</mat-icon>{{ bouteille.volume }} cl</span>
+          <span class="vin-detail__attribut"><mat-icon aria-hidden="true">percent</mat-icon>{{ bouteille.alcool }} %</span>
+        </div>
+
         <div class="vin-detail__actions">
           <button mat-flat-button color="primary" type="button" [disabled]="bouteille.stock < 1" (click)="ajouterAuPanier(bouteille)">
             <mat-icon>add_shopping_cart</mat-icon>
@@ -88,11 +93,8 @@
           <section class="lb-card vin-detail__panel vin-detail__facts">
             <h2>{{ 'VIN.details' | translate }}</h2>
             <dl>
-              <div><dt>{{ 'VIN.cepage' | translate }}</dt><dd>{{ bouteille.cepage }}</dd></div>
-              <div><dt>{{ 'VIN.region' | translate }}</dt><dd>{{ bouteille.region }}</dd></div>
               <div><dt>{{ 'VIN.alcool' | translate }}</dt><dd>{{ bouteille.alcool }} %</dd></div>
               <div><dt>{{ 'VIN.volume' | translate }}</dt><dd>{{ bouteille.volume }} cl</dd></div>
-              <div><dt>{{ 'VIN.producteur' | translate }}</dt><dd>{{ bouteille.producteur }}</dd></div>
             </dl>
           </section>
         </div>

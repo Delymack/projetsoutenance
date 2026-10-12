@@ -27,6 +27,10 @@ import { SyncService } from '../../../core/services/sync.service';
   templateUrl: './bandeau-hors-ligne.component.html',
   styleUrl: './bandeau-hors-ligne.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[class.bandeau-visible]': 'visible()',
+    '[class.bandeau-flottant]': 'horsLigne() || nouvelleVersion()',
+  },
 })
 export class BandeauHorsLigneComponent {
   private readonly connectivite = inject(ConnectivityService);

@@ -124,6 +124,31 @@
   min-width: 0;
 }
 
+.vitrine__outils {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(150px, 0.75fr);
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  min-width: 0;
+}
+
+.vitrine__visuel {
+  width: min(100%, 250px);
+  aspect-ratio: 1;
+  justify-self: end;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--lb-accent) 28%, var(--lb-border));
+  border-radius: var(--lb-radius);
+  box-shadow: var(--lb-shadow-2);
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
 .vitrine__kicker {
   margin-bottom: 1rem;
   color: var(--lb-hero-kicker);
@@ -606,12 +631,72 @@
 }
 
 .produit__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin: 0;
   font-size: 0.77rem;
   color: var(--lb-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.produit__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.produit__meta-item mat-icon {
+  font-size: 0.9rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  color: var(--lb-accent);
+}
+
+.produit__meta-sep {
+  color: var(--lb-border);
+}
+
+/* Note en étoiles */
+.produit__note {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.produit__etoiles {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.produit__etoiles mat-icon {
+  font-size: 0.92rem;
+  width: 0.92rem;
+  height: 0.92rem;
+  color: var(--lb-accent);
+  opacity: 0.4;
+}
+
+.produit__etoiles mat-icon.est-pleine {
+  opacity: 1;
+}
+
+.produit__note-val {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--lb-text);
+}
+
+.produit__note-nb {
+  font-size: 0.7rem;
+  color: var(--lb-text-muted);
 }
 
 /* Ligne avis / stock */
@@ -677,9 +762,43 @@
 }
 
 .prix {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.75rem;
   color: var(--lb-accent);
   font-size: 1.18rem;
   line-height: 1.1;
+}
+
+.prix__valeurs {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.55rem;
+}
+
+.prix strong {
+  font-size: 1.22rem;
+}
+
+.prix__barre {
+  color: var(--lb-text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: line-through;
+}
+
+.prix__rupture {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--lb-danger) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--lb-danger) 45%, transparent);
+  color: var(--lb-danger);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
 .produit__actions {
@@ -739,10 +858,7 @@
   .vitrine {
     min-height: 0;
     padding: 2.5rem 0 2rem;
-    background:
-      linear-gradient(90deg, color-mix(in srgb, var(--lb-bg) 98%, transparent) 0%, color-mix(in srgb, var(--lb-bg) 88%, transparent) 56%, color-mix(in srgb, var(--lb-bg) 20%, transparent) 100%),
-      url('/assets/images/vins/v-001.svg') right 0.5rem bottom 1rem / 132px auto no-repeat,
-      var(--lb-hero-background);
+    background: var(--lb-hero-background);
   }
 
   .vitrine__contenu {
@@ -761,6 +877,15 @@
   .vitrine__texte {
     max-width: 24rem;
     font-size: 1rem;
+  }
+
+  .vitrine__outils {
+    grid-template-columns: minmax(0, 1fr) minmax(96px, 120px);
+    gap: 0.65rem;
+  }
+
+  .vitrine__visuel {
+    width: 100%;
   }
 
   .vitrine__recherche {
@@ -866,6 +991,10 @@
 
 /* --- Petits écrans --------------------------------------------------- */
 @media (max-width: 420px) {
+  .vitrine__outils {
+    grid-template-columns: minmax(0, 1fr) 88px;
+  }
+
   .grille {
     grid-template-columns: 1fr;
   }

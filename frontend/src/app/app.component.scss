@@ -15,6 +15,10 @@
   padding-bottom: 24px;
 }
 
+.app__contenu:has(~ app-bandeau-hors-ligne.bandeau-flottant) {
+  padding-bottom: 104px;
+}
+
 .app__footer {
   margin-top: auto;
   padding: var(--lb-gap-lg) 0;

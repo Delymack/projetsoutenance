@@ -88,6 +88,23 @@ button {
   color: var(--lb-primary-contrast);
 }
 
+.hors-ligne--alerte .hors-ligne__textes strong {
+  color: inherit;
+}
+
+.hors-ligne--installation .hors-ligne__textes {
+  display: none;
+}
+
+.hors-ligne--installation {
+  position: static;
+}
+
+.hors-ligne--installation button:last-child {
+  border: 1px solid color-mix(in srgb, var(--lb-primary-contrast) 55%, transparent);
+  color: var(--lb-primary-contrast);
+}
+
 .hors-ligne--alerte small {
   color: inherit;
 }

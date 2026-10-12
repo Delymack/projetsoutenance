@@ -9,11 +9,25 @@
    Barre
    ------------------------------------------------------------------ */
 .navbar {
-  background: color-mix(in srgb, var(--lb-surface) 96%, transparent);
+  position: relative;
+  background: color-mix(in srgb, var(--lb-surface) 82%, transparent);
   color: var(--lb-text);
   border-bottom: 1px solid var(--lb-border);
   box-shadow: var(--lb-shadow-1);
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(18px) saturate(1.15);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+}
+/* Fin liseré doré décoratif sous la barre */
+.navbar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--lb-accent) 55%, transparent), transparent);
+  opacity: 0.7;
+  pointer-events: none;
 }
 
 .navbar__inner {

@@ -1,0 +1,80 @@
+{% extends "admin/base_site.html" %}
+{% load i18n lb_tags %}
+
+{% comment %}
+Test d'envoi réel d'un SMS de vérification via la passerelle eSMS Africa.
+Sert en soutenance : on saisit un numéro, on reçoit le vrai code, sans passer
+par le formulaire d'inscription du site.
+{% endcomment %}
+
+{% block extrastyle %}{{ block.super }}
+<style>
+  .ts-page { color:#292425; margin:0 auto; max-width:620px; }
+  .ts-card { background:#fff; border:1px solid #e5ddd7; border-radius:10px; overflow:hidden; }
+  .ts-head { align-items:center; background:linear-gradient(110deg,#542430,#743745); color:#fff; display:flex; gap:.7rem; padding:1rem 1.2rem; }
+  .ts-head h1 { color:#fff; font-size:1.1rem; margin:0; }
+  .ts-head i { font-size:1.2rem; }
+  .ts-body { padding:1.2rem; }
+  .ts-field { margin-bottom:1rem; }
+  .ts-field label { display:block; font-size:.8rem; font-weight:700; margin-bottom:.35rem; }
+  .ts-field input, .ts-field select { border:1px solid #ded5ce; border-radius:6px; font:inherit; min-height:44px; padding:.55rem .65rem; width:100%; }
+  .ts-field input:focus, .ts-field select:focus { border-color:#a98b63; outline:none; }
+  .ts-help { color:#8c857f; font-size:.75rem; margin-top:.3rem; }
+  .ts-actions { display:flex; gap:.6rem; margin-top:1.1rem; }
+  .ts-actions button, .ts-actions a { border-radius:6px; cursor:pointer; font-weight:700; min-height:42px; padding:0 1rem; text-decoration:none; }
+  .ts-submit { background:var(--lb-wine,#542430); border:1px solid var(--lb-wine,#542430); color:#fff; flex:1; }
+  .ts-cancel { background:#fff; border:1px solid #ded5ce; color:#5c544f; }
+  .ts-result { border-radius:8px; font-size:.9rem; margin-top:1rem; padding:.8rem .9rem; }
+  .ts-result--ok { background:#f2f7f2; border:1px solid #cfe3cf; color:#2f5d33; }
+  .ts-result--ko { background:#fbf1f0; border:1px solid #f0cdc9; color:#8c1f33; }
+  .ts-result code { background:rgba(0,0,0,.06); border-radius:4px; font-size:1rem; font-weight:700; letter-spacing:.15em; padding:.15rem .5rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="ts-page">
+  <form method="post" class="ts-card">
+    {% csrf_token %}
+    <div class="ts-head">
+      <i class="fas fa-sms" aria-hidden="true"></i>
+      <h1>Tester l'envoi de SMS</h1>
+    </div>
+    <div class="ts-body">
+      <div class="ts-field">
+        <label for="id_telephone">Numéro du destinataire</label>
+        <input type="text" id="id_telephone" name="telephone" required
+          placeholder="+261 34 00 000 00" value="{{ form.telephone.value|default:'' }}">
+        <div class="ts-help">Format accepté : +261XXXXXXXXX, 261XXXXXXXXX ou 03X XX XXX XX.</div>
+      </div>
+      <div class="ts-field">
+        <label for="id_purpose">Type de message</label>
+        <select id="id_purpose" name="purpose">
+          <option value="signup" {% if form.purpose.value == 'signup' %}selected{% endif %}>Inscription</option>
+          <option value="login" {% if form.purpose.value == 'login' %}selected{% endif %}>Connexion</option>
+        </select>
+      </div>
+      {% if form.errors %}
+        <div class="ts-result ts-result--ko">{{ form.errors }}</div>
+      {% endif %}
+      <div class="ts-actions">
+        <a class="ts-cancel" href="{% url 'admin:accounts_verificationcode_changelist' %}">Retour</a>
+        <button class="ts-submit" type="submit"><i class="fas fa-paper-plane"></i> Envoyer le SMS</button>
+      </div>
+
+      {% if resultat %}
+        {% if resultat.succes %}
+          <div class="ts-result ts-result--ok">
+            SMS envoyé à <strong>{{ resultat.telephone }}</strong> (type « {{ resultat.purpose }} »).<br>
+            Code envoyé : <code>{{ resultat.code }}</code>
+          </div>
+        {% else %}
+          <div class="ts-result ts-result--ko">
+            Échec de l'envoi vers <strong>{{ resultat.telephone }}</strong>.
+            Vérifiez le solde eSMS Africa et la clé API (détail dans la console du serveur).
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </form>
+</main>
+{% endblock %}

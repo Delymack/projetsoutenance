@@ -115,6 +115,16 @@
   color: color-mix(in srgb, var(--lb-text-inverse) 82%, transparent);
 }
 
+/* Barre de complétude : remplissage dégradé bordeaux→or */
+.profil__completude ::ng-deep .mat-mdc-progress-bar {
+  --mdc-linear-progress-active-indicator-color: var(--lb-or-clair);
+  --mdc-linear-progress-track-color: color-mix(in srgb, var(--lb-text-inverse) 18%, transparent);
+}
+.profil__completude ::ng-deep .mdc-linear-progress__bar-inner {
+  border-color: var(--lb-or-clair);
+  background: linear-gradient(90deg, #fff, var(--lb-or-clair));
+}
+
 /* --- Onglets --- */
 
 .profil__onglets {

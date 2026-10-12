@@ -73,9 +73,25 @@
       <article class="wine-card lb-card lb-card--hover" role="listitem">
         <a class="wine-card__image-link" [routerLink]="['/vin', vin.id]" [attr.aria-label]="vin.nom">
           <img class="wine-card__image" [src]="vin.image" [alt]="vin.nom" loading="lazy" />
+          <span class="wine-card__cat">{{ ('CATALOGUE.categories.' + vin.categorie) | translate }}</span>
         </a>
         <div class="wine-card__body">
           <h2><a [routerLink]="['/vin', vin.id]">{{ vin.nom }}</a></h2>
+
+          <div class="wine-card__meta">
+            <span class="wine-card__meta-item">{{ vin.millesime || '—' }}</span>
+          </div>
+
+          @if (vin.noteMoyenne) {
+            <div class="wine-card__note">
+              <span class="wine-card__etoiles" aria-hidden="true">
+                @for (e of [1, 2, 3, 4, 5]; track e) {
+                  <mat-icon [class.est-pleine]="e <= vin.noteMoyenne">{{ e <= vin.noteMoyenne ? 'star' : 'star_border' }}</mat-icon>
+                }
+              </span>
+              <span class="wine-card__note-val">{{ vin.noteMoyenne | number:'1.1-1' }}</span>
+            </div>
+          }
 
           @if (detailsOuverts() === vin.id) {
             <div class="wine-card__details">
@@ -88,14 +104,6 @@
                 <div>
                   <dt>{{ 'VIN.millesime' | translate }}</dt>
                   <dd>{{ vin.millesime || '—' }}</dd>
-                </div>
-                <div>
-                  <dt>{{ 'VIN.cepage' | translate }}</dt>
-                  <dd>{{ vin.cepage || '—' }}</dd>
-                </div>
-                <div>
-                  <dt>{{ 'VIN.region' | translate }}</dt>
-                  <dd>{{ vin.region || '—' }}</dd>
                 </div>
               </dl>
             </div>

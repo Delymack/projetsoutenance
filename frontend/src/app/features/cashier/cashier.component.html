@@ -136,7 +136,7 @@
           <img [src]="vin.image" [alt]="vin.nom" />
           <div>
             <strong>{{ vin.nom }}</strong>
-            <small>{{ vin.cepage }} · {{ vin.millesime }} · {{ vin.prix | number:'1.0-0' }} Ar</small>
+            <small>{{ vin.millesime }} · {{ vin.prix | number:'1.0-0' }} Ar</small>
           </div>
           <button mat-flat-button color="primary" type="button" (click)="ajouter(vin); fermerScanner()">
             <mat-icon>add_shopping_cart</mat-icon>
@@ -166,7 +166,7 @@
             <img [src]="vin.image" [alt]="vin.nom" />
             <div>
               <h2>{{ vin.nom }}</h2>
-              <p>{{ vin.cepage }} · {{ vin.millesime }}</p>
+              <p>{{ vin.millesime }}</p>
               <strong>{{ vin.prix | number:'1.0-0' }} Ar</strong>
             </div>
             <button mat-icon-button type="button" [disabled]="vin.stock < 1" (click)="ajouter(vin)" [attr.aria-label]="'VIN.ajouterPanier' | translate">

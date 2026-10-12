@@ -67,6 +67,20 @@ function lireListe<T>(response: T[] | PaginatedResponse<T>): T[] {
  * image cassée.
  */
 const IMAGE_PRODUIT_DEFAUT = 'assets/images/produits/produit-placeholder.png';
+const IMAGES_PRODUITS_PAR_NOM: Record<string, string> = {
+  "tsiky dia loatra": 'assets/images/vins/v-001.svg',
+  'gris de betsileo': 'assets/images/vins/v-002.svg',
+  "rosé d'ihosy": 'assets/images/vins/v-003.svg',
+  'pétillant de tsarasaotra': 'assets/images/vins/v-004.svg',
+  'malbec ambatondrazaka': 'assets/images/vins/v-005.svg',
+  'vermentino antsirabe': 'assets/images/vins/v-006.svg',
+  'cuvée des rogations': 'assets/images/vins/v-007.svg',
+  'pinot noir androy': 'assets/images/vins/v-008.svg',
+  'liqueur de moussafely': 'assets/images/vins/v-009.svg',
+  'sauvignon blanc vakio': 'assets/images/vins/v-010.svg',
+  'cabernet fianarantsoa': 'assets/images/vins/v-011.svg',
+  "vendange d'or": 'assets/images/vins/v-012.svg',
+};
 
 function nombre(valeur: string | number | null | undefined, defaut = 0): number {
   const resultat = Number(valeur);
@@ -85,6 +99,7 @@ function categorieVin(produit: ProduitApi): WineCategory {
 function versVin(produit: ProduitApi): Vin {
   const prixCatalogue = nombre(produit.prix_unitaire_vente ?? produit.prix_vente);
   const prixPromotionnel = nombre(produit.promotion_active?.prix_final, prixCatalogue);
+  const imageDeRepli = IMAGES_PRODUITS_PAR_NOM[produit.nom.trim().toLocaleLowerCase('fr')];
   const volumeBrut = produit.volume ?? '';
   const volumeNombre = Number.parseFloat(volumeBrut.replace(',', '.'));
   const volume = Number.isFinite(volumeNombre)
@@ -109,7 +124,7 @@ function versVin(produit: ProduitApi): Vin {
     notesDegustation: [],
     profil: { fruite: 0, tanin: 0, sucre: 0, acide: 0, bois: 0 },
     accords: [],
-    image: produit.image_url || produit.image || IMAGE_PRODUIT_DEFAUT,
+    image: produit.image_url || produit.image || imageDeRepli || IMAGE_PRODUIT_DEFAUT,
     noteMoyenne: 0,
     nombreAvis: 0,
     producteur: produit.marque || '',

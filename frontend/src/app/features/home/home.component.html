@@ -16,38 +16,43 @@
       </button>
     </div>
 
-    <form
-      class="vitrine__recherche"
-      role="search"
-      (submit)="lancerRecherche($event)"
-    >
-      <mat-icon class="vitrine__recherche-icone" aria-hidden="true">search</mat-icon>
-      <input
-        type="search"
-        [value]="recherche()"
-        (input)="mettreAJourRecherche($event)"
-        [placeholder]="'CATALOGUE.rechercher' | translate"
-        [attr.aria-label]="'CATALOGUE.rechercher' | translate"
-        autocomplete="off"
-      />
-      @if (recherche()) {
-        <button
-          type="button"
-          class="vitrine__recherche-effacer"
-          (click)="effacerRecherche()"
-          [attr.aria-label]="'COMMUN.effacer' | translate"
-        >
-          <mat-icon aria-hidden="true">close</mat-icon>
-        </button>
-      }
-      <button
-        type="submit"
-        class="vitrine__recherche-submit"
-        [attr.aria-label]="'CATALOGUE.rechercher' | translate"
+    <div class="vitrine__outils">
+      <form
+        class="vitrine__recherche"
+        role="search"
+        (submit)="lancerRecherche($event)"
       >
-        <mat-icon aria-hidden="true">arrow_forward</mat-icon>
-      </button>
-    </form>
+        <mat-icon class="vitrine__recherche-icone" aria-hidden="true">search</mat-icon>
+        <input
+          type="search"
+          [value]="recherche()"
+          (input)="mettreAJourRecherche($event)"
+          [placeholder]="'CATALOGUE.rechercher' | translate"
+          [attr.aria-label]="'CATALOGUE.rechercher' | translate"
+          autocomplete="off"
+        />
+        @if (recherche()) {
+          <button
+            type="button"
+            class="vitrine__recherche-effacer"
+            (click)="effacerRecherche()"
+            [attr.aria-label]="'COMMUN.effacer' | translate"
+          >
+            <mat-icon aria-hidden="true">close</mat-icon>
+          </button>
+        }
+        <button
+          type="submit"
+          class="vitrine__recherche-submit"
+          [attr.aria-label]="'CATALOGUE.rechercher' | translate"
+        >
+          <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+        </button>
+      </form>
+      <div class="vitrine__visuel" aria-hidden="true">
+        <img src="assets/images/produits/produit-placeholder.png" alt="" />
+      </div>
+    </div>
   </div>
 </section>
 
@@ -90,12 +95,34 @@
           <article class="produit lb-card lb-card--hover" [style.--i]="i">
             <a class="produit__media" [routerLink]="['/vin', vin.id]" [attr.aria-label]="vin.nom">
               <img [src]="vin.image" [alt]="vin.nom" loading="lazy" />
+              <span class="produit__cat">{{ ('CATALOGUE.categories.' + vin.categorie) | translate }}</span>
             </a>
 
             <div class="produit__corps">
               <h3 class="produit__nom">
                 <a [routerLink]="['/vin', vin.id]">{{ vin.nom }}</a>
               </h3>
+
+              <div class="produit__meta">
+                <span class="produit__meta-item">
+                  <mat-icon aria-hidden="true">calendar_today</mat-icon>
+                  {{ vin.millesime || '—' }}
+                </span>
+              </div>
+
+              @if (vin.noteMoyenne) {
+              <div class="produit__note" [attr.aria-label]="(vin.noteMoyenne | number:'1.1-1') + ' / 5'">
+                <span class="produit__etoiles" aria-hidden="true">
+                  @for (e of [1, 2, 3, 4, 5]; track e) {
+                    <mat-icon [class.est-pleine]="e <= vin.noteMoyenne">{{ e <= vin.noteMoyenne ? 'star' : 'star_border' }}</mat-icon>
+                  }
+                </span>
+                <span class="produit__note-val">{{ vin.noteMoyenne | number:'1.1-1' }}</span>
+                @if (vin.nombreAvis) {
+                  <span class="produit__note-nb">({{ vin.nombreAvis }})</span>
+                }
+              </div>
+              }
 
               @if (detailsOuverts() === vin.id) {
                 <div class="produit__details">
@@ -109,20 +136,22 @@
                       <dt>{{ 'VIN.millesime' | translate }}</dt>
                       <dd>{{ vin.millesime || '—' }}</dd>
                     </div>
-                    <div>
-                      <dt>{{ 'VIN.cepage' | translate }}</dt>
-                      <dd>{{ vin.cepage || '—' }}</dd>
-                    </div>
-                    <div>
-                      <dt>{{ 'VIN.region' | translate }}</dt>
-                      <dd>{{ vin.region || '—' }}</dd>
-                    </div>
                   </dl>
                 </div>
               }
 
               <div class="produit__pied">
-                <strong class="prix">{{ vin.prix | number: '1.0-0' }} Ar</strong>
+                <div class="prix">
+                  <div class="prix__valeurs">
+                    @if (vin.prixBarre) {
+                      <span class="prix__barre">{{ vin.prixBarre | number: '1.0-0' }} Ar</span>
+                    }
+                    <strong>{{ vin.prix | number: '1.0-0' }} Ar</strong>
+                  </div>
+                  @if (vin.stock < 1) {
+                    <span class="prix__rupture">{{ 'VIN.rupture' | translate }}</span>
+                  }
+                </div>
                 <div class="produit__actions">
                   <button
                     type="button"

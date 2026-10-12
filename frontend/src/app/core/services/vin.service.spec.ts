@@ -1,4 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 
 import { MOCK_DELAY_MS } from '../data/mock-vins';
@@ -7,15 +8,18 @@ import { VinService } from './vin.service';
 
 describe('VinService en mode mock', () => {
   let service: VinService;
+  let http: HttpTestingController;
   const useMockInitial = environment.useMock;
 
   beforeEach(() => {
     environment.useMock = true;
-    TestBed.configureTestingModule({ providers: [provideHttpClient()] });
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
     service = TestBed.inject(VinService);
+    http = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => {
+    http.verify();
     environment.useMock = useMockInitial;
   });
 
@@ -41,4 +45,27 @@ describe('VinService en mode mock', () => {
     expect(ids.length).toBeGreaterThan(0);
     expect(ids).toContain('v-001');
   }));
+
+  it('utilise les illustrations du catalogue comme repli sans remplacer les images backend', () => {
+    environment.useMock = false;
+    let images: string[] = [];
+
+    service.listerTous().subscribe((vins) => (images = vins.map((vin) => vin.image)));
+
+    const request = http.expectOne(`${environment.apiUrl}/produits/?statut=true`);
+    request.flush({
+      results: [
+        { id: 12, nom: 'Cabernet Fianarantsoa', image_url: null, image: null, prix_vente: '60000' },
+        { id: 11, nom: 'Sauvignon Blanc Vakio', image_url: '/media/sauvignon.jpg', image: null, prix_vente: '33000' },
+        { id: 13, nom: 'Vin inédit', image_url: null, image: null, prix_vente: '25000' },
+      ],
+      next: null,
+    });
+
+    expect(images).toEqual([
+      'assets/images/vins/v-011.svg',
+      '/media/sauvignon.jpg',
+      'assets/images/produits/produit-placeholder.png',
+    ]);
+  });
 });

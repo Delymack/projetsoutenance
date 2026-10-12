@@ -81,7 +81,7 @@
                 <img [src]="ligne.vin.image" [alt]="ligne.vin.nom" loading="lazy" />
                 <div class="recap__infos">
                   <strong>{{ ligne.vin.nom }}</strong>
-                  <small>{{ ligne.vin.region }} · {{ ligne.quantite }} × {{ ligne.prixUnitaire | currency: 'Ar' }}</small>
+                  <small>{{ ligne.quantite }} × {{ ligne.prixUnitaire | currency: 'Ar' }}</small>
                 </div>
                 <span class="recap__total">{{ ligne.prixUnitaire * ligne.quantite | number }} Ar</span>
               </li>

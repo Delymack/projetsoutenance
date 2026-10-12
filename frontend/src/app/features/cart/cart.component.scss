@@ -111,6 +111,15 @@
  font-size: 1.15rem;
 }
 
+.cart-line__cat {
+ display: inline-block;
+ font-size: 0.62rem;
+ font-weight: 800;
+ letter-spacing: 0.12em;
+ text-transform: uppercase;
+ color: var(--lb-accent);
+}
+
 .cart-line__product h2 a:hover {
  color: var(--lb-primary);
 }
