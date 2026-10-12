@@ -17,6 +17,14 @@
     --cr-blue: #c6ded0;
     --cr-red: #641b2c;
   }
+  body.wine-quick-create-open.model-promotion.change-form {
+    --cr-card: var(--lb-surface, #fff);
+    --cr-card2: var(--lb-surface, #fff);
+    --cr-line: var(--lb-line, #eadfe0);
+    --cr-text: var(--lb-ink, #2b1b20);
+    --cr-muted: var(--lb-ink-700, #5a4a4e);
+    --cr-gold-soft: var(--lb-wine, #641b2c);
+  }
   .model-promotion.change-form { background: radial-gradient(1200px 500px at 85% -10%, rgba(214,170,77,.08), transparent 55%), var(--cr-bg); }
   .model-promotion.change-form #content { padding: 1.2rem 1.4rem 2rem; }
 
@@ -195,10 +203,10 @@
 <section class="pr-create-hero" aria-labelledby="promotion-create-title">
   <div class="pr-create-icon" aria-hidden="true"><i class="fas fa-wine-bottle"></i></div>
   <div>
-    <h1 id="promotion-create-title">Créer une promotion</h1>
-    <p>Renseignez la remise et sa période de validité.</p>
+    <h1 id="promotion-create-title">Nouvelle promotion</h1>
+    <p>Remise en pourcentage</p>
   </div>
-  <span class="pr-create-pill">Remise · période · statut</span>
+  <span class="pr-create-pill">0,01–100 %</span>
 </section>
 {% endif %}
 {{ block.super }}

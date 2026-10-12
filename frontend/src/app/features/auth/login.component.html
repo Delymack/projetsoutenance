@@ -1,20 +1,20 @@
-<!-- Connexion — design WineShop aligné sur inscription (navbar globale unique) -->
+<!-- Connexion — design Lazan'i Betsileo aligné sur inscription (navbar globale unique) -->
 <main class="ws-auth">
   <div class="ws-auth__inner">
     <div class="ws-progress">
       <div class="ws-progress__step" [class.ws-progress__step--active]="etape() >= 1" [class.ws-progress__step--current]="etape() === 1">
         <span class="ws-progress__num">1</span>
-        <span class="ws-progress__label">Contact</span>
+        <span class="ws-progress__label">{{ 'AUTH.etapeContact' | translate }}</span>
       </div>
       <div class="ws-progress__line" [class.ws-progress__line--active]="etape() >= 2"></div>
       <div class="ws-progress__step" [class.ws-progress__step--active]="etape() >= 2" [class.ws-progress__step--current]="etape() === 2">
         <span class="ws-progress__num">2</span>
-        <span class="ws-progress__label">Vérification</span>
+        <span class="ws-progress__label">{{ 'AUTH.etapeVerification' | translate }}</span>
       </div>
       <div class="ws-progress__line" [class.ws-progress__line--active]="etape() >= 3"></div>
       <div class="ws-progress__step" [class.ws-progress__step--active]="etape() >= 3" [class.ws-progress__step--current]="etape() === 3">
         <span class="ws-progress__num">3</span>
-        <span class="ws-progress__label">Confirmation</span>
+        <span class="ws-progress__label">{{ 'AUTH.etapeConfirmation' | translate }}</span>
       </div>
     </div>
 
@@ -22,16 +22,16 @@
       <div class="ws-card__header">
         <h1 class="ws-card__title">
           @switch (etape()) {
-            @case (1) { Se connecter }
-            @case (2) { Vérification }
-            @default { Connexion réussie }
+            @case (1) { {{ 'AUTH.titreConnexion' | translate }} }
+            @case (2) { {{ 'AUTH.titreVerification' | translate }} }
+            @default { {{ 'AUTH.titreReussie' | translate }} }
           }
         </h1>
         <p class="ws-card__subtitle">
           @switch (etape()) {
-            @case (1) { Recevez un code à 6 chiffres par email ou SMS }
-            @case (2) { Saisissez le code de vérification reçu }
-            @default { Vous êtes connecté }
+            @case (1) { {{ 'AUTH.sousTitre1' | translate }} }
+            @case (2) { {{ 'AUTH.sousTitre2' | translate }} }
+            @default { {{ 'AUTH.sousTitre3' | translate }} }
           }
         </p>
       </div>
@@ -39,60 +39,60 @@
       @if (etape() === 1) {
         <form class="ws-form" [formGroup]="form" (ngSubmit)="envoyerCode()" novalidate>
           <div class="ws-field">
-            <label class="ws-field__label">Email ou téléphone</label>
+            <label class="ws-field__label">{{ 'AUTH.champContact' | translate }}</label>
             <div class="ws-field__wrap">
               <mat-icon class="ws-field__icon">mail_outline</mat-icon>
               <input type="text" class="ws-field__input" formControlName="contact"
-                autocomplete="username" placeholder="votre@email.com ou +261 34 00 000 00" />
+                autocomplete="username" [placeholder]="'AUTH.placeholderContact' | translate" />
             </div>
             @if (contactField.invalid && contactField.touched) {
-              <span class="ws-field__error">Ce champ est obligatoire.</span>
+              <span class="ws-field__error">{{ 'AUTH.champObligatoire' | translate }}</span>
             }
           </div>
           <fieldset class="ws-canal">
-            <legend class="ws-canal__legend">Recevoir le code de vérification</legend>
+            <legend class="ws-canal__legend">{{ 'AUTH.canalLegende' | translate }}</legend>
             <div class="ws-canal__options">
               <label class="ws-canal__option" [class.ws-canal__option--checked]="contact_type.value === 'email'">
                 <input type="radio" formControlName="contact_type" value="email" />
                 <span class="ws-canal__radio"></span>
                 <mat-icon class="ws-canal__icon">mail</mat-icon>
-                <span class="ws-canal__text"><strong>Par email</strong><small>Code à 6 chiffres dans votre boîte</small></span>
+                <span class="ws-canal__text"><strong>{{ 'AUTH.parEmail' | translate }}</strong><small>{{ 'AUTH.parEmailAide' | translate }}</small></span>
               </label>
               <label class="ws-canal__option" [class.ws-canal__option--checked]="contact_type.value === 'sms'">
                 <input type="radio" formControlName="contact_type" value="sms" />
                 <span class="ws-canal__radio"></span>
                 <mat-icon class="ws-canal__icon">sms</mat-icon>
-                <span class="ws-canal__text"><strong>Par SMS</strong><small>Code à 6 chiffres sur votre mobile</small></span>
+                <span class="ws-canal__text"><strong>{{ 'AUTH.parSms' | translate }}</strong><small>{{ 'AUTH.parSmsAide' | translate }}</small></span>
               </label>
             </div>
           </fieldset>
           <button type="submit" class="ws-btn ws-btn--primary" [disabled]="enCours()">
             @if (enCours()) {
-              <mat-spinner diameter="18" aria-hidden="true"></mat-spinner><span>Envoi en cours…</span>
-            } @else { <span>Envoyer le code</span> }
+              <mat-spinner diameter="18" aria-hidden="true"></mat-spinner><span>{{ 'AUTH.envoiEnCours' | translate }}</span>
+            } @else { <span>{{ 'AUTH.envoyerCode' | translate }}</span> }
           </button>
         </form>
-        <p class="ws-switch">Pas encore de compte ? <a routerLink="/inscription">S'inscrire</a></p>
+        <p class="ws-switch">{{ 'AUTH.pasDeCompte' | translate }} <a routerLink="/inscription">{{ 'AUTH.inscription' | translate }}</a></p>
       }
 
       @if (etape() === 2) {
         <p class="ws-intro">
-          Saisissez le code à 6 chiffres envoyé
+          {{ 'AUTH.introCode' | translate }}
           @if (contactType() === 'email') {
-            par email à <strong>{{ contact() }}</strong>
+            {{ 'AUTH.introParEmail' | translate }} <strong>{{ contact() }}</strong>
           } @else {
-            par SMS au <strong>{{ contact() }}</strong>
+            {{ 'AUTH.introParSms' | translate }} <strong>{{ contact() }}</strong>
           }
         </p>
         <div class="ws-timer" [class.ws-timer--alert]="tempsRestant() <= 60">
           <mat-icon>timer</mat-icon>
-          <span>Expire dans <strong>{{ formaterTemps(tempsRestant()) }}</strong></span>
+          <span>{{ 'AUTH.expireDans' | translate }} <strong>{{ formaterTemps(tempsRestant()) }}</strong></span>
         </div>
         <form class="ws-form" [formGroup]="codeForm" (ngSubmit)="verifierCode()" novalidate>
-          <div class="ws-code" role="group" aria-label="Code de vérification à 6 chiffres">
+          <div class="ws-code" role="group" [attr.aria-label]="'AUTH.codeGroupe' | translate">
             @for (champ of champsCode; track champ; let i = $index) {
               <input #caseCode class="ws-code__digit" type="text" inputmode="numeric"
-                maxlength="1" [attr.aria-label]="'Chiffre ' + (i + 1)"
+                maxlength="1" [attr.aria-label]="('AUTH.chiffre' | translate) + ' ' + (i + 1)"
                 [autocomplete]="i === 0 ? 'one-time-code' : 'off'"
                 [formControlName]="champ"
                 (input)="onCodeInput($event, i)"
@@ -102,18 +102,18 @@
           </div>
           <button type="submit" class="ws-btn ws-btn--primary" [disabled]="enCours()">
             @if (enCours()) {
-              <mat-spinner diameter="18" aria-hidden="true"></mat-spinner><span>Vérification…</span>
-            } @else { <span>Se connecter</span> }
+              <mat-spinner diameter="18" aria-hidden="true"></mat-spinner><span>{{ 'AUTH.verificationEnCours' | translate }}</span>
+            } @else { <span>{{ 'AUTH.seConnecter' | translate }}</span> }
           </button>
         </form>
         <div class="ws-actions">
           <button type="button" class="ws-link" (click)="renvoyerCode()" [disabled]="!peutRenvoyer() || enCours()">
             <mat-icon>refresh</mat-icon>
-            @if (peutRenvoyer()) { <span>Renvoyer le code</span> }
-            @else { <span>Nouveau code dans {{ tempsRenvoi() }} s</span> }
+            @if (peutRenvoyer()) { <span>{{ 'AUTH.renvoyerCode' | translate }}</span> }
+            @else { <span>{{ 'AUTH.nouveauCodeDans' | translate }} {{ tempsRenvoi() }} s</span> }
           </button>
           <button type="button" class="ws-link ws-link--muted" (click)="retour()">
-            <mat-icon>arrow_back</mat-icon><span>Modifier le contact</span>
+            <mat-icon>arrow_back</mat-icon><span>{{ 'AUTH.modifierContact' | translate }}</span>
           </button>
         </div>
       }
@@ -121,7 +121,7 @@
       @if (etape() === 3) {
         <div class="ws-success" role="status">
           <div class="ws-success__icon"><mat-icon>check_circle</mat-icon></div>
-          <h2 class="ws-success__title">Connexion réussie</h2>
+          <h2 class="ws-success__title">{{ 'AUTH.titreReussie' | translate }}</h2>
           <p class="ws-success__text">{{ succes() }}</p>
           <mat-spinner diameter="22" aria-hidden="true"></mat-spinner>
         </div>

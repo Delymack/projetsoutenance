@@ -8,7 +8,7 @@
 
 {% block extrastyle %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'css/wineadmin-reports.css' %}?v=1">
+  <link rel="stylesheet" href="{% static 'css/wineadmin-reports.css' %}?v=2">
 {% endblock %}
 
 {% block extrahead %}
@@ -20,9 +20,7 @@
 <main class="wine-reports" id="wine-reports" data-api-url="{% url 'rapport-ventes' %}">
   <header class="reports-hero">
     <div>
-      <p class="reports-eyebrow">PILOTAGE COMMERCIAL</p>
-      <h1>Rapports &amp; statistiques</h1>
-      <p>Analysez les ventes, la performance des promotions et la valeur du stock.</p>
+      <h1>Rapports</h1>
     </div>
     <div class="reports-actions" aria-label="Actions du rapport">
       <button class="report-button report-button-secondary" id="report-print" type="button">
@@ -43,10 +41,8 @@
   <section class="reports-panel report-filters" aria-labelledby="report-filter-title">
     <div class="reports-panel-heading">
       <div>
-        <p class="reports-eyebrow">PÉRIODE D'ANALYSE</p>
-        <h2 id="report-filter-title">Paramètres du rapport</h2>
+        <h2 id="report-filter-title">Filtres</h2>
       </div>
-      <span class="report-live"><span></span> Données actualisées à la demande</span>
     </div>
     <form id="report-filters" class="report-filter-grid">
       <label for="report-start">Du
@@ -55,7 +51,7 @@
       <label for="report-end">Au
         <input type="date" id="report-end" name="fin" required>
       </label>
-      <label for="report-group">Regrouper les ventes par
+      <label for="report-group">Regroupement
         <select id="report-group" name="par">
           <option value="jour">Jour</option>
           <option value="semaine">Semaine</option>
@@ -67,7 +63,7 @@
         </select>
       </label>
       <button class="report-button report-button-primary report-run" type="submit">
-        <i class="fas fa-chart-bar" aria-hidden="true"></i> Générer
+        <i class="fas fa-chart-bar" aria-hidden="true"></i> Actualiser
       </button>
     </form>
     <p class="report-message" id="report-message" role="status" aria-live="polite"></p>
@@ -94,7 +90,7 @@
 
   <section class="reports-panel report-data-panel" aria-labelledby="sales-title">
     <div class="reports-panel-heading">
-      <div><p class="reports-eyebrow">VENTES</p><h2 id="sales-title">Détail par période ou par activité</h2></div>
+      <div><h2 id="sales-title">Ventes</h2></div>
       <span class="report-period" id="report-period"></span>
     </div>
     <div class="report-table-wrap">
@@ -107,13 +103,13 @@
 
   <section class="reports-panel report-data-panel" aria-labelledby="promotions-title">
     <div class="reports-panel-heading">
-      <div><p class="reports-eyebrow">REMISES ACCORDÉES</p><h2 id="promotions-title">Efficacité des promotions</h2></div>
+      <div><h2 id="promotions-title">Promotions</h2></div>
     </div>
     <div class="report-kpis report-promo-kpis">
-      <div class="report-mini-kpi"><span>Ventes avec promotion</span><strong id="promo-sales">—</strong></div>
-      <div class="report-mini-kpi"><span>Remise totale accordée</span><strong id="promo-discount">—</strong></div>
-      <div class="report-mini-kpi"><span>Chiffre d'affaires net promotionnel</span><strong id="promo-revenue">—</strong></div>
-      <div class="report-mini-kpi"><span>Taux de remise moyen pondéré</span><strong><span id="promo-rate">—</span> %</strong></div>
+      <div class="report-mini-kpi"><span>Ventes concernées</span><strong id="promo-sales">—</strong></div>
+      <div class="report-mini-kpi"><span>Remises</span><strong id="promo-discount">—</strong></div>
+      <div class="report-mini-kpi"><span>CA net</span><strong id="promo-revenue">—</strong></div>
+      <div class="report-mini-kpi"><span>Remise moyenne</span><strong><span id="promo-rate">—</span> %</strong></div>
     </div>
     <div class="report-table-wrap">
       <table class="report-table" id="promotions-table">

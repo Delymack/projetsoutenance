@@ -133,6 +133,25 @@ class AccesPagesTests(TestCase):
                 self.assertContains(response, 'Rapports')
                 self.assertContains(response, 'Réglages')
 
+    def test_rapports_garde_les_fonctions_utiles_sans_texte_redondant(self):
+        self.client.force_login(self.admin)
+
+        response = self.client.get(reverse('rapports'))
+
+        self.assertEqual(response.status_code, 200)
+        for identifiant in (
+            'report-print', 'report-pdf', 'report-xlsx', 'report-csv',
+            'report-start', 'report-end', 'report-group', 'sales-table',
+            'promotions-table',
+        ):
+            with self.subTest(identifiant=identifiant):
+                self.assertContains(response, f'id="{identifiant}"')
+        self.assertContains(response, 'Filtres')
+        self.assertContains(response, 'Ventes')
+        self.assertContains(response, 'Promotions')
+        self.assertNotContains(response, 'Données actualisées à la demande')
+        self.assertNotContains(response, 'Analysez les ventes')
+
     def test_formulaire_ajout_est_encadre_par_la_fenetre_rapide(self):
         self.client.force_login(self.admin)
         response = self.client.get(

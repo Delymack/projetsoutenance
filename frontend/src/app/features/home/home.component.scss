@@ -11,10 +11,14 @@
 .vitrine {
   position: relative;
   overflow: hidden;
-  min-height: clamp(360px, 31vw, 470px);
-  padding: 1rem 0;
-  background: var(--lb-hero-background);
-  color: var(--lb-hero-text);
+  min-height: clamp(380px, 34vw, 520px);
+  padding: clamp(1.5rem, 4vw, 2.5rem) 0;
+  /* Fond viticole : dégradé bordeaux profond + halo doré chaleureux */
+  background:
+    radial-gradient(circle at 82% 22%, rgba(201, 162, 39, 0.22), transparent 40rem),
+    radial-gradient(circle at 8% 88%, rgba(155, 18, 53, 0.35), transparent 34rem),
+    linear-gradient(135deg, #4a1220 0%, #76001f 45%, #5a1626 100%);
+  color: #fdf7f0;
   text-align: left;
 }
 
@@ -23,19 +27,34 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 78% 68%, rgba(104, 89, 60, 0.08), transparent 22rem),
-    linear-gradient(105deg, transparent 56%, color-mix(in srgb, var(--lb-surface) 18%, transparent));
+    radial-gradient(ellipse at 78% 68%, rgba(255, 220, 150, 0.1), transparent 22rem),
+    linear-gradient(105deg, transparent 54%, rgba(0, 0, 0, 0.16));
   pointer-events: none;
 }
 
-/* Fondu vers le fond commun pour éviter une coupure nette sous la vitrine. */
+/* Trame vignette subtile (damas) pour la texture premium */
 .vitrine::after {
   content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.5) 0 1px, transparent 1px 14px),
+    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.5) 0 1px, transparent 1px 14px);
+  pointer-events: none;
+}
+
+/* Voile de fondu vers le fond commun (coupure douce sous la vitrine). */
+.vitrine > .lb-container::after {
+  content: none;
+}
+.vitrine__fondu {
   position: absolute;
   inset: auto 0 0;
   height: clamp(2rem, 5vw, 4rem);
   background: linear-gradient(180deg, transparent 0%, var(--lb-bg) 100%);
   pointer-events: none;
+  z-index: 2;
 }
 
 .vitrine__halo {
@@ -151,11 +170,19 @@
 
 .vitrine__kicker {
   margin-bottom: 1rem;
-  color: var(--lb-hero-kicker);
-  font-size: 0.78rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(227, 196, 106, 0.45);
+  color: var(--lb-or-clair);
+  font-size: 0.72rem;
   font-weight: 900;
-  letter-spacing: 0.34em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
+  backdrop-filter: blur(6px);
 }
 
 /* --- Ornement haut -------------------------------------------------- */
@@ -187,19 +214,22 @@
 /* --- Titre ---------------------------------------------------------- */
 .vitrine__titre {
   margin: 0;
-  max-width: 12ch;
-  font-size: clamp(2.55rem, 6vw, 5rem);
+  max-width: 14ch;
+  font-size: clamp(2.6rem, 6.5vw, 5.4rem);
   line-height: 1.02;
-  letter-spacing: 0;
-  color: var(--lb-hero-text);
-  text-shadow: none;
+  letter-spacing: -0.01em;
+  color: #fff;
+  text-shadow: 0 6px 30px rgba(0, 0, 0, 0.35);
   animation: lb-vitrine-titre-in 620ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  /* Le mot-clé de la marque prend une teinte or pour l'accent viticole */
+  background: none;
+  -webkit-text-fill-color: #fff;
 }
 
 .vitrine__texte {
   max-width: 36rem;
-  margin: 1rem 0 0;
-  color: var(--lb-hero-subtext);
+  margin: 1.1rem 0 0;
+  color: rgba(253, 247, 240, 0.86);
   font-size: clamp(1rem, 1.8vw, 1.25rem);
   line-height: 1.55;
 }
@@ -357,17 +387,19 @@
   background: linear-gradient(135deg, #d79a28, #f0b440);
   color: #2a0a10;
   font-weight: 800;
+  box-shadow: 0 10px 30px rgba(215, 154, 40, 0.4);
   cursor: pointer;
   transition:
     transform var(--lb-transition),
     background var(--lb-transition),
-    border-color var(--lb-transition);
+    border-color var(--lb-transition),
+    box-shadow var(--lb-transition);
 
   mat-icon {
     font-size: 1.35rem;
     width: 1.35rem;
     height: 1.35rem;
-    animation: none;
+    transition: transform var(--lb-transition);
   }
 
   &:hover {
@@ -376,13 +408,41 @@
   }
 }
 
+/* Bandeau de réassurance : carte flottante qui chevauche le bas du hero. */
 .service-strip {
-  display: none;
+  position: relative;
+  z-index: 3;
+  margin-top: -34px;
+  margin-bottom: clamp(1.4rem, 3vw, 2.2rem);
 }
 
 .service-strip__grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  overflow: hidden;
+  background: var(--lb-surface);
+  border: 1px solid var(--lb-border);
+  border-radius: var(--lb-radius, 16px);
+  box-shadow: var(--lb-shadow-2);
+}
+
+@media (max-width: 900px) {
+  .service-strip__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .service-strip span:nth-child(2n) { border-right: 0; }
+  .service-strip span:nth-child(-n + 2) { border-bottom: 1px solid var(--lb-border); }
+}
+
+@media (max-width: 520px) {
+  .service-strip__grid {
+    grid-template-columns: 1fr;
+  }
+  .service-strip span {
+    border-right: 0;
+    border-bottom: 1px solid var(--lb-border);
+  }
+  .service-strip span:last-child { border-bottom: 0; }
 }
 
 .service-strip span {
@@ -426,13 +486,23 @@
 }
 
 .produits__surtitre {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   margin-bottom: 0.4rem;
   color: var(--lb-primary);
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+}
+.produits__surtitre::before {
+  content: '';
+  display: block;
+  width: 26px;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--lb-primary), var(--lb-accent));
 }
 
 .produits__entete h2 {
@@ -534,6 +604,14 @@
   top: 10px;
   left: 10px;
   z-index: 2;
+  padding: 4px 10px;
+  border: 1px solid rgba(227, 196, 106, 0.55);
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--lb-primary), #a01c34);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
   backdrop-filter: blur(6px);
   box-shadow: var(--lb-shadow-1);
 }

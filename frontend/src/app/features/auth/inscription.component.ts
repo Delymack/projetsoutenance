@@ -10,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -25,6 +26,7 @@ import { messageErreurHttp } from '../../core/utils/erreurs-http';
     ReactiveFormsModule,
     RouterLink,
     MatIconModule,
+    TranslateModule,
     MatProgressSpinnerModule,
   ],
   templateUrl: './inscription.component.html',

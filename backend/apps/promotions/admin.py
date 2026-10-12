@@ -83,14 +83,16 @@ class PromotionAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         types_disponibles = Promotion.TypePromotion.choices
-        if not self.instance or not self.instance.pk:
-            types_disponibles = (
-                (Promotion.TypePromotion.POURCENTAGE, 'Pourcentage'),
-                (Promotion.TypePromotion.MONTANT_FIXE, 'Montant fixe'),
-            )
+        creation = not self.instance.pk
+        if creation:
+            types_disponibles = ((Promotion.TypePromotion.POURCENTAGE, 'Pourcentage'),)
+            self.initial.setdefault('type_promotion', Promotion.TypePromotion.POURCENTAGE)
+            self.fields['type_promotion'].widget = forms.Select()
         self.fields['type_promotion'].choices = types_disponibles
         type_promotion = (
-            self.data.get('type_promotion')
+            Promotion.TypePromotion.POURCENTAGE
+            if creation
+            else self.data.get('type_promotion')
             or self.initial.get('type_promotion')
             or getattr(self.instance, 'type_promotion', Promotion.TypePromotion.POURCENTAGE)
         )
@@ -100,17 +102,22 @@ class PromotionAdminForm(forms.ModelForm):
             else 'Montant de la remise (Ar)'
         )
         self.fields['valeur'].help_text = (
-            'Saisissez un nombre entre 0 et 100.'
+            ''
             if type_promotion == Promotion.TypePromotion.POURCENTAGE
             else 'Montant déduit du prix de chaque bouteille.'
         )
-        if not self.instance or not self.instance.pk:
+        self.fields['valeur'].max_value = (
+            Decimal('100')
+            if type_promotion == Promotion.TypePromotion.POURCENTAGE
+            else None
+        )
+        if creation:
+            self.fields['valeur'].widget.attrs.update({'max': '100', 'step': '0.01'})
             debut = timezone.localtime().replace(second=0, microsecond=0)
             self.initial.setdefault('date_debut', debut)
             self.initial.setdefault('date_fin', debut + timedelta(days=30))
             self.fields['nom'].label = 'Nom de la promotion'
             self.fields['statut'].label = 'Statut actif'
-            self.fields.pop('produits_cibles', None)
             self.fields.pop('categories', None)
         if self.instance and self.instance.pk:
             self.fields['produits_cibles'].initial = self.instance.produits.all()
@@ -144,7 +151,10 @@ class PromotionAdmin(admin.ModelAdmin):
     list_per_page = 25
     add_fieldsets = (
         ('Promotion', {
-            'fields': ('nom', 'type_promotion', 'valeur', 'date_debut', 'date_fin', 'statut'),
+            'fields': (
+                'nom', 'type_promotion', 'valeur', 'date_debut', 'date_fin',
+                'produits_cibles', 'statut',
+            ),
         }),
     )
     fieldsets = (

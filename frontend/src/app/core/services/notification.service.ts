@@ -190,7 +190,7 @@ export class NotificationService {
         id: 'n-demo-2',
         categorie: 'stock',
         titre: 'Stock faible',
-        message: 'Il reste quelques bouteilles de Liqueur de Moussafely.',
+        message: 'Il reste quelques bouteilles de Liqueur de Fianarantsoa.',
         date: new Date(maintenant - 7_200_000).toISOString(),
         lue: false,
         lien: '/catalogue',

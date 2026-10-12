@@ -1,8 +1,14 @@
 <!-- Page d'accueil — titre de marque puis liste des produits -->
 <section class="vitrine">
+  <div class="vitrine__halo vitrine__halo--or" aria-hidden="true"></div>
+  <div class="vitrine__halo vitrine__halo--rouge" aria-hidden="true"></div>
+  <span class="vitrine__etincelle vitrine__etincelle--1" aria-hidden="true"></span>
+  <span class="vitrine__etincelle vitrine__etincelle--2" aria-hidden="true"></span>
+  <span class="vitrine__etincelle vitrine__etincelle--3" aria-hidden="true"></span>
   <div class="lb-container vitrine__contenu">
     <div class="vitrine__intro">
-      <span class="vitrine__kicker lb-fade-in">Vin de qualité</span>
+      <div class="vitrine__ornement" aria-hidden="true"><i></i><mat-icon>wine_bar</mat-icon><i></i></div>
+      <span class="vitrine__kicker lb-fade-in">{{ 'ACCUEIL.kicker' | translate }}</span>
       <h1 class="vitrine__titre lb-fade-in">{{ 'ACCUEIL.titre' | translate }}</h1>
       <p class="vitrine__texte lb-fade-in">{{ 'APP.baseline' | translate }}</p>
       <button
@@ -54,6 +60,35 @@
       </div>
     </div>
   </div>
+  <div class="vitrine__fondu" aria-hidden="true"></div>
+</section>
+
+<!-- Engagements — bandeau de réassurance -->
+<section class="service-strip" [attr.aria-label]="'ACCUEIL.engagementsLabel' | translate">
+  <div class="lb-container">
+    <div class="service-strip__grid">
+      <span>
+        <mat-icon aria-hidden="true">local_shipping</mat-icon>
+        <b>{{ 'ACCUEIL.eng1Titre' | translate }}</b>
+        <small>{{ 'ACCUEIL.eng1Texte' | translate }}</small>
+      </span>
+      <span>
+        <mat-icon aria-hidden="true">payments</mat-icon>
+        <b>{{ 'ACCUEIL.eng2Titre' | translate }}</b>
+        <small>{{ 'ACCUEIL.eng2Texte' | translate }}</small>
+      </span>
+      <span>
+        <mat-icon aria-hidden="true">verified</mat-icon>
+        <b>{{ 'ACCUEIL.eng3Titre' | translate }}</b>
+        <small>{{ 'ACCUEIL.eng3Texte' | translate }}</small>
+      </span>
+      <span>
+        <mat-icon aria-hidden="true">support_agent</mat-icon>
+        <b>{{ 'ACCUEIL.eng4Titre' | translate }}</b>
+        <small>{{ 'ACCUEIL.eng4Texte' | translate }}</small>
+      </span>
+    </div>
+  </div>
 </section>
 
 <!-- Liste des produits -->
@@ -61,8 +96,8 @@
   <div class="lb-container">
     <header class="produits__entete">
       <div>
-        <span class="produits__surtitre">La cave vous propose</span>
-        <h2>Nos coups de cœur</h2>
+        <span class="produits__surtitre">{{ 'ACCUEIL.surtitreProduits' | translate }}</span>
+        <h2>{{ 'ACCUEIL.titreProduits' | translate }}</h2>
       </div>
       <a class="produits__catalogue" routerLink="/catalogue">
         <span>{{ 'ACCUEIL.voirCatalogue' | translate }}</span>
@@ -97,8 +132,23 @@
               <img [src]="vin.image" [alt]="vin.nom" loading="lazy" />
               <span class="produit__cat">{{ ('CATALOGUE.categories.' + vin.categorie) | translate }}</span>
             </a>
+            @if (vin.prixBarre && vin.prixBarre > vin.prix) {
+              <span class="produit__promo">-{{ ((vin.prixBarre - vin.prix) / vin.prixBarre * 100) | number:'1.0-0' }}%</span>
+            }
+            <button
+              type="button"
+              class="produit__favori"
+              [class.produit__favori--actif]="favoris.estFavori(vin.id)"
+              (click)="$event.preventDefault(); $event.stopPropagation(); favoris.basculer(vin.id)"
+              [attr.aria-label]="(favoris.estFavori(vin.id) ? 'VIN.retirerFavoris' : 'VIN.ajouterFavoris') | translate"
+            >
+              <mat-icon>{{ favoris.estFavori(vin.id) ? 'favorite' : 'favorite_border' }}</mat-icon>
+            </button>
 
             <div class="produit__corps">
+              @if (vin.cuvee) {
+                <span class="produit__domaine">{{ vin.cuvee }}</span>
+              }
               <h3 class="produit__nom">
                 <a [routerLink]="['/vin', vin.id]">{{ vin.nom }}</a>
               </h3>

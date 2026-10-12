@@ -14,6 +14,7 @@ from datetime import timedelta
 from unittest.mock import patch
 
 from django.contrib import admin as dj_admin
+from django import forms
 import django
 import django.apps
 
@@ -152,11 +153,22 @@ class FormulairesAdminTests(TestCase):
         self.assertEqual(
             champs,
             {
-                'nom', 'type_promotion', 'valeur', 'date_debut', 'date_fin', 'statut',
+                'nom', 'type_promotion', 'valeur', 'date_debut', 'date_fin',
+                'produits_cibles', 'statut',
             },
         )
-        self.assertEqual(len(form.fields['type_promotion'].choices), 2)
+        self.assertEqual(
+            form.fields['type_promotion'].choices,
+            [(Promotion.TypePromotion.POURCENTAGE, 'Pourcentage')],
+        )
+        self.assertIsInstance(form.fields['type_promotion'].widget, forms.Select)
+        self.assertIn('id_type_promotion', html)
+        self.assertEqual(form.initial['type_promotion'], Promotion.TypePromotion.POURCENTAGE)
         self.assertEqual(form.fields['valeur'].label, 'Pourcentage de remise (%)')
+        self.assertEqual(form.fields['valeur'].max_value, Decimal('100'))
+        self.assertEqual(form.fields['valeur'].widget.attrs['max'], '100')
+        self.assertIn('0,01–100 %', html)
+        self.assertIn('body.wine-quick-create-open.model-promotion.change-form', html)
         self.assertIn('id_date_debut', html)
         self.assertIn('id_date_fin', html)
         self.assertIn('pr-create-actions', html)
@@ -166,7 +178,7 @@ class FormulairesAdminTests(TestCase):
         self.assertNotIn('name="_addanother"', html)
         self.assertNotIn('name="_continue"', html)
         self.assertNotIn('name="type_cible"', html)
-        self.assertNotIn('name="produits_cibles"', html)
+        self.assertIn('name="produits_cibles"', html)
         self.assertIsNotNone(form.initial['date_debut'])
         self.assertEqual(
             form.initial['date_fin'] - form.initial['date_debut'],
@@ -176,6 +188,11 @@ class FormulairesAdminTests(TestCase):
     def test_ajout_promotion_enregistre_les_champs_essentiels(self):
         debut = timezone.localtime().replace(second=0, microsecond=0)
         fin = debut + timedelta(days=12)
+        produit = Produit.objects.create(
+            nom='Vin de la promotion', type_vin='Rouge', marque='Domaine',
+            cout_revenir=Decimal('5000.00'), prix_vente=Decimal('10000.00'),
+            statut=True,
+        )
 
         reponse = self.client.post(
             reverse('admin:promotions_promotion_add'),
@@ -185,6 +202,7 @@ class FormulairesAdminTests(TestCase):
                 'valeur': '10.00',
                 'date_debut': debut.strftime('%Y-%m-%dT%H:%M'),
                 'date_fin': fin.strftime('%Y-%m-%dT%H:%M'),
+                'produits_cibles': [str(produit.pk)],
                 'statut': 'on',
                 '_save': '1',
             },
@@ -199,9 +217,33 @@ class FormulairesAdminTests(TestCase):
         promotion = Promotion.objects.get(nom='Promotion test')
         self.assertEqual(promotion.type_promotion, Promotion.TypePromotion.POURCENTAGE)
         self.assertEqual(promotion.valeur, Decimal('10.00'))
+        self.assertQuerySetEqual(promotion.produits.all(), [produit], transform=lambda vin: vin)
         self.assertTrue(promotion.statut)
         self.assertEqual(promotion.date_debut, debut)
         self.assertEqual(promotion.date_fin, fin)
+
+    def test_ajout_promotion_refuse_type_fixe_et_pourcentage_superieur_a_100(self):
+        debut = timezone.localtime().replace(second=0, microsecond=0)
+        donnees = {
+            'nom': 'Promotion refusée',
+            'valeur': '10.00',
+            'date_debut': debut.strftime('%Y-%m-%dT%H:%M'),
+            'date_fin': (debut + timedelta(days=5)).strftime('%Y-%m-%dT%H:%M'),
+            'statut': 'on',
+            '_save': '1',
+        }
+
+        for type_promotion, valeur in (
+            (Promotion.TypePromotion.MONTANT_FIXE, '10.00'),
+            (Promotion.TypePromotion.POURCENTAGE, '100.01'),
+        ):
+            with self.subTest(type_promotion=type_promotion, valeur=valeur):
+                reponse = self.client.post(
+                    reverse('admin:promotions_promotion_add'),
+                    {**donnees, 'type_promotion': type_promotion, 'valeur': valeur},
+                )
+                self.assertEqual(reponse.status_code, 200)
+                self.assertFalse(Promotion.objects.filter(nom='Promotion refusée').exists())
 
     def test_aucun_help_text_dans_toute_les_applications(self):
         """Les aides de formulaire ont été retirées partout.

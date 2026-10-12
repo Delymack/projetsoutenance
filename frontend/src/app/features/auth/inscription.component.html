@@ -1,21 +1,21 @@
-<!-- Création de compte — design WineShop (navbar globale unique) -->
+<!-- Création de compte — design Lazan'i Betsileo (navbar globale unique) -->
 <main class="ws-auth">
   <div class="ws-auth__inner">
     <!-- Progression 3 étapes -->
     <div class="ws-progress">
       <div class="ws-progress__step" [class.ws-progress__step--active]="etape() >= 1" [class.ws-progress__step--current]="etape() === 1">
         <span class="ws-progress__num">1</span>
-        <span class="ws-progress__label">Identité</span>
+        <span class="ws-progress__label">{{ 'INSCRIPTION.etapeIdentite' | translate }}</span>
       </div>
       <div class="ws-progress__line" [class.ws-progress__line--active]="etape() >= 2"></div>
       <div class="ws-progress__step" [class.ws-progress__step--active]="etape() >= 2" [class.ws-progress__step--current]="etape() === 2">
         <span class="ws-progress__num">2</span>
-        <span class="ws-progress__label">Vérification</span>
+        <span class="ws-progress__label">{{ 'AUTH.etapeVerification' | translate }}</span>
       </div>
       <div class="ws-progress__line" [class.ws-progress__line--active]="etape() >= 3"></div>
       <div class="ws-progress__step" [class.ws-progress__step--active]="etape() >= 3" [class.ws-progress__step--current]="etape() === 3">
         <span class="ws-progress__num">3</span>
-        <span class="ws-progress__label">Confirmation</span>
+        <span class="ws-progress__label">{{ 'AUTH.etapeConfirmation' | translate }}</span>
       </div>
     </div>
 
@@ -24,16 +24,16 @@
       <div class="ws-card__header">
         <h1 class="ws-card__title">
           @switch (etape()) {
-            @case (1) { Créer un compte }
-            @case (2) { Vérification }
-            @default { Compte créé }
+            @case (1) { {{ 'INSCRIPTION.titreCreation' | translate }} }
+            @case (2) { {{ 'AUTH.titreVerification' | translate }} }
+            @default { {{ 'INSCRIPTION.titreCree' | translate }} }
           }
         </h1>
         <p class="ws-card__subtitle">
           @switch (etape()) {
-            @case (1) { Rejoignez la communauté Lazan'i Betsileo }
-            @case (2) { Saisissez le code de vérification reçu }
-            @default { Votre compte est prêt }
+            @case (1) { {{ 'INSCRIPTION.sousTitre1' | translate }} }
+            @case (2) { {{ 'AUTH.sousTitre2' | translate }} }
+            @default { {{ 'INSCRIPTION.sousTitre3' | translate }} }
           }
         </p>
       </div>
@@ -42,7 +42,7 @@
       @if (etape() === 1) {
         <form class="ws-form" [formGroup]="form" (ngSubmit)="envoyerCode()" novalidate>
           <div class="ws-field">
-            <label class="ws-field__label">Nom complet</label>
+            <label class="ws-field__label">{{ 'INSCRIPTION.nom' | translate }}</label>
             <div class="ws-field__wrap">
               <mat-icon class="ws-field__icon">person_outline</mat-icon>
               <input
@@ -50,16 +50,16 @@
                 class="ws-field__input"
                 formControlName="nom"
                 autocomplete="name"
-                placeholder="Votre nom complet"
+                [placeholder]="'INSCRIPTION.nomPlaceholder' | translate"
               />
             </div>
             @if (nom.invalid && nom.touched) {
-              <span class="ws-field__error">Indiquez au moins 3 caractères.</span>
+              <span class="ws-field__error">{{ 'INSCRIPTION.erreurs.nomRequis' | translate }}</span>
             }
           </div>
 
           <div class="ws-field">
-            <label class="ws-field__label">Email</label>
+            <label class="ws-field__label">{{ 'AUTH.email' | translate }}</label>
             <div class="ws-field__wrap">
               <mat-icon class="ws-field__icon">mail_outline</mat-icon>
               <input
@@ -71,12 +71,12 @@
               />
             </div>
             @if (email.invalid && email.touched) {
-              <span class="ws-field__error">Format d'email invalide.</span>
+              <span class="ws-field__error">{{ 'INSCRIPTION.erreurs.emailInvalide' | translate }}</span>
             }
           </div>
 
           <div class="ws-field">
-            <label class="ws-field__label">Téléphone</label>
+            <label class="ws-field__label">{{ 'INSCRIPTION.telephone' | translate }}</label>
             <div class="ws-field__wrap">
               <mat-icon class="ws-field__icon">smartphone</mat-icon>
               <input
@@ -88,12 +88,12 @@
               />
             </div>
             @if (telephone.invalid && telephone.touched) {
-              <span class="ws-field__error">Format attendu : +261 34 00 000 00.</span>
+              <span class="ws-field__error">{{ 'INSCRIPTION.erreurs.telephoneFormat' | translate }}</span>
             }
           </div>
 
           <div class="ws-field">
-            <label class="ws-field__label">Mot de passe</label>
+            <label class="ws-field__label">{{ 'AUTH.motDePasse' | translate }}</label>
             <div class="ws-field__wrap">
               <mat-icon class="ws-field__icon">lock_outline</mat-icon>
               <input
@@ -101,32 +101,32 @@
                 [type]="motDePasseVisible() ? 'text' : 'password'"
                 formControlName="password"
                 autocomplete="new-password"
-                placeholder="Votre mot de passe"
+                [placeholder]="'INSCRIPTION.motDePassePlaceholder' | translate"
               />
               <button
                 type="button"
                 class="ws-field__toggle"
                 (click)="motDePasseVisible.set(!motDePasseVisible())"
-                [attr.aria-label]="motDePasseVisible() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                [attr.aria-label]="motDePasseVisible() ? ('INSCRIPTION.masquerMotDePasse' | translate) : ('INSCRIPTION.afficherMotDePasse' | translate)"
               >
                 <mat-icon>{{ motDePasseVisible() ? 'visibility_off' : 'visibility' }}</mat-icon>
               </button>
             </div>
             @if (password.invalid && password.touched) {
-              <span class="ws-field__error">Le mot de passe doit contenir au moins 8 caractères.</span>
+              <span class="ws-field__error">{{ 'INSCRIPTION.erreurs.motDePasseCourt' | translate }}</span>
             }
           </div>
 
           <fieldset class="ws-canal">
-            <legend class="ws-canal__legend">Recevoir le code de vérification</legend>
+            <legend class="ws-canal__legend">{{ 'AUTH.canalLegende' | translate }}</legend>
             <div class="ws-canal__options">
               <label class="ws-canal__option" [class.ws-canal__option--checked]="contact_type.value === 'email'">
                 <input type="radio" formControlName="contact_type" value="email" />
                 <span class="ws-canal__radio"></span>
                 <mat-icon class="ws-canal__icon">mail</mat-icon>
                 <span class="ws-canal__text">
-                  <strong>Par email</strong>
-                  <small>Code à 6 chiffres dans votre boîte</small>
+                  <strong>{{ 'AUTH.parEmail' | translate }}</strong>
+                  <small>{{ 'AUTH.parEmailAide' | translate }}</small>
                 </span>
               </label>
               <label class="ws-canal__option" [class.ws-canal__option--checked]="contact_type.value === 'sms'">
@@ -134,8 +134,8 @@
                 <span class="ws-canal__radio"></span>
                 <mat-icon class="ws-canal__icon">sms</mat-icon>
                 <span class="ws-canal__text">
-                  <strong>Par SMS</strong>
-                  <small>Code à 6 chiffres sur votre mobile</small>
+                  <strong>{{ 'AUTH.parSms' | translate }}</strong>
+                  <small>{{ 'AUTH.parSmsAide' | translate }}</small>
                 </span>
               </label>
             </div>
@@ -144,36 +144,36 @@
           <button type="submit" class="ws-btn ws-btn--primary" [disabled]="enCours()">
             @if (enCours()) {
               <mat-spinner diameter="18" aria-hidden="true"></mat-spinner>
-              <span>Envoi en cours…</span>
+              <span>{{ 'AUTH.envoiEnCours' | translate }}</span>
             } @else {
-              <span>S'inscrire</span>
+              <span>{{ 'AUTH.inscription' | translate }}</span>
             }
           </button>
         </form>
 
         <p class="ws-switch">
-          Déjà un compte ? <a routerLink="/connexion">Se connecter</a>
+          {{ 'AUTH.dejaCompte' | translate }} <a routerLink="/connexion">{{ 'AUTH.connexion' | translate }}</a>
         </p>
       }
 
       <!-- Étape 2 : code de vérification -->
       @if (etape() === 2) {
         <p class="ws-intro">
-          Saisissez le code à 6 chiffres envoyé
+          {{ 'AUTH.introCode' | translate }}
           @if (contactType() === 'email') {
-            par email à <strong>{{ contact() }}</strong>
+            {{ 'AUTH.introParEmail' | translate }} <strong>{{ contact() }}</strong>
           } @else {
-            par SMS au <strong>{{ contact() }}</strong>
+            {{ 'AUTH.introParSms' | translate }} <strong>{{ contact() }}</strong>
           }
         </p>
 
         <div class="ws-timer" [class.ws-timer--alert]="tempsRestant() <= 60">
           <mat-icon>timer</mat-icon>
-          <span>Expire dans <strong>{{ formaterTemps(tempsRestant()) }}</strong></span>
+          <span>{{ 'AUTH.expireDans' | translate }} <strong>{{ formaterTemps(tempsRestant()) }}</strong></span>
         </div>
 
         <form class="ws-form" [formGroup]="codeForm" (ngSubmit)="verifierCode()" novalidate>
-          <div class="ws-code" role="group" aria-label="Code de vérification à 6 chiffres">
+          <div class="ws-code" role="group" [attr.aria-label]="'AUTH.codeGroupe' | translate">
             @for (champ of champsCode; track champ; let i = $index) {
               <input
                 #caseCode
@@ -181,7 +181,7 @@
                 type="text"
                 inputmode="numeric"
                 maxlength="1"
-                [attr.aria-label]="'Chiffre ' + (i + 1)"
+                [attr.aria-label]="('AUTH.chiffre' | translate) + ' ' + (i + 1)"
                 [autocomplete]="i === 0 ? 'one-time-code' : 'off'"
                 [formControlName]="champ"
                 (input)="onCodeInput($event, i)"
@@ -194,9 +194,9 @@
           <button type="submit" class="ws-btn ws-btn--primary" [disabled]="enCours()">
             @if (enCours()) {
               <mat-spinner diameter="18" aria-hidden="true"></mat-spinner>
-              <span>Vérification…</span>
+              <span>{{ 'AUTH.verificationEnCours' | translate }}</span>
             } @else {
-              <span>Valider mon compte</span>
+              <span>{{ 'INSCRIPTION.validerCompte' | translate }}</span>
             }
           </button>
         </form>
@@ -205,14 +205,14 @@
           <button type="button" class="ws-link" (click)="renvoyerCode()" [disabled]="!peutRenvoyer() || enCours()">
             <mat-icon>refresh</mat-icon>
             @if (peutRenvoyer()) {
-              <span>Renvoyer le code</span>
+              <span>{{ 'AUTH.renvoyerCode' | translate }}</span>
             } @else {
-              <span>Nouveau code dans {{ tempsRenvoi() }} s</span>
+              <span>{{ 'AUTH.nouveauCodeDans' | translate }} {{ tempsRenvoi() }} s</span>
             }
           </button>
           <button type="button" class="ws-link ws-link--muted" (click)="retour()">
             <mat-icon>arrow_back</mat-icon>
-            <span>Modifier mes informations</span>
+            <span>{{ 'INSCRIPTION.modifierInfos' | translate }}</span>
           </button>
         </div>
       }
@@ -223,7 +223,7 @@
           <div class="ws-success__icon">
             <mat-icon>check_circle</mat-icon>
           </div>
-          <h2 class="ws-success__title">Votre compte est actif</h2>
+          <h2 class="ws-success__title">{{ 'INSCRIPTION.compteActif' | translate }}</h2>
           <p class="ws-success__text">{{ succes() }}</p>
           <mat-spinner diameter="22" aria-hidden="true"></mat-spinner>
         </div>

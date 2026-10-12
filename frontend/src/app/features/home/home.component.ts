@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { timer } from 'rxjs';
 
+import { FavorisService } from '../../core/services/favoris.service';
 import { PanierService } from '../../core/services/panier.service';
 import { VinService } from '../../core/services/vin.service';
 import { Vin } from '../../core/models/product.model';
@@ -31,6 +32,9 @@ export class HomeComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly panier = inject(PanierService);
+
+  /** Favoris persistés en local (bouton cœur des cartes). */
+  readonly favoris = inject(FavorisService);
 
   /** Catalogue complet. */
   readonly vins = signal<Vin[]>([]);

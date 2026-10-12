@@ -159,7 +159,7 @@ export class ParrainageService {
       {
         id: 'fil-demo-1',
         nom: 'Miora',
-        contact: 'miora@example.mg',
+        contact: 'miora@lazani-betsileo.mg',
         canal: 'email',
         date: '2026-09-15T08:00:00.000Z',
         statut: 'recompense',
