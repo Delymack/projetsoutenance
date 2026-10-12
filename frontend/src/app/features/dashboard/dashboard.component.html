@@ -1,0 +1,61 @@
+<section class="dashboard lb-container">
+  <header class="dashboard__header">
+    <div>
+      <span class="eyebrow">Live · 30 s</span>
+      <h1>{{ 'DASHBOARD.titre' | translate }}</h1>
+      <p>{{ 'DASHBOARD.rafraichissement' | translate: { temps: (maintenant() | date:'HH:mm:ss') } }}</p>
+    </div>
+  </header>
+
+  @if (derniereNotification(); as vente) {
+    <div class="dashboard__notification" role="status">
+      <mat-icon>notifications_active</mat-icon>
+      {{ 'DASHBOARD.nouvelleVente' | translate }} {{ vente.nom }} · {{ vente.total | number:'1.0-0' }} Ar
+    </div>
+  }
+
+  <div class="dashboard__kpis">
+    <article class="lb-card"><mat-icon>payments</mat-icon><span>{{ 'DASHBOARD.caJour' | translate }}</span><strong>{{ caJour() | number:'1.0-0' }} Ar</strong></article>
+    <article class="lb-card"><mat-icon>receipt_long</mat-icon><span>{{ 'DASHBOARD.ventesJour' | translate }}</span><strong>{{ ventesJour() }}</strong></article>
+    <article class="lb-card"><mat-icon>shopping_basket</mat-icon><span>{{ 'DASHBOARD.panierMoyen' | translate }}</span><strong>{{ panierMoyen() | number:'1.0-0' }} Ar</strong></article>
+    <article class="lb-card"><mat-icon>wine_bar</mat-icon><span>{{ 'DASHBOARD.vinsVendus' | translate }}</span><strong>{{ vinsVendus() }}</strong></article>
+  </div>
+
+ <!-- ---------- Heatmap des ventes ---------- -->
+  <section class="lb-card dashboard__heatmap" aria-labelledby="dashboard-heatmap">
+    <app-sales-heatmap
+      [donnees]="matrice()"
+      [pic]="picVentes()"
+      [titre]="'HEATMAP.titre' | translate"
+    />
+    @if (meilleurMoment().ventes > 0) {
+      <p class="dashboard__heatmap-picto">
+        <mat-icon>local_fire_department</mat-icon>
+        {{ resumePic() }}
+      </p>
+    }
+  </section>
+
+  <div class="dashboard__grid">
+    <section class="lb-card dashboard__panel">
+      <h2>{{ 'DASHBOARD.dernieresVentes' | translate }}</h2>
+      @for (vente of ventes(); track vente.id) {
+        <article class="dashboard__sale">
+          <div><strong>{{ vente.nom }}</strong><small>{{ vente.date | date:'HH:mm' }} · {{ vente.quantite }} bouteille(s)</small></div>
+          <span>{{ vente.total | number:'1.0-0' }} Ar</span>
+        </article>
+      }
+    </section>
+
+    <section class="lb-card dashboard__panel">
+      <h2>{{ 'DASHBOARD.topVins' | translate }}</h2>
+      @for (vin of topVins(); track vin.nom) {
+        <div class="dashboard__bar">
+          <span>{{ vin.nom }}</span>
+          <div><i [style.width.%]="vin.part"></i></div>
+          <strong>{{ vin.valeur }}</strong>
+        </div>
+      }
+    </section>
+  </div>
+</section>

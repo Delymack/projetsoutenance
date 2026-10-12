@@ -1,0 +1,18 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<body style="margin:0;background:#18070c;padding:24px;font-family:'Segoe UI',Arial,sans-serif">
+  <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:18px;overflow:hidden;border:1px solid rgba(201,155,59,.4)">
+    <div style="background:linear-gradient(135deg,#7c2238,#2b0d18);padding:22px 26px;color:#fff">
+      <div style="font-size:18px;font-weight:800">🍷 {% firstof societe.nom 'LAZAN\'I BETSILEO' %}</div>
+    </div>
+    <div style="padding:26px">
+      <p style="margin:0 0 14px;color:#333;font-size:15px">Bonjour{% if prenom %} <strong>{{ prenom }}</strong>{% endif %},</p>
+      <p style="margin:0 0 18px;color:#555;font-size:14px">Voici votre code de vérification :</p>
+      <div style="letter-spacing:8px;font-size:34px;font-weight:800;color:#641b2c;text-align:center;background:#fbf6ec;border:1px dashed #d9bb7c;border-radius:12px;padding:16px">{{ code }}</div>
+      <p style="margin:18px 0 0;color:#8a7a7d;font-size:12.5px">Code à usage unique, valable <strong>{{ expires }} minutes</strong>. Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail.</p>
+    </div>
+    <div style="background:#faf7f2;padding:12px 26px;color:#b09fa2;font-size:11px;border-top:1px solid #eadfd7">© {% firstof societe.nom 'LAZAN\'I BETSILEO' %} · Vins des hautes terres de Madagascar</div>
+  </div>
+</body>
+</html>

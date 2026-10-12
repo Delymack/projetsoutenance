@@ -1,0 +1,40 @@
+{% extends "admin/auth/shell.html" %}
+{% block auth_kicker %}Sécurité renforcée{% endblock %}
+{% block auth_title %}Activer la double authentification{% endblock %}
+{% block auth_sub %}Scannez le QR code avec Google Authenticator, Authy ou 1Password.{% endblock %}
+
+{% block auth_body %}
+{% if error %}
+  <div class="alert-box" role="alert"><i class="fas fa-exclamation-circle mr-1"></i>{{ error }}</div>
+{% endif %}
+
+<div class="qr-wrap">
+  <div class="qr-svg">{{ qr_svg|safe }}</div>
+  <div class="flex-grow-1">
+    <div class="secret-label">Clé manuelle (si le QR ne se lit pas)</div>
+    <div class="secret-value">{{ secret }}</div>
+    <button type="button" class="secret-copy" data-copy="{{ secret }}"><i class="fas fa-copy mr-1"></i><span>Copier la clé</span></button>
+    <p class="text-muted mb-0" style="font-size:.74rem">L'application d'authentification affiche alors un code à 6 chiffres qui change toutes les 30 secondes.</p>
+  </div>
+</div>
+
+<form method="post" action="{% url 'auth-2fa-enable' %}" novalidate style="margin-top:1.2rem">
+  {% csrf_token %}
+  <input type="hidden" name="code" value="">
+  <div class="form-group">
+    <label for="c0">Code à 6 chiffres généré par l'application</label>
+    <div class="code-inputs">
+      {% for n in "012345" %}<input type="text" id="c{{ forloop.counter0 }}" class="otp-digit" maxlength="1" inputmode="numeric" autocomplete="one-time-code" aria-label="Chiffre {{ forloop.counter }}" {% if forloop.first %}autofocus{% endif %}>{% endfor %}
+    </div>
+    <div class="code-hint">L'heure de votre appareil doit être réglée sur l'heure automatique.</div>
+  </div>
+  <div style="display:flex;gap:.7rem">
+    <button type="submit" class="btn btn-gold" style="flex:1"><span><i class="fas fa-shield-halved mr-2"></i>Activer et afficher les codes de secours</span></button>
+    <button type="submit" name="action" value="cancel" class="btn-ghost">Annuler</button>
+  </div>
+</form>
+{% endblock %}
+
+{% block auth_scripts %}
+<script>document.addEventListener('DOMContentLoaded', function(){var el=document.querySelector('.otp-digit'); if(el){el.focus();}});</script>
+{% endblock %}

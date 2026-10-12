@@ -1,0 +1,426 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  /* ------------------------------------------------------------------
+     Ajout d'un produit : les informations de vente, lues d'un coup d'œil.
+     Le sélecteur `:has(.pd-create-hero)` limite ces règles à la création,
+     la fiche complète garde sa mise en page à onglets habituelle.
+     ------------------------------------------------------------------ */
+  .model-produit.change-form:has(.pd-create-hero) #content { max-width: 1080px; margin: 0 auto; }
+  .model-produit.change-form:has(.pd-create-hero) #content-main { max-width: 760px; margin: 0 auto; }
+
+  /* Bandeau d'en-tête : dégradé grenat, liseré or, ombre portée douce. */
+  .model-produit .pd-create-hero {
+    align-items: center;
+    background:
+      radial-gradient(120% 160% at 88% -30%, rgba(201, 155, 59, .28) 0%, rgba(201, 155, 59, 0) 60%),
+      linear-gradient(115deg, var(--lb-wine-800) 0%, var(--lb-wine-600) 100%);
+    border: 1px solid rgba(201, 155, 59, .3);
+    border-radius: var(--lb-radius-lg);
+    box-shadow: var(--lb-hero-shadow);
+    color: #fff;
+    display: flex;
+    gap: 1rem;
+    margin: 0 0 1rem;
+    padding: 1.25rem 1.4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  /* Filet or sur le bord supérieur : rappelle la couleur d'accent de la charte. */
+  .model-produit .pd-create-hero::before {
+    background: linear-gradient(90deg, var(--lb-gold), rgba(240, 217, 154, 0) 85%);
+    content: "";
+    height: 2px;
+    inset: 0 0 auto;
+    position: absolute;
+  }
+  .model-produit .pd-create-icon {
+    align-items: center;
+    background: rgba(201, 155, 59, .16);
+    border: 1px solid rgba(240, 217, 154, .45);
+    border-radius: 13px;
+    color: #f0d99a;
+    display: flex;
+    flex: 0 0 48px;
+    font-size: 1.15rem;
+    height: 48px;
+    justify-content: center;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12);
+  }
+  .model-produit .pd-create-hero h1 {
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    margin: 0 0 .25rem;
+  }
+  .model-produit .pd-create-hero p { color: rgba(255, 255, 255, .78); font-size: .84rem; margin: 0; }
+  .model-produit .pd-create-pill {
+    background: rgba(0, 0, 0, .3);
+    border: 1px solid rgba(240, 217, 154, .5);
+    border-radius: 999px;
+    color: #f0d99a;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    margin-left: auto;
+    padding: .42rem .8rem;
+    white-space: nowrap;
+  }
+
+  /* Un seul onglet pour un seul bloc : on le masque, il n'a rien à cacher. */
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-tabs { display: none; }
+
+  /* Champ en carte : le libellé au-dessus, l'invite de saisie en dessous.
+     Deux colonnes : le nom, la famille et la description occupent toute la
+     largeur, les champs courts se placent deux par deux. */
+  .model-produit.change-form:has(.pd-create-hero) fieldset.module {
+    background: transparent;
+    border: 0;
+    display: grid;
+    gap: .8rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 0;
+  }
+  .model-produit.change-form:has(.pd-create-hero) fieldset.module > h2 { grid-column: 1 / -1; }
+  .model-produit.change-form:has(.pd-create-hero) fieldset.module > .form-row {
+    align-content: start;
+    background: var(--lb-surface);
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius);
+    box-shadow: var(--lb-shadow-sm);
+    margin: 0;
+    min-width: 0;
+    padding: .8rem .95rem;
+    transition: border-color .18s ease, box-shadow .18s ease;
+  }
+  /* La carte prend la lumière quand on écrit dedans : on sait où l'on est. */
+  .model-produit.change-form:has(.pd-create-hero) fieldset.module > .form-row:focus-within {
+    border-color: var(--lb-gold);
+    box-shadow: var(--lb-shadow), 0 0 0 3px rgba(201, 155, 59, .18);
+  }
+  .model-produit.change-form:has(.pd-create-hero) .form-row.field-nom,
+  .model-produit.change-form:has(.pd-create-hero) .form-row.field-type_vin,
+  .model-produit.change-form:has(.pd-create-hero) .form-row.field-description { grid-column: 1 / -1; }
+  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row > .row { display: block; }
+  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row label {
+    color: var(--lb-wine);
+    display: block;
+    float: none;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    margin-bottom: .4rem;
+    text-transform: uppercase;
+    width: auto;
+  }
+  /* La colonne Bootstrap du contenu est neutralisée : le champ occupe la carte
+     entière, sinon il resterait aligné à droite avec un vide à gauche. */
+  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row > .row > div {
+    float: none;
+    padding: 0;
+    width: 100%;
+  }
+  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row input:not([type="checkbox"]):not([type="radio"]),
+  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row select,
+  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row textarea {
+    border: 1px solid var(--lb-line);
+    border-radius: 10px;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: .96rem;
+    max-width: none;
+    min-height: 46px;
+    padding: .55rem .8rem;
+    transition: border-color .18s ease, box-shadow .18s ease;
+    width: 100%;
+  }
+  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row textarea { min-height: 92px; resize: vertical; }
+  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row input:focus,
+  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row select:focus,
+  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row textarea:focus {
+    border-color: var(--lb-gold);
+    box-shadow: 0 0 0 3px rgba(201, 155, 59, .22);
+    outline: none;
+  }
+  .model-produit.change-form:has(.pd-create-hero) .form-row.field-prix_vente input {
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ------------------------------------------------------------------
+     Sélecteur de famille : une liste déroulante, fermée sur les six familles
+     du domaine. Un menu tient sur une ligne et ne se déroule qu'à la demande,
+     là où six cartes occupaient tout l'écran pour un seul choix.
+     ------------------------------------------------------------------ */
+  .model-produit.change-form:has(.pd-create-hero) .form-row.field-type_vin select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23641b2c' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M3 6l5 5 5-5'/%3E%3C/svg%3E");
+    background-position: right .85rem center;
+    background-repeat: no-repeat;
+    background-size: 15px;
+    cursor: pointer;
+    font-weight: 600;
+    padding-right: 2.4rem;
+  }
+  .model-produit.change-form:has(.pd-create-hero) .form-row.field-type_vin select:hover {
+    border-color: var(--lb-gold-200);
+  }
+
+  /* ------------------------------------------------------------------
+     Boutons de la création : ils remontent au-dessus du formulaire, la
+     saisie tient sur un écran, il n'y a plus de raison de les laisser dans
+     une colonne latérale sur un écran large.
+     ------------------------------------------------------------------ */
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions {
+    margin-top: .4rem;
+    position: static;
+  }
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions .card {
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius-lg);
+    box-shadow: var(--lb-shadow-sm);
+  }
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions .card-body { padding: .7rem .85rem; }
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions .submit-row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .55rem;
+    justify-content: flex-end;
+  }
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions .submit-row div { display: contents; }
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions input[type="submit"],
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions button[type="submit"],
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions .btn {
+    align-items: center;
+    border-radius: 10px;
+    display: inline-flex;
+    font-size: .88rem;
+    font-weight: 700;
+    gap: .45rem;
+    justify-content: center;
+    letter-spacing: .01em;
+    min-height: 48px;
+    min-width: 140px;
+    padding: .7rem 1.2rem;
+    transition: background .16s ease, border-color .16s ease, box-shadow .16s ease, transform .12s ease;
+  }
+  /* Enregistrer : le seul bouton qui lance une action, il porte le grenat. */
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions [name="_save"] {
+    background: linear-gradient(115deg, var(--lb-wine) 0%, var(--lb-wine-600) 100%);
+    border: 1px solid var(--lb-wine);
+    box-shadow: 0 6px 16px rgba(100, 27, 44, .24);
+    color: #fff;
+  }
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions [name="_save"]:hover {
+    background: var(--lb-wine-800);
+    border-color: var(--lb-wine-800);
+    box-shadow: 0 9px 22px rgba(100, 27, 44, .3);
+    transform: translateY(-1px);
+  }
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions [name="_save"]:active { transform: translateY(0); }
+  /* Enregistrer et continuer : même action, suite immédiate. */
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions [name="_addanother"] {
+    background: var(--lb-gold-100);
+    border: 1px solid var(--lb-gold-200);
+    color: var(--lb-gold-600);
+  }
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions [name="_addanother"]:hover {
+    background: #f7ecd4;
+    border-color: var(--lb-gold);
+  }
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions [name="_saveasnew"] {
+    background: var(--lb-surface);
+    border: 1px solid var(--lb-line);
+    color: var(--lb-ink-700);
+  }
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions [name="_saveasnew"]:hover {
+    background: var(--lb-canvas);
+    border-color: var(--lb-ink-300);
+    color: var(--lb-ink);
+  }
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions button:focus-visible {
+    box-shadow: 0 0 0 3px rgba(201, 155, 59, .45);
+    outline: none;
+  }
+
+  /* ------------------------------------------------------------------
+     Aperçu de la photo : inséré par le script à côté des champs image.
+     Il occupe toute la largeur de la grille et montre, avant l'enregistrement,
+     le fichier choisi ou l'image de l'URL collée.
+     ------------------------------------------------------------------ */
+  .model-produit.change-form:has(.pd-create-hero) .pd-image-preview {
+    grid-column: 1 / -1;
+  }
+  .model-produit.change-form:has(.pd-create-hero) .pd-image-preview__box {
+    align-items: center;
+    background: var(--lb-canvas-2);
+    border: 1px dashed var(--lb-ink-300);
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    min-height: 150px;
+    overflow: hidden;
+    padding: .6rem;
+  }
+  .model-produit.change-form:has(.pd-create-hero) .pd-image-preview__box img {
+    border-radius: 6px;
+    max-height: 220px;
+    max-width: 100%;
+    object-fit: contain;
+  }
+  .model-produit.change-form:has(.pd-create-hero) .pd-image-preview__vide {
+    color: var(--lb-ink-500);
+    font-size: .86rem;
+    font-style: italic;
+  }
+
+  /* Le nom, le volume et le prix restent obligatoires, la photo et la
+     description non : l'astérisque garde donc son sens ici, on le laisse. */
+
+  @media (max-width: 700px) {
+    .model-produit .pd-create-hero { align-items: flex-start; padding: 1.05rem; }
+    .model-produit .pd-create-pill { display: none; }
+    .model-produit.change-form:has(.pd-create-hero) fieldset.module { grid-template-columns: minmax(0, 1fr); }
+    .model-produit.change-form:has(.pd-create-hero) #jazzy-actions .submit-row { justify-content: stretch; }
+    .model-produit.change-form:has(.pd-create-hero) #jazzy-actions input[type="submit"],
+    .model-produit.change-form:has(.pd-create-hero) #jazzy-actions button[type="submit"] { flex: 1 1 0; min-width: 0; }
+  }
+</style>
+{% endblock %}
+
+{% block form_top %}
+{% if is_produit_add %}
+<section class="pd-create-hero" aria-labelledby="produit-create-title">
+  <div class="pd-create-icon" aria-hidden="true"><i class="fas fa-wine-bottle"></i></div>
+  <div>
+    <h1 id="produit-create-title">Nouveau produit</h1>
+    <p>L'essentiel pour vendre : le nom, la famille, le volume, le prix, la photo et la description. La catégorie, le cépage et le code-barres se complètent ensuite sur la fiche.</p>
+  </div>
+  <span class="pd-create-pill">7 champs</span>
+</section>
+{% endif %}
+{{ block.super }}
+{% endblock %}
+
+{% block extrajs %}
+{{ block.super }}
+{% if is_produit_add %}
+<script>
+  (function () {
+    var racine = document.querySelector('.model-produit.change-form');
+    if (!racine) { return; }
+
+    // Le libellé des boutons de l'admin est nu : on lui remet une icône pour
+    // que l'action principale se lise sans lire le mot. Les `input` de Jazzmin
+    // sont remplacés par un `button` de même nom, seul moyen d'insérer un glyphe.
+    var icones = {
+      '_save': 'fa-check',
+      '_addanother': 'fa-forward',
+      '_saveasnew': 'fa-copy',
+      '_continue': 'fa-list'
+    };
+    racine.querySelectorAll('#jazzy-actions [name]').forEach(function (bouton) {
+      var cle = bouton.getAttribute('name');
+      var icone = icones[cle];
+      if (!icone || bouton.dataset.pdIcone) { return; }
+      var libelle = (bouton.value || bouton.textContent || '').trim();
+      if (!libelle) { return; }
+      bouton.dataset.pdIcone = '1';
+      if (!(bouton instanceof HTMLInputElement)) {
+        bouton.insertBefore(document.createTextNode(' '), bouton.firstChild);
+        bouton.insertBefore(
+          Object.assign(document.createElement('i'), { className: 'fas ' + icone }),
+          bouton.firstChild
+        );
+        return;
+      }
+      var remplacant = document.createElement('button');
+      remplacant.type = 'submit';
+      remplacant.name = cle;
+      remplacant.value = bouton.value;
+      remplacant.className = bouton.className;
+      remplacant.append(
+        Object.assign(document.createElement('i'), { className: 'fas ' + icone }),
+        document.createTextNode(' ' + libelle)
+      );
+      bouton.replaceWith(remplacant);
+    });
+  })();
+</script>
+<script>
+  (function () {
+    var racine = document.querySelector('.model-produit.change-form');
+    if (!racine) { return; }
+    var champFichier = racine.querySelector('.form-row.field-image input[type="file"]');
+    var champUrl = racine.querySelector('.form-row.field-image_url input[type="url"]');
+    if (!champFichier && !champUrl) { return; }
+
+    // Carte d'aperçu : un cadre vide tant qu'aucune image n'est fournie, une
+    // vignette dès qu'un fichier est choisi ou qu'une URL est collée.
+    var carte = document.createElement('div');
+    carte.className = 'form-row pd-image-preview';
+    var libelle = document.createElement('label');
+    libelle.textContent = 'Aperçu de la photo';
+    var boite = document.createElement('div');
+    boite.className = 'pd-image-preview__box';
+    var vide = document.createElement('span');
+    vide.className = 'pd-image-preview__vide';
+    vide.textContent = 'Aucune image sélectionnée';
+    var vignette = document.createElement('img');
+    vignette.alt = 'Aperçu de la photo du produit';
+    vignette.hidden = true;
+    boite.append(vide, vignette);
+    carte.append(libelle, boite);
+
+    var ancre = racine.querySelector('.form-row.field-image_url')
+      || racine.querySelector('.form-row.field-image');
+    ancre.after(carte);
+
+    var afficher = function (source) {
+      if (!source) {
+        vignette.hidden = true;
+        vignette.removeAttribute('src');
+        vide.hidden = false;
+        return;
+      }
+      vignette.src = source;
+      vignette.hidden = false;
+      vide.hidden = true;
+    };
+
+    var fichierChoisi = function () {
+      return !!(champFichier && champFichier.files && champFichier.files[0]);
+    };
+
+    var depuisFichier = function () {
+      if (!fichierChoisi()) { return; }
+      var lecteur = new FileReader();
+      lecteur.onload = function (evenement) { afficher(evenement.target.result); };
+      lecteur.readAsDataURL(champFichier.files[0]);
+    };
+
+    if (champFichier) {
+      champFichier.addEventListener('change', function () {
+        if (fichierChoisi()) { depuisFichier(); return; }
+        afficher(champUrl ? champUrl.value.trim() : '');
+      });
+    }
+    if (champUrl) {
+      champUrl.addEventListener('input', function () {
+        if (fichierChoisi()) { return; }
+        afficher(champUrl.value.trim());
+      });
+    }
+
+    var existante = racine.querySelector('.form-row.field-image a[href]');
+    if (existante) { afficher(existante.href); }
+  })();
+</script>
+{% endif %}
+{% endblock %}

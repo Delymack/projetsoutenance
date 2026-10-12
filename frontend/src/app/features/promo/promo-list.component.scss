@@ -1,0 +1,177 @@
+.promos {
+  padding-block: clamp(1.5rem, 4vw, 3rem);
+}
+
+.promos__header {
+  margin-bottom: var(--lb-gap-lg);
+  text-align: center;
+
+  h1 {
+    margin: 0.35rem 0;
+  }
+
+  p {
+    margin: 0;
+    color: var(--lb-text-muted);
+  }
+}
+
+/* ---------- Promotions ---------- */
+.promos__grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 1.15rem;
+}
+
+.promo {
+  display: flex;
+  flex-direction: column;
+  padding: 1.15rem;
+  border-radius: 18px;
+  background: var(--lb-surface);
+
+  h2 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+}
+
+.promo__entete {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--lb-gap-sm);
+}
+
+.promo__badge {
+  flex: 0 0 auto;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--lb-promo-bg);
+  color: var(--lb-text);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.promo__badge--lot {
+  background: color-mix(in srgb, var(--lb-success) 16%, var(--lb-surface));
+  color: var(--lb-success);
+}
+
+.promo__fin {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: var(--lb-gap-xs) 0 var(--lb-gap-sm);
+  color: var(--lb-text-muted);
+  font-size: 0.82rem;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}
+
+.promo__vins-titre {
+  margin: var(--lb-gap) 0 var(--lb-gap-xs);
+  color: var(--lb-text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.promo__vins {
+  display: grid;
+  gap: var(--lb-gap-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.promo__vin {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--lb-gap-sm);
+  padding: 0.45rem;
+  border-radius: var(--lb-radius);
+  background: var(--lb-surface-2);
+  transition: background var(--lb-transition);
+}
+
+.promo__vin:hover {
+  background: var(--lb-bg-alt);
+}
+
+.promo__vin-image img {
+  display: block;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: var(--lb-surface);
+}
+
+.promo__vin-infos {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.promo__vin-nom {
+  overflow: hidden;
+  color: var(--lb-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.promo__vin-prix {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+
+  s {
+    color: var(--lb-text-muted);
+  }
+
+  strong {
+    color: var(--lb-accent);
+  }
+}
+
+.promo__economie {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: var(--lb-gap-sm) 0 0;
+  color: var(--lb-success);
+  font-size: 0.82rem;
+  font-weight: 700;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}
+
+.promos__vide {
+  display: flex;
+  min-height: 180px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lb-gap-sm);
+  padding: var(--lb-gap-lg);
+  text-align: center;
+
+  mat-icon {
+    color: var(--lb-accent);
+  }
+}

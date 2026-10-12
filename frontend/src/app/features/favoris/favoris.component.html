@@ -1,0 +1,89 @@
+<section class="favoris lb-container">
+  <header class="favoris__header">
+    <div>
+      <span class="eyebrow">Lazan'i Betsileo</span>
+      <h1>{{ 'FAVORIS.titre' | translate }}</h1>
+      <p>{{ favoris.total() }} vin(s) sauvegardé(s)</p>
+    </div>
+    <a mat-stroked-button routerLink="/catalogue">
+      <mat-icon>storefront</mat-icon>
+      {{ 'ACCUEIL.ctaCatalogue' | translate }}
+    </a>
+  </header>
+
+  @if (chargement()) {
+    <div class="favoris__grid" aria-busy="true">
+      @for (index of [0, 1, 2]; track index) {
+        <app-skeleton forme="carte" [hauteur]="'280px'" />
+      }
+    </div>
+  } @else if (erreur()) {
+    <div class="favoris__state lb-card" role="alert">
+      <mat-icon>cloud_off</mat-icon>
+      <p>{{ 'COMMUN.erreur' | translate }}</p>
+    </div>
+  } @else if (vins().length === 0) {
+    <div class="favoris__state lb-card" role="status">
+      <mat-icon>favorite_border</mat-icon>
+      <h2>{{ 'FAVORIS.vide' | translate }}</h2>
+      <a mat-flat-button color="primary" routerLink="/catalogue">
+        <mat-icon>search</mat-icon>
+        {{ 'CATALOGUE.titre' | translate }}
+      </a>
+    </div>
+  } @else {
+    <div class="favoris__grid">
+      @for (vin of vins(); track vin.id) {
+        <article class="favori lb-card lb-card--hover">
+          <a [routerLink]="['/vin', vin.id]" class="favori__image">
+            <img [src]="vin.image" [alt]="vin.nom" />
+          </a>
+          <div class="favori__body">
+            <h2><a [routerLink]="['/vin', vin.id]">{{ vin.nom }}</a></h2>
+            @if (detailsOuverts() === vin.id) {
+              <div class="favori__details">
+                <p>{{ vin.description || vin.nom }}</p>
+                <dl>
+                  <div>
+                    <dt>{{ 'CATALOGUE.categorie' | translate }}</dt>
+                    <dd>{{ ('CATALOGUE.categories.' + vin.categorie) | translate }}</dd>
+                  </div>
+                  <div>
+                    <dt>{{ 'VIN.millesime' | translate }}</dt>
+                    <dd>{{ vin.millesime || '—' }}</dd>
+                  </div>
+                  <div>
+                    <dt>{{ 'VIN.cepage' | translate }}</dt>
+                    <dd>{{ vin.cepage || '—' }}</dd>
+                  </div>
+                  <div>
+                    <dt>{{ 'VIN.region' | translate }}</dt>
+                    <dd>{{ vin.region || '—' }}</dd>
+                  </div>
+                </dl>
+              </div>
+            }
+            <strong>{{ vin.prix | number:'1.0-0' }} Ar</strong>
+          </div>
+          <div class="favori__actions">
+            <button
+              type="button"
+              class="favori__details-toggle"
+              [attr.aria-expanded]="detailsOuverts() === vin.id"
+              (click)="basculerDetails(vin.id)"
+            >
+              {{ (detailsOuverts() === vin.id ? 'COMMUN.voirMoins' : 'COMMUN.voirPlus') | translate }}
+            </button>
+            <button mat-flat-button color="primary" type="button" [disabled]="vin.stock < 1" (click)="ajouter(vin)">
+              <mat-icon>add_shopping_cart</mat-icon>
+              {{ 'VIN.ajouterPanier' | translate }}
+            </button>
+            <button mat-icon-button type="button" (click)="retirer(vin)" [attr.aria-label]="'VIN.retirerFavoris' | translate">
+              <mat-icon>favorite</mat-icon>
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

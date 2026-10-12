@@ -1,0 +1,10 @@
+Bonjour{% if prenom %} {{ prenom }}{% endif %},
+
+Voici votre code de vérification LAZAN' BETSILEO :
+
+    {{ code }}
+
+Ce code est à usage unique et expire dans {{ expires }} minutes.
+N'hésitez pas à nous contacter si vous n'êtes pas à l'origine de cette demande.
+
+— L'équipe {{ societe.nom|default:"LAZAN' BETSILEO" }}

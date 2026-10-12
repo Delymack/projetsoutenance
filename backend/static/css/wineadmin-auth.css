@@ -1,0 +1,273 @@
+/* =====================================================================
+   WineAdmin — Chart d'authentification (inscription, 2FA, lien magique,
+   mot de passe oublié, espace sécurité).
+   Reprend la charte de la page de connexion : fond dense, or, verre de vin.
+   ===================================================================== */
+
+/* ---------- Neutralisation du cadre AdminLTE / jazzmin ---------- */
+body.login-page { background:#18070c; display:block; min-height:0; }
+body.login-page .login-box { width:100% !important; max-width:none; margin:0; padding:0; }
+body.login-page .login-box > .card { background:transparent; border:0; box-shadow:none; }
+body.login-page .login-card-body { background:transparent; color:inherit; padding:0 !important; }
+body.login-page .login-logo, .login-logo, .register-logo { display:none !important; }
+
+.wine-auth { background:transparent; display:flex; align-items:center; justify-content:center; min-height:calc(100vh - 3rem); padding:1.5rem; position:relative; }
+.wine-auth-bg { inset:0; overflow:hidden; pointer-events:none; position:fixed; z-index:0; background:radial-gradient(1200px 520px at 80% -10%, #2a0d16 0%, #18070c 45%, #0e0509 100%), #18070c; }
+.wine-auth-bg::after { background-image:radial-gradient(rgba(255,255,255,.028) 1px, transparent 1.4px); background-size:3px 3px; content:''; inset:0; position:absolute; }
+.wine-auth .blob { border-radius:50%; filter:blur(70px); position:absolute; }
+.wine-auth .blob-a { animation:drift-a 26s ease-in-out infinite alternate; background:rgba(100,27,44,.85); height:430px; left:-130px; top:-90px; width:430px; }
+.wine-auth .blob-b { animation:drift-b 34s ease-in-out infinite alternate; background:rgba(201,155,59,.16); bottom:-130px; height:360px; right:-110px; width:360px; }
+@keyframes drift-a { to { transform:translate(130px,70px) scale(1.15); } }
+@keyframes drift-b { to { transform:translate(-100px,-80px) scale(1.1); } }
+
+.wine-auth .auth-card { animation:card-in .6s cubic-bezier(.22,1,.36,1) both; background:#fff; border:1px solid rgba(201,155,59,.35); border-radius:24px; box-shadow:0 32px 80px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.04); max-width:560px; overflow:hidden; position:relative; width:100%; z-index:1; }
+.wine-auth .auth-card::before { background:linear-gradient(90deg,transparent,rgba(201,155,59,.6),transparent); content:''; height:2px; left:0; position:absolute; right:0; top:0; z-index:3; }
+.wine-auth .auth-card.wide { max-width:980px; }
+@keyframes card-in { from { opacity:0; transform:translateY(18px) scale(.985); } to { opacity:1; transform:none; } }
+
+.wine-auth .auth-head { background:linear-gradient(158deg, #7c2238 0%, #5c1629 42%, #2b0d18 100%); color:#fff; padding:1.7rem 2rem 1.4rem; position:relative; overflow:hidden; }
+.wine-auth .auth-head::before { content:''; inset:0; position:absolute; background:radial-gradient(circle at 14% 20%, rgba(201,155,59,.28), transparent 46%), radial-gradient(circle at 88% 88%, rgba(255,255,255,.06), transparent 42%); }
+.wine-auth .auth-head .ah-brand { align-items:center; display:flex; font-size:.92rem; font-weight:800; gap:.6rem; position:relative; z-index:1; }
+.wine-auth .auth-head .ah-brand .logo-bubble { align-items:center; background:linear-gradient(140deg, rgba(255,255,255,.18), rgba(255,255,255,.05)); border:1px solid rgba(201,155,59,.55); border-radius:11px; box-shadow:0 8px 18px rgba(0,0,0,.25); display:inline-flex; height:40px; justify-content:center; position:relative; width:40px; }
+.wine-auth .auth-head .ah-brand .logo-bubble i { color:#efd48e; }
+.wine-auth .auth-head .ah-brand .logo-bubble::after { background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.5) 50%,transparent 70%); content:''; height:150%; left:-60%; position:absolute; top:-25%; transform:rotate(20deg); width:40%; animation:logo-shine 5s ease-in-out infinite; }
+@keyframes logo-shine { 0%,55% { left:-60%; } 100% { left:160%; } }
+.wine-auth .auth-head .kicker { color:#efd48e; font-size:.66rem; font-weight:800; letter-spacing:.16em; margin-top:1.05rem; position:relative; text-transform:uppercase; z-index:1; }
+.wine-auth .auth-head h1 { font-size:1.45rem; font-weight:800; line-height:1.2; margin:.28rem 0 0; position:relative; z-index:1; }
+.wine-auth .auth-head .sub { color:rgba(255,255,255,.72); font-size:.85rem; margin:.4rem 0 0; position:relative; z-index:1; }
+
+.wine-auth .auth-body { padding:1.9rem 2rem 2rem; }
+.wine-auth .auth-foot { border-top:1px dashed #eadfd7; color:#7a6a6d; display:flex; font-size:.76rem; gap:1rem; justify-content:space-between; margin-top:1.5rem; padding-top:1rem; }
+
+/* ---------- Formulaires ---------- */
+.wine-auth .form-group { margin-bottom:1.05rem; }
+.wine-auth label { color:#5f4e52; font-size:.78rem; font-weight:800; margin-bottom:.32rem; }
+.wine-auth .input-wrap { border:1px solid #e4dcd5; border-radius:.55rem; display:flex; transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+.wine-auth .input-wrap:focus-within { border-color:#c99b3b; box-shadow:0 0 0 .22rem rgba(201,155,59,.16); transform:translateY(-1px); }
+.wine-auth .input-wrap .icn { align-items:center; color:#7c6b6e; display:flex; font-size:.85rem; justify-content:center; padding:0 .75rem; }
+.wine-auth .input-wrap:focus-within .icn i { color:#641b2c; }
+.wine-auth .input-wrap .form-control { background:transparent; border:0; border-radius:0 !important; box-shadow:none !important; font-size:.92rem; padding:.74rem .85rem .74rem 0; }
+.wine-auth .input-wrap .form-control:read-only { background:#f6f1eb; color:#6f5f62; }
+.wine-auth .input-wrap.is-invalid { border-color:#8c1f33; }
+.wine-auth .input-wrap.is-valid { border-color:#3aa76d; }
+.wine-auth .field-error { align-items:flex-start; color:#8c1f33; display:none; font-size:.76rem; font-weight:700; gap:.4rem; margin-top:.4rem; }
+.wine-auth .field-error i { margin-top:.12rem; }
+.wine-auth .form-group.has-error .field-error { display:flex; }
+.wine-auth .form-group.has-error .input-wrap { border-color:#8c1f33; box-shadow:0 0 0 .18rem rgba(217,83,79,.15); }
+.wine-auth .password-wrap { flex:1; position:relative; }
+.wine-auth .password-wrap .form-control { padding-right:2.7rem; }
+.wine-auth .toggle-password { align-items:center; background:none; border:0; color:#7c6b6e; cursor:pointer; display:flex; height:100%; justify-content:center; position:absolute; right:.25rem; top:0; width:2.4rem; }
+.wine-auth .toggle-password:hover { color:#641b2c; }
+
+.wine-auth .btn-gold { background:linear-gradient(96deg,#641b2c,#8b3046 55%,#a03a55); border:0; border-radius:.55rem; box-shadow:0 10px 22px rgba(100,27,44,.32); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:800; gap:.5rem; padding:.8rem 1.1rem; transition:transform .15s ease, box-shadow .15s ease; }
+.wine-auth .btn-gold:hover { background:linear-gradient(96deg,#741f35,#9c3550); box-shadow:0 13px 26px rgba(100,27,44,.42); color:#fff; transform:translateY(-1px); }
+.wine-auth .btn-gold:disabled { cursor:not-allowed; opacity:.75; transform:none; }
+.wine-auth .btn-gold.btn-block { width:100%; }
+.wine-auth .btn-gold .btn-arrow { display:inline-block; margin-left:.4rem; transition:transform .18s ease; }
+.wine-auth .btn-gold:hover .btn-arrow { transform:translateX(4px); }
+.wine-auth .btn-ghost { background:#fff; border:1px solid #dcd3cc; border-radius:.55rem; color:#5f4e52; display:inline-flex; align-items:center; font-size:.88rem; font-weight:700; gap:.5rem; justify-content:center; padding:.72rem 1rem; transition:border-color .18s ease, box-shadow .18s ease, transform .15s ease; }
+.wine-auth .btn-ghost:hover { border-color:#8b3046; box-shadow:0 9px 22px rgba(100,27,44,.15); color:#641b2c; transform:translateY(-1px); text-decoration:none; }
+.wine-auth .btn-ghost.btn-block { width:100%; }
+.wine-auth .btn-google { align-items:center; background:#fff; border:1px solid #dcd3cc; border-radius:.55rem; box-shadow:0 6px 16px rgba(100,27,44,.06); color:#4a3f42; display:flex; font-size:.9rem; font-weight:700; gap:.7rem; justify-content:center; padding:.72rem; text-decoration:none !important; transition:border-color .18s ease, box-shadow .18s ease, transform .15s ease; width:100%; }
+.wine-auth .btn-google:hover { border-color:#8b3046; box-shadow:0 9px 22px rgba(100,27,44,.15); color:#641b2c; transform:translateY(-1px); }
+.wine-auth .btn-google svg { flex:0 0 auto; transition:transform .18s ease; }
+.wine-auth .btn-google:hover svg { transform:scale(1.1); }
+
+.wine-auth .or-sep { align-items:center; color:#7a6a6d; display:flex; font-size:.7rem; font-weight:800; gap:.75rem; letter-spacing:.08em; margin:1.1rem 0 .85rem; text-transform:uppercase; }
+.wine-auth .or-sep::before, .wine-auth .or-sep::after { background:#eadfd7; content:''; flex:1; height:1px; }
+
+.wine-auth .auth-link { color:#6f5f62; font-size:.82rem; font-weight:700; text-align:center; display:block; }
+.wine-auth .auth-link a { color:#641b2c; font-weight:800; }
+.wine-auth .auth-link a:hover { color:#a03a55; text-decoration:underline; }
+
+.wine-auth .alert-box { animation:err-shake .38s ease; background:#fff0ee; border:1px solid #f6ecee; border-radius:10px; color:#741f35; font-size:.82rem; font-weight:700; margin-bottom:1rem; padding:.7rem .85rem; }
+.wine-auth .alert-box.ok { animation:none; background:#eefaf3; border-color:#bfe8d2; color:#1e7a46; }
+.wine-auth .alert-box.gold { background:#fff8e6; border-color:#f0d79b; color:#7c5a12; }
+@keyframes err-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(3px)} }
+
+/* ---------- Champs de code (OTP / 2FA) ---------- */
+.wine-auth .code-inputs { display:flex; gap:.55rem; justify-content:center; margin:.4rem 0 .3rem; }
+.wine-auth .code-inputs input { border:1.5px solid #e4dcd5; border-radius:.65rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:1.35rem; font-weight:800; height:3.3rem; text-align:center; transition:border-color .18s ease, box-shadow .18s ease; width:2.9rem; color:#2b1b20; }
+.wine-auth .code-inputs input:focus { border-color:#641b2c; box-shadow:0 0 0 .22rem rgba(100,27,44,.14); outline:0; }
+.wine-auth .code-hint { color:#6f5f62; font-size:.76rem; text-align:center; }
+
+/* ---------- Deux étages (signup) ---------- */
+.wine-auth .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
+.wine-auth .benefits { background:linear-gradient(160deg,#7c2238,#4a1120); border-radius:14px; color:#fff; margin:1.15rem 0 .4rem; padding:1rem 1.1rem; position:relative; }
+.wine-auth .benefits::before { content:''; inset:0; position:absolute; background:radial-gradient(circle at 90% 20%, rgba(201,155,59,.25), transparent 50%); border-radius:14px; pointer-events:none; }
+.wine-auth .benefits h3 { font-size:.8rem; font-weight:800; letter-spacing:.08em; margin:0 0 .5rem; text-transform:uppercase; position:relative; }
+.wine-auth .benefits ul { display:grid; gap:.32rem .6rem; grid-template-columns:1fr 1fr; list-style:none; margin:0; padding:0; position:relative; }
+.wine-auth .benefits li { align-items:center; color:rgba(255,255,255,.88); display:flex; font-size:.76rem; gap:.45rem; }
+.wine-auth .benefits i { color:#efd48e; font-size:.76rem; width:14px; }
+
+/* =====================================================================
+   Inscription vendeur — mise en page deux panneaux (clone du formulaire
+   d'inscription Angular). Classe racine .lb-auth.
+   ===================================================================== */
+.lb-auth { background:#18070c; color:#2b1b20; display:grid; grid-template-columns:1fr; min-height:100vh; }
+.lb-auth * { box-sizing:border-box; }
+
+/* ---------- Panneau de marque ---------- */
+.lb-auth__marque { background:linear-gradient(160deg,#451320 0%,#6b1f2a 55%,#2e0d14 100%); color:#fdfaf5; display:none; overflow:hidden; padding:clamp(2rem,4vw,3.5rem); position:relative; }
+.lb-auth__marque::after { content:''; inset:0; pointer-events:none; position:absolute; background-image:repeating-linear-gradient(135deg, rgba(253,250,245,.045) 0 1px, transparent 1px 8px); }
+.lb-auth__lueur { border-radius:50%; filter:blur(70px); pointer-events:none; position:absolute; }
+.lb-auth__lueur--or { background:radial-gradient(circle, rgba(201,155,59,.42), transparent 70%); height:min(420px,55vw); right:-14%; top:-12%; width:min(420px,55vw); }
+.lb-auth__lueur--rouge { background:radial-gradient(circle, rgba(140,47,60,.55), transparent 70%); bottom:-22%; height:min(520px,65vw); left:-18%; width:min(520px,65vw); }
+.lb-auth__marque-contenu { align-items:flex-start; display:flex; flex-direction:column; height:100%; justify-content:center; max-width:30rem; position:relative; z-index:1; }
+.lb-auth__sceau { align-items:center; background:rgba(253,250,245,.08); border:1px solid rgba(227,196,106,.55); border-radius:50%; display:grid; height:56px; margin-bottom:1.25rem; place-items:center; width:56px; }
+.lb-auth__sceau i { color:#efd48e; font-size:1.5rem; }
+.lb-auth__titre { background:linear-gradient(100deg,#fdfaf5 0%,#f7e9c4 34%,#c99b3b 56%,#fdfaf5 100%); -webkit-background-clip:text; background-clip:text; color:transparent; font-size:clamp(2rem,4vw,2.9rem); letter-spacing:.015em; line-height:1.05; margin:0; }
+.lb-auth__filet { align-items:center; display:inline-flex; gap:10px; margin:clamp(.9rem,2vw,1.3rem) 0 clamp(1.5rem,3vw,2.2rem); }
+.lb-auth__filet i { background:linear-gradient(90deg,transparent,#e3c46a); display:block; height:1px; width:clamp(40px,8vw,76px); }
+.lb-auth__filet i:last-child { background:linear-gradient(270deg,transparent,#e3c46a); }
+.lb-auth__filet b { background:rgba(227,196,106,.28); border:1px solid #e3c46a; height:8px; transform:rotate(45deg); width:8px; }
+.lb-auth__atouts { display:grid; gap:1.1rem; list-style:none; margin:0; padding:0; }
+.lb-auth__atouts li { align-items:center; color:rgba(253,250,245,.88); display:flex; font-size:.94rem; gap:12px; }
+.lb-auth__pu { align-items:center; background:rgba(201,155,59,.18); border:1px solid rgba(201,155,59,.35); border-radius:50%; color:#efd48e; display:grid; flex:0 0 auto; height:34px; place-items:center; width:34px; }
+.lb-auth__pu i { font-size:.95rem; }
+
+/* ---------- Panneau formulaire ---------- */
+.lb-auth__panneau { align-items:center; background:radial-gradient(900px 420px at 80% -10%, #2a0d16 0%, #18070c 45%, #0e0509 100%); display:flex; justify-content:center; padding:clamp(1.5rem,4vw,3rem) clamp(1rem,3vw,2rem); }
+.lb-auth__carte { background:#ffffff; border:1px solid rgba(201,155,59,.35); border-radius:22px; box-shadow:0 32px 80px rgba(0,0,0,.55); max-width:520px; padding:clamp(1.5rem,3vw,2.25rem); width:100%; }
+.lb-auth__entete { margin-bottom:clamp(1.25rem,3vw,1.75rem); }
+.lb-auth__repere { color:#641b2c; display:inline-block; font-size:.72rem; font-weight:800; letter-spacing:.16em; margin-bottom:.4rem; text-transform:uppercase; }
+.lb-auth__soustitre { color:#2b1b20; font-size:clamp(1.4rem,3vw,1.75rem); font-weight:800; margin:0 0 1rem; }
+.lb-auth__intro { color:#6f5f62; font-size:.92rem; line-height:1.5; margin:0 0 1rem; }
+.lb-auth__intro strong { color:#2b1b20; word-break:break-all; }
+
+/* ---------- Jalons de progression ---------- */
+.jalons { display:flex; gap:6px; list-style:none; margin:0; padding:0; }
+.jalons__point { background:#e4dcd5; border-radius:999px; flex:1; height:4px; transition:background .2s ease; }
+.jalons__point--actif { background:linear-gradient(90deg,#641b2c,#c99b3b); }
+
+/* ---------- Formulaire ---------- */
+.lb-form { display:grid; gap:.9rem; }
+.lb-champ { display:grid; gap:.35rem; }
+.lb-champ > label { color:#5f4e52; font-size:.78rem; font-weight:800; }
+.lb-input { align-items:center; background:#fff; border:1px solid #e4dcd5; border-radius:.6rem; display:flex; transition:border-color .18s ease, box-shadow .18s ease; }
+.lb-input:focus-within { border-color:#c99b3b; box-shadow:0 0 0 .2rem rgba(201,155,59,.16); }
+.lb-input.is-invalid { border-color:#8c1f33; }
+.lb-input__icn { align-items:center; color:#7c6b6e; display:flex; justify-content:center; padding:0 .75rem; }
+.lb-input:focus-within .lb-input__icn { color:#641b2c; }
+.lb-input input { background:transparent; border:0; color:#2b1b20; flex:1; font-size:.95rem; min-width:0; outline:none; padding:.78rem .85rem .78rem 0; }
+.lb-input input::placeholder { color:#7c6b6e; }
+
+/* Autofill : évite le fond jaune/clair du navigateur qui casse le contraste */
+.lb-input input:-webkit-autofill,
+.lb-input input:-webkit-autofill:hover,
+.lb-input input:-webkit-autofill:focus,
+.wine-auth .input-wrap .form-control:-webkit-autofill,
+.wine-auth .input-wrap .form-control:-webkit-autofill:hover,
+.wine-auth .input-wrap .form-control:-webkit-autofill:focus {
+  -webkit-text-fill-color:#2b1b20;
+  -webkit-box-shadow:0 0 0 1000px #fff inset;
+  box-shadow:0 0 0 1000px #fff inset;
+  caret-color:#2b1b20;
+  transition:background-color 9999s ease-out 0s;
+}
+.lb-password { display:flex; flex:1; position:relative; }
+.lb-password input { padding-right:2.7rem; }
+.lb-toggle { align-items:center; background:none; border:0; color:#7c6b6e; cursor:pointer; display:flex; height:100%; justify-content:center; position:absolute; right:.25rem; top:0; width:2.4rem; }
+.lb-toggle:hover { color:#641b2c; }
+.lb-aide { color:#6f5f62; font-size:.74rem; }
+.lb-erreur { align-items:flex-start; color:#8c1f33; display:flex; font-size:.76rem; font-weight:700; gap:.4rem; margin:0; }
+.lb-meter { align-items:center; display:flex; gap:.5rem; }
+.lb-meter__bar { background:#f0e8df; border-radius:999px; flex:1; height:6px; overflow:hidden; }
+.lb-meter__bar .meter-fill { background:#8c1f33; display:block; height:100%; transition:width .2s ease; width:0; }
+.lb-meter .meter-label { color:#6f5f62; font-size:.72rem; min-width:4.5rem; }
+
+/* ---------- Canal de vérification ---------- */
+.lb-canal { border:0; margin:0; padding:0; }
+.lb-canal > legend { color:#5f4e52; font-size:.78rem; font-weight:800; letter-spacing:.04em; margin-bottom:.5rem; padding:0; text-transform:uppercase; }
+.lb-canal__choix { display:grid; gap:.6rem; }
+.lb-canal__option { align-items:center; background:#faf7f5; border:1px solid #e4dcd5; border-radius:.75rem; cursor:pointer; display:flex; gap:12px; padding:.85rem 1rem; transition:border-color .18s ease, background .18s ease, box-shadow .18s ease; }
+.lb-canal__option:hover { border-color:#c99b3b; box-shadow:0 6px 16px rgba(100,27,44,.08); }
+.lb-canal__option input { height:1px; opacity:0; position:absolute; width:1px; }
+.lb-canal__option.is-checked { background:#f6ecee; border-color:#641b2c; box-shadow:0 6px 16px rgba(100,27,44,.08); }
+.lb-canal__option.is-checked .lb-canal__icone { background:#641b2c; border-color:#641b2c; color:#fff; }
+.lb-canal__icone { align-items:center; background:#fff; border:1px solid #e4dcd5; border-radius:50%; color:#641b2c; display:grid; flex:0 0 auto; height:40px; place-items:center; transition:background .18s ease, border-color .18s ease, color .18s ease; width:40px; }
+.lb-canal__texte { display:grid; gap:2px; }
+.lb-canal__texte strong { color:#2b1b20; font-size:.95rem; }
+.lb-canal__texte small { color:#6f5f62; font-size:.78rem; }
+
+/* ---------- Bouton principal ---------- */
+.lb-cta { align-items:center; background:linear-gradient(135deg,#641b2c,#8b3046); border:0; border-radius:999px; box-shadow:0 14px 30px rgba(100,27,44,.32); color:#fff; cursor:pointer; display:inline-flex; font-size:.98rem; font-weight:800; gap:10px; height:52px; justify-content:center; margin-top:.5rem; transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease; width:100%; }
+.lb-cta:hover:not(:disabled) { box-shadow:0 18px 36px rgba(100,27,44,.42); transform:translateY(-1px); }
+.lb-cta:disabled { cursor:not-allowed; opacity:.7; }
+.lb-cta .label, .lb-cta .spinner { align-items:center; display:inline-flex; gap:.5rem; }
+
+/* ---------- Séparateur, Google, bascule ---------- */
+.lb-sep { align-items:center; color:#7a6a6d; display:flex; font-size:.7rem; font-weight:800; gap:.75rem; letter-spacing:.08em; margin:1.1rem 0 .85rem; text-transform:uppercase; }
+.lb-sep::before, .lb-sep::after { background:#eadfd7; content:''; flex:1; height:1px; }
+.lb-google { align-items:center; background:#fff; border:1px solid #dcd3cc; border-radius:.6rem; color:#4a3f42; display:flex; font-size:.9rem; font-weight:700; gap:.7rem; justify-content:center; padding:.72rem; text-decoration:none !important; transition:border-color .18s ease, box-shadow .18s ease, transform .15s ease; width:100%; }
+.lb-google:hover { border-color:#8b3046; box-shadow:0 9px 22px rgba(100,27,44,.15); color:#641b2c; transform:translateY(-1px); }
+.lb-bascule { color:#6f5f62; font-size:.9rem; margin:1.25rem 0 0; text-align:center; }
+.lb-bascule a { color:#641b2c; font-weight:800; }
+.lb-bascule a:hover { color:#a03a55; text-decoration:underline; }
+
+/* ---------- Messages ---------- */
+.lb-auth__message { align-items:flex-start; border-radius:10px; display:flex; font-size:.82rem; font-weight:700; gap:.5rem; margin-bottom:1rem; padding:.7rem .85rem; }
+.lb-auth__message--erreur { background:#f6ecee; border:1px solid #e7d2d7; color:#8c1f33; }
+.lb-auth__message--ok { background:#e9f2ed; border:1px solid #c6ded0; color:#2f6b4f; }
+
+/* ---------- Étape 2 : code, minuteur, actions ---------- */
+.lb-code { display:flex; gap:clamp(6px,1.6vw,10px); justify-content:center; margin:.4rem 0 1rem; }
+.lb-code input { background:#faf7f5; border:1px solid #e4dcd5; border-radius:.65rem; color:#2b1b20; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:clamp(1.25rem,4vw,1.6rem); font-weight:800; height:clamp(52px,14vw,62px); text-align:center; transition:border-color .18s ease, box-shadow .18s ease; width:clamp(42px,12vw,54px); }
+.lb-code input:focus { background:#fff; border-color:#c99b3b; box-shadow:0 0 0 3px rgba(201,155,59,.28); outline:none; }
+.lb-minuteur { align-items:center; background:#faf7f5; border:1px solid #e4dcd5; border-radius:999px; color:#6f5f62; display:inline-flex; font-size:.82rem; gap:8px; margin-bottom:1rem; padding:8px 14px; }
+.lb-minuteur i { color:#c99b3b; }
+.lb-minuteur strong { color:#2b1b20; font-variant-numeric:tabular-nums; }
+.lb-actions { display:grid; gap:.4rem; margin-top:1rem; }
+.lb-lien { align-items:center; background:transparent; border:0; border-radius:999px; color:#641b2c; cursor:pointer; display:inline-flex; font-size:.88rem; font-weight:700; gap:.5rem; justify-content:center; padding:.6rem .75rem; }
+.lb-lien:hover { background:rgba(100,27,44,.08); }
+
+/* ---------- 2FA : QR + secret ---------- */
+.wine-auth .qr-wrap { align-items:center; background:#fff; border:1px solid #eadfd7; border-radius:14px; display:flex; gap:1.2rem; padding:1.1rem 1.2rem; }
+.wine-auth .qr-wrap svg { border-radius:8px; box-shadow:0 8px 18px rgba(100,27,44,.12); flex:0 0 auto; height:158px; width:158px; }
+.wine-auth .secret-label { color:#6f5f62; font-size:.7rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.wine-auth .secret-value { color:#2b1b20; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:1rem; font-weight:800; letter-spacing:.06em; margin:.15rem 0 .5rem; word-break:break-all; }
+.wine-auth .secret-copy { background:none; border:0; color:#641b2c; font-size:.78rem; font-weight:800; padding:0; }
+.wine-auth .secret-copy:hover { color:#a03a55; text-decoration:underline; }
+
+.wine-auth .recovery-codes { display:grid; gap:.5rem; grid-template-columns:1fr 1fr; list-style:none; margin:.8rem 0; padding:0; }
+.wine-auth .recovery-codes li { background:#fbf6ec; border:1px dashed #d9bb7c; border-radius:8px; color:#3f2a10; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.82rem; font-weight:800; letter-spacing:.05em; padding:.5rem .6rem; text-align:center; }
+.wine-auth .recovery-note { background:#fff8e6; border:1px solid #f0d79b; border-radius:10px; color:#7c5a12; font-size:.78rem; line-height:1.55; margin-top:.5rem; padding:.65rem .8rem; }
+
+/* ---------- Espace sécurité ---------- */
+.wine-auth .shield-row { align-items:center; border:1px solid #eadfd7; border-radius:13px; display:flex; gap:.9rem; margin-bottom:.7rem; padding:.95rem 1.05rem; }
+.wine-auth .shield-row .icn-box { align-items:center; background:#fbf6ec; border:1px solid #eadfd7; border-radius:11px; color:#641b2c; display:flex; flex:0 0 auto; font-size:1.05rem; height:44px; justify-content:center; width:44px; }
+.wine-auth .shield-row h4 { color:#2b1b20; font-size:.92rem; font-weight:800; margin:0 0 .1rem; }
+.wine-auth .shield-row p { color:#6f5f62; font-size:.78rem; margin:0; }
+.wine-auth .shield-row .meta { color:#6f5f62; font-size:.78rem; margin-left:auto; text-align:right; }
+.wine-auth .pill { background:linear-gradient(96deg,#641b2c,#8b3046); border-radius:20px; color:#fff; font-size:.72rem; font-weight:800; padding:.28rem .7rem; white-space:nowrap; }
+.wine-auth .pill.ok { background:linear-gradient(96deg,#2c8b5b,#3aa76d); }
+.wine-auth .pill.warn { background:linear-gradient(96deg,#a67c1e,#c99b3b); }
+.wine-auth .table-dev { width:100%; }
+.wine-auth .table-dev th { color:#6f5f62; font-size:.68rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.wine-auth .table-dev th, .wine-auth .table-dev td { border-bottom:1px solid #f0e8df; padding:.6rem .4rem; text-align:left; }
+.wine-auth .table-dev td { color:#4a3f42; font-size:.82rem; }
+.wine-auth .table-dev .cur { color:#641b2c; font-weight:800; }
+.wine-auth .btn-mini { background:#fff; border:1px solid #dcd3cc; border-radius:8px; color:#6f5f62; font-size:.72rem; font-weight:800; padding:.3rem .6rem; }
+.wine-auth .btn-mini:hover { border-color:#8c1f33; color:#8c1f33; }
+.wine-auth .trust-row { align-items:center; color:#7a6a6d; display:flex; font-size:.72rem; gap:.55rem; margin-top:1.3rem; }
+.wine-auth .trust-row span { align-items:center; background:#faf7f2; border:1px solid #eee7dd; border-radius:20px; display:inline-flex; gap:.35rem; padding:.3rem .62rem; }
+.wine-auth .trust-row i { color:#641b2c; font-size:.8rem; }
+
+@media (min-width:900px) {
+  .lb-auth { grid-template-columns:minmax(320px,1fr) minmax(480px,1.2fr); }
+  .lb-auth__marque { display:flex; align-items:center; }
+}
+
+@media (max-width:720px) {
+  .wine-auth .grid2 { grid-template-columns:1fr; }
+  .wine-auth .qr-wrap { flex-direction:column; text-align:center; }
+  .wine-auth .recovery-codes { grid-template-columns:1fr; }
+  .wine-auth .code-inputs input { width:2.4rem; }
+  .wine-auth .shield-row { flex-wrap:wrap; }
+  .wine-auth .shield-row .meta { margin-left:0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wine-auth .auth-card, .wine-auth .blob, .wine-auth .logo-bubble::after { animation:none !important; }
+  .wine-auth * { transition:none !important; }
+}

@@ -1,0 +1,21 @@
+/* ==========================================================================
+   FRONTEND — Design des listes (habillage global)
+
+   Principes :
+   - pas de modification du markup HTML existant ;
+   - uniquement des surcharges qui s'ajoutent aux comportements déjà présents
+     (Material, Angular, directives Automatiques) ;
+   - toute la palette est issue de --lb-* définis dans styles.scss ;
+   - les classes sont nommées par intention (list-card, table-list,
+     badge-*, statut-*) pour être utilisables sur toutes les pages.
+
+   Utilisation recommandée :
+   - les lignes de liste : <li class="list-card">...</li>
+   - les tableaux d'administration : <table class="table-list">
+   - les étiquettes d'état : <span class="badge badge--pending">...</span>
+   - les puces de statut : <span class="statut statut--ok"><span class="statut__dot"></span>Validé</span>
+
+   NOTE D'INTÉGRATION : conçu pour fonctionner avec les variables de thème
+   clair/sombre ; ne porte pas de composant mat- par défaut (il surcharge
+   juste l'aspect visuel de base).
+   ========================================================================== */

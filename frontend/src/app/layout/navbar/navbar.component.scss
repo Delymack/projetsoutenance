@@ -1,0 +1,300 @@
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* ------------------------------------------------------------------
+   Barre
+   ------------------------------------------------------------------ */
+.navbar {
+  background: color-mix(in srgb, var(--lb-surface) 96%, transparent);
+  color: var(--lb-text);
+  border-bottom: 1px solid var(--lb-border);
+  box-shadow: var(--lb-shadow-1);
+  backdrop-filter: blur(14px);
+}
+
+.navbar__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--lb-gap);
+  height: 68px;
+}
+
+/* ------------------------------------------------------------------
+   Marque
+   ------------------------------------------------------------------ */
+.navbar__marque {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--lb-text);
+  flex-shrink: 0;
+
+  &:hover {
+    color: var(--lb-text);
+  }
+}
+
+.navbar__logo {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid color-mix(in srgb, var(--lb-accent) 28%, var(--lb-border));
+  border-radius: 50%;
+  color: var(--lb-accent-hover);
+  font-size: 1.45rem;
+  line-height: 1;
+  /* Léger flottement pour évoquer le verre de vin */
+  animation: lb-flottement 4s ease-in-out infinite;
+}
+
+@keyframes lb-flottement {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(3deg);
+  }
+}
+
+.navbar__titre {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+
+  strong {
+    font-family: var(--lb-font-display);
+    font-size: 1.05rem;
+    letter-spacing: 0.2px;
+  }
+
+  small {
+    font-size: 0.7rem;
+    color: var(--lb-text-muted);
+  }
+
+  /* Masqué sur très petit écran pour gagner de la place */
+  @media (max-width: 420px) {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Liens desktop
+   ------------------------------------------------------------------ */
+.navbar__links {
+  display: none;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    display: flex;
+  }
+}
+
+.navbar__lien {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: var(--lb-radius-sm);
+  color: var(--lb-text-muted);
+  font-size: 0.88rem;
+  font-weight: 500;
+  white-space: nowrap;
+  position: relative;
+  transition:
+    color var(--lb-transition),
+    background-color var(--lb-transition);
+
+  &:hover {
+    color: var(--lb-text);
+    background: var(--lb-bg-alt);
+  }
+
+  /* Soulignement animé pour la page courante */
+  &.is-actif {
+    color: var(--lb-text);
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 2px;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--lb-or-clair);
+      animation: lb-souligner var(--lb-transition) ease-out;
+    }
+  }
+}
+
+@keyframes lb-souligner {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.navbar__icone {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* ------------------------------------------------------------------
+   Actions
+   ------------------------------------------------------------------ */
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.navbar__action {
+  color: var(--lb-text);
+
+  &:hover {
+    color: var(--lb-primary-hover);
+  }
+}
+
+/* Rotation douce de l'icône au basculement de thème */
+.navbar__action--theme mat-icon {
+  transition: transform var(--lb-transition-slow);
+}
+
+.navbar__action--theme:hover mat-icon {
+  transform: rotate(35deg) scale(1.1);
+}
+
+.navbar__langue {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.95rem;
+
+  small {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--lb-text-muted);
+  }
+}
+
+/* ------------------------------------------------------------------
+ Bandeau hors ligne 
+   ------------------------------------------------------------------ */
+.navbar__hors-ligne {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--lb-primary);
+  color: var(--lb-primary-contrast);
+  font-size: 0.82rem;
+  font-weight: 600;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  animation: lb-slide-down 300ms ease-out;
+}
+
+@keyframes lb-slide-down {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Menus Material
+   ------------------------------------------------------------------ */
+.lb-menu__texte {
+  margin-left: 10px;
+}
+
+.lb-menu__check {
+  margin-left: auto;
+  color: var(--lb-success);
+}
+
+.is-actif-menu {
+  background: color-mix(in srgb, var(--lb-primary) 12%, transparent);
+}
+/* pastille de compte : la photo du profil, ou les initiales.
+   Le compteur de messages non lus se pose dessus, comme sur une application
+   de messagerie : un chiffre, pas une seconde icône. */
+.navbar__action--compte {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Plus large que les autres boutons : la pastille photo a besoin d'air,
+     sinon elle touche le bord du bouton. */
+  width: 42px;
+  height: 42px;
+  padding: 0;
+}
+
+.navbar__pip {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  display: grid;
+  place-items: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 0.6rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--lb-primary-contrast);
+  background: var(--lb-primary);
+  border: 2px solid var(--lb-surface);
+  border-radius: 999px;
+}
+
+.navbar__inscription {
+  font-size: 0.84rem;
+  height: 36px;
+  white-space: nowrap;
+}
+
+/* Repli sur petit écran : le libellé du bouton laisse la place au burger */
+@media (max-width: 1100px) {
+  .navbar__inscription {
+    min-width: 40px;
+    padding-inline: 10px;
+    font-size: 0;
+  }
+
+  .navbar__inscription mat-icon {
+    margin: 0;
+  }
+}

@@ -1,0 +1,31 @@
+{% extends "admin/auth/shell.html" %}
+{% block auth_kicker %}Connexion sans mot de passe{% endblock %}
+{% block auth_title %}Recevez un lien de connexion{% endblock %}
+{% block auth_sub %}Plus rapide qu'un mot de passe : un lien à usage unique part par e-mail.{% endblock %}
+
+{% block auth_body %}
+{% if error %}
+  <div class="alert-box" role="alert"><i class="fas fa-exclamation-circle mr-1"></i>{{ error }}</div>
+{% endif %}
+
+<div class="alert-box gold" role="status"><i class="fas fa-shield mr-1"></i>Le lien expire au bout de 10 minutes et ne peut être utilisé qu'une seule fois.</div>
+
+<form method="post" action="{% url 'auth-magic-link' %}" novalidate>
+  {% csrf_token %}
+  <div class="form-group">
+    <label for="id_email"><i class="fas fa-envelope mr-1" style="color:#c99b3b"></i> Adresse e-mail du compte</label>
+    <div class="input-wrap">
+      <span class="icn"><i class="fas fa-wand-magic-sparkles"></i></span>
+      <input type="email" id="id_email" name="email" class="form-control" placeholder="vous@lazani-betsileo.mg" autocomplete="email" autofocus required>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-gold btn-block"><span><i class="fas fa-wand-magic-sparkles mr-2"></i>Envoyer le lien<i class="fas fa-arrow-right btn-arrow"></i></span></button>
+</form>
+
+<div class="or-sep">ou</div>
+<p class="auth-link">
+  <a href="/admin/login/"><i class="fas fa-sign-in-alt mr-1"></i>Se connecter avec un mot de passe</a>
+  <span class="mx-1">·</span>
+  <a href="{% url 'auth-forgot-password' %}"><i class="fas fa-key mr-1"></i>Mot de passe oublié</a>
+</p>
+{% endblock %}

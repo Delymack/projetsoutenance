@@ -1,0 +1,203 @@
+<!-- tunnel de commande client -->
+<div class="commande-page lb-container">
+
+  @if (reference(); as numero) {
+    <!-- Confirmation -->
+    <section class="confirmation lb-card">
+      <span class="confirmation__pastille" aria-hidden="true">
+        <mat-icon>check</mat-icon>
+      </span>
+      <h1 class="confirmation__titre">
+        {{ enAttenteValidation() ? 'Commande en attente de validation' : ('COMMANDE.merci' | translate) }}
+      </h1>
+      <p class="confirmation__texte">
+        {{ enAttenteValidation()
+          ? ('COMMANDE.validationEnCoursDetail' | translate)
+          : ('COMMANDE.recu' | translate) }}
+      </p>
+
+      <div class="confirmation__recap">
+        <span class="confirmation__numero">{{ numero }}</span>
+        @if (!enAttenteValidation()) {
+        <span class="confirmation__points">
+          <mat-icon>workspace_premium</mat-icon>
+          +{{ pointsGagnes() }} {{ 'PROFIL.points' | translate }}
+        </span>
+        }
+      </div>
+
+      <div class="confirmation__etapes">
+        <div class="etape">
+          <mat-icon>inventory_2</mat-icon>
+          <span>{{ 'COMMANDE.etapePreparation' | translate }}</span>
+        </div>
+        <div class="etape">
+          <mat-icon>local_shipping</mat-icon>
+          <span>{{ 'COMMANDE.etapeLivraison' | translate }}</span>
+        </div>
+        <div class="etape">
+          <mat-icon>celebration</mat-icon>
+          <span>{{ 'COMMANDE.etapeDegustation' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="confirmation__actions">
+        <a mat-flat-button color="primary" routerLink="/profil" class="lb-btn-ripple">
+          <mat-icon>receipt_long</mat-icon>
+          {{ 'COMMANDE.voirCommandes' | translate }}
+        </a>
+        <a mat-stroked-button routerLink="/catalogue" class="lb-btn-ripple">
+          <mat-icon>wine_bar</mat-icon>
+          {{ 'PROFIL.continuer' | translate }}
+        </a>
+      </div>
+    </section>
+  } @else if (panier.estVide()) {
+    <!-- Panier vide -->
+    <section class="commande-page__vide lb-card">
+      <mat-icon>shopping_cart</mat-icon>
+      <h1>{{ 'PANIER.vide' | translate }}</h1>
+      <a mat-flat-button color="primary" routerLink="/catalogue" class="lb-btn-ripple">
+        {{ 'PROFIL.voirCatalogue' | translate }}
+      </a>
+    </section>
+  } @else {
+    <header class="commande-page__tete">
+      <h1>{{ 'COMMANDE.titre' | translate }}</h1>
+    </header>
+
+    <div class="commande-page__grille">
+      <div class="commande-page__etapes-colonne">
+
+        <!-- Récapitulatif -->
+        <section class="bloc lb-card">
+          <h2 class="bloc__titre">
+            <mat-icon>shopping_bag</mat-icon>
+            {{ 'COMMANDE.recapitulatif' | translate }}
+          </h2>
+          <ul class="recap">
+            @for (ligne of panier.lignes(); track ligne.vin.id) {
+              <li class="recap__ligne">
+                <img [src]="ligne.vin.image" [alt]="ligne.vin.nom" loading="lazy" />
+                <div class="recap__infos">
+                  <strong>{{ ligne.vin.nom }}</strong>
+                  <small>{{ ligne.vin.region }} · {{ ligne.quantite }} × {{ ligne.prixUnitaire | currency: 'Ar' }}</small>
+                </div>
+                <span class="recap__total">{{ ligne.prixUnitaire * ligne.quantite | number }} Ar</span>
+              </li>
+            }
+          </ul>
+        </section>
+
+        <!-- Livraison -->
+        <section class="bloc lb-card">
+          <h2 class="bloc__titre">
+            <mat-icon>local_shipping</mat-icon>
+            {{ 'COMMANDE.livraison' | translate }}
+          </h2>
+
+          <mat-button-toggle-group
+            class="choix"
+            [value]="livraison()"
+            (change)="livraison.set($event.value)"
+            hideSingleSelectionIndicator
+            aria-label="mode de livraison"
+          >
+            <mat-button-toggle value="livraison">
+              <mat-icon>home</mat-icon>
+              {{ 'COMMANDE.a domicile' | translate }}
+            </mat-button-toggle>
+            <mat-button-toggle value="retrait">
+              <mat-icon>store</mat-icon>
+              {{ 'COMMANDE.retraitMagasin' | translate }}
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+
+          @if (profil.adresseParDefaut(); as adresse) {
+            <div class="adresse-choisie">
+              <mat-icon>place</mat-icon>
+              <div>
+                <strong>{{ adresse.libelle }} — {{ adresse.destinataire }}</strong>
+                <small>{{ adresse.ligne }}, {{ adresse.ville }} · {{ adresse.telephone }}</small>
+              </div>
+              <a routerLink="/profil">{{ 'COMMANDE.modifierAdresse' | translate }}</a>
+            </div>
+          } @else {
+            <div class="adresse-choisie adresse-choisie--alerte">
+              <mat-icon>info</mat-icon>
+              <span>{{ 'COMMANDE.adresseManquante' | translate }}</span>
+              <a routerLink="/profil">{{ 'PROFIL.nouvelleAdresse' | translate }}</a>
+            </div>
+          }
+
+          <mat-form-field appearance="outline" class="notes">
+            <mat-label>Téléphone de contact</mat-label>
+            <input matInput type="tel" autocomplete="tel" [formControl]="form.controls.telephone" />
+            @if (form.controls.telephone.hasError('required') && form.controls.telephone.touched) {
+              <mat-error>Le téléphone est obligatoire.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="notes">
+            <mat-label>{{ 'COMMANDE.notes' | translate }}</mat-label>
+            <textarea matInput rows="2" [formControl]="form.controls.notes"></textarea>
+          </mat-form-field>
+        </section>
+
+        <!-- Règlement -->
+        <section class="bloc lb-card">
+          <h2 class="bloc__titre">
+            <mat-icon>payments</mat-icon>
+            {{ 'COMMANDE.reglement' | translate }}
+          </h2>
+          <p>{{ 'COMMANDE.reglementDetail' | translate }}</p>
+        </section>
+      </div>
+
+      <!-- Résumé -->
+      <aside class="resume lb-card">
+        <h2 class="bloc__titre">{{ 'COMMANDE.resume' | translate }}</h2>
+
+        <dl class="resume__lignes">
+          <div>
+            <dt>{{ 'PANIER.sousTotal' | translate }}</dt>
+            <dd>{{ panier.sousTotal() | number }} Ar</dd>
+          </div>
+          <div>
+            <dt>{{ 'COMMANDE.livraison' | translate }}</dt>
+            <dd>{{ fraisAffiche() === 0 ? ('COMMANDE.offerte' | translate) : (fraisAffiche() | number) + ' Ar' }}</dd>
+          </div>
+          <div class="resume__total">
+            <dt>{{ 'PANIER.total' | translate }}</dt>
+            <dd>{{ totalAffiche() | number }} Ar</dd>
+          </div>
+        </dl>
+
+        <p class="resume__points">
+          <mat-icon>workspace_premium</mat-icon>
+          {{ 'COMMANDE.pointsGagnes' | translate: { points: pointsGagnes() } }}
+        </p>
+
+        <button
+          mat-flat-button
+          color="primary"
+          class="resume__bouton lb-btn-ripple"
+          [disabled]="enCours()"
+          (click)="valider()"
+        >
+          @if (enCours()) {
+            <mat-icon class="lb-spin">progress_activity</mat-icon>
+          } @else {
+            <mat-icon>lock</mat-icon>
+          }
+          Confirmer la commande
+        </button>
+
+        <p class="resume__mention">
+          <mat-icon>verified_user</mat-icon>
+          {{ 'COMMANDE.mentionSecurite' | translate }}
+        </p>
+      </aside>
+    </div>
+  }
+</div>

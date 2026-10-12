@@ -1,0 +1,655 @@
+@use 'styles/material';
+// Leaflet : la feuille de style de la bibliothèque n'est pas
+// embarquée par le bundler, on l'importe donc explicitement. Elle est placée
+// après les styles Material pour que nos surcharges de thème gagnent.
+@use 'leaflet/dist/leaflet.css';
+
+/* ==========================================================================
+   Lazan'i Betsileo — Feuille de style globale
+   Thème viticole piloté par CSS variables (voir core/services/theme.service).
+   Convention : chaque composant utilise var(--lb-*) uniquement, jamais de
+   couleur « en dur », afin que le basculement clair/sombre soit instantané.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. PALETTE — Tokens de base (communs aux deux thèmes)
+   -------------------------------------------------------------------------- */
+:root {
+  /* Couleurs de marque */
+  --lb-bordeaux: #76001f;
+  --lb-bordeaux-clair: #9b1235;
+  --lb-or: #c9a227;
+  --lb-or-clair: #e3c46a;
+  --lb-creme: #f7f4ef;
+  --lb-vert: #3d6b4f;
+  --lb-rouge: #b3261e;
+
+  /* Typographie */
+  --lb-font-display: 'Georgia', 'Times New Roman', serif;
+  --lb-font-body: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+
+  /* Rayons & ombres */
+  --lb-radius-sm: 6px;
+  --lb-radius: 8px;
+  --lb-radius-lg: 12px;
+
+  /* Espacements */
+  --lb-gap-xs: 4px;
+  --lb-gap-sm: 8px;
+  --lb-gap: 16px;
+  --lb-gap-lg: 24px;
+
+  /* Élévations */
+  --lb-shadow-1: 0 8px 24px rgba(90, 24, 38, 0.08);
+  --lb-shadow-2: 0 14px 34px rgba(90, 24, 38, 0.12);
+  --lb-shadow-3: 0 22px 52px rgba(90, 24, 38, 0.16);
+
+  /* Transitions globales (micro-interactions) */
+  --lb-transition: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  --lb-transition-slow: 420ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --------------------------------------------------------------------------
+   2. THÈME CLAIR — crème & bordeaux
+   -------------------------------------------------------------------------- */
+:root,
+[data-theme='clair'] {
+  color-scheme: light;
+
+  --lb-bg: #fbfaf8;
+  --lb-bg-alt: #f7f2eb;
+  --lb-surface: #ffffff;
+  --lb-surface-2: #faf7f2;
+  --lb-overlay: rgba(20, 12, 8, 0.45);
+
+  --lb-text: #1d1720;
+  --lb-text-muted: #726a70;
+  --lb-text-inverse: #fdfaf5;
+
+  --lb-primary: var(--lb-bordeaux);
+  --lb-primary-hover: var(--lb-bordeaux-clair);
+  --lb-primary-contrast: #ffffff;
+
+  --lb-accent: var(--lb-or);
+  --lb-accent-hover: var(--lb-or-clair);
+  --lb-accent-contrast: #2a1c16;
+
+  --lb-border: #e9e1dc;
+  --lb-divider: rgba(107, 31, 42, 0.12);
+
+  --lb-success: var(--lb-vert);
+  --lb-warning: #b8860b;
+  --lb-info: #2f6f8f;
+  --lb-danger: var(--lb-rouge);
+
+  /* Halo «Mise en avant » promotions */
+  --lb-promo-bg: rgba(201, 162, 39, 0.14);
+  --lb-promo-border: var(--lb-or);
+
+  /* Ombres pondérées du thème */
+  --lb-shadow-1: 0 1px 3px rgba(60, 30, 20, 0.12);
+  --lb-shadow-2: 0 4px 14px rgba(60, 30, 20, 0.14);
+  --lb-shadow-3: 0 12px 32px rgba(60, 30, 20, 0.2);
+  --lb-hero-background:
+    radial-gradient(circle at 82% 18%, rgba(201, 162, 39, 0.14), transparent 24rem),
+    linear-gradient(135deg, #fffdf9 0%, #f4eee5 100%);
+  --lb-hero-text: #342a22;
+  --lb-hero-subtext: #665b50;
+  --lb-hero-kicker: #8b6c2f;
+}
+
+/* --------------------------------------------------------------------------
+   3. THÈME SOMBRE — noir profond & or
+   -------------------------------------------------------------------------- */
+[data-theme='sombre'] {
+  color-scheme: dark;
+
+  --lb-bg: #171311;
+  --lb-bg-alt: #211917;
+  --lb-surface: #251d1b;
+  --lb-surface-2: #302421;
+  --lb-overlay: rgba(0, 0, 0, 0.72);
+
+  --lb-text: #f5eee8;
+  --lb-text-muted: #c0b2aa;
+  --lb-text-inverse: #1d1720;
+
+  --lb-primary: #c74a62;
+  --lb-primary-hover: #e36b7d;
+  --lb-primary-contrast: #ffffff;
+
+  --lb-accent: #e3c46a;
+  --lb-accent-hover: #f0d98e;
+  --lb-accent-contrast: #261c12;
+
+  --lb-border: #493a35;
+  --lb-divider: rgba(245, 222, 207, 0.14);
+
+  --lb-success: #8bbd8a;
+  --lb-warning: #e3c46a;
+  --lb-info: #83bfd0;
+  --lb-danger: #ff8c86;
+
+  --lb-promo-bg: rgba(201, 162, 39, 0.14);
+  --lb-promo-border: rgba(227, 196, 106, 0.42);
+
+  --lb-shadow-1: 0 2px 8px rgba(0, 0, 0, 0.24);
+  --lb-shadow-2: 0 8px 22px rgba(0, 0, 0, 0.32);
+  --lb-shadow-3: 0 16px 40px rgba(0, 0, 0, 0.4);
+  --lb-hero-background:
+    radial-gradient(circle at 82% 18%, rgba(199, 74, 98, 0.2), transparent 24rem),
+    linear-gradient(135deg, #241916 0%, #120d0c 100%);
+  --lb-hero-text: #f7eee8;
+  --lb-hero-subtext: #d2c0b6;
+  --lb-hero-kicker: #e3c46a;
+}
+
+/* --------------------------------------------------------------------------
+   4. RESET & BASE
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--lb-font-body);
+  background-color: var(--lb-bg);
+  color: var(--lb-text);
+  -webkit-font-smoothing: antialiased;
+  /* Transition douce lors du changement de thème (évite le flash blanc) */
+  transition:
+    background-color var(--lb-transition-slow),
+    color var(--lb-transition-slow);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--lb-font-display);
+  margin: 0 0 var(--lb-gap-sm);
+  line-height: 1.25;
+}
+
+a {
+  color: var(--lb-primary);
+  text-decoration: none;
+  transition: color var(--lb-transition);
+}
+
+a:hover {
+  color: var(--lb-primary-hover);
+}
+
+/* Accessibilité : anneau de focus visible et contrasté */
+:focus-visible {
+  outline: 2px solid var(--lb-accent);
+  outline-offset: 2px;
+}
+
+/* Respect de la préférence système « réduire les animations » */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   5. UTILITAIRES PARTAGÉS
+   -------------------------------------------------------------------------- */
+.lb-container {
+  width: min(1440px, 100% - 2rem);
+  margin-inline: auto;
+}
+
+.lb-card {
+  background: var(--lb-surface);
+  border: 1px solid var(--lb-border);
+  border-radius: var(--lb-radius);
+  box-shadow: var(--lb-shadow-1);
+  transition:
+    box-shadow var(--lb-transition),
+    transform var(--lb-transition),
+    border-color var(--lb-transition);
+}
+
+/* Survol « carte vin » : élévation + bordure dorée */
+.lb-card--hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--lb-shadow-2);
+  border-color: rgba(201, 162, 39, 0.35);
+}
+
+.lb-badge-promo {
+  background: var(--lb-promo-bg);
+  border: 1px solid var(--lb-promo-border);
+  color: var(--lb-text);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.lb-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Barre de défilement harmonisée au thème */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--lb-bg-alt);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--lb-border);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--lb-primary);
+}
+
+/* Micro-interaction : effet ripple sur boutons (feedback visuel) */
+.lb-btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.lb-btn-ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.18) 0%, transparent 70%);
+  transform: scale(0);
+  opacity: 0;
+  transition: transform 260ms ease, opacity 260ms ease;
+  pointer-events: none;
+}
+
+.lb-btn-ripple:active::after {
+  transform: scale(1.2);
+  opacity: 1;
+  transition-duration: 120ms;
+}
+
+/* --------------------------------------------------------------------------
+ 6. ANIMATIONS PARTAGÉES 
+   -------------------------------------------------------------------------- */
+
+/* Apparition en cascade : chaque enfant reçoit un délai via --i */
+@keyframes lb-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lb-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes lb-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes lb-slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.lb-stagger > * {
+  opacity: 0;
+  animation: lb-fade-in-up 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+.lb-fade-in {
+  opacity: 0;
+  animation: lb-fade-in 360ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.lb-slide-in-right {
+  opacity: 0;
+  animation: lb-slide-in-right 360ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.lb-slide-in-left {
+  opacity: 0;
+  animation: lb-slide-in-left 360ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes lb-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.85;
+  }
+}
+
+.lb-pulse {
+  animation: lb-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes lb-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.lb-spin {
+  animation: lb-spin 0.9s linear infinite;
+}
+
+/* Impression du ticket : n'imprimer que la zone.ticket-print */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .ticket-print,
+  .ticket-print * {
+    visibility: visible;
+  }
+
+  .ticket-print {
+    position: absolute;
+    inset: 0;
+    width: 80mm;
+    padding: 4mm;
+    background: #fff;
+    color: #000;
+  }
+}
+
+/* Toasts de l'intercepteur HTTP */
+.snack-danger {
+  --mdc-snackbar-container-color: var(--lb-danger);
+  --mdc-snackbar-supporting-text-color: #fff;
+}
+
+.snack-warning {
+  --mdc-snackbar-container-color: var(--lb-warning);
+  --mdc-snackbar-supporting-text-color: #1b1206;
+}
+
+.snack-success {
+  --mdc-snackbar-container-color: var(--lb-success);
+  --mdc-snackbar-supporting-text-color: #fff;
+}
+
+/* Toasts hors ligne : pleine largeur sur mobile */
+.snack-offline {
+  --mdc-snackbar-container-color: var(--lb-primary);
+  --mdc-snackbar-supporting-text-color: var(--lb-primary-contrast);
+}
+
+/* --------------------------------------------------------------------------
+   8. ÉCRAN DE DÉMARRAGE
+   Affiché dans <app-root> avant que le bundle JS ne soit exécuté.
+   -------------------------------------------------------------------------- */
+.app-loader {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--lb-gap);
+  min-height: 100vh;
+  background: var(--lb-bg);
+  color: var(--lb-text);
+
+  p {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.2rem;
+    margin: 0;
+    letter-spacing: 1px;
+  }
+}
+
+.app-loader__verre {
+  font-size: 4rem;
+  animation: lb-flottement 2s ease-in-out infinite;
+}
+
+.app-loader__bar {
+  width: 180px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--lb-border);
+  overflow: hidden;
+
+  span {
+    display: block;
+    width: 40%;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--lb-primary);
+    animation: lb-charge 1.1s ease-in-out infinite;
+  }
+}
+
+@keyframes lb-charge {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
+}
+
+/* --------------------------------------------------------------------------
+ 9. LEAFLET — intégration au thème viticole 
+   Leaflet n'étant pas compatible avec les CSS variables, on surcharge ses
+   classes pour qu'il suive le thème et reste lisible en mode sombre.
+   -------------------------------------------------------------------------- */
+.leaflet-container {
+  background: var(--lb-bg-alt);
+  font-family: var(--lb-font-body);
+
+  // Les tuiles OpenStreetMap sont très claires : on les adoucit en mode sombre
+  // via un filtre CSS appliqué uniquement au calque de tuiles.
+  .leaflet-tile-pane {
+    filter: brightness(0.72) invert(1) contrast(0.86) hue-rotate(180deg) saturate(0.7);
+  }
+}
+
+[data-theme='clair'] .leaflet-container .leaflet-tile-pane {
+  filter: none;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: var(--lb-surface);
+  color: var(--lb-text);
+  box-shadow: var(--lb-shadow-2);
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px;
+  font-size: 0.9rem;
+}
+
+.leaflet-bar a {
+  background: var(--lb-surface);
+  color: var(--lb-text);
+  border-bottom-color: var(--lb-border);
+}
+
+.leaflet-bar a:hover {
+  background: var(--lb-surface-2);
+  color: var(--lb-primary);
+}
+
+.leaflet-control-attribution {
+  background: color-mix(in srgb, var(--lb-surface) 82%, transparent);
+  color: var(--lb-text-muted);
+  font-size: 0.68rem;
+}
+
+.leaflet-control-attribution a {
+  color: var(--lb-primary);
+}
+/* Marqueurs de caves (divIcon) : pastille colorée par type de point de vente. */
+.lb-marqueur {
+  background: none;
+  border: 0;
+}
+.lb-marqueur__pastille {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50% 50% 50% 4px;
+  transform: rotate(-45deg);
+  background: var(--lb-primary);
+  border: 2px solid var(--lb-accent);
+  box-shadow: var(--lb-shadow-2);
+  cursor: pointer;
+  transition:
+    transform var(--lb-transition),
+    box-shadow var(--lb-transition);
+
+  &::after {
+    content: '';
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--lb-surface);
+  }
+  &:hover {
+    transform: rotate(-45deg) scale(1.15);
+    box-shadow: var(--lb-shadow-3);
+  }
+  &[data-type='domaine'] {
+    background: var(--lb-success);
+  }
+  &[data-type='partenaire'] {
+    background: var(--lb-info);
+  }
+  &[data-type='magasin'] {
+    background: var(--lb-accent);
+  }
+}
+/* Contenu des popups Leaflet. */
+.lb-popup h4 {
+  margin: 0 0 var(--lb-gap-xs);
+  font-family: var(--lb-font-display);
+  font-size: 1rem;
+}
+.lb-popup p {
+  margin: 0 0 4px;
+  line-height: 1.4;
+}
+.lb-popup__ville {
+  font-weight: 600;
+  color: var(--lb-primary);
+}
+.lb-popup__horaires,
+.lb-popup__vins {
+  font-size: 0.8rem;
+  color: var(--lb-text-muted);
+}
+
+
+/* ------------------------------------------------------------------
+   Menus Material
+   ------------------------------------------------------------------ */
+/* Le panneau des notifications est rendu dans l'overlay Material : sa largeur
+   doit donc être réglée globalement, pas dans le style du composant navbar. */
+.mat-mdc-menu-panel.lb-menu--large {
+  max-width: min(392px, 92vw);
+}
+
+/* Panneau de compte : largeur du panneau et suppression des marges internes
+   de Material — la carte de membre occupe toute la largeur, bord à bord. */
+.mat-mdc-menu-panel.lb-menu--compte {
+  max-width: min(376px, 94vw);
+  border-radius: var(--lb-radius-lg);
+  overflow: hidden;
+}
+
+.mat-mdc-menu-panel.lb-menu--compte .mat-mdc-menu-content {
+  padding: 0;
+}
+
+/* WineShop polish shared by storefront screens */
+body {
+  background:
+    radial-gradient(circle at 8% 12%, rgba(201, 162, 39, 0.08), transparent 28rem),
+    linear-gradient(180deg, #fff 0%, var(--lb-bg) 34rem);
+}
+
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-unelevated-button.mat-primary,
+.mat-mdc-fab.mat-primary,
+.mat-mdc-mini-fab.mat-primary,
+.mat-mdc-flat-button.mat-primary {
+  --mdc-filled-button-container-color: var(--lb-primary);
+  --mdc-filled-button-label-text-color: #fff;
+  border-radius: var(--lb-radius-sm);
+  box-shadow: 0 10px 22px rgba(118, 0, 31, 0.18);
+}
+
+.mat-mdc-outlined-button,
+.mat-mdc-stroked-button {
+  border-radius: var(--lb-radius-sm) !important;
+}
+
+.mat-mdc-form-field {
+  --mdc-outlined-text-field-outline-color: var(--lb-border);
+  --mdc-outlined-text-field-hover-outline-color: color-mix(in srgb, var(--lb-primary) 40%, var(--lb-border));
+  --mdc-outlined-text-field-focus-outline-color: var(--lb-primary);
+  --mdc-outlined-text-field-container-shape: 8px;
+}
+
+.lb-card {
+  border-color: rgba(118, 0, 31, 0.1);
+}

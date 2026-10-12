@@ -1,0 +1,20 @@
+<!--
+  Lecteur code-barres / QR.
+  Le composant hôte affiche ce bloc quand il veut scanner et écoute `codeLu`.
+-->
+<div class="lecteur">
+  <div class="lecteur__cadre">
+    <video #video class="lecteur__video" muted playsinline></video>
+
+    @if (demarrage()) {
+      <div class="lecteur__attente">
+        <mat-spinner diameter="42" />
+      </div>
+    }
+
+    @if (pret()) {
+      <!-- Viseur : donne le repère à viser pour l'étiquette. -->
+      <span class="lecteur__viseur" aria-hidden="true"></span>
+    }
+  </div>
+</div>

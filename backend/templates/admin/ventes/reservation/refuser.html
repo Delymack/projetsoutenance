@@ -1,0 +1,54 @@
+{% extends "admin/base_site.html" %}
+{% load i18n lb_tags %}
+
+{% comment %}
+Confirmation du refus d'une commande du site. Le motif est obligatoire
+(5 caractères minimum, vérifiés par le service) : c'est la seule action du
+circuit qui demande une explication, car le client doit être informé du refus.
+{% endcomment %}
+
+{% block extrastyle %}{{ block.super }}
+<style>
+  .rf-page { color:#292425; margin:0 auto; max-width:620px; }
+  .rf-card { background:#fff; border:1px solid #e5ddd7; border-radius:10px; overflow:hidden; }
+  .rf-head { align-items:center; background:linear-gradient(110deg,#542430,#743745); color:#fff; display:flex; gap:.7rem; padding:1rem 1.2rem; }
+  .rf-head h1 { color:#fff; font-size:1.1rem; margin:0; }
+  .rf-head i { font-size:1.2rem; }
+  .rf-body { padding:1.2rem; }
+  .rf-recap { background:#faf7f4; border:1px solid #eee8e2; border-radius:8px; font-size:.85rem; margin-bottom:1rem; padding:.7rem .8rem; }
+  .rf-recap strong { color:#542430; }
+  .rf-field label { display:block; font-size:.8rem; font-weight:700; margin-bottom:.35rem; }
+  .rf-field textarea { border:1px solid #ded5ce; border-radius:6px; font:inherit; min-height:96px; padding:.55rem .65rem; resize:vertical; width:100%; }
+  .rf-actions { display:flex; gap:.6rem; margin-top:1.1rem; }
+  .rf-actions button, .rf-actions a { border-radius:6px; cursor:pointer; font-weight:700; min-height:42px; padding:0 1rem; text-decoration:none; }
+  .rf-submit { background:var(--lb-wine,#542430); border:1px solid var(--lb-wine,#542430); color:#fff; flex:1; }
+  .rf-cancel { background:#fff; border:1px solid #ded5ce; color:#5c544f; }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="rf-page">
+  <form method="post" class="rf-card">
+    {% csrf_token %}
+    <div class="rf-head">
+      <i class="fas fa-times-circle" aria-hidden="true"></i>
+      <h1>Refuser la commande {{ reservation.reference }}</h1>
+    </div>
+    <div class="rf-body">
+      <div class="rf-recap">
+        Client : <strong>{{ reservation.client.nom|default:reservation.client }}</strong><br>
+        Montant : <strong>{{ reservation.montant_total|floatformat:2|intcomma }}</strong> · Retrait : {{ reservation.date_expiration|date:"d/m/Y" }}
+      </div>
+      <div class="rf-field">
+        <label for="id_motif">Motif du refus <span style="color:#8c1f33">*</span></label>
+        <textarea id="id_motif" name="motif" required minlength="5"
+          placeholder="Expliquez au client pourquoi cette commande est refusée (indisponibilité, délai, etc.)"></textarea>
+      </div>
+      <div class="rf-actions">
+        <a class="rf-cancel" href="{% url 'admin:ventes_reservation_change' reservation.pk %}">Annuler</a>
+        <button class="rf-submit" type="submit">Confirmer le refus</button>
+      </div>
+    </div>
+  </form>
+</main>
+{% endblock %}

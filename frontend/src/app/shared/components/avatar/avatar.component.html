@@ -1,0 +1,23 @@
+<!--
+  Photo du compte ou initiales. Le nom est toujours écrit à côté de la pastille :
+  l'image est donc décorative et reste hors de la lecture d'écran.
+-->
+@if (photo(); as source) {
+  <img
+    class="avatar__photo"
+    [src]="source"
+    alt=""
+    [style.width.px]="taille()"
+    [style.height.px]="taille()"
+  />
+} @else {
+  <span
+    class="avatar__initiales"
+    aria-hidden="true"
+    [style.width.px]="taille()"
+    [style.height.px]="taille()"
+    [style.font-size.px]="tailleTexte()"
+  >
+    {{ initiales() }}
+  </span>
+}

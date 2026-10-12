@@ -1,0 +1,166 @@
+<!--
+ Avis clients — synthèse, formulaire de dépôt et liste paginée.
+-->
+<section class="avis">
+  <!-- ---------------------------------------------------------- Synthèse -->
+  <header class="avis__entete">
+    <h3 class="avis__titre">
+      <mat-icon>rate_review</mat-icon>
+      {{ 'AVIS.titre' | translate }}
+    </h3>
+    <span class="avis__compteur">{{ pagination().totalAvis }} {{ 'AVIS.note' | translate }}</span>
+  </header>
+
+  @if (chargement()) {
+    <div class="avis__chargement lb-pulse" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
+  } @else if (avis().length === 0) {
+    <p class="avis__vide">{{ 'AVIS.aucunAvis' | translate }}</p>
+  } @else {
+    <!-- Moyenne + répartition des notes -->
+    <div class="avis__synthese">
+      <div class="avis__moyenne">
+        <strong class="avis__moyenne-valeur">{{ moyenne() | number: '1.1-1' }}</strong>
+        <span class="avis__etoiles" [attr.aria-label]="('AVIS.moyenne' | translate) + ' : ' + (moyenne() | number: '1.1-1')">
+          @for (etoile of etoiles; track etoile) {
+            <mat-icon>{{ etoile <= moyenne() ? 'star' : 'star_border' }}</mat-icon>
+          }
+        </span>
+        <small class="avis__moyenne-note">{{ 'AVIS.moyenne' | translate }} — {{ avis().length }} {{ 'AVIS.note' | translate }}</small>
+      </div>
+
+      <ul class="avis__repartition">
+        @for (ligne of repartition(); track ligne.note) {
+          <li class="avis__repartition-ligne">
+            <span class="avis__repartition-label">{{ ligne.note }}<mat-icon>star</mat-icon></span>
+            <span class="avis__repartition-barre">
+              <span
+                class="avis__repartie-remplissage"
+                [style.width.%]="ligne.proportion * 100"
+              ></span>
+            </span>
+            <span class="avis__repartition-total">{{ ligne.total }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <!-- Liste paginée -->
+    <ul class="avis__liste lb-stagger">
+      @for (avis of avisPage(); track avis.id; let i = $index) {
+        <li class="avis__item" [style.--i]="i">
+          <div class="avis__item-entete">
+            <span class="avis__auteur">{{ avis.auteur }}</span>
+            <span class="avis__etoiles avis__etoiles--petite" [attr.aria-label]="avis.note + ' / 5'">
+              @for (etoile of etoiles; track etoile) {
+                <mat-icon>{{ etoile <= avis.note ? 'star' : 'star_border' }}</mat-icon>
+              }
+            </span>
+            <time class="avis__date" [attr.datetime]="avis.date">{{ avis.date | date: 'dd/MM/yyyy' }}</time>
+          </div>
+
+          <p class="avis__commentaire">{{ avis.commentaire }}</p>
+
+          <button
+            type="button"
+            class="avis__jaime lb-btn-ripple"
+            [attr.aria-label]="('AVIS.aimer' | translate) + ' (' + avis.likes + ')'"
+            (click)="aimer(avis.id)"
+          >
+            <mat-icon>thumb_up</mat-icon>
+            {{ avis.likes }}
+          </button>
+        </li>
+      }
+    </ul>
+
+    <!-- Pagination -->
+    @if (pagination().total > 1) {
+      <nav class="avis__pagination" [attr.aria-label]="'AVIS.pagination' | translate">
+        <button
+          mat-icon-button
+          type="button"
+          [disabled]="!pagePrecedente()"
+          (click)="precedent()"
+          [attr.aria-label]="'AVIS.pagePrecedente' | translate"
+        >
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        <span class="avis__pagination-etat">
+          {{ 'AVIS.page' | translate: { page: pagination().page, total: pagination().total } }}
+          <small>({{ pagination().premier }}–{{ pagination().dernier }} sur {{ pagination().totalAvis }})</small>
+        </span>
+
+        <button
+          mat-icon-button
+          type="button"
+          [disabled]="!pageSuivante()"
+          (click)="suivant()"
+          [attr.aria-label]="'AVIS.pageSuivante' | translate"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </nav>
+    }
+  }
+
+  <!-- ---------------------------------------------------------- Formulaire -->
+  @if (formulaireActif()) {
+    <form class="avis__formulaire" [formGroup]="formulaire" (ngSubmit)="publier()" novalidate>
+      <h4 class="avis__formulaire-titre">{{ 'AVIS.publier' | translate }}</h4>
+
+      <!-- Notation par étoiles (boutons radio(role) : accessible au clavier) -->
+      <div class="avis__note" role="radiogroup" [attr.aria-label]="'AVIS.note' | translate">
+        @for (etoile of etoiles; track etoile) {
+          <button
+            type="button"
+            class="avis__note-etoile lb-btn-ripple"
+            role="radio"
+            [attr.aria-checked]="formulaire.controls.note.value >= etoile"
+            [attr.aria-label]="etoile + ' / 5'"
+            [class.is-active]="etoile <= formulaire.controls.note.value"
+            (click)="noter(etoile)"
+          >
+            <mat-icon>{{ etoile <= formulaire.controls.note.value ? 'star' : 'star_border' }}</mat-icon>
+          </button>
+        }
+      </div>
+
+      <mat-form-field appearance="outline" class="avis__champ">
+        <mat-label>{{ 'AVIS.auteur' | translate }}</mat-label>
+        <input matInput formControlName="auteur" autocomplete="name" />
+        @if (messageErreur('auteur'); as erreur) {
+          <mat-error>{{ erreur | translate }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="avis__champ">
+        <mat-label>{{ 'AVIS.commentaire' | translate }}</mat-label>
+        <textarea
+          matInput
+          formControlName="commentaire"
+          rows="3"
+          maxlength="400"
+        ></textarea>
+        <mat-hint align="end">{{ formulaire.controls.commentaire.value.length }} / 400</mat-hint>
+        @if (messageErreur('commentaire'); as erreur) {
+          <mat-error>{{ erreur | translate }}</mat-error>
+        }
+      </mat-form-field>
+
+      <button mat-flat-button type="submit" class="avis__envoyer">
+        <mat-icon>send</mat-icon>
+        {{ 'AVIS.envoyer' | translate }}
+      </button>
+
+      @if (envoye()) {
+        <p class="avis__confirmation lb-fade-in">
+          <mat-icon>check_circle</mat-icon>
+          {{ 'AVIS.merci' | translate }}
+        </p>
+      }
+    </form>
+  }
+</section>

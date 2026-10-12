@@ -1,0 +1,44 @@
+{% extends "admin/auth/shell.html" %}
+{% block auth_kicker %}Vérification renforcée{% endblock %}
+{% block auth_title %}Code de double authentification{% endblock %}
+{% block auth_sub %}Votre compte est protégé par un code à 6 chiffres.{% endblock %}
+
+{% block auth_body %}
+{% if error %}
+  <div class="alert-box" role="alert"><i class="fas fa-exclamation-circle mr-1"></i>Code invalide. Vérifiez l'heure de votre appareil puis réessayez.</div>
+{% endif %}
+
+<form method="post" action="{% url 'auth-2fa-verify' %}" novalidate>
+  {% csrf_token %}
+  <input type="hidden" name="code" value="">
+  <div class="form-group">
+    <label for="c0">Code de l'application</label>
+    <div class="code-inputs">
+      {% for n in "012345" %}<input type="text" id="c{{ forloop.counter0 }}" class="otp-digit" maxlength="1" inputmode="numeric" autocomplete="one-time-code" aria-label="Chiffre {{ forloop.counter }}" {% if forloop.first %}autofocus{% endif %}>{% endfor %}
+    </div>
+  </div>
+  <button type="submit" class="btn btn-gold btn-block"><span><i class="fas fa-shield-halved mr-2"></i>Vérifier et continuer<i class="fas fa-arrow-right btn-arrow"></i></span></button>
+</form>
+
+{% if recovery_count %}
+<div class="or-sep">ou</div>
+<form method="post" action="{% url 'auth-2fa-verify' %}" novalidate>
+  {% csrf_token %}
+  <input type="hidden" name="action" value="recovery">
+  <div class="form-group" style="text-align:center">
+    <label for="id_recovery">Code de secours <span class="code-hint">(il en reste {{ recovery_count }})</span></label>
+    <div class="input-wrap" style="max-width:280px;margin:0 auto">
+      <span class="icn"><i class="fas fa-shield-halved"></i></span>
+      <input type="text" id="id_recovery" name="code" class="form-control" placeholder="XXXX-XXXX-XXXX" autocomplete="off" autofocus required>
+    </div>
+    <button type="submit" class="btn-ghost" style="margin-top:.7rem"><span><i class="fas fa-key mr-2"></i>Utiliser un code de secours</span></button>
+  </div>
+</form>
+{% endif %}
+
+<p class="auth-link" style="margin-top:.9rem"><a href="/admin/logout/"><i class="fas fa-sign-out-alt mr-1"></i>Se déconnecter et changer de compte</a></p>
+{% endblock %}
+
+{% block auth_scripts %}
+<script>document.addEventListener('DOMContentLoaded', function(){var el=document.querySelector('.otp-digit'); if(el){el.focus();}});</script>
+{% endblock %}

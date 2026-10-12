@@ -1,0 +1,158 @@
+<section class="historique lb-container">
+  <header class="historique__header">
+    <div>
+      <span class="eyebrow">Lazan'i Betsileo</span>
+      <h1>{{ 'HISTORIQUE.titre' | translate }}</h1>
+      <p>
+        {{ commandesService.commandes().length }} commande(s) ·
+        {{ commandesService.nbBouteilles() }} bouteille(s) ·
+        {{ commandesService.totalDepense() | number: '1.0-0' }} Ar
+      </p>
+    </div>
+    <a mat-stroked-button routerLink="/catalogue">
+      <mat-icon>storefront</mat-icon>
+      {{ 'CATALOGUE.titre' | translate }}
+    </a>
+  </header>
+
+  <div class="historique__filtres lb-card">
+    <mat-button-toggle-group
+      [value]="statutFiltre()"
+      (change)="statutFiltre.set($event.value)"
+      [attr.aria-label]="'HISTORIQUE.statut' | translate"
+      hideSingleSelectionIndicator
+    >
+      <mat-button-toggle [value]="null">{{ 'COMMUN.reinitialiser' | translate }}</mat-button-toggle>
+      @for (statut of statuts; track statut) {
+        <mat-button-toggle [value]="statut">{{ 'HISTORIQUE.statuts.' + statut | translate }}</mat-button-toggle>
+      }
+    </mat-button-toggle-group>
+
+    <mat-button-toggle-group
+      [value]="anneeFiltre()"
+      (change)="anneeFiltre.set($event.value)"
+      [attr.aria-label]="'HISTORIQUE.date' | translate"
+      hideSingleSelectionIndicator
+    >
+      <mat-button-toggle [value]="null">{{ 'COMMUN.reinitialiser' | translate }}</mat-button-toggle>
+      @for (annee of annees(); track annee) {
+        <mat-button-toggle [value]="annee">{{ annee }}</mat-button-toggle>
+      }
+    </mat-button-toggle-group>
+  </div>
+
+  @if (commandes().length === 0) {
+    <div class="historique__vide lb-card" role="status">
+      <mat-icon>receipt_long</mat-icon>
+      <h2>{{ 'HISTORIQUE.aucuneCommande' | translate }}</h2>
+      <a mat-flat-button color="primary" routerLink="/catalogue">
+        <mat-icon>storefront</mat-icon>
+        {{ 'ACCUEIL.ctaCatalogue' | translate }}
+      </a>
+    </div>
+  } @else {
+    <ol class="historique__liste">
+      @for (commande of commandes(); track commande.reference) {
+        <li class="commande lb-card" [class.commande--annulee]="commande.statut === 'annulee'">
+          <button
+            type="button"
+            class="commande__entete"
+            (click)="basculer(commande)"
+            [attr.aria-expanded]="commandeOuverte() === commande.reference"
+          >
+            <mat-icon class="commande__statut-icone" [class.commande__statut-icone--ok]="commande.statut === 'livree'">
+              {{ icone(commande.statut) }}
+            </mat-icon>
+            <span class="commande__ref">
+              <strong>{{ 'HISTORIQUE.commande' | translate }} {{ commande.reference }}</strong>
+              <small>{{ commande.date | date: 'dd/MM/yyyy HH:mm' }}</small>
+            </span>
+            <span class="commande__statut">
+              @if (commande.validationStatut === 'A_VALIDER') {
+                {{ 'HISTORIQUE.validationAValider' | translate }}
+              } @else if (commande.validationStatut === 'REFUSEE') {
+                {{ 'HISTORIQUE.validationRefusee' | translate }}
+              } @else {
+                {{ 'HISTORIQUE.statuts.' + commande.statut | translate }}
+              }
+            </span>
+            <span class="commande__montant">{{ commandesService.total(commande) | number: '1.0-0' }} Ar</span>
+            <mat-icon class="commande__chevron">{{ commandeOuverte() === commande.reference ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </button>
+
+          @if (commandeOuverte() === commande.reference) {
+            <div class="commande__detail">
+              <ul class="commande__lignes">
+                @for (ligne of lignes(commande); track ligne.vinId) {
+                  <li>
+                    <a [routerLink]="['/vin', ligne.vinId]" class="commande__vignette">
+                      @if (ligne.vin) {
+                        <img [src]="ligne.vin.image" [alt]="ligne.vin.nom" />
+                      } @else {
+                        <mat-icon>wine_bar</mat-icon>
+                      }
+                    </a>
+                    <span class="commande__ligne-nom">
+                      @if (ligne.vin) {
+                        <a [routerLink]="['/vin', ligne.vinId]">{{ ligne.vin.nom }}</a>
+                      } @else {
+                        {{ ligne.vinId }}
+                      }
+                      <small>× {{ ligne.quantite }}</small>
+                    </span>
+                    <span class="commande__ligne-total">{{ ligne.total | number: '1.0-0' }} Ar</span>
+                  </li>
+                }
+              </ul>
+
+              <dl class="commande__totaux">
+                @if (commandesService.remise(commande) > 0) {
+                  <div>
+                    <dt>{{ 'PANIER.remise' | translate }}</dt>
+                    <dd>−{{ commandesService.remise(commande) | number: '1.0-0' }} Ar</dd>
+                  </div>
+                }
+                <div>
+                  <dt>{{ 'PANIER.fraisLivraison' | translate }}</dt>
+                  <dd>{{ commande.fraisLivraison | number: '1.0-0' }} Ar</dd>
+                </div>
+                @if (commande.points > 0) {
+                  <div>
+                    <dt>{{ 'FIDELITE.vosPoints' | translate }}</dt>
+                    <dd>+{{ commande.points }}</dd>
+                  </div>
+                }
+                <div class="commande__total">
+                  <dt>{{ 'HISTORIQUE.montant' | translate }}</dt>
+                  <dd>{{ commandesService.total(commande) | number: '1.0-0' }} Ar</dd>
+                </div>
+              </dl>
+              @if (commande.validationStatut === 'REFUSEE' && commande.motifRefus) {
+                <p class="commande__refus">
+                  {{ 'HISTORIQUE.motifRefus' | translate }} : {{ commande.motifRefus }}
+                </p>
+              }
+
+              <div class="commande__actions">
+                <button mat-stroked-button type="button" (click)="partager(commande)">
+                  <mat-icon>share</mat-icon>
+                  {{ 'VIN.partager' | translate }}
+                </button>
+                @if (commande.factureUrl) {
+                  <a mat-stroked-button [href]="commande.factureUrl" target="_blank" rel="noopener">
+                    <mat-icon>receipt_long</mat-icon>
+                    {{ 'HISTORIQUE.voirFacture' | translate }}
+                  </a>
+                }
+                <a mat-stroked-button routerLink="/favoris">
+                  <mat-icon>favorite</mat-icon>
+                  {{ 'FAVORIS.titre' | translate }}
+                </a>
+              </div>
+            </div>
+          }
+        </li>
+      }
+    </ol>
+  }
+</section>

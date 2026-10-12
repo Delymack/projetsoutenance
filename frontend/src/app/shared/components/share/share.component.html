@@ -1,0 +1,46 @@
+<!--
+ Partage social.
+  Les liens sont de vrais `href` : le partage fonctionne même si `window.open`
+  est bloqué (le navigateur suit alors le lien dans la même fenêtre).
+-->
+<div class="partage" [class.partage--compact]="compact()">
+  @if (!compact()) {
+    <span class="partage__intitule">
+      <mat-icon>ios_share</mat-icon>
+      {{ 'PARTAGE.titre' | translate }}
+    </span>
+  }
+
+  <div class="partage__actions">
+    @for (reseau of reseaux; track reseau.id) {
+      <a
+        class="partage__bouton lb-btn-ripple"
+        [attr.data-reseau]="reseau.id"
+        [href]="lienReseau(reseau.id)"
+        target="_blank"
+        rel="noopener noreferrer"
+        [attr.aria-label]="reseau.cle | translate"
+        [matTooltip]="(reseau.cle | translate) + ' — ' + accroche()"
+      >
+        <mat-icon>{{ reseau.icone }}</mat-icon>
+        @if (!compact()) {
+          <span>{{ reseau.cle | translate }}</span>
+        }
+      </a>
+    }
+
+    <!-- Partage natif (mobile) ou copie du lien -->
+    <button
+      type="button"
+      class="partage__bouton partage__bouton--lien lb-btn-ripple"
+      (click)="partager()"
+      [attr.aria-label]="'PARTAGE.lien' | translate"
+      [matTooltip]="(copie() ? 'PARTAGE.copie' : 'PARTAGE.lien') | translate"
+    >
+      <mat-icon>{{ copie() ? 'check' : 'link' }}</mat-icon>
+      @if (!compact()) {
+        <span>{{ (copie() ? 'PARTAGE.copie' : 'PARTAGE.lien') | translate }}</span>
+      }
+    </button>
+  </div>
+</div>

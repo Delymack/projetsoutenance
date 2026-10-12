@@ -1,0 +1,105 @@
+<!--
+ Frise chronologique des promotions.
+
+  Structure : un rail horizontal avec des repères mensuels, des blocs colorés
+  positionnés en pourcentage de la largeur, répartis sur deux voies pour éviter
+  les chevauchements. Cliquer un bloc ouvre son détail sous la frise.
+-->
+<section class="timeline" [attr.aria-label]="etiquette()">
+  <header class="timeline__entete">
+    <h3 class="timeline__titre">
+      <mat-icon>timeline</mat-icon>
+      {{ 'PROMO.timeline.titre' | translate }}
+    </h3>
+
+    <!-- Légende des états -->
+    <ul class="timeline__legende">
+      <li class="timeline__legende-item" data-etat="passee">
+        <span class="timeline__pastille"></span>
+        {{ libelleEtat('passee') | translate }}
+      </li>
+      <li class="timeline__legende-item" data-etat="encours">
+        <span class="timeline__pastille"></span>
+        {{ libelleEtat('encours') | translate }}
+      </li>
+      <li class="timeline__legende-item" data-etat="avenir">
+        <span class="timeline__pastille"></span>
+        {{ libelleEtat('avenir') | translate }}
+      </li>
+    </ul>
+  </header>
+
+  <!-- Rail et blocs -->
+  <div
+    class="timeline__piste"
+    [style.--lb-voies]="nbVoies()"
+    [style.height.px]="48 + nbVoies() * 46"
+  >
+    <div class="timeline__rail" aria-hidden="true"></div>
+
+    @for (repere of reperes(); track repere.position) {
+      <span class="timeline__repere" [style.left.%]="repere.position" aria-hidden="true">
+        {{ repere.libelle }}
+      </span>
+    }
+
+    @for (bloc of blocs(); track bloc.promo.id) {
+      <button
+        type="button"
+        class="timeline__bloc lb-btn-ripple"
+        [attr.data-etat]="bloc.etat"
+        [class.is-selectionne]="selectionnee()?.id === bloc.promo.id"
+        [class.is-survolee]="survolee() === bloc.promo.id"
+        [ngStyle]="styleBloc(bloc)"
+        [attr.aria-pressed]="selectionnee()?.id === bloc.promo.id"
+        [matTooltip]="bloc.promo.libelle"
+        (click)="selectionner(bloc.promo)"
+        (mouseenter)="survolee.set(bloc.promo.id)"
+        (mouseleave)="survolee.set(null)"
+      >
+        <span class="timeline__bloc-libelle">{{ bloc.promo.libelle }}</span>
+        <span class="timeline__bloc-remise">
+          {{
+            bloc.promo.remisePct === null
+              ? ('PROMO.timeline.lot' | translate)
+              : ('PROMO.timeline.remise' | translate: { remise: bloc.promo.remisePct })
+          }}
+        </span>
+        <span class="timeline__bloc-periode">
+          {{ bloc.promo.dateDebut | date: 'dd/MM' }} → {{ bloc.promo.dateFin | date: 'dd/MM/yy' }}
+        </span>
+      </button>
+    }
+  </div>
+
+  <!-- Détail de la campagne sélectionnée -->
+  @if (selectionnee(); as promo) {
+    <div class="timeline__detail lb-fade-in">
+      <div>
+        <h4 class="timeline__detail-titre">{{ promo.libelle }}</h4>
+        <p class="timeline__detail-lignes">
+          <span>
+            <mat-icon>event</mat-icon>
+            {{ promo.dateDebut | date: 'dd MMMM y' }} → {{ promo.dateFin | date: 'dd MMMM y' }}
+          </span>
+          <span>
+            <mat-icon>wine_bar</mat-icon>
+            {{ 'PROMO.vinsConcernes' | translate }} : {{ promo.vinsIds.length }}
+          </span>
+        </p>
+      </div>
+
+      <button
+        mat-icon-button
+        type="button"
+        class="timeline__fermer"
+        (click)="fermerDetail()"
+        [attr.aria-label]="'COMMUN.fermer' | translate"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  } @else {
+    <p class="timeline__aide">{{ 'PROMO.timeline.aide' | translate }}</p>
+  }
+</section>

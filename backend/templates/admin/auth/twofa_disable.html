@@ -1,0 +1,28 @@
+{% extends "admin/auth/shell.html" %}
+{% block auth_kicker %}Sécurité du compte{% endblock %}
+{% block auth_title %}Désactiver la double authentification{% endblock %}
+{% block auth_sub %}Votre compte perdrait sa protection supplémentaire. Confirmez votre mot de passe.{% endblock %}
+
+{% block auth_body %}
+{% if error %}
+  <div class="alert-box" role="alert"><i class="fas fa-exclamation-circle mr-1"></i>{{ error }}</div>
+{% endif %}
+
+<form method="post" action="{% url 'auth-2fa-disable' %}" novalidate>
+  {% csrf_token %}
+  <div class="form-group">
+    <label for="id_password"><i class="fas fa-lock mr-1" style="color:#c99b3b"></i> Mot de passe de confirmation</label>
+    <div class="input-wrap">
+      <span class="icn"><i class="fas fa-lock"></i></span>
+      <div class="password-wrap">
+        <input type="password" id="id_password" name="password" class="form-control" placeholder="Votre mot de passe actuel" autocomplete="current-password" autofocus required>
+        <button type="button" class="toggle-password" aria-label="Afficher ou masquer le mot de passe" tabindex="-1"><i class="fas fa-eye"></i></button>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:.7rem">
+    <button type="submit" class="btn btn-gold" style="flex:1"><span><i class="fas fa-shield mr-2"></i>Désactiver la 2FA</span></button>
+    <a href="{% url 'auth-account' %}" class="btn-ghost">Annuler</a>
+  </div>
+</form>
+{% endblock %}

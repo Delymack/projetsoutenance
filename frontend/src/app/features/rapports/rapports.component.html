@@ -1,0 +1,56 @@
+<section class="rapports lb-container">
+  <header class="rapports__header">
+    <div>
+      <span class="eyebrow">Analytics</span>
+      <h1>{{ 'RAPPORTS.titre' | translate }}</h1>
+      <p>
+        {{ 'RAPPORTS.chiffreAffaires' | translate }} : {{ totalCa | number: '1.0-0' }} Ar
+        · {{ 'RAPPORTS.bouteilles' | translate }} : {{ indicateurs().bouteilles | number: '1.0-0' }}
+        · {{ 'RAPPORTS.tickets' | translate }} : {{ indicateurs().tickets | number: '1.0-0' }}
+      </p>
+    </div>
+    <div class="rapports__actions">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'RAPPORTS.periode' | translate }}</mat-label>
+        <mat-select [value]="periode()" (selectionChange)="changerPeriode($event.value)">
+          <mat-option value="jour">{{ 'RAPPORTS.parJour' | translate }}</mat-option>
+          <mat-option value="semaine">{{ 'RAPPORTS.parSemaine' | translate }}</mat-option>
+          <mat-option value="mois">{{ 'RAPPORTS.parMois' | translate }}</mat-option>
+          <mat-option value="annee">{{ 'RAPPORTS.parAnnee' | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-stroked-button type="button" (click)="exporterPdf()">
+        <mat-icon>picture_as_pdf</mat-icon>{{ 'RAPPORTS.exporterPdf' | translate }}
+      </button>
+      <button mat-stroked-button type="button" (click)="exporterExcel()">
+        <mat-icon>table_view</mat-icon>{{ 'RAPPORTS.exporterExcel' | translate }}
+      </button>
+    </div>
+  </header>
+
+  <div class="rapports__grid">
+    <article class="lb-card rapports__chart rapports__chart--wide">
+      <h2>{{ 'RAPPORTS.caParJour' | translate }}</h2>
+      <ngx-charts-bar-vertical [results]="caParJour()" [xAxis]="true" [yAxis]="true" [showDataLabel]="true"></ngx-charts-bar-vertical>
+    </article>
+    <article class="lb-card rapports__chart">
+      <h2>{{ 'RAPPORTS.topVins' | translate }}</h2>
+      <ngx-charts-bar-horizontal [results]="topVins()" [xAxis]="true" [yAxis]="true"></ngx-charts-bar-horizontal>
+    </article>
+    <article class="lb-card rapports__chart">
+      <h2>{{ 'RAPPORTS.ventesParCategorie' | translate }}</h2>
+      <ngx-charts-pie-chart [results]="categories()" [labels]="true" [doughnut]="true"></ngx-charts-pie-chart>
+    </article>
+    <article class="lb-card rapports__chart rapports__chart--wide">
+      <h2>{{ 'RAPPORTS.efficacitePromos' | translate }}</h2>
+      <ngx-charts-bar-vertical [results]="promotions()" [xAxis]="true" [yAxis]="true" [showDataLabel]="true"></ngx-charts-bar-vertical>
+    </article>
+    <article class="lb-card rapports__chart rapports__chart--wide">
+      <app-sales-heatmap
+        [donnees]="matrice()"
+        [pic]="picVentes()"
+        [titre]="'HEATMAP.titre' | translate"
+      />
+    </article>
+  </div>
+</section>

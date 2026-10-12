@@ -1,0 +1,174 @@
+/* Heatmap des ventes 
+   ------------------------------------------------------------------
+   La couleur d'une case n'est jamais écrite en dur : le template fournit
+   `--lb-intensite` (0 → 100 %) et c'est `color-mix` qui fait le mélange avec
+   l'accent du thème. Conséquence : le mode sombre, la couleur d'accent choisie
+   et le contraste se résolvent tout seuls. */
+
+:host {
+  display: block;
+}
+
+.heatmap {
+  padding: var(--lb-gap);
+  background: var(--lb-surface);
+  border: 1px solid var(--lb-border);
+  border-radius: var(--lb-radius-lg);
+}
+
+.heatmap__entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--lb-gap-sm);
+  margin-bottom: var(--lb-gap);
+}
+
+.heatmap__titre {
+  display: flex;
+  align-items: center;
+  gap: var(--lb-gap-sm);
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--lb-primary);
+}
+
+.heatmap__sous-titre {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--lb-text-muted);
+
+  strong {
+    color: var(--lb-primary);
+  }
+}
+
+/* ------------------------------------------------------------------ Grille */
+
+.heatmap__grille {
+  /* Débordement horizontal sur mobile plutôt qu'une grille écrasée :
+     24 colonnes illisibles ne servent à rien. */
+  overflow-x: auto;
+  padding-bottom: var(--lb-gap-xs);
+}
+
+.heatmap__ligne {
+  display: grid;
+  grid-template-columns: 46px repeat(24, minmax(14px, 1fr));
+  gap: 3px;
+  align-items: center;
+  margin-bottom: 3px;
+}
+
+.heatmap__ligne--entete {
+  grid-template-columns: 46px 1fr;
+  margin-bottom: var(--lb-gap-xs);
+}
+
+/* Les 8 repères horaires sont répartis sur toute la largeur. */
+.heatmap__heure {
+  font-size: 0.62rem;
+  color: var(--lb-text-muted);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.heatmap__jour {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--lb-text-muted);
+  white-space: nowrap;
+}
+
+.heatmap__case {
+  aspect-ratio: 1;
+  min-width: 14px;
+  padding: 0;
+  cursor: pointer;
+  background: color-mix(in srgb, var(--lb-accent) var(--lb-intensite), var(--lb-surface-2));
+  border: 1px solid var(--lb-border);
+  border-radius: 3px;
+  transition:
+    transform var(--lb-transition),
+    border-color var(--lb-transition),
+    box-shadow var(--lb-transition);
+
+  /* Cases vides : rien ne s'est vendu, on ne colorie donc pas. */
+  &.is-vide {
+    background: var(--lb-surface-2);
+    opacity: 0.55;
+  }
+
+  &:hover,
+  &:focus-visible {
+    transform: scale(1.28);
+    border-color: var(--lb-primary);
+    box-shadow: var(--lb-shadow-2);
+    outline: none;
+  }
+
+  &.is-selectionnee {
+    border-color: var(--lb-primary);
+    box-shadow: 0 0 0 2px var(--lb-accent);
+  }
+}
+
+/* ------------------------------------------------------------------ Légende */
+
+.heatmap__legende {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--lb-gap);
+  font-size: 0.72rem;
+  color: var(--lb-text-muted);
+}
+
+.heatmap__legende-degrade {
+  display: flex;
+  flex: 0 0 160px;
+  height: 10px;
+  overflow: hidden;
+  border: 1px solid var(--lb-border);
+  border-radius: 999px;
+}
+
+.heatmap__legende-pas {
+  flex: 1;
+  background: color-mix(in srgb, var(--lb-accent) var(--lb-intensite), var(--lb-surface-2));
+}
+
+.heatmap__legende-unite {
+  margin-left: var(--lb-gap-xs);
+  font-style: italic;
+}
+
+/* ------------------------------------------------------------------ Détail */
+
+.heatmap__detail {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--lb-gap-sm);
+  margin-top: var(--lb-gap-sm);
+  padding: var(--lb-gap-sm) var(--lb-gap);
+  background: var(--lb-promo-bg);
+  border: 1px solid var(--lb-accent);
+  border-radius: var(--lb-radius-sm);
+
+  mat-icon {
+    color: var(--lb-primary);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.85rem;
+  }
+}
+
+.heatmap__detail-ca {
+  margin-left: auto !important;
+  font-weight: 600;
+  color: var(--lb-primary);
+}

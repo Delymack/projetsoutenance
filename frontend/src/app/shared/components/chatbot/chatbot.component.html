@@ -1,0 +1,177 @@
+<!--
+ Chatbot flottant — bulle + panneau de conversation + formulaire
+  de contact. Monté dans AppComponent, masqué sur l'écran client.
+-->
+<div class="chatbot" [class.chatbot--ouvert]="ouvert()">
+  <!-- ------------------------------------------------------------- Panneau -->
+  @if (ouvert()) {
+    <section class="chatbot__panneau lb-slide-in-up" [attr.aria-label]="'CHATBOT.titre' | translate">
+      <!-- En-tête -->
+      <header class="chatbot__entete">
+        <span class="chatbot__avatar" aria-hidden="true">🍷</span>
+        <div class="chatbot__identite">
+          <strong>{{ 'CHATBOT.titre' | translate }}</strong>
+          <small>
+            <span class="chatbot__statut" aria-hidden="true"></span>
+            {{ 'CHATBOT.sousTitre' | translate }}
+          </small>
+        </div>
+        <button
+          mat-icon-button
+          type="button"
+          (click)="fermer()"
+          [attr.aria-label]="'CHATBOT.fermer' | translate"
+          [matTooltip]="'CHATBOT.fermer' | translate"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <!-- Conversation -->
+      <div class="chatbot__zone" #zone role="log" aria-live="polite" aria-atomic="false">
+        @for (message of messages(); track message.id) {
+          <div class="chatbot__message" [attr.data-role]="message.role">
+            <p class="chatbot__bulle">
+              {{ texte(message.texte) }}
+            </p>
+            <time class="chatbot__heure" [attr.datetime]="message.date.toISOString()">
+              {{ message.date | date: 'HH:mm' }}
+            </time>
+          </div>
+
+          <!-- Suggestions de relance du robot -->
+          @if (message.suggestions.length > 0 && message.role === 'bot') {
+            <div class="chatbot__suggestions">
+              @for (cle of message.suggestions; track cle) {
+                <button type="button" class="chatbot__suggestion" (click)="envoyerSuggestion(cle)">
+                  {{ texte(cle) }}
+                </button>
+              }
+            </div>
+          }
+        }
+
+        <!-- Vins recommandés (après une demande de conseil) -->
+        @if (suggestionsVins().length > 0) {
+          <ul class="chatbot__vins lb-stagger">
+            @for (vin of suggestionsVins(); track vin.id; let i = $index) {
+              <li class="chatbot__vin" [style.--i]="i">
+                <img [src]="vin.image" [alt]="vin.nom" width="40" height="56" loading="lazy" />
+                <div>
+                  <strong>{{ vin.nom }}</strong>
+                  <small>{{ vin.prix | number: '1.0-0' }} Ar · {{ 'VIN.note' | translate: { count: vin.noteMoyenne } }}</small>
+                </div>
+                <a mat-icon-button [routerLink]="['/vin', vin.id]" [attr.aria-label]="vin.nom">
+                  <mat-icon>chevron_right</mat-icon>
+                </a>
+              </li>
+            }
+          </ul>
+        }
+
+        @if (redacte()) {
+          <div class="chatbot__message" data-role="bot">
+            <p class="chatbot__bulle chatbot__bulle--typing">
+              <span></span><span></span><span></span>
+            </p>
+          </div>
+        }
+      </div>
+
+      <!-- Formulaire conseiller -->
+      @if (formulaireOuvert()) {
+        <form class="chatbot__conseiller" [formGroup]="conseillerForm" (ngSubmit)="envoyerDemande()" novalidate>
+          <p class="chatbot__conseiller-titre">
+            <mat-icon>support_agent</mat-icon>
+            {{ 'CHATBOT.conseillerForm.titre' | translate }}
+          </p>
+
+          <mat-form-field appearance="outline" class="chatbot__champ">
+            <mat-label>{{ 'CHATBOT.conseillerForm.nom' | translate }}</mat-label>
+            <input matInput formControlName="nom" autocomplete="name" />
+            @if (conseillerForm.controls.nom.hasError('required')) {
+              <mat-error>{{ 'CHATBOT.conseillerForm.nomRequis' | translate }}</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="chatbot__champ">
+            <mat-label>{{ 'CHATBOT.conseillerForm.email' | translate }}</mat-label>
+            <input matInput type="email" formControlName="email" autocomplete="email" />
+            @if (conseillerForm.controls.email.hasError('required')) {
+              <mat-error>{{ 'CHATBOT.conseillerForm.emailRequis' | translate }}</mat-error>
+            } @else if (conseillerForm.controls.email.hasError('email')) {
+              <mat-error>{{ 'CHATBOT.conseillerForm.emailInvalide' | translate }}</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="chatbot__champ">
+            <mat-label>{{ 'CHATBOT.conseillerForm.message' | translate }}</mat-label>
+            <textarea matInput formControlName="message" rows="2"></textarea>
+            @if (conseillerForm.controls.message.invalid && conseillerForm.controls.message.touched) {
+              <mat-error>{{ 'CHATBOT.conseillerForm.messageCourt' | translate }}</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="chatbot__conseiller-actions">
+            <button mat-button type="button" (click)="formulaireOuvert.set(false)">
+              {{ 'CHATBOT.conseillerForm.annuler' | translate }}
+            </button>
+            <button mat-flat-button type="submit">
+              <mat-icon>send</mat-icon>
+              {{ 'CHATBOT.conseillerForm.envoyer' | translate }}
+            </button>
+          </div>
+        </form>
+      } @else {
+        <!-- Saisie du message -->
+        <form class="chatbot__saisie" (ngSubmit)="envoyer()">
+          <mat-form-field appearance="outline" class="chatbot__champ">
+            <mat-label>{{ 'CHATBOT.placeholder' | translate }}</mat-label>
+            <input
+              matInput
+              [formControl]="formulaire"
+              autocomplete="off"
+              maxlength="300"
+              (keydown.enter)="$event.preventDefault(); envoyer()"
+            />
+            @if (erreurConversation(); as erreur) {
+              <mat-error>{{ erreur | translate }}</mat-error>
+            }
+          </mat-form-field>
+
+          <button
+            mat-icon-button
+            type="button"
+            class="chatbot__envoyer lb-btn-ripple"
+            [disabled]="!formulaire.value.trim()"
+            (click)="envoyer()"
+            [attr.aria-label]="'CHATBOT.envoyer' | translate"
+          >
+            <mat-icon>send</mat-icon>
+          </button>
+        </form>
+
+        <button mat-button type="button" class="chatbot__conseiller-bouton" (click)="ouvrirFormulaire()">
+          <mat-icon>support_agent</mat-icon>
+          {{ 'CHATBOT.conseiller' | translate }}
+        </button>
+      }
+    </section>
+  }
+
+  <!-- ------------------------------------------------------------- Bulle -->
+  <button
+    type="button"
+    class="chatbot__bulle-fab lb-btn-ripple"
+    [class.is-ouvert]="ouvert()"
+    (click)="basculer()"
+    [attr.aria-label]="ouvert() ? ('CHATBOT.fermer' | translate) : ('CHATBOT.ouvrir' | translate)"
+    [attr.aria-expanded]="ouvert()"
+    [matTooltip]="(ouvert() ? 'CHATBOT.fermer' : 'CHATBOT.ouvrir') | translate"
+  >
+    <mat-icon>{{ ouvert() ? 'close' : 'support_agent' }}</mat-icon>
+    @if (!ouvert()) {
+      <span class="chatbot__pastille" aria-hidden="true"></span>
+    }
+  </button>
+</div>

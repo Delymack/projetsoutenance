@@ -1,0 +1,326 @@
+<!-- espace client connecté -->
+<div class="profil lb-container">
+
+  <!-- Bandeau d'identité -->
+  <header class="profil__bandeau">
+    <div class="profil__identite">
+      <app-avatar [nom]="utilisateur()?.nom ?? ''" [photo]="avatar.photo()" [taille]="68" />
+      <div class="profil__identite-texte">
+        <h1 class="profil__nom">{{ utilisateur()?.nom }}</h1>
+        <p class="profil__email">{{ utilisateur()?.email }}</p>
+        <span class="profil__pastille">
+          <mat-icon>verified_user</mat-icon>
+          {{ 'AUTH.role.' + (auth.role() ?? 'client') | translate }}
+        </span>
+      </div>
+    </div>
+
+    <div class="profil__resume">
+      <div class="profil__stat">
+        <strong>{{ nbCommandes() }}</strong>
+        <small>{{ 'PROFIL.commandes' | translate }}</small>
+      </div>
+      <div class="profil__stat">
+        <strong>{{ fidelite.points() | number }}</strong>
+        <small>{{ 'PROFIL.points' | translate }}</small>
+      </div>
+      <div class="profil__stat">
+        <strong>{{ fidelite.niveau().cle }}</strong>
+        <small>{{ 'PROFIL.niveau' | translate }}</small>
+      </div>
+      <div class="profil__actions">
+        <a mat-flat-button color="primary" routerLink="/commande" class="lb-btn-ripple">
+          <mat-icon>shopping_bag</mat-icon>
+          {{ 'PANIER.passerCommande' | translate }}
+        </a>
+        <a mat-stroked-button routerLink="/catalogue" class="lb-btn-ripple">
+          <mat-icon>wine_bar</mat-icon>
+          {{ 'PROFIL.continuer' | translate }}
+        </a>
+      </div>
+    </div>
+
+    <!-- Complétude du profil -->
+    <div class="profil__completude">
+      <div class="profil__completure-tete">
+        <span>{{ 'PROFIL.completude' | translate: { valeur: profil.completude() } }}</span>
+        <span>{{ profil.completude() }} %</span>
+      </div>
+      <mat-progress-bar mode="determinate" [value]="profil.completude()" />
+    </div>
+  </header>
+
+  <!-- Navigation des sections -->
+  <nav class="profil__onglets lb-container" [attr.aria-label]="'PROFIL.menu' | translate">
+    @for (onglet of onglets; track onglet.cle) {
+      <button
+        type="button"
+        class="profil__onglet lb-btn-ripple"
+        [class.is-actif]="section() === onglet.cle"
+        (click)="ouvrir(onglet.cle)"
+      >
+        <mat-icon>{{ onglet.icone }}</mat-icon>
+        <span>{{ onglet.libelle | translate }}</span>
+        @switch (onglet.cle) {
+          @case ('commandes') {
+            @if (nbCommandes() > 0) {
+              <em class="profil__badge">{{ nbCommandes() }}</em>
+            }
+          }
+          @case ('adresses') {
+            @if (profil.adresses().length > 0) {
+              <em class="profil__badge">{{ profil.adresses().length }}</em>
+            }
+          }
+          @case ('fidelite') {
+            @if (fidelite.points() > 0) {
+              <em class="profil__badge">{{ fidelite.points() }}</em>
+            }
+          }
+          @case ('securite') {
+          }
+        }
+      </button>
+    }
+  </nav>
+
+  @if (succes(); as message) {
+    <p class="profil__succes" role="status">
+      <mat-icon>check_circle</mat-icon>
+      {{ message | translate }}
+    </p>
+  }
+
+  <div class="profil__corps">
+    @switch (section()) {
+
+      <!-- ============ Commandes ============ -->
+      @case ('commandes') {
+        <section class="profil__section">
+          <header class="profil__section-tete">
+            <h2>{{ 'PROFIL.commandesTitre' | translate }}</h2>
+            <a routerLink="/catalogue">{{ 'PROFIL.continuer' | translate }}</a>
+          </header>
+
+          @if (commandes.commandes().length === 0) {
+            <div class="profil__vide">
+              <mat-icon>receipt_long</mat-icon>
+              <p>{{ 'PROFIL.aucuneCommande' | translate }}</p>
+              <a mat-flat-button color="primary" routerLink="/catalogue">{{ 'PROFIL.voirCatalogue' | translate }}</a>
+            </div>
+          } @else {
+            <ul class="commande-liste lb-stagger">
+              @for (commande of commandes.commandes(); track commande.reference; let i = $index) {
+                <li class="commande lb-card" [style.--i]="i" [class.is-ouverte]="commandeOuverte() === commande.reference">
+                  <button type="button" class="commande__tete lb-btn-ripple" (click)="commandeOuverte.set(commandeOuverte() === commande.reference ? null : commande.reference)">
+                    <span class="commande__reference">
+                      <strong>{{ commande.reference }}</strong>
+                      <small>{{ commande.date | date: 'dd/MM/yyyy' }}</small>
+                    </span>
+                    <span class="commande__statut" [attr.data-statut]="commande.statut">
+                      {{ 'HISTORIQUE.statut.' + commande.statut | translate }}
+                    </span>
+                    <span class="commande__montant">{{ commandes.total(commande) | number }} Ar</span>
+                    <mat-icon>{{ commandeOuverte() === commande.reference ? 'expand_less' : 'expand_more' }}</mat-icon>
+                  </button>
+
+                  @if (commandeOuverte() === commande.reference) {
+                    <div class="commande__detail">
+                      @for (ligne of commande.lignes; track ligne.vinId) {
+                        <div class="commande__ligne">
+                          <span>{{ ligne.vinId }} × {{ ligne.quantite }}</span>
+                          <span>
+                            {{ ligne.prixUnitaire * ligne.quantite * (1 - ligne.remisePct / 100) | number }} Ar
+                          </span>
+                        </div>
+                      }
+                      <div class="commande__ligne commande__ligne--faible">
+                        <span>{{ 'PANIER.livraison' | translate }}</span>
+                        <span>{{ commande.fraisLivraison | number }} Ar</span>
+                      </div>
+                      <div class="commande__ligne commande__ligne--fort">
+                        <span>{{ 'PANIER.total' | translate }}</span>
+                        <span>{{ commandes.total(commande) | number }} Ar</span>
+                      </div>
+                      <p class="commande__points">
+                        <mat-icon>workspace_premium</mat-icon>
+                        {{ 'PROFIL.pointsGagnes' | translate: { points: commande.points } }}
+                      </p>
+                    </div>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+
+      <!-- ============ Fidélité ============ -->
+      @case ('fidelite') {
+        <section class="profil__section">
+          <header class="profil__section-tete">
+            <h2>{{ 'PROFIL.fideliteTitre' | translate }}</h2>
+          </header>
+
+          <div class="carte-points lb-card">
+            <div class="carte-points__total">
+              <strong>{{ fidelite.points() | number }}</strong>
+              <small>{{ 'PROFIL.points' | translate }}</small>
+            </div>
+            <div class="carte-points__progression">
+              <div class="carte-points__niveau">
+                <mat-icon>{{ fidelite.niveau().icone }}</mat-icon>
+                <span>{{ fidelite.niveau().cle }}</span>
+              </div>
+              @if (fidelite.niveauSuivant(); as suivant) {
+                <mat-progress-bar mode="determinate" [value]="fidelite.progression()" />
+                <small>{{ 'PROFIL.pointsRestants' | translate: { points: fidelite.pointsRestants() } }}</small>
+              }
+            </div>
+          </div>
+
+          <h3 class="profil__sous-titre">{{ 'PROFIL.recompenses' | translate }}</h3>
+          <ul class="grille-recompenses lb-stagger">
+            @for (recompense of fidelite.recompenses; track recompense.id; let i = $index) {
+              <li class="recompense lb-card" [style.--i]="i">
+                <mat-icon>{{ recompense.icone }}</mat-icon>
+                <strong>{{ 'FIDELITE.recompenses.' + recompense.cle | translate }}</strong>
+                <small>{{ recompense.cout | number }} {{ 'PROFIL.points' | translate }}</small>
+                <button
+                  mat-stroked-button
+                  type="button"
+                  [disabled]="!fidelite.estDisponible(recompense)"
+                  (click)="fidelite.utiliser(recompense)"
+                >
+                  {{ fidelite.estDisponible(recompense) ? ('PROFIL.utiliser' | translate) : ('PROFIL.insufficient' | translate) }}
+                </button>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      <!-- ============ Adresses ============ -->
+      @case ('adresses') {
+        <section class="profil__section">
+          <header class="profil__section-tete">
+            <h2>{{ 'PROFIL.adressesTitre' | translate }}</h2>
+            <button type="button" class="profil__lien" (click)="nouvelleAdresse()">+ {{ 'PROFIL.nouvelleAdresse' | translate }}</button>
+          </header>
+
+          @if (profil.adresses().length === 0 && adresseEnEdition() === null) {
+            <div class="profil__vide">
+              <mat-icon>home</mat-icon>
+              <p>{{ 'PROFIL.aucuneAdresse' | translate }}</p>
+              <button mat-flat-button color="primary" type="button" (click)="nouvelleAdresse()">
+                {{ 'PROFIL.nouvelleAdresse' | translate }}
+              </button>
+            </div>
+          }
+
+          <ul class="grille-adresses lb-stagger">
+            @for (adresse of profil.adresses(); track adresse.id; let i = $index) {
+              <li class="adresse lb-card" [style.--i]="i" [class.is-defaut]="adresse.parDefaut">
+                <header>
+                  <mat-icon>{{ adresse.parDefaut ? 'star' : 'place' }}</mat-icon>
+                  <strong>{{ adresse.libelle }}</strong>
+                  @if (adresse.parDefaut) {
+                    <em>{{ 'PROFIL.adresseParDefaut' | translate }}</em>
+                  }
+                </header>
+                <p>{{ adresse.destinataire }} — {{ adresse.telephone }}</p>
+                <p>{{ adresse.ligne }}, {{ adresse.ville }}</p>
+                @if (adresse.notes) {
+                  <small>{{ adresse.notes }}</small>
+                }
+                <div class="adresse__actions">
+                  <button type="button" class="profil__lien" (click)="ouvrirAdresse(adresse)">{{ 'PROFIL.modifier' | translate }}</button>
+                  @if (!adresse.parDefaut) {
+                    <button type="button" class="profil__lien" (click)="profil.definirAdresseParDefaut(adresse.id)">
+                      {{ 'PROFIL.definirParDefaut' | translate }}
+                    </button>
+                  }
+                  <button type="button" class="profil__lien profil__lien--danger" (click)="supprimerAdresse(adresse.id)">
+                    {{ 'PANIER.retirer' | translate }}
+                  </button>
+                </div>
+              </li>
+            }
+          </ul>
+
+          @if (adresseEnEdition(); as enEdition) {
+            <form class="adresse-form lb-card" [formGroup]="adresseForm" (ngSubmit)="enregistrerAdresse()">
+              <h3 class="profil__sous-titre">{{ enEdition === 'nouvelle' ? ('PROFIL.nouvelleAdresse' | translate) : ('PROFIL.modifier' | translate) }}</h3>
+              <div class="adresse-form__ligne">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'PROFIL.libelle' | translate }}</mat-label>
+                  <input matInput formControlName="libelle" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'PROFIL.destinataire' | translate }}</mat-label>
+                  <input matInput formControlName="destinataire" />
+                </mat-form-field>
+              </div>
+              <div class="adresse-form__ligne">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'INSCRIPTION.telephone' | translate }}</mat-label>
+                  <input matInput formControlName="telephone" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'PROFIL.ligne' | translate }}</mat-label>
+                  <input matInput formControlName="ligne" />
+                </mat-form-field>
+              </div>
+              <div class="adresse-form__ligne">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'INSCRIPTION.ville' | translate }}</mat-label>
+                  <input matInput formControlName="ville" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'PROFIL.notes' | translate }}</mat-label>
+                  <input matInput formControlName="notes" />
+                </mat-form-field>
+              </div>
+              <div class="adresse-form__actions">
+                <button mat-flat-button color="primary" type="submit" class="lb-btn-ripple">{{ 'PROFIL.enregistrer' | translate }}</button>
+                <button mat-stroked-button type="button" (click)="adresseEnEdition.set(null)">{{ 'PROFIL.annuler' | translate }}</button>
+              </div>
+            </form>
+          }
+        </section>
+      }
+
+      <!-- ============ Sécurité ============ -->
+      @case ('securite') {
+        <section class="profil__section">
+          <header class="profil__section-tete">
+            <h2>{{ 'PROFIL.securiteTitre' | translate }}</h2>
+          </header>
+
+          <form class="securite lb-card" [formGroup]="identityForm" (ngSubmit)="enregistrerIdentite()">
+            <h3 class="profil__sous-titre">{{ 'PROFIL.mesInfos' | translate }}</h3>
+            <div class="adresse-form__ligne">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'INSCRIPTION.telephone' | translate }}</mat-label>
+                <input matInput formControlName="telephone" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'INSCRIPTION.ville' | translate }}</mat-label>
+                <input matInput formControlName="ville" />
+              </mat-form-field>
+            </div>
+            <p class="securite__email">{{ utilisateur()?.email }}</p>
+            <button mat-flat-button color="primary" type="submit" class="lb-btn-ripple">{{ 'PROFIL.enregistrer' | translate }}</button>
+          </form>
+
+          <div class="securite-actions">
+            <button mat-stroked-button type="button" class="lb-btn-ripple" (click)="auth.deconnexion()">
+              <mat-icon>logout</mat-icon>
+              {{ 'AUTH.deconnexion' | translate }}
+            </button>
+          </div>
+        </section>
+      }
+    }
+  </div>
+</div>

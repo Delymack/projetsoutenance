@@ -1,0 +1,155 @@
+<!-- Page d'accueil — titre de marque puis liste des produits -->
+<section class="vitrine">
+  <div class="lb-container vitrine__contenu">
+    <div class="vitrine__intro">
+      <span class="vitrine__kicker lb-fade-in">Vin de qualité</span>
+      <h1 class="vitrine__titre lb-fade-in">{{ 'ACCUEIL.titre' | translate }}</h1>
+      <p class="vitrine__texte lb-fade-in">{{ 'APP.baseline' | translate }}</p>
+      <button
+        type="button"
+        class="vitrine__suite lb-fade-in"
+        (click)="defilerVersProduits()"
+        [attr.aria-label]="'ACCUEIL.voirCatalogue' | translate"
+      >
+        <span>{{ 'ACCUEIL.voirCatalogue' | translate }}</span>
+        <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+      </button>
+    </div>
+
+    <form
+      class="vitrine__recherche"
+      role="search"
+      (submit)="lancerRecherche($event)"
+    >
+      <mat-icon class="vitrine__recherche-icone" aria-hidden="true">search</mat-icon>
+      <input
+        type="search"
+        [value]="recherche()"
+        (input)="mettreAJourRecherche($event)"
+        [placeholder]="'CATALOGUE.rechercher' | translate"
+        [attr.aria-label]="'CATALOGUE.rechercher' | translate"
+        autocomplete="off"
+      />
+      @if (recherche()) {
+        <button
+          type="button"
+          class="vitrine__recherche-effacer"
+          (click)="effacerRecherche()"
+          [attr.aria-label]="'COMMUN.effacer' | translate"
+        >
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+      }
+      <button
+        type="submit"
+        class="vitrine__recherche-submit"
+        [attr.aria-label]="'CATALOGUE.rechercher' | translate"
+      >
+        <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+      </button>
+    </form>
+  </div>
+</section>
+
+<!-- Liste des produits -->
+<section class="produits" id="produits">
+  <div class="lb-container">
+    <header class="produits__entete">
+      <div>
+        <span class="produits__surtitre">La cave vous propose</span>
+        <h2>Nos coups de cœur</h2>
+      </div>
+      <a class="produits__catalogue" routerLink="/catalogue">
+        <span>{{ 'ACCUEIL.voirCatalogue' | translate }}</span>
+        <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+      </a>
+    </header>
+
+    @if (chargement()) {
+      <div class="grille" aria-hidden="true">
+        @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+          <app-skeleton forme="carte" [hauteur]="'360px'" />
+        }
+      </div>
+    } @else if (erreur()) {
+      <div class="etat" role="alert">
+        <mat-icon>cloud_off</mat-icon>
+        <p>{{ 'CATALOGUE.echecChargement' | translate }}</p>
+        <button type="button" class="etat__bouton" (click)="reessayer()">
+          {{ 'CATALOGUE.reessayer' | translate }}
+        </button>
+      </div>
+    } @else if (selection().length === 0) {
+      <div class="etat" role="status">
+        <mat-icon>search_off</mat-icon>
+        <p>{{ 'CATALOGUE.aucunResultat' | translate }}</p>
+      </div>
+    } @else {
+      <div class="grille lb-stagger">
+        @for (vin of selection(); track vin.id; let i = $index) {
+          <article class="produit lb-card lb-card--hover" [style.--i]="i">
+            <a class="produit__media" [routerLink]="['/vin', vin.id]" [attr.aria-label]="vin.nom">
+              <img [src]="vin.image" [alt]="vin.nom" loading="lazy" />
+            </a>
+
+            <div class="produit__corps">
+              <h3 class="produit__nom">
+                <a [routerLink]="['/vin', vin.id]">{{ vin.nom }}</a>
+              </h3>
+
+              @if (detailsOuverts() === vin.id) {
+                <div class="produit__details">
+                  <p>{{ vin.description || vin.nom }}</p>
+                  <dl>
+                    <div>
+                      <dt>{{ 'CATALOGUE.categorie' | translate }}</dt>
+                      <dd>{{ ('CATALOGUE.categories.' + vin.categorie) | translate }}</dd>
+                    </div>
+                    <div>
+                      <dt>{{ 'VIN.millesime' | translate }}</dt>
+                      <dd>{{ vin.millesime || '—' }}</dd>
+                    </div>
+                    <div>
+                      <dt>{{ 'VIN.cepage' | translate }}</dt>
+                      <dd>{{ vin.cepage || '—' }}</dd>
+                    </div>
+                    <div>
+                      <dt>{{ 'VIN.region' | translate }}</dt>
+                      <dd>{{ vin.region || '—' }}</dd>
+                    </div>
+                  </dl>
+                </div>
+              }
+
+              <div class="produit__pied">
+                <strong class="prix">{{ vin.prix | number: '1.0-0' }} Ar</strong>
+                <div class="produit__actions">
+                  <button
+                    type="button"
+                    class="produit__voir"
+                    [attr.aria-expanded]="detailsOuverts() === vin.id"
+                    (click)="basculerDetails(vin.id)"
+                  >
+                    {{ (detailsOuverts() === vin.id ? 'COMMUN.voirMoins' : 'COMMUN.voirPlus') | translate }}
+                  </button>
+                  <button
+                    type="button"
+                    class="produit__ajout lb-btn-ripple"
+                    [class.produit__ajout--ok]="ajoutConfirme() === vin.id"
+                    [disabled]="vin.stock < 1"
+                    (click)="ajouterAuPanier(vin)"
+                  >
+                    {{
+                      (ajoutConfirme() === vin.id ? 'CATALOGUE.ajoutReussi' : 'CATALOGUE.acheter')
+                        | translate
+                    }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</section>

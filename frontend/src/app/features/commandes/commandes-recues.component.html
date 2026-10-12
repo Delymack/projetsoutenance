@@ -1,0 +1,218 @@
+<section class="recues lb-container">
+  <header class="recues__header">
+    <div>
+      <span class="eyebrow">Lazan'i Betsileo</span>
+      <h1>{{ 'COMMANDES.titre' | translate }}</h1>
+      <p>
+        {{ liste().length }} {{ 'COMMANDES.nombre' | translate }} ·
+        {{ nbEnCours() }} {{ 'COMMANDES.enCours' | translate }} ·
+        {{ totalAffiche() | number: '1.0-0' }} Ar
+      </p>
+    </div>
+    <div class="recues__actions">
+      <a mat-stroked-button routerLink="/dashboard">
+        <mat-icon>dashboard</mat-icon>
+        {{ 'NAV.dashboard' | translate }}
+      </a>
+      <button mat-flat-button color="primary" type="button" (click)="charger()" [disabled]="chargement()">
+        <mat-icon>refresh</mat-icon>
+        {{ 'COMMANDES.actualiser' | translate }}
+      </button>
+    </div>
+  </header>
+
+  <div class="recues__filtres lb-card">
+    <mat-button-toggle-group
+      [value]="statutFiltre()"
+      (change)="statutFiltre.set($event.value)"
+      [attr.aria-label]="'COMMANDES.statut' | translate"
+      hideSingleSelectionIndicator
+    >
+      <mat-button-toggle [value]="null">{{ 'COMMUN.reinitialiser' | translate }}</mat-button-toggle>
+      @for (statut of statuts; track statut) {
+        <mat-button-toggle [value]="statut">{{ 'COMMANDES.statuts.' + statut | translate }}</mat-button-toggle>
+      }
+    </mat-button-toggle-group>
+  </div>
+
+  @if (chargement()) {
+    <div class="recues__etat lb-card" role="status">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>{{ 'COMMANDES.chargement' | translate }}</p>
+    </div>
+  } @else if (erreur()) {
+    <div class="recues__etat recues__etat--erreur lb-card" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <h2>{{ 'COMMANDES.erreurTitre' | translate }}</h2>
+      <p>{{ erreur() }}</p>
+      <button mat-flat-button color="primary" type="button" (click)="charger()">
+        <mat-icon>refresh</mat-icon>
+        {{ 'COMMANDES.actualiser' | translate }}
+      </button>
+    </div>
+  } @else if (commandes().length === 0) {
+    <div class="recues__etat lb-card" role="status">
+      <mat-icon>inbox</mat-icon>
+      <h2>{{ 'COMMANDES.aucune' | translate }}</h2>
+    </div>
+  } @else {
+    <ol class="recues__liste">
+      @for (reservation of commandes(); track reservation.reference) {
+        <li class="recue lb-card">
+          <button
+            type="button"
+            class="recue__entete"
+            (click)="basculer(reservation)"
+            [attr.aria-expanded]="referenceOuverte() === reservation.reference"
+          >
+            <mat-icon class="recue__statut-icone" [class.recue__statut-icone--ok]="reservation.statut === 'SOLDEE'">
+              {{ icone(reservation.statut) }}
+            </mat-icon>
+            <span class="recue__ref">
+              <strong>{{ reservation.reference }}</strong>
+              <small>{{ reservation.date_creation | date: 'dd/MM/yyyy HH:mm' }}</small>
+            </span>
+            <span class="recue__client">
+              <strong>{{ client(reservation) }}</strong>
+              <small>{{ reservation.client?.telephone || reservation.client?.email || '' }}</small>
+            </span>
+            <span class="recue__statut">{{ 'COMMANDES.statuts.' + reservation.statut | translate }}</span>
+            <span class="recue__montant">{{ reservation.montant_total | number: '1.0-0' }} Ar</span>
+            <mat-icon class="recue__chevron">
+              {{ referenceOuverte() === reservation.reference ? 'expand_less' : 'expand_more' }}
+            </mat-icon>
+          </button>
+
+          @if (referenceOuverte() === reservation.reference) {
+            <div class="recue__detail">
+              <dl class="recue__infos">
+                <div>
+                  <dt>{{ 'COMMANDES.mode' | translate }}</dt>
+                  <dd>
+                    {{ (reservation.mode_reception === 'LIVRAISON' ? 'COMMANDES.livraison' : 'COMMANDES.retrait') | translate }}
+                  </dd>
+                </div>
+                @if (reservation.source === 'SITE' && reservation.validation_statut) {
+                  <div>
+                    <dt>{{ 'COMMANDES.validation' | translate }}</dt>
+                    <dd>{{ 'COMMANDES.validationStatuts.' + reservation.validation_statut | translate }}</dd>
+                  </div>
+                }
+                @if (reservation.mode_reception === 'LIVRAISON' && reservation.adresse_livraison) {
+                  <div>
+                    <dt>{{ 'COMMANDES.adresse' | translate }}</dt>
+                    <dd>{{ reservation.adresse_livraison }}</dd>
+                  </div>
+                }
+                @if (reservation.client?.email) {
+                  <div>
+                    <dt>{{ 'COMMANDES.email' | translate }}</dt>
+                    <dd>{{ reservation.client?.email }}</dd>
+                  </div>
+                }
+                @if (reservation.date_expiration) {
+                  <div>
+                    <dt>{{ 'COMMANDES.expiration' | translate }}</dt>
+                    <dd>{{ reservation.date_expiration | date: 'dd/MM/yyyy' }}</dd>
+                  </div>
+                }
+                @if (reservation.note) {
+                  <div class="recue__note">
+                    <dt>{{ 'COMMANDES.note' | translate }}</dt>
+                    <dd>{{ reservation.note }}</dd>
+                  </div>
+                }
+              </dl>
+
+              <ul class="recue__lignes">
+                @for (ligne of reservation.lignes ?? []; track ligne.produit_id) {
+                  <li>
+                    <mat-icon>wine_bar</mat-icon>
+                    <span class="recue__ligne-nom">
+                      {{ ligne.produit_nom || ('COMMANDES.produit' | translate) }}
+                      <small>× {{ ligne.quantite }}</small>
+                    </span>
+                    <span class="recue__ligne-total">{{ totalLigne(ligne) | number: '1.0-0' }} Ar</span>
+                  </li>
+                }
+              </ul>
+
+              <div class="recue__totaux">
+                <span>{{ 'COMMANDES.montant' | translate }}</span>
+                <strong>{{ reservation.montant_total | number: '1.0-0' }} Ar</strong>
+              </div>
+
+              @if (reservation.source === 'SITE' && reservation.validation_statut === 'A_VALIDER') {
+                <div class="recue__validation">
+                  <h3>{{ 'COMMANDES.validationRequise' | translate }}</h3>
+                  @if (erreurAction()) {
+                    <p class="recue__validation-erreur" role="alert">{{ erreurAction() }}</p>
+                  }
+                  <label class="recue__motif">
+                    <span>{{ 'COMMANDES.motifRefus' | translate }}</span>
+                    <textarea
+                      [formControl]="motifRefus"
+                      [placeholder]="'COMMANDES.motifRefusPlaceholder' | translate"
+                      rows="2"
+                      maxlength="255"
+                    ></textarea>
+                  </label>
+                  @if (motifRefus.invalid && motifRefus.touched) {
+                    <small class="recue__validation-erreur">{{ 'COMMANDES.motifRefusAide' | translate }}</small>
+                  }
+                  <div class="recue__validation-actions">
+                    <button
+                      mat-stroked-button
+                      type="button"
+                      (click)="refuserCommande(reservation)"
+                      [disabled]="validationEnCours() !== null || !reservation.id"
+                    >
+                      <mat-icon>block</mat-icon>
+                      {{ 'COMMANDES.refuser' | translate }}
+                    </button>
+                    <button
+                      mat-flat-button
+                      color="primary"
+                      type="button"
+                      (click)="validerCommande(reservation)"
+                      [disabled]="validationEnCours() !== null || !reservation.id"
+                    >
+                      <mat-icon>check_circle</mat-icon>
+                      {{ 'COMMANDES.valider' | translate }}
+                    </button>
+                  </div>
+                </div>
+              } @else if (reservation.source === 'SITE' && reservation.validation_statut === 'REFUSEE') {
+                <p class="recue__refus">
+                  {{ 'COMMANDES.motifRefus' | translate }} : {{ reservation.motif_refus }}
+                </p>
+              }
+
+              @if (reservation.source === 'SITE' && reservation.validation_statut === 'VALIDEE') {
+                <div class="recue__actions-caisse">
+                  @if (reservation.facture_url) {
+                    <a mat-stroked-button [href]="reservation.facture_url" target="_blank" rel="noopener">
+                      <mat-icon>receipt_long</mat-icon>
+                      {{ 'HISTORIQUE.voirFacture' | translate }}
+                    </a>
+                  }
+                  @if (reservation.statut === 'EN_ATTENTE' || reservation.statut === 'ACOMPTE') {
+                    <button
+                      mat-flat-button
+                      color="primary"
+                      type="button"
+                      (click)="encaisserEnCaisse(reservation)"
+                    >
+                      <mat-icon>point_of_sale</mat-icon>
+                      Encaisser au comptoir (Caisse)
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </li>
+      }
+    </ol>
+  }
+</section>

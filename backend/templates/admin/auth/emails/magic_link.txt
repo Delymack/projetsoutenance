@@ -1,0 +1,10 @@
+Bonjour{% if prenom %} {{ prenom }}{% endif %},
+
+Cliquez sur le lien ci-dessous pour vous connecter sans mot de passe :
+
+    {{ link }}
+
+Le lien expire dans 10 minutes et n'est utilisable qu'une seule fois.
+Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet e-mail.
+
+— L'équipe {{ societe.nom|default:"LAZAN' BETSILEO" }}

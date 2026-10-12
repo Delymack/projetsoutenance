@@ -1,0 +1,134 @@
+{% extends "admin/base_site.html" %}
+
+{% block title %}Feuille d'étiquettes{% endblock %}
+
+{% block extra_head %}
+<style>
+  @page { size: A4; margin: 8mm; }
+
+  .etiquettes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2mm;
+    margin-top: 14px;
+  }
+
+  .etiquette {
+    height: 36mm;
+    padding: 1.5mm 2mm;
+    background: #fff;
+    border: 1px dashed #b0b7c3;
+    border-radius: 2mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .etiquette__meta {
+    font-size: 6.5pt;
+    color: #8a7c7d;
+    letter-spacing: .3px;
+    display: flex;
+    justify-content: space-between;
+    gap: 2mm;
+  }
+
+  .etiquette__nom {
+    font-size: 8pt;
+    font-weight: 700;
+    line-height: 1.15;
+    max-height: 2.3em;
+    overflow: hidden;
+  }
+
+  .etiquette__code { text-align: center; line-height: 0; }
+  .etiquette__code svg { width: 100%; height: auto; }
+
+  .etiquette__prix {
+    font-size: 10pt;
+    font-weight: 800;
+    text-align: right;
+  }
+
+  .etiquette__unite {
+    font-size: 6.5pt;
+    color: #8a7c7d;
+    text-align: right;
+  }
+
+  .barre-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 0;
+  }
+
+  .compteur { font-size: 12px; color: #5a4a4e; }
+
+  @media print {
+    .barre-actions, .no-print { display: none !important; }
+    .etiquettes { gap: 1.5mm; margin-top: 0; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="barre-actions no-print">
+  <a class="btn btn-secondary" href="{% url 'admin:produits_produit_changelist' %}">
+    <i class="fas fa-arrow-left"></i> Retour aux produits
+  </a>
+  <button type="button" class="btn btn-primary" id="btn-imprimer">
+    <i class="fas fa-print"></i> Imprimer la feuille
+  </button>
+  <span class="compteur">
+    <b>{{ nb_produits }}</b> produit(s) · <b>{{ cartes|length }}</b> étiquette(s)
+  </span>
+  <span class="compteur" style="color:#8a7c7d">
+    Format 30 × 20 mm, 3 colonnes par page A4. Le nombre d'exemplaires suit le stock.
+  </span>
+  {% if sans_code %}
+    <span class="compteur" style="color:#8c1f33">
+      <b>{{ sans_code }}</b> produit(s) écartés : aucun code-barres enregistré.
+    </span>
+  {% endif %}
+</div>
+
+<div class="etiquettes">
+  {% for carte in cartes %}
+    <div class="etiquette">
+      <div class="etiquette__meta">
+        <span>{{ carte.produit.volume|default:entreprise }}</span>
+        <span>{{ carte.produit.marque|default:entreprise }}</span>
+      </div>
+      <div class="etiquette__nom">{{ carte.produit.nom }}</div>
+      <div class="etiquette__code">{{ carte.code_svg|safe }}</div>
+      <div>
+        <div class="etiquette__prix">{{ carte.produit.prix_unitaire_vente }} {{ devise }}</div>
+        <div class="etiquette__unite">
+          {% if carte.produit.unite_vente == 'BOUTEILLE' %}
+            la bouteille
+          {% else %}
+            {{ carte.produit.conditionnement_libelle }}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p style="grid-column: 1 / -1; color: #8a7c7d">
+      Aucun produit à étiqueter. Attribuez un code-barres aux produits concernés,
+      puis relancez cette page.
+    </p>
+  {% endfor %}
+</div>
+
+<script>
+  document.getElementById('btn-imprimer').addEventListener('click', function () {
+    window.print();
+  });
+</script>
+{% endblock %}

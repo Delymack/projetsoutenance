@@ -1,0 +1,26 @@
+<div class="countdown" [class.countdown--urgent]="moinsDuneHeure()" aria-live="polite">
+  @if (rebours().termine) {
+    <span class="countdown__item countdown__item--termine">
+      {{ 'PROMO.termine' | translate }}
+    </span>
+  } @else {
+    @if (rebours().jours > 0) {
+      <span class="countdown__item">
+        <strong>{{ rebours().jours }}</strong>
+        <small>{{ 'PROMO.jours' | translate }}</small>
+      </span>
+    }
+    <span class="countdown__item">
+      <strong>{{ rebours().heures | number:'2.0-0' }}</strong>
+      <small>{{ 'PROMO.heures' | translate }}</small>
+    </span>
+    <span class="countdown__item">
+      <strong>{{ rebours().minutes | number:'2.0-0' }}</strong>
+      <small>{{ 'PROMO.minutes' | translate }}</small>
+    </span>
+    <span class="countdown__item">
+      <strong>{{ rebours().secondes | number:'2.0-0' }}</strong>
+      <small>{{ 'PROMO.secondes' | translate }}</small>
+    </span>
+  }
+</div>

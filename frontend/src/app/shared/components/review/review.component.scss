@@ -1,0 +1,318 @@
+/* Avis clients */
+
+:host {
+  display: block;
+}
+
+.avis {
+  display: grid;
+  gap: var(--lb-gap);
+  padding: var(--lb-gap);
+  background: var(--lb-surface);
+  border: 1px solid var(--lb-border);
+  border-radius: var(--lb-radius-lg);
+}
+
+.avis__entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lb-gap-sm);
+}
+
+.avis__titre {
+  display: flex;
+  align-items: center;
+  gap: var(--lb-gap-sm);
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--lb-primary);
+}
+
+.avis__compteur {
+  font-size: 0.8rem;
+  color: var(--lb-text-muted);
+}
+
+/* ------------------------------------------------------------------ Synthèse */
+
+.avis__synthese {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: var(--lb-gap);
+  align-items: center;
+  padding: var(--lb-gap);
+  background: var(--lb-surface-2);
+  border-radius: var(--lb-radius);
+}
+
+.avis__moyenne {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.avis__moyenne-valeur {
+  font-family: var(--lb-font-display);
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--lb-primary);
+}
+
+.avis__etoiles {
+  display: inline-flex;
+  gap: 1px;
+  color: var(--lb-accent);
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.avis__etoiles--petite mat-icon {
+  width: 15px;
+  height: 15px;
+  font-size: 15px;
+}
+
+.avis__moyenne-note {
+  font-size: 0.7rem;
+  color: var(--lb-text-muted);
+}
+
+.avis__repartition {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.avis__repartition-ligne {
+  display: grid;
+  grid-template-columns: 34px 1fr 26px;
+  align-items: center;
+  gap: var(--lb-gap-xs);
+  font-size: 0.75rem;
+  color: var(--lb-text-muted);
+}
+
+.avis__repartition-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+
+  mat-icon {
+    width: 13px;
+    height: 13px;
+    font-size: 13px;
+    color: var(--lb-accent);
+  }
+}
+
+.avis__repartition-barre {
+  height: 8px;
+  overflow: hidden;
+  background: var(--lb-bg-alt);
+  border-radius: 999px;
+}
+
+.avis__repartie-remplissage {
+  display: block;
+  height: 100%;
+  background: linear-gradient(to right, var(--lb-accent), var(--lb-primary));
+  border-radius: 999px;
+  transition: width var(--lb-transition-slow);
+}
+
+.avis__repartition-total {
+  text-align: right;
+}
+
+/* ------------------------------------------------------------------ Liste */
+
+.avis__liste {
+  display: grid;
+  gap: var(--lb-gap-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.avis__item {
+  padding: var(--lb-gap-sm) var(--lb-gap);
+  background: var(--lb-surface-2);
+  border: 1px solid var(--lb-border);
+  border-radius: var(--lb-radius-sm);
+}
+
+.avis__item-entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lb-gap-sm);
+  margin-bottom: 4px;
+}
+
+.avis__auteur {
+  font-weight: 600;
+  color: var(--lb-primary);
+}
+
+.avis__date {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--lb-text-muted);
+}
+
+.avis__commentaire {
+  margin: 0 0 var(--lb-gap-xs);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.avis__jaime {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  font-size: 0.78rem;
+  color: var(--lb-text-muted);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--lb-border);
+  border-radius: 999px;
+  transition:
+    color var(--lb-transition),
+    border-color var(--lb-transition),
+    background var(--lb-transition);
+
+  mat-icon {
+    width: 15px;
+    height: 15px;
+    font-size: 15px;
+  }
+
+  &:hover {
+    color: var(--lb-primary);
+    background: var(--lb-promo-bg);
+    border-color: var(--lb-accent);
+  }
+}
+
+.avis__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lb-gap);
+}
+
+.avis__pagination-etat {
+  display: grid;
+  justify-items: center;
+  font-size: 0.8rem;
+  color: var(--lb-text-muted);
+
+  small {
+    font-size: 0.7rem;
+  }
+}
+
+.avis__vide {
+  margin: 0;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--lb-text-muted);
+}
+
+.avis__chargement {
+  display: flex;
+  gap: var(--lb-gap-xs);
+  padding: var(--lb-gap);
+
+  span {
+    width: 34px;
+    height: 34px;
+    background: var(--lb-bg-alt);
+    border-radius: 50%;
+  }
+}
+
+/* ------------------------------------------------------------------ Formulaire */
+
+.avis__formulaire {
+  display: grid;
+  gap: var(--lb-gap-sm);
+  padding: var(--lb-gap);
+  background: var(--lb-surface-2);
+  border: 1px dashed var(--lb-border);
+  border-radius: var(--lb-radius);
+}
+
+.avis__formulaire-titre {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.avis__note {
+  display: flex;
+  gap: 2px;
+}
+
+.avis__note-etoile {
+  padding: 2px;
+  color: var(--lb-border);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: var(--lb-radius-sm);
+  transition:
+    color var(--lb-transition),
+    transform var(--lb-transition);
+
+  mat-icon {
+    width: 26px;
+    height: 26px;
+    font-size: 26px;
+  }
+
+  &:hover {
+    transform: scale(1.12);
+  }
+
+  &.is-active {
+    color: var(--lb-accent);
+  }
+}
+
+.avis__champ {
+  width: 100%;
+}
+
+.avis__envoyer {
+  justify-self: start;
+}
+
+.avis__confirmation {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--lb-success);
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 560px) {
+  .avis__synthese {
+    grid-template-columns: 1fr;
+  }
+}

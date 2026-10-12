@@ -1,0 +1,32 @@
+<!--
+  Squelettes de chargement. Le template est volontairement non récursif
+  (pas de <app-skeleton> imbriqué) pour éviter tout piège de dépendance
+  standalone : chaque forme « composite » est écrite directement en markup.
+-->
+@if (forme() === 'carte') {
+  <div class="skeleton-card" [ngStyle]="styles()">
+    <div class="skeleton-bloc skeleton-card__media"></div>
+    <div class="skeleton-card__corps">
+      <div class="skeleton-bloc skeleton-bloc--titre" style="width: 70%"></div>
+      <div class="skeleton-bloc skeleton-bloc--texte"></div>
+      <div class="skeleton-bloc skeleton-bloc--texte" style="width: 55%"></div>
+    </div>
+  </div>
+} @else if (forme() === 'avatar') {
+  <div class="skeleton-bloc skeleton-bloc--cercle skeleton-avatar" [ngStyle]="styles()"></div>
+} @else if (forme() === 'cercle') {
+  <div class="skeleton-bloc skeleton-bloc--cercle" [ngStyle]="styles()"></div>
+} @else if (forme() === 'titre') {
+  <div class="skeleton-bloc skeleton-bloc--titre" [ngStyle]="styles()"></div>
+} @else if (forme() === 'texte') {
+  <div class="skeleton-lignes" [ngStyle]="styles()">
+    @for (i of indexes(); track i) {
+      <div
+        class="skeleton-bloc skeleton-bloc--texte"
+        [style.width]="i === indexes().length - 1 && indexes().length > 1 ? '62%' : '100%'"
+      ></div>
+    }
+  </div>
+} @else {
+  <div class="skeleton-bloc skeleton-bloc--rectangle" [ngStyle]="styles()"></div>
+}

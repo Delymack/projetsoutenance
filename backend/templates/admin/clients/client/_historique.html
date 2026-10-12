@@ -1,0 +1,186 @@
+{% comment %}
+Bloc « fiche 360° » rendu dans le champ readonly `historique` du formulaire client.
+Variables : obj, ventes, reglements, nb_reglements, ca_total, total_regle, devise,
+form_encaissement (None si le compte est à jour : rien à encaisser)
+{% endcomment %}
+{% load lb_tags %}
+<div class="lb-grid" style="margin-top:.4rem">
+
+  {# ---------------- Colonne gauche : identité + chiffres clés ---------------- #}
+  <div class="lb-col-4">
+    <div class="lb-panel" style="margin:0">
+      <div class="lb-panel-body">
+        <div class="lb-identity" style="flex-direction:column;align-items:flex-start;gap:.9rem">
+          <span class="lb-avatar">{{ obj.nom|slice:":1" }}{{ obj.prenom|slice:":1" }}</span>
+          <div>
+            <h2>{{ obj.nom }} {{ obj.prenom }}</h2>
+            <div class="lb-sub">{{ obj.get_type_client_display }} · client depuis le {{ obj.date_creation|date:"d/m/Y" }}</div>
+            <div class="lb-tags">
+              <span class="lb-badge {% if obj.niveau == 'OR' %}lb-badge-gold{% elif obj.niveau == 'ARGENT' %}lb-badge-wine{% else %}lb-badge-muted{% endif %}">
+                {{ obj.get_niveau_display }}
+              </span>
+              <span class="lb-badge lb-badge-muted">{{ obj.points_fidelite }} pts</span>
+              {% if obj.solde_du > 0 %}
+                <span class="lb-badge lb-badge-wine"><i class="fas fa-triangle-exclamation"></i>Encours {{ obj.solde_du|floatformat:0|intcomma }} {{ devise }}</span>
+              {% else %}
+                <span class="lb-badge lb-badge-sage"><i class="fas fa-check"></i>Compte à jour</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <dl class="lb-facts" style="margin-top:1rem">
+          <div class="lb-fact">
+            <dt><i class="fas fa-square-phone-flip"></i> Téléphone</dt>
+            <dd><a href="tel:{{ obj.telephone }}">{{ obj.telephone }}</a></dd>
+          </div>
+          {% if obj.email %}
+            <div class="lb-fact">
+              <dt><i class="fas fa-envelope"></i> Email</dt>
+              <dd><a href="mailto:{{ obj.email }}">{{ obj.email }}</a></dd>
+            </div>
+          {% endif %}
+          {% if obj.adresse %}
+            <div class="lb-fact">
+              <dt><i class="fas fa-location-dot"></i> Adresse</dt>
+              <dd>{{ obj.adresse|linebreaksbr }}</dd>
+            </div>
+          {% endif %}
+          <div class="lb-fact">
+            <dt><i class="fas fa-wallet"></i> Plafond crédit</dt>
+            <dd>{% if obj.max_credit %}{{ obj.max_credit|floatformat:0|intcomma }} {{ devise }}{% else %}—{% endif %}</dd>
+          </div>
+          <div class="lb-fact">
+            <dt><i class="fas fa-hand-holding-dollar"></i> Crédit disponible</dt>
+            <dd class="{% if obj.credit_disponible > 0 %}lb-val-sage{% else %}lb-val-muted{% endif %}">
+              {% if obj.max_credit %}{{ obj.credit_disponible|floatformat:0|intcomma }} {{ devise }}{% else %}Crédit désactivé{% endif %}
+            </dd>
+          </div>
+        </dl>
+
+        <div style="display:flex;gap:.45rem;margin-top:1rem;flex-wrap:wrap">
+          <a class="lb-btn" href="tel:{{ obj.telephone }}"><i class="fas fa-square-phone-flip"></i> Appeler</a>
+          <a class="lb-btn lb-btn-ghost" href="https://wa.me/{{ obj.telephone|sans_plus }}" target="_blank" rel="noopener">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ---------------- Colonne droite : historique ---------------- #}
+  <div class="lb-col-8">
+    <section class="lb-panel" style="margin:0 0 1rem">
+      <div class="lb-panel-head">
+        <h2><i class="fas fa-receipt lb-kpi-icon"></i> Dernières ventes</h2>
+        <a class="lb-segment" href="{% url 'admin:ventes_vente_changelist' %}">Voir toutes <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="lb-panel-body">
+        {% if ventes %}
+          <ul class="lb-timeline">
+            {% for vente in ventes %}
+              <li class="{% if vente.statut == 'ANNULEE' %}is-gold{% else %}is-sage{% endif %}">
+                <div class="lb-tl-head">
+                  <span class="lb-tl-title">
+                    Vente du {{ vente.date_vente|date:"d/m/Y à H:i" }}
+                    {% if vente.statut == 'ANNULEE' %}<span class="lb-badge lb-badge-muted">Annulée</span>
+                    {% else %}<span class="lb-badge lb-badge-sage">Payée</span>{% endif %}
+                  </span>
+                  <span class="lb-tl-amount">{{ vente.total|floatformat:0|intcomma }} {{ devise }}</span>
+                </div>
+                <div class="lb-tl-meta">
+                  {% if vente.remise_manuelle_totale > 0 %}Remise accordée : {{ vente.remise_manuelle_totale|floatformat:0|intcomma }} {{ devise }} · {% endif %}
+                  {{ vente.lignes.count }} article(s)
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="lb-facts-empty">Aucune vente enregistrée pour ce client.</p>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="lb-panel" style="margin:0">
+      <div class="lb-panel-head">
+        <h2><i class="fas fa-hand-holding-dollar lb-kpi-icon"></i> Règlements</h2>
+        {% if nb_reglements > 10 %}
+          <a class="lb-segment" href="{% url 'admin:clients_reglementclient_changelist' %}?client__id__exact={{ obj.pk }}">
+            {{ nb_reglements }} règlements <i class="fas fa-arrow-right"></i>
+          </a>
+        {% endif %}
+      </div>
+      <div class="lb-panel-body">
+        <div class="lb-kpis" style="margin-bottom:.9rem;grid-template-columns:repeat(3,1fr)">
+          <div class="lb-kpi {% if obj.solde_du > 0 %}lb-kpi-danger{% else %}lb-kpi-ok{% endif %}" style="min-height:74px">
+            <i class="fas fa-scale-balanced lb-kpi-icon"></i>
+            <small>Reste dû</small><strong>{{ obj.solde_du|floatformat:0|intcomma }}</strong>
+          </div>
+          <div class="lb-kpi lb-kpi-ok" style="min-height:74px">
+            <i class="fas fa-coins lb-kpi-icon"></i>
+            <small>Total encaissé</small><strong>{{ total_regle|floatformat:0|intcomma }}</strong>
+          </div>
+          <div class="lb-kpi" style="min-height:74px">
+            <i class="fas fa-chart-line lb-kpi-icon"></i>
+            <small>CA encaissé</small><strong>{{ ca_total|floatformat:0|intcomma }}</strong>
+          </div>
+        </div>
+
+        {% if form_encaissement %}
+          {% comment %} ---------- Encaissement : ici, pas sur une page séparée ----------
+             Pas de <form> ici : l'admin entoure toute la page d'un formulaire.
+             Le bouton porte la cible (formaction), ce qui évite un formulaire
+             imbriqué — HTML invalide que le navigateur ignore. {% endcomment %}
+          <div class="lb-encaissement" id="form-encaissement">
+            <div class="lb-encaissement-tete">
+              <i class="fas fa-money-bill-transfer"></i>
+              <span>Encaisser un règlement</span>
+              <small>Montant pré‑rempli = reste dû (ajustez pour un paiement partiel).<br>
+                L'encaissement n'enregistre pas les modifications du client.</small>
+            </div>
+            <div class="lb-encaissement-champs">
+              {{ form_encaissement.montant.label_tag }}
+              {{ form_encaissement.montant }}
+              {{ form_encaissement.mode.label_tag }}
+              {{ form_encaissement.mode }}
+              {{ form_encaissement.reference_facture.label_tag }}
+              {{ form_encaissement.reference_facture }}
+              {{ form_encaissement.note.label_tag }}
+              {{ form_encaissement.note }}
+              <button type="submit" name="encaisser" formnovalidate
+                      formmethod="post"
+                      formaction="{% url 'admin:clients_client_encaisser' obj.pk %}"
+                      class="lb-btn">
+                <i class="fas fa-check"></i> Encaisser
+              </button>
+            </div>
+          </div>
+        {% else %}
+          <p class="lb-facts-empty">
+            <i class="fas fa-circle-check" style="color:var(--lb-sage-600)"></i>
+            Aucun encours : rien à encaisser sur ce compte.
+          </p>
+        {% endif %}
+
+        {% if reglements %}
+          <ul class="lb-timeline lb-timeline-compact">
+            {% for reglement in reglements %}
+              <li class="is-sage">
+                <div class="lb-tl-head">
+                  <span class="lb-tl-title">{{ reglement.get_mode_display }} · {{ reglement.date_reglement|date:"d/m/Y" }}</span>
+                  <span class="lb-tl-amount">{{ reglement.montant|floatformat:0|intcomma }} {{ devise }}</span>
+                </div>
+                <div class="lb-tl-meta">
+                  {% if reglement.reference_facture %}Réf. {{ reglement.reference_facture }}{% endif %}
+                  {% if reglement.utilisateur %} · saisi par {{ reglement.utilisateur }}{% endif %}
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="lb-facts-empty">Aucun règlement enregistré.</p>
+        {% endif %}
+      </div>
+    </section>
+  </div>
+</div>

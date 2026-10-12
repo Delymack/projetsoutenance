@@ -1,0 +1,98 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block after_related_objects %}
+{{ block.super }}
+{% if original %}
+<div class="col-12 col-lg-9">
+  <div class="card ticket-card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <strong><i class="fas fa-receipt mr-1"></i> Récapitulatif de la vente</strong>
+      <a class="btn btn-sm btn-info" href="{% url 'admin:vente-facture' original.id %}"><i class="fas fa-print mr-1"></i> Facture</a>
+    </div>
+    <div class="card-body">
+      <div class="ticket-grid">
+        <div class="t-field"><span class="t-label">Référence</span><span class="t-value">{{ original.reference }}</span></div>
+        <div class="t-field"><span class="t-label">Date</span><span class="t-value">{{ original.date_vente|date:"d/m/Y H:i" }}</span></div>
+        <div class="t-field"><span class="t-label">Client</span><span class="t-value">{{ original.nom_client }}</span></div>
+        <div class="t-field"><span class="t-label">Vendeur</span><span class="t-value">{{ original.utilisateur.get_full_name|default:original.utilisateur.username }}</span></div>
+        <div class="t-field"><span class="t-label">Paiement</span><span class="t-value">{{ original.get_mode_paiement_display }}</span></div>
+        <div class="t-field total"><span class="t-label">Total</span><span class="t-value">{{ original.total }} {{ societe.devise|default:"Ar" }}</span></div>
+      </div>
+
+      {# Frise de statut #}
+      <div class="status-flow">
+        <div class="sf-step done"><span class="sf-dot"><i class="fas fa-check"></i></span><div><strong>Vente enregistrée</strong><small>Stock décrémenté automatiquement</small></div></div>
+        <div class="sf-bar {% if original.statut == 'ANNULEE' %}cancelled{% endif %}"></div>
+        {% if original.statut == 'ANNULEE' %}
+          <div class="sf-step cancelled"><span class="sf-dot"><i class="fas fa-times"></i></span><div><strong>Vente annulée</strong><small>Stock restauré</small></div></div>
+        {% else %}
+          <div class="sf-step pending"><span class="sf-dot"><i class="fas fa-undo"></i></span><div><strong>Annulation possible</strong><small>Restaure le stock des lignes</small></div></div>
+        {% endif %}
+      </div>
+
+      {% if original.statut == 'PAYEE' and has_change_permission %}
+      <button type="button" class="btn btn-danger btn-annuler" data-toggle="modal" data-target="#modal-annuler" onclick="document.getElementById('modal-annuler').style.display='flex'">
+        <i class="fas fa-undo-alt mr-1"></i> Annuler cette vente
+      </button>
+      {% elif original.statut == 'ANNULEE' %}
+        <div class="alert alert-danger mb-0"><i class="fas fa-info-circle mr-1"></i> Cette vente est annulée ; le stock a déjà été restauré.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+  .ticket-card { border:1px solid #eee8df; border-radius:14px; box-shadow:0 4px 14px rgba(46,25,28,.05); }
+  .ticket-card .card-header { background:#fffaf0; border-bottom:1px solid #f1e6cd; color:#641b2c; }
+  .ticket-grid { display:grid; gap:.9rem 1.4rem; grid-template-columns:repeat(3,1fr); }
+  .t-field { border-bottom:1px dashed #eee4dd; padding-bottom:.55rem; }
+  .t-field .t-label { color:#9a8b8d; display:block; font-size:.68rem; font-weight:800; letter-spacing:.07em; text-transform:uppercase; }
+  .t-field .t-value { color:#2b1b20; font-size:.95rem; font-weight:800; }
+  .t-field.total .t-value { color:#641b2c; font-size:1.3rem; }
+  .status-flow { align-items:center; display:flex; gap:.6rem; margin:1.4rem 0; }
+  .sf-step { align-items:center; display:flex; gap:.6rem; }
+  .sf-step .sf-dot { align-items:center; border-radius:50%; display:inline-flex; height:32px; justify-content:center; width:32px; }
+  .sf-step.done .sf-dot { background:#e9f8ef; color:#17733e; }
+  .sf-step.pending .sf-dot { background:#f1ece6; color:#8a7a7d; }
+  .sf-step.cancelled .sf-dot { background:#f6ecee; color:#8c1f33; }
+  .sf-step strong { display:block; font-size:.84rem; color:#2b1b20; }
+  .sf-step small { color:#8a7a7d; font-size:.72rem; }
+  .sf-bar { background:#e9e1db; border-radius:4px; height:3px; min-width:40px; flex:0 0 60px; }
+  .sf-bar.cancelled { background:#641b2c; }
+  .btn-annuler { border-radius:9px; font-weight:800; }
+  .annuler-modal { align-items:center; background:rgba(16,8,11,.55); display:none; inset:0; justify-content:center; padding:1rem; position:fixed; z-index:2000; }
+  .annuler-modal .am-card { background:#fff; border-radius:16px; box-shadow:0 24px 60px rgba(0,0,0,.4); max-width:520px; overflow:hidden; width:100%; }
+  .annuler-modal .am-head { background:linear-gradient(100deg,#8c1f33,#8c1f33); color:#fff; font-weight:800; padding:1rem 1.2rem; }
+  .annuler-modal .am-body { color:#5f4e52; font-size:.9rem; padding:1.2rem; }
+  .annuler-modal .am-foot { display:flex; gap:.6rem; justify-content:flex-end; padding:0 1.2rem 1.2rem; }
+  @media (max-width:767px) { .ticket-grid { grid-template-columns:1fr; } .status-flow { flex-direction:column; align-items:flex-start; } .sf-bar { display:none; } }
+</style>
+{% endif %}
+{% endblock %}
+
+{% block after_form %}
+{% if original %}
+{# Modale de confirmation : hors du formulaire principal, car son <form> d'annulation fermerait la vente avant le bouton Enregistrer. #}
+<div class="annuler-modal" id="modal-annuler" role="dialog" aria-modal="true">
+  <div class="am-card">
+    <div class="am-head"><i class="fas fa-exclamation-triangle mr-2"></i> Confirmer l'annulation</div>
+    <div class="am-body">
+      <p>Vous êtes sur le point d'annuler la vente <strong>{{ original.reference }}</strong> d'un montant de <strong>{{ original.total }} {{ societe.devise|default:"Ar" }}</strong>.</p>
+      <p class="mb-0">Cette action va <strong>restaurer les quantités en stock</strong> pour chaque article vendu et enregistrer un mouvement de retour. Elle est irréversible.</p>
+    </div>
+    <div class="am-foot">
+      <button type="button" class="btn btn-secondary" onclick="document.getElementById('modal-annuler').style.display='none'">Conserver</button>
+      <form method="post" action="{% url 'admin:ventes_vente_changelist' %}" class="d-inline">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="annuler_ventes_massives">
+        <input type="hidden" name="_selected_action" value="{{ original.id }}">
+        <input type="hidden" name="select_across" value="0">
+        <input type="hidden" name="index" value="0">
+        <button type="submit" class="btn btn-danger"><i class="fas fa-undo-alt mr-1"></i> Oui, annuler et restaurer le stock</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

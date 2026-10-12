@@ -1,0 +1,839 @@
+:host {
+  display: block;
+}
+
+.caisse {
+  padding-block: 1.5rem 2rem;
+}
+
+.caisse__header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.caisse__header h1 {
+  margin: 0.25rem 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.caisse__header p,
+.caisse-product p,
+.caisse-line small {
+  margin: 0;
+  color: var(--lb-text-muted);
+}
+
+.eyebrow {
+  color: var(--lb-primary);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.caisse__top-actions,
+.caisse__checkout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.caisse__layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(340px, 0.9fr) minmax(260px, 0.7fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.caisse__search {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.caisse__search mat-form-field {
+  margin-bottom: -1.25em;
+}
+
+.caisse__products,
+.caisse__lines {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.caisse__products {
+  max-height: calc(100vh - 245px);
+  overflow: auto;
+  padding-right: 0.25rem;
+}
+
+.caisse-product {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem;
+  cursor: grab;
+}
+
+.caisse-product:active {
+  cursor: grabbing;
+}
+
+.caisse-product img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  border-radius: var(--lb-radius-sm);
+  background: var(--lb-bg-alt);
+  padding: 0.35rem;
+}
+
+.caisse-product h2 {
+  margin: 0 0 0.15rem;
+  font-size: 1rem;
+}
+
+.caisse-product strong,
+.caisse__grand-total strong {
+  color: var(--lb-primary);
+}
+
+.caisse__panier {
+  min-height: 540px;
+  padding: 1rem;
+}
+
+.caisse__panier.cdk-drop-list-dragging,
+.caisse__panier:hover {
+  border-color: var(--lb-accent);
+}
+
+.caisse__panier > header,
+.ticket header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--lb-divider);
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.caisse__panier h2,
+.ticket h2,
+.caisse__shortcuts h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.caisse__drop-hint {
+  min-height: 240px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.5rem;
+  border: 2px dashed var(--lb-border);
+  border-radius: var(--lb-radius);
+  color: var(--lb-text-muted);
+  text-align: center;
+}
+
+.caisse__drop-hint mat-icon {
+  color: var(--lb-accent);
+  font-size: 2.4rem;
+  width: 2.4rem;
+  height: 2.4rem;
+}
+
+.caisse-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.6rem;
+  border-bottom: 1px dashed var(--lb-divider);
+  padding-bottom: 0.65rem;
+}
+
+.caisse-line__qty {
+  display: inline-grid;
+  grid-template-columns: 36px 32px 36px;
+  align-items: center;
+  justify-items: center;
+}
+
+.caisse-line__qty output {
+  font-weight: 800;
+}
+
+.caisse__totals {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  border-top: 2px solid var(--lb-divider);
+  padding-top: 1rem;
+}
+
+.caisse__totals > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.caisse__discount {
+  color: var(--lb-success);
+}
+
+.caisse__grand-total {
+  font-size: 1.35rem;
+}
+
+.caisse__checkout {
+  justify-content: stretch;
+}
+
+.caisse__checkout button {
+  flex: 1;
+}
+
+.caisse__side {
+  display: grid;
+  gap: 1rem;
+}
+
+.caisse__customer {
+  height: 320px;
+  overflow: auto;
+}
+
+.caisse__customer ::ng-deep .ecran-client {
+  min-height: 0;
+  padding: 1rem;
+}
+
+.ticket {
+  padding: 1rem;
+}
+
+.ticket__body {
+  display: grid;
+  gap: 0.35rem;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.ticket__body small {
+  color: var(--lb-text-muted);
+}
+
+.ticket__line,
+.ticket__total {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.ticket__total {
+  border-top: 1px dashed var(--lb-divider);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.caisse__shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.caisse__shortcuts h2 {
+  flex-basis: 100%;
+}
+
+.caisse__shortcuts span {
+  border-radius: 999px;
+  background: var(--lb-bg-alt);
+  padding: 0.35rem 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.caisse__toast,
+.caisse__success {
+  position: fixed;
+  z-index: 50;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  box-shadow: var(--lb-shadow-3);
+}
+
+.caisse__toast {
+  top: 5rem;
+  padding: 0.65rem 1rem;
+  background: var(--lb-surface);
+  border: 1px solid var(--lb-border);
+}
+
+.caisse__success {
+  top: 8.5rem;
+  padding: 0.8rem 1.2rem;
+  background: var(--lb-success);
+  color: var(--lb-text-inverse);
+  font-weight: 800;
+}
+
+.caisse__success mat-icon {
+  animation: cashier-check 520ms ease-out both;
+}
+
+.caisse--tactile .caisse-product,
+.caisse--tactile .caisse-line {
+  min-height: 82px;
+}
+
+.caisse--tactile button {
+  min-height: 44px;
+}
+
+.caisse__empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--lb-text-muted);
+}
+
+.cdk-drag-preview {
+  box-shadow: var(--lb-shadow-3);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.35;
+}
+
+@keyframes cashier-check {
+  0% {
+    transform: scale(0.4);
+  }
+  70% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 1100px) {
+  .caisse__layout {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .caisse__side {
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .caisse__header {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .caisse__layout,
+  .caisse__side {
+    grid-template-columns: 1fr;
+  }
+
+  .caisse__products {
+    max-height: none;
+  }
+}
+
+.ticket__meta {
+  display: flex;
+  justify-content: space-between;
+  margin: var(--lb-gap-xs) 0;
+  color: var(--lb-text-muted);
+  font-size: 0.72rem;
+}
+
+.ticket__pied {
+  margin: var(--lb-gap-sm) 0 0;
+  padding-top: var(--lb-gap-xs);
+  border-top: 1px dashed var(--lb-border);
+  color: var(--lb-text-muted);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+@media print {
+  app-navbar,
+  .caisse__header,
+  .caisse__catalogue,
+  .caisse__panier,
+  .caisse__customer,
+  .caisse__shortcuts,
+  .caisse__toast,
+  .caisse__success {
+    display: none !important;
+  }
+
+  .caisse,
+  .caisse__layout,
+  .caisse__side {
+    display: block;
+    padding: 0;
+  }
+
+  .ticket {
+    border: 0;
+    box-shadow: none;
+  }
+
+  .ticket header {
+    display: none;
+  }
+}
+
+
+/* ---------- Panneau de scan ---------- */
+.caisse__action-active {
+  border-color: var(--lb-accent);
+  color: var(--lb-accent);
+}
+
+.caisse__scan {
+  display: grid;
+  gap: var(--lb-gap-sm);
+  margin-bottom: var(--lb-gap);
+  padding: var(--lb-gap);
+  border: 1px dashed var(--lb-accent);
+
+  > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin: 0;
+      font-size: 1.05rem;
+    }
+  }
+}
+
+.caisse__scan-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lb-gap-sm);
+
+  mat-form-field {
+    flex: 1 1 220px;
+  }
+}
+
+.caisse__scan-erreur {
+  margin: 0;
+  color: var(--lb-danger);
+  font-size: 0.85rem;
+}
+
+.caisse__scan-resultat {
+  display: grid;
+  align-items: center;
+  gap: var(--lb-gap-sm);
+  padding: var(--lb-gap-sm);
+  border-radius: var(--lb-radius-sm);
+  background: var(--lb-surface-2);
+  grid-template-columns: auto 1fr auto;
+
+  img {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+  }
+
+  div {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  small {
+    color: var(--lb-text-muted);
+    font-size: 0.78rem;
+  }
+
+  @media (max-width: 560px) {
+    grid-template-columns: auto 1fr;
+
+    button {
+      grid-column: 1 / -1;
+      justify-self: stretch;
+    }
+  }
+}
+
+/* ---------- Champ de remise (raccourci F2) ---------- */
+.caisse__remise {
+  display: flex;
+  flex: 1 1 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lb-gap-xs);
+
+  mat-form-field {
+    flex: 1 1 160px;
+  }
+}
+
+/* ---------- Badge et Tiroir des Tickets en Attente (Park & Resume) ---------- */
+.caisse__badge-attente {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  margin-left: 6px;
+  border-radius: 999px;
+  background: var(--lb-primary, #641b2c);
+  color: var(--lb-primary-contrast, #fff);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.caisse__tiroir-attente {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(201, 155, 59, 0.4);
+  background: color-mix(in srgb, var(--lb-surface) 94%, var(--lb-accent) 6%);
+  border-radius: 12px;
+}
+
+.caisse__tiroir-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--lb-primary, #641b2c);
+  }
+}
+
+.caisse__attente-vide {
+  margin: 0;
+  color: var(--lb-text-muted);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.caisse__attente-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem;
+}
+
+.caisse__attente-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.8rem;
+  border: 1px solid var(--lb-border, #e5e0db);
+  border-radius: 8px;
+  background: var(--lb-surface);
+}
+
+.caisse__attente-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+
+  strong {
+    font-size: 0.95rem;
+    color: var(--lb-primary, #641b2c);
+  }
+
+  span {
+    font-size: 0.8rem;
+    color: var(--lb-text-muted);
+  }
+
+  em {
+    font-size: 0.75rem;
+    color: var(--lb-text-muted);
+    font-style: normal;
+  }
+}
+
+.caisse__attente-total {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--lb-success);
+}
+
+.caisse__attente-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+/* ---------- En-tête Panier & Barre Client ---------- */
+.caisse__panier-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.caisse__client-bar {
+  flex: 1 1 180px;
+  max-width: 220px;
+}
+
+.caisse__client-field {
+  width: 100%;
+  font-size: 0.85rem;
+}
+
+/* ---------- Totaux et Modes de Règlement ---------- */
+.caisse__totaux-lignes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.caisse__label-bar {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--lb-text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.caisse__modes-paiement {
+  margin-bottom: 0.75rem;
+  padding: 0.6rem;
+  border-radius: 8px;
+  background: var(--lb-bg-alt, #faf7f5);
+}
+
+.caisse__modes-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
+  gap: 0.4rem;
+}
+
+.caisse__mode-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.25rem;
+  border: 1px solid var(--lb-border, #ddd);
+  border-radius: 8px;
+  background: var(--lb-surface);
+  color: var(--lb-text, #333);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: all 0.15s ease-in-out;
+  position: relative;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    border-color: var(--lb-accent, #c99b3b);
+    background: color-mix(in srgb, var(--lb-accent) 12%, var(--lb-surface));
+  }
+
+  &--actif {
+    border-color: var(--lb-primary, #641b2c);
+    background: var(--lb-primary, #641b2c);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(100, 27, 44, 0.25);
+
+    .caisse__mode-badge {
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
+    }
+  }
+}
+
+.caisse__mode-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--lb-bg-alt);
+  color: var(--lb-text);
+}
+
+/* ---------- Calculateur de Monnaie Espèces (Ariary) ---------- */
+.caisse__monnaie-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding: 0.65rem;
+  border-radius: 8px;
+  background: var(--lb-surface);
+  border: 1px solid var(--lb-border, #e5e0db);
+}
+
+.caisse__monnaie-saisie {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.caisse__recu-field {
+  flex: 1 1 auto;
+}
+
+.caisse__coupures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.caisse__coupure-btn {
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--lb-border);
+  border-radius: 6px;
+  background: var(--lb-bg-alt);
+  color: var(--lb-primary, #641b2c);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--lb-primary, #641b2c);
+    color: var(--lb-primary-contrast, #fff);
+    border-color: var(--lb-primary, #641b2c);
+  }
+}
+
+.caisse__monnaie-bilan {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--lb-danger) 12%, var(--lb-surface));
+  border: 1px solid color-mix(in srgb, var(--lb-danger) 28%, var(--lb-border));
+  font-size: 0.95rem;
+
+  &--ok {
+    background: color-mix(in srgb, var(--lb-success) 14%, var(--lb-surface));
+    border-color: color-mix(in srgb, var(--lb-success) 30%, var(--lb-border));
+  }
+}
+
+.caisse__rendu {
+  color: var(--lb-success);
+  strong {
+    font-size: 1.15rem;
+    font-weight: 800;
+  }
+}
+
+.caisse__manque {
+  color: var(--lb-danger);
+  strong {
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+}
+
+.caisse__mobile-box {
+  margin-bottom: 0.75rem;
+}
+
+.caisse__ref-field {
+  width: 100%;
+}
+
+/* ---------- Actions Finales Checkout ---------- */
+.caisse__actions-finales {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.caisse__btn-attente {
+  font-weight: 600;
+}
+
+.caisse__btn-encaisser {
+  font-size: 1rem;
+  font-weight: 800;
+  padding: 0.75rem 1rem;
+}
+
+/* ---------- Ticket Thermique & Raccourcis ---------- */
+.ticket__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ticket__paiement-recap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin: 0.5rem 0;
+  padding: 0.4rem 0;
+  border-top: 1px dashed var(--lb-border);
+  border-bottom: 1px dashed var(--lb-border);
+  font-size: 0.8rem;
+}
+
+.caisse__shortcuts {
+  span kbd {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 800;
+    background: var(--lb-bg-alt);
+    border: 1px solid var(--lb-border);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    margin-right: 0.35rem;
+    color: var(--lb-primary, #641b2c);
+  }
+}
+

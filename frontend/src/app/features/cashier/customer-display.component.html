@@ -1,0 +1,50 @@
+<!--
+ Écran client temps réel.
+  Pensé pour être ouvert dans une seconde fenêtre : police large, fort contraste.
+-->
+<div class="ecran-client" [class.ecran-client--plein-ecran]="pleinEcran()">
+  <header class="ecran-client__entete">
+    <h1>🍷 {{ 'APP.nom' | translate }}</h1>
+    <span class="ecran-client__sous-titre">{{ 'APP.baseline' | translate }}</span>
+  </header>
+
+  @if (remerciement()) {
+    <div class="ecran-client__remerciement" role="status">
+      <span class="ecran-client__remerciement-icone" aria-hidden="true">🎉</span>
+      <p>{{ 'CAISSE.merci' | translate }}</p>
+    </div>
+  } @else if (estVide()) {
+    <div class="ecran-client__vide">
+      <span class="ecran-client__vide-icone" aria-hidden="true">🛒</span>
+      <p>{{ 'PANIER.vide' | translate }}</p>
+    </div>
+  } @else {
+    <ul class="ecran-client__lignes">
+      @for (ligne of lignes(); track ligne.vin.id) {
+        <li class="ecran-client__ligne">
+          <div class="ecran-client__nom">
+            <strong>{{ ligne.vin.nom }}</strong>
+            <small>{{ ligne.vin.volume }} cl · {{ ligne.quantite }} × {{ ligne.prixUnitaire | number: '1.0-0' }} Ar</small>
+          </div>
+          <span class="ecran-client__montant">{{ totalLigne(ligne.vin.id) | number: '1.0-0' }} Ar</span>
+        </li>
+      }
+    </ul>
+  }
+
+  <footer class="ecran-client__total">
+    <div class="ecran-client__ligne-total">
+      <span>{{ 'PANIER.sousTotal' | translate }}</span>
+      <span>{{ sousTotal() | number: '1.0-0' }} Ar</span>
+    </div>
+
+    <div class="ecran-client__ligne-total ecran-client__ligne-total--total">
+      <span>{{ 'PANIER.total' | translate }}</span>
+      <span>{{ total() | number: '1.0-0' }} Ar</span>
+    </div>
+
+    <p class="ecran-client__articles">
+      {{ nbArticles() }} {{ nbArticles() > 1 ? ('PANIER.articlePluriel' | translate) : ('PANIER.articleSingulier' | translate) }}
+    </p>
+  </footer>
+</div>

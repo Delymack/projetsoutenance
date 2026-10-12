@@ -1,0 +1,61 @@
+{% extends "admin/auth/shell_full.html" %}
+{% block auth_repere %}Étape 2 sur 3{% endblock %}
+{% block jalon_1 %}jalons__point--actif{% endblock %}
+{% block jalon_2 %}jalons__point--actif{% endblock %}
+{% block auth_title %}Vérification{% endblock %}
+
+{% block auth_body %}
+{% if error or resent %}
+  <div class="lb-auth__message {% if resent %}lb-auth__message--ok{% endif %}" role="alert">
+    <i class="fas {% if resent %}fa-check-circle{% else %}fa-circle-exclamation{% endif %}"></i>
+    <span>{% if resent %}Un nouveau code vient d'être envoyé.{% else %}{{ error }}{% endif %}</span>
+  </div>
+{% endif %}
+
+<p class="lb-auth__intro">
+  Saisissez le code à 6 chiffres
+  {% if contact_type == 'sms' %}par SMS au{% else %}par e-mail à{% endif %}
+  <strong>{{ contact }}</strong>
+</p>
+
+<form method="post" action="{% url 'auth-verify-email' %}" novalidate>
+  {% csrf_token %}
+  {% if contact_type == 'sms' %}
+    <input type="hidden" name="contact" value="{{ contact }}">
+    <input type="hidden" name="type" value="sms">
+  {% else %}
+    <input type="hidden" name="email" value="{{ contact }}">
+  {% endif %}
+  <input type="hidden" name="code" value="">
+
+  <div class="lb-champ">
+    <div class="lb-code" role="group" aria-label="Code de vérification à 6 chiffres">
+      {% for n in "012345" %}<input type="text" id="c{{ forloop.counter0 }}" class="otp-digit" maxlength="1" inputmode="numeric" autocomplete="off" aria-label="Chiffre {{ forloop.counter }}">{% endfor %}
+    </div>
+    <div class="lb-minuteur"><i class="fas fa-stopwatch"></i><span>Expire dans <strong>10 min</strong>, code à usage unique</span></div>
+  </div>
+
+  <button type="submit" class="lb-cta">
+    <span class="label"><i class="fas fa-check-circle"></i><span>Valider mon compte</span></span>
+  </button>
+</form>
+
+<div class="lb-actions">
+  <form method="post" action="{% url 'auth-verify-email' %}" novalidate>
+    {% csrf_token %}
+    {% if contact_type == 'sms' %}
+      <input type="hidden" name="contact" value="{{ contact }}">
+      <input type="hidden" name="type" value="sms">
+    {% else %}
+      <input type="hidden" name="email" value="{{ contact }}">
+    {% endif %}
+    <input type="hidden" name="action" value="resend">
+    <button type="submit" class="lb-lien"><i class="fas fa-rotate-right"></i>Renvoyer le code</button>
+  </form>
+  <a class="lb-lien" href="{% url 'auth-signup' %}"><i class="fas fa-arrow-left"></i>Modifier mes informations</a>
+</div>
+{% endblock %}
+
+{% block auth_scripts %}
+<script>document.addEventListener('DOMContentLoaded', function(){var el=document.querySelector('.otp-digit'); if(el){el.focus();}});</script>
+{% endblock %}

@@ -1,0 +1,132 @@
+<section class="catalogue lb-container">
+  <header class="catalogue__header">
+    <div>
+      <span class="eyebrow">Lazan'i Betsileo · Fianarantsoa</span>
+      <h1>{{ 'CATALOGUE.titre' | translate }}</h1>
+      <p>{{ 'CATALOGUE.resultats' | translate: { count: vins().length } }}</p>
+    </div>
+    <a mat-stroked-button routerLink="/panier">
+      <mat-icon>shopping_bag</mat-icon>
+      {{ 'PANIER.titre' | translate }} ({{ panier.nbArticles() }})
+    </a>
+  </header>
+
+  <form class="filters lb-card" [formGroup]="filtres" [attr.aria-label]="'CATALOGUE.filtresAccessibles' | translate">
+    <mat-form-field appearance="outline" class="filters__search">
+      <mat-label>{{ 'CATALOGUE.rechercher' | translate }}</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput type="search" formControlName="recherche" autocomplete="off" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'CATALOGUE.categorie' | translate }}</mat-label>
+      <mat-select formControlName="categorie">
+        <mat-option value="toutes">{{ 'CATALOGUE.toutesCategories' | translate }}</mat-option>
+        <mat-option value="rouge">{{ 'CATALOGUE.categories.rouge' | translate }}</mat-option>
+        <mat-option value="blanc">{{ 'CATALOGUE.categories.blanc' | translate }}</mat-option>
+        <mat-option value="rose">{{ 'CATALOGUE.categories.rose' | translate }}</mat-option>
+        <mat-option value="mousseux">{{ 'CATALOGUE.categories.mousseux' | translate }}</mat-option>
+        <mat-option value="petit-lait">{{ 'CATALOGUE.categories.petitLait' | translate }}</mat-option>
+        <mat-option value="liqueur">{{ 'CATALOGUE.categories.liqueur' | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'CATALOGUE.prixMax' | translate }} (Ar)</mat-label>
+      <input matInput type="number" min="0" step="1000" formControlName="prixMax" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'CATALOGUE.trierPar' | translate }}</mat-label>
+      <mat-select formControlName="tri">
+        <mat-option value="nom">{{ 'CATALOGUE.trier.nom' | translate }}</mat-option>
+        <mat-option value="prixAsc">{{ 'CATALOGUE.trier.prixAsc' | translate }}</mat-option>
+        <mat-option value="prixDesc">{{ 'CATALOGUE.trier.prixDesc' | translate }}</mat-option>
+        <mat-option value="note">{{ 'CATALOGUE.trier.note' | translate }}</mat-option>
+        <mat-option value="millesime">{{ 'CATALOGUE.trier.millesime' | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-checkbox formControlName="enStock">{{ 'CATALOGUE.enStock' | translate }}</mat-checkbox>
+  </form>
+
+  @if (chargement()) {
+    <div class="catalogue__loading" aria-live="polite" aria-busy="true">
+      @for (index of [0, 1, 2, 3]; track index) {
+        <app-skeleton forme="carte" [hauteur]="'142px'" />
+      }
+    </div>
+  } @else if (erreur()) {
+    <div class="catalogue__state lb-card" role="alert">
+      <mat-icon>cloud_off</mat-icon>
+      <p>{{ 'CATALOGUE.echecChargement' | translate }}</p>
+      <button mat-flat-button color="primary" type="button" (click)="reessayer()">{{ 'CATALOGUE.reessayer' | translate }}</button>
+    </div>
+  } @else if (vins().length === 0) {
+    <div class="catalogue__state lb-card" role="status">
+      <mat-icon>search_off</mat-icon>
+      <p>{{ 'CATALOGUE.aucunResultat' | translate }}</p>
+    </div>
+  } @else {
+    <div class="catalogue__grid" role="list" [attr.aria-label]="'CATALOGUE.titre' | translate">
+      @for (vin of vins(); track vin.id) {
+      <article class="wine-card lb-card lb-card--hover" role="listitem">
+        <a class="wine-card__image-link" [routerLink]="['/vin', vin.id]" [attr.aria-label]="vin.nom">
+          <img class="wine-card__image" [src]="vin.image" [alt]="vin.nom" loading="lazy" />
+        </a>
+        <div class="wine-card__body">
+          <h2><a [routerLink]="['/vin', vin.id]">{{ vin.nom }}</a></h2>
+
+          @if (detailsOuverts() === vin.id) {
+            <div class="wine-card__details">
+              <p>{{ vin.description || vin.nom }}</p>
+              <dl>
+                <div>
+                  <dt>{{ 'CATALOGUE.categorie' | translate }}</dt>
+                  <dd>{{ ('CATALOGUE.categories.' + vin.categorie) | translate }}</dd>
+                </div>
+                <div>
+                  <dt>{{ 'VIN.millesime' | translate }}</dt>
+                  <dd>{{ vin.millesime || '—' }}</dd>
+                </div>
+                <div>
+                  <dt>{{ 'VIN.cepage' | translate }}</dt>
+                  <dd>{{ vin.cepage || '—' }}</dd>
+                </div>
+                <div>
+                  <dt>{{ 'VIN.region' | translate }}</dt>
+                  <dd>{{ vin.region || '—' }}</dd>
+                </div>
+              </dl>
+            </div>
+          }
+
+          <div class="wine-card__footer">
+            <strong class="wine-card__price">{{ vin.prix | number:'1.0-0' }} Ar</strong>
+            <button
+              type="button"
+              class="wine-card__voir"
+              [attr.aria-expanded]="detailsOuverts() === vin.id"
+              (click)="basculerDetails(vin.id)"
+            >
+              {{ (detailsOuverts() === vin.id ? 'COMMUN.voirMoins' : 'COMMUN.voirPlus') | translate }}
+            </button>
+            <button
+              type="button"
+              class="wine-card__ajout"
+              [class.wine-card__ajout--ok]="ajoutConfirme() === vin.id"
+              [disabled]="vin.stock < 1"
+              (click)="ajouterAuPanier(vin)"
+            >
+              {{
+                (ajoutConfirme() === vin.id ? 'CATALOGUE.ajoutReussi' : 'CATALOGUE.acheter')
+                  | translate
+              }}
+            </button>
+          </div>
+        </div>
+      </article>
+      }
+    </div>
+  }
+</section>

@@ -1,0 +1,244 @@
+{% extends "registration/base.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="{% static 'css/wineadmin-notifications.css' %}?v=1">
+<style>
+  body.login-page {
+    background: transparent !important;
+    background-color: transparent !important;
+    display: block;
+    min-height: 100vh;
+  }
+
+  body.login-page .login-box {
+    margin: 0;
+    max-width: none;
+    padding: 0;
+    width: 100% !important;
+  }
+
+  body.login-page .login-box > .card,
+  body.login-page .login-card-body {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    color: inherit;
+    padding: 0 !important;
+  }
+
+  body.login-page .login-logo,
+  body.login-page .register-logo {
+    display: none !important;
+  }
+
+  .wine-login {
+    align-items: center;
+    background: transparent;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: flex-start;
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: 2rem clamp(1.25rem, 7vw, 6rem);
+    position: relative;
+    width: 100%;
+  }
+
+  .wine-login-bg {
+    background:
+      linear-gradient(115deg, rgba(9, 5, 7, .45), rgba(9, 5, 7, .2) 52%, rgba(9, 5, 7, .48)),
+      url("{% static 'img/login-cellar.jpg' %}") center 54% / cover no-repeat;
+    inset: 0;
+    position: fixed;
+    z-index: 0;
+  }
+
+  .wine-login-panel {
+    background: rgba(12, 7, 9, .72);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(230, 189, 106, .58);
+    border-radius: 1.25rem;
+    box-sizing: border-box;
+    box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, .42);
+    color: #f4ece9;
+    margin: 0 auto 0 0;
+    max-width: 30rem;
+    padding: clamp(1.4rem, 4vw, 2.25rem);
+    position: relative;
+    width: min(100%, 30rem);
+    z-index: 1;
+  }
+
+  .wine-login-panel .form-group { margin-bottom: 1.15rem; }
+
+  .wine-login-panel label {
+    color: #f3e4c9;
+    display: block;
+    font-size: .9rem;
+    font-weight: 700;
+    margin-bottom: .45rem;
+  }
+
+  .wine-login-panel .form-control {
+    background: rgba(9, 5, 7, .62);
+    border: 1px solid rgba(230, 189, 106, .5);
+    border-radius: .65rem;
+    color: #fff;
+    height: 3.15rem;
+    padding: .75rem .9rem;
+  }
+
+  .wine-login-panel .form-control::placeholder {
+    color: rgba(244, 236, 233, .82);
+    opacity: 1;
+  }
+
+  .wine-login-panel .form-control:-webkit-autofill,
+  .wine-login-panel .form-control:-webkit-autofill:hover,
+  .wine-login-panel .form-control:-webkit-autofill:focus {
+    -webkit-text-fill-color: #fff;
+    -webkit-box-shadow: 0 0 0 1000px #241318 inset;
+    box-shadow: 0 0 0 1000px #241318 inset;
+    caret-color: #fff;
+    transition: background-color 9999s ease-out 0s;
+  }
+
+  .wine-login-panel .form-control:focus {
+    background: rgba(9, 5, 7, .75);
+    border-color: #e6bd6a;
+    box-shadow: 0 0 0 .2rem rgba(230, 189, 106, .26);
+    color: #fff;
+  }
+
+  .wine-login-panel .login-error {
+    background: rgba(140, 31, 51, .28);
+    border: 1px solid rgba(255, 130, 150, .55);
+    border-radius: .65rem;
+    color: #ffe1e6;
+    font-size: .88rem;
+    margin-bottom: 1rem;
+    padding: .75rem .9rem;
+  }
+
+  .wine-login-panel .btn-login {
+    background: linear-gradient(100deg, #c99b3b, #e6bd6a);
+    border: 0;
+    border-radius: .65rem;
+    color: #26170a;
+    font-weight: 800;
+    margin-top: .35rem;
+    min-height: 3.15rem;
+    width: 100%;
+  }
+
+  .wine-login-panel .btn-login:hover,
+  .wine-login-panel .btn-login:focus-visible {
+    background: linear-gradient(100deg, #d5a94b, #f0d18c);
+    color: #26170a;
+  }
+
+  .wine-login-links {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .65rem 1rem;
+    justify-content: space-between;
+    margin-top: 1.15rem;
+  }
+
+  .wine-login-links a {
+    color: #f0d99a;
+    font-size: .86rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .wine-login-links a:hover { color: #fff; text-decoration: underline; }
+  .wine-login-panel :focus-visible { outline: 2px solid #f0d99a; outline-offset: 3px; }
+
+  @media (max-width: 575.98px) {
+    .wine-login { justify-content: center; padding: 1rem; }
+    .wine-login-panel { margin: 0 auto; }
+    .wine-login-bg { background-position: 58% center; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wine-login-panel *, .wine-login-panel *::before, .wine-login-panel *::after {
+      scroll-behavior: auto !important;
+      transition: none !important;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="wine-login">
+  <div class="wine-login-notification" aria-label="Nombre d'actions à vérifier : {{ admin_notification_count }}" title="{{ admin_notification_count }} action(s) à vérifier">
+    <i class="fas fa-bell" aria-hidden="true"></i>
+    <span class="wine-notifications-count" aria-hidden="true">
+      {% if admin_notification_count > 99 %}99+{% else %}{{ admin_notification_count }}{% endif %}
+    </span>
+  </div>
+  <div class="wine-login-bg" aria-hidden="true"></div>
+  <section class="wine-login-panel" aria-label="Connexion">
+    {% if user.is_authenticated %}
+      <div class="login-error" role="alert">
+        {% blocktrans trimmed %}Vous êtes connecté en tant que {{ username }}, mais vous n'avez pas la permission d'accéder à cette page.{% endblocktrans %}
+      </div>
+    {% else %}
+      {% if auth__lockout.locked %}
+        <div class="login-error" role="alert">
+          Compte temporairement verrouillé. Réessayez dans {{ auth__lockout.minutes }} minute{{ auth__lockout.minutes|pluralize }}.
+        </div>
+      {% elif form.errors %}
+        <div class="login-error" role="alert">
+          Identifiants incorrects. Merci de réessayer.
+        </div>
+      {% endif %}
+
+      <form action="{{ app_path }}" method="post" id="login-form">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+
+        <div class="form-group">
+          <label for="id_username">E-mail ou identifiant</label>
+          <input
+            type="text"
+            name="username"
+            id="id_username"
+            class="form-control"
+            placeholder="Identifiant ou e-mail"
+            value="{{ form.username.value|default_if_none:'' }}"
+            autocomplete="username"
+            autofocus
+            required
+            spellcheck="false">
+        </div>
+
+        <div class="form-group">
+          <label for="id_password">Mot de passe</label>
+          <input
+            type="password"
+            name="password"
+            id="id_password"
+            class="form-control"
+            placeholder="Mot de passe"
+            autocomplete="current-password"
+            required>
+        </div>
+
+        <button type="submit" class="btn btn-login">Se connecter</button>
+      </form>
+
+      <nav class="wine-login-links" aria-label="Liens du compte">
+        <a href="{% url 'auth-forgot-password' %}">Mot de passe oublié ?</a>
+        {% if auth__signup_enabled %}
+          <a href="{% url 'auth-signup' %}">Créer un compte</a>
+        {% endif %}
+      </nav>
+    {% endif %}
+  </section>
+</main>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% comment %}
+Onglets de l'espace Caisse — une seule page, trois fonctions.
+
+La caisse, le journal des ventes et les commandes clients ne sont pas trois modules :
+ce sont trois moments du même geste de comptoir. Ils partagent donc une barre
+d'onglets identique, incluse dans les trois pages, pour que passer de l'un à
+l'autre ne soit jamais un saut dans le back-office.
+
+L'onglet actif se déduit du CHEMIN et non d'un paramètre d'URL : sur une
+changelist, un paramètre inconnu est interprété comme un filtre et la page
+reboucle en ``?e=1``. Les trois chemins sont de toute façon distincts.
+{% endcomment %}
+{% url 'caisse-enregistreuse' as url_caisse %}
+{% url 'admin:ventes_vente_changelist' as url_ventes %}
+{% url 'admin:ventes_reservation_changelist' as url_reservations %}
+<nav class="lb-tabs" role="tablist" aria-label="Espace caisse">
+  <a role="tab" class="lb-tab{% if request.path == url_caisse %} is-active{% endif %}"
+     aria-selected="{% if request.path == url_caisse %}true{% else %}false{% endif %}"
+     href="{{ url_caisse }}">
+    <i class="fas fa-cash-register" aria-hidden="true"></i>
+    <span>Nouvelle vente</span>
+  </a>
+  <a role="tab" class="lb-tab{% if request.path == url_ventes %} is-active{% endif %}"
+     aria-selected="{% if request.path == url_ventes %}true{% else %}false{% endif %}"
+     href="{{ url_ventes }}">
+    <i class="fas fa-receipt" aria-hidden="true"></i>
+    <span>Ventes</span>
+  </a>
+  <a role="tab" class="lb-tab{% if request.path == url_reservations %} is-active{% endif %}"
+     aria-selected="{% if request.path == url_reservations %}true{% else %}false{% endif %}"
+     href="{{ url_reservations }}">
+    <i class="fas fa-bookmark" aria-hidden="true"></i>
+    <span>Commandes clients</span>
+  </a>
+</nav>

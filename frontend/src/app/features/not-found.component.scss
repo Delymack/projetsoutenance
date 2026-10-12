@@ -1,0 +1,18 @@
+.page-404 {
+  display: grid;
+  place-items: center;
+  justify-items: center;
+  gap: var(--lb-gap-sm);
+  min-height: calc(100vh - 200px);
+  text-align: center;
+}
+
+.page-404__code {
+  font-family: var(--lb-font-display);
+  font-size: clamp(4rem, 18vw, 9rem);
+  font-weight: 800;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 3px var(--lb-primary);
+  animation: lb-fade-in-up 500ms ease-out;
+}

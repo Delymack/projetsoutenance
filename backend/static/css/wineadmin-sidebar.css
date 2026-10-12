@@ -1,0 +1,1693 @@
+/* ============================================================
+   WineAdmin Sidebar — Premium Dark « Cave & Or »
+   Sombre, verre fumé, accents or, icônes par section colorées,
+   animations fluides (apparition en cascade, glow, micro-interactions).
+   ============================================================ */
+
+/* --- Palette (sombre premium, saturée, sans blanc) --- */
+:root {
+    --wine-ink: #080d18;
+    --wine-deep: #050810;
+    --wine-mid: #120509;
+    --wine-mid-2: #2a0f1a;
+    --wine-bdx: #2f6b4f;
+    --wine-bdx-2: #2f6b4f;
+    --wine-bdx-deep: #2a0f1a;
+    --wine-gold: #e9b949;
+    --wine-gold-soft: #f6d377;
+    --wine-gold-pale: #f8e2aa;
+    --wine-gold-bright: #ffd270;
+    --wine-cream: #f2ecdd;
+    --wine-champagne: #ffe7cf;
+    --wine-text: #e8eefc;
+    --wine-text-muted: rgba(218, 228, 250, 0.76);
+    --wine-text-dim: rgba(218, 228, 250, 0.44);
+    --wine-border: rgba(233, 185, 73, 0.26);
+    --wine-glass: rgba(170, 200, 255, 0.02);
+    --wine-glass-2: rgba(170, 200, 255, 0.05);
+    --wine-hover: rgba(200, 220, 255, 0.05);
+    --wine-active: rgba(233, 185, 73, 0.16);
+    --wine-active-border: rgba(233, 185, 73, 0.58);
+    --wine-shadow: rgba(2, 5, 12, 0.6);
+    /* Accents vivants, saturés, premium — par section (0% rouge) */
+    /* Palette standard : 3 teintes + neutres (voir wineadmin-design.css) */
+    --c-wine:   #c98a9a;  /* GRENAT éclairci — actif, danger        */
+    --c-gold:   #e0b860;  /* OR           — action principale        */
+    --c-sage:   #7fc0a0;  /* SAGE         — succès, disponible       */
+    --c-ink:    #b9a9a4;  /* Neutre       — inactif                  */
+
+    --c-tdb:   var(--c-gold);
+    --c-caisse:var(--c-sage);
+    --c-report: var(--c-gold);
+    --c-ventes:var(--c-gold);
+    --c-clients:var(--c-wine);
+    --c-produits:var(--c-gold);
+    --c-stocks:var(--c-sage);
+    --c-promos:var(--c-gold);
+    --c-comptes:var(--c-ink);
+    --c-cat:   var(--c-gold);
+    --c-four:  var(--c-sage);
+    --c-comm:  var(--c-gold);
+    --c-param: var(--c-ink);
+    --c-journal:var(--c-wine);
+    --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+    /* Sidebar légèrement plus large pour mieux mettre en avant les icônes et les libellés. */
+    --lte-sidebar-width: 270px;
+}
+
+/* ============================================================
+   Conteneur — fond dégradé bordeaux profond + halo or
+   ============================================================ */
+#jazzy-sidebar {
+    background:
+        radial-gradient(120% 90% at 115% -20%, rgba(74, 114, 196, 0.38), transparent 62%),
+        radial-gradient(140% 100% at -30% 120%, rgba(233, 185, 73, 0.2), transparent 56%),
+        radial-gradient(100% 70% at 82% 115%, rgba(22, 39, 77, 0.6), transparent 66%),
+        linear-gradient(178deg, #1a0810 0%, #0e0509 48%, #070d1d 100%) !important;
+    border-right: 1px solid var(--wine-border);
+    box-shadow: 12px 0 40px rgba(0, 0, 0, 0.35);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Liseré lumineux gauche (effet verre) */
+#jazzy-sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 2px;
+    background: linear-gradient(180deg, transparent, rgba(244, 210, 119, 0.85), rgba(74, 114, 196, 0.45), transparent);
+    opacity: 0.75;
+    pointer-events: none;
+}
+
+/* --- Scrollbar fine et dorée --- */
+#jazzy-sidebar .sidebar-wrapper {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 168, 83, 0.16) transparent;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+#jazzy-sidebar .sidebar-wrapper::-webkit-scrollbar { width: 3px; }
+#jazzy-sidebar .sidebar-wrapper::-webkit-scrollbar-track { background: transparent; }
+#jazzy-sidebar .sidebar-wrapper::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(212, 168, 83, 0.35), rgba(74, 114, 196, 0.5));
+    border-radius: 3px;
+}
+
+/* ============================================================
+   Marque (logo)
+   ============================================================ */
+#jazzy-sidebar .sidebar-brand {
+    position: relative;
+    background: rgba(244, 210, 119, 0.025);
+    border-bottom: 1px solid rgba(244, 210, 119, 0.05);
+    padding: 1.25rem 1.25rem;
+    overflow: hidden;
+}
+/* Reflet doré descendant au survol de la marque */
+#jazzy-sidebar .sidebar-brand::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; left: -110%;
+    width: 55%;
+    background: linear-gradient(100deg, transparent, rgba(212, 168, 83, 0.08), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.7s var(--ease-out);
+    pointer-events: none;
+}
+#jazzy-sidebar .sidebar-brand:hover::after { left: 150%; }
+
+#jazzy-sidebar .brand-link {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0;
+    text-decoration: none !important;
+}
+
+#jazzy-sidebar .sb-embleme {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(145deg, var(--wine-gold-soft) 0%, #c08a2f 55%, #96702a 100%);
+    border-radius: 13px;
+    color: #2c1200;
+    font-size: 1.15rem;
+    box-shadow:
+        0 0 0 1px rgba(245, 224, 168, 0.35) inset,
+        0 4px 14px rgba(212, 168, 83, 0.35),
+        0 0 22px rgba(212, 168, 83, 0.18);
+    flex-shrink: 0;
+    transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+#jazzy-sidebar .brand-link:hover .sb-embleme {
+    transform: scale(1.04) rotate(-3deg);
+    box-shadow:
+        0 0 0 1px rgba(245, 224, 168, 0.85) inset,
+        0 6px 20px rgba(0, 0, 0, 0.5),
+        0 0 30px rgba(212, 168, 83, 0.5);
+}
+
+#jazzy-sidebar .sb-logo-plate {
+    position: relative;
+    overflow: hidden;
+    width: 90px;
+    height: 42px;
+    padding: 5px 6px;
+    background: linear-gradient(180deg, #fffdf8 0%, #f3ecda 55%, #e9dfc7 100%);
+    border-radius: 10px;
+    box-shadow:
+        0 0 0 1px rgba(212, 168, 83, 0.6) inset,
+        0 0 0 3px rgba(255, 255, 255, 0.06),
+        0 8px 20px rgba(0, 0, 0, 0.45),
+        0 0 26px rgba(212, 168, 83, 0.16);
+}
+#jazzy-sidebar .sb-logo-plate::after {
+    content: '';
+    position: absolute;
+    top: -40%;
+    bottom: -40%;
+    left: -70%;
+    width: 45%;
+    background: linear-gradient(115deg, transparent 25%, rgba(255, 255, 255, 0.55) 50%, transparent 75%);
+    transform: rotate(18deg);
+    animation: sb-logo-shine 6.5s ease-in-out infinite;
+    pointer-events: none;
+}
+@keyframes sb-logo-shine {
+    0%, 60% { left: -70%; }
+    to { left: 170%; }
+}
+#jazzy-sidebar .sb-logo-plate img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+#jazzy-sidebar .brand-link:hover .sb-logo-plate::after { animation-duration: 2.6s; }
+
+#jazzy-sidebar .sb-brand-text { display: flex; flex-direction: column; min-width: 0; }
+#jazzy-sidebar .sb-title {
+    color: var(--wine-cream) !important;
+    font-size: 1.12rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+}
+#jazzy-sidebar .sb-subtitle {
+    color: var(--wine-gold);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.75;
+}
+
+/* ============================================================
+   Carte utilisateur — verre fumé
+   ============================================================ */
+#jazzy-sidebar .sb-user {
+    position: relative;
+    background: rgba(244, 210, 119, 0.04);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(244, 210, 119, 0.055);
+    border-radius: 15px;
+    margin: 0.85rem 0.9rem 0.55rem;
+    overflow: hidden;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s var(--ease-out);
+}
+#jazzy-sidebar .sb-user:hover {
+    border-color: rgba(212, 168, 83, 0.25);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    transform: translateY(-1px);
+}
+
+/* Voile supérieur bordeaux/or animé */
+#jazzy-sidebar .sb-user-cover {
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--wine-bdx-2) 25%, var(--wine-gold) 50%, var(--wine-bdx-2) 75%, transparent 100%);
+    position: relative;
+}
+#jazzy-sidebar .sb-user-cover-shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 224, 160, 0.75), transparent);
+    animation: wine-shine 4.5s var(--ease-out) infinite;
+}
+
+@keyframes wine-shine {
+    0%, 55%, 100% { left: -100%; }
+    75% { left: 185%; }
+}
+
+#jazzy-sidebar .sb-user-main {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.95rem 1rem;
+}
+
+#jazzy-sidebar .sb-avatar {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    background: linear-gradient(145deg, #2f6b4f 0%, #2a0f1a 60%, #1a0810 100%);
+    border: 1.5px solid rgba(212, 168, 83, 0.4);
+    color: var(--wine-gold-pale);
+    font-size: 0.95rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(212, 168, 83, 0.06), 0 3px 10px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+}
+#jazzy-sidebar .sb-avatar img { width: 100%; height: 100%; object-fit: cover; }
+#jazzy-sidebar .sb-avatar .sb-online {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 11px;
+    height: 11px;
+    background: #3ddc84;
+    border: 2px solid #15090f;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(61, 220, 132, 0.4), 0 0 6px rgba(61, 220, 132, 0.6);
+    animation: wine-breathe 2.4s ease-in-out infinite;
+}
+@keyframes wine-breathe {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.55; transform: scale(0.82); }
+}
+
+#jazzy-sidebar .sb-user-info { min-width: 0; flex: 1; }
+#jazzy-sidebar .sb-user-info strong {
+    display: block;
+    color: var(--wine-cream);
+    font-size: 0.88rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#jazzy-sidebar .sb-user-info small {
+    display: block;
+    color: var(--wine-gold);
+    font-size: 0.64rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 3px;
+    opacity: 0.85;
+}
+
+#jazzy-sidebar .sb-user-more {
+    background: transparent;
+    border: none;
+    color: var(--wine-text-dim);
+    cursor: pointer;
+    padding: 0.3rem;
+    border-radius: 7px;
+    transition: all 0.18s ease;
+    flex-shrink: 0;
+    font-size: 0.62rem;
+}
+#jazzy-sidebar .sb-user-more:hover {
+    background: rgba(212, 168, 83, 0.12);
+    color: var(--wine-gold-soft);
+}
+
+/* ============================================================
+   Recherche
+   ============================================================ */
+#jazzy-sidebar .sb-find {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.2rem 0.9rem 0.5rem;
+    padding: 0.55rem 0.75rem;
+    background: rgba(244, 210, 119, 0.03);
+    border: 1px solid rgba(244, 210, 119, 0.06);
+    border-radius: 11px;
+    transition: all 0.25s ease;
+}
+#jazzy-sidebar .sb-find:focus-within {
+    background: rgba(244, 210, 119, 0.055);
+    border-color: rgba(212, 168, 83, 0.4);
+    box-shadow: 0 0 0 3px rgba(212, 168, 83, 0.08), 0 0 18px rgba(212, 168, 83, 0.08);
+}
+#jazzy-sidebar .sb-find-ic { color: var(--wine-gold); font-size: 0.7rem; opacity: 0.6; }
+#jazzy-sidebar .sb-find input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--wine-text);
+    font-size: 0.85rem;
+    padding: 0;
+}
+#jazzy-sidebar .sb-find input::placeholder { color: var(--wine-text-dim); }
+#jazzy-sidebar .sb-find input::-webkit-search-cancel-button { -webkit-appearance: none; }
+#jazzy-sidebar .sb-find-esc {
+    padding: 2px 8px;
+    background: rgba(244, 210, 119, 0.06);
+    border: 1px solid rgba(244, 210, 119, 0.07);
+    border-radius: 4px;
+    color: var(--wine-text-dim);
+    font-size: 0.58rem;
+    font-family: inherit;
+}
+#jazzy-sidebar .sb-find-empty {
+    display: none;
+    padding: 0.6rem;
+    text-align: center;
+    color: var(--wine-text-dim);
+    font-size: 0.7rem;
+    animation: wine-fade 0.25s ease;
+}
+#jazzy-sidebar .sb-find-empty.sb-show { display: block; }
+
+/* ============================================================
+   En-têtes de sections
+   ============================================================ */
+#jazzy-sidebar .nav-section {
+    position: relative;
+    display: none !important;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center !important;
+    gap: 0.6rem;
+    margin: 0.95rem 0.85rem 0.4rem;
+    padding: 0.5rem 0.6rem;
+    list-style: none;
+    border-radius: 14px;
+    background:
+        linear-gradient(180deg, rgba(244, 210, 119, 0.06), rgba(244, 210, 119, 0.015) 70%, rgba(0, 0, 0, 0.1));
+    border: 1px solid rgba(233, 185, 73, 0.16);
+    border-top-color: rgba(233, 185, 73, 0.3);
+    border-bottom-color: rgba(74, 114, 196, 0.3);
+    box-shadow:
+        0 8px 18px -10px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    text-align: left;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.2s var(--ease-out);
+}
+#jazzy-sidebar .nav-section::before {
+    content: '';
+    position: absolute;
+    top: -0.45rem;
+    left: 1rem;
+    right: 1rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(233, 185, 73, 0.6) 25%, rgba(233, 185, 73, 0.6) 75%, transparent);
+    opacity: 0.7;
+    pointer-events: none;
+}
+#jazzy-sidebar .nav-section-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 2.05rem !important;
+    min-width: 2.05rem !important;
+    height: 2.05rem !important;
+    padding: 0.34rem !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+    font-size: 0.74rem !important;
+    border-radius: 50% !important;
+    background: radial-gradient(130% 130% at 30% 20%, rgba(244, 210, 119, 0.3), rgba(233, 185, 73, 0.06) 65%);
+    border: 1px solid rgba(233, 185, 73, 0.42) !important;
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.4),
+        inset 0 0 6px rgba(244, 210, 119, 0.2),
+        0 0 16px -6px rgba(233, 185, 73, 0.75) !important;
+    color: var(--wine-gold-bright) !important;
+    flex-shrink: 0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    overflow: visible !important;
+    transition: transform 0.2s var(--ease-out), box-shadow 0.25s ease;
+}
+#jazzy-sidebar .nav-section-label {
+    display: none !important;
+}
+
+#jazzy-sidebar .nav-section:hover,
+#jazzy-sidebar .nav-section:focus-within {
+    background:
+        linear-gradient(180deg, rgba(244, 210, 119, 0.1), rgba(244, 210, 119, 0.03) 70%, rgba(0, 0, 0, 0.12));
+    box-shadow:
+        0 10px 22px -12px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 0 24px -12px rgba(233, 185, 73, 0.95);
+    transform: translateY(-1px);
+}
+#jazzy-sidebar .nav-section:hover .nav-section-icon,
+#jazzy-sidebar .nav-section:focus-within .nav-section-icon {
+    transform: translateY(-1px) scale(1.04);
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.45),
+        inset 0 0 8px rgba(244, 210, 119, 0.28),
+        0 0 22px -4px rgba(233, 185, 73, 0.95) !important;
+}
+
+#jazzy-sidebar .nav-item .nav-link,
+#jazzy-sidebar .nav-item .nav-icon-wrap,
+#jazzy-sidebar .nav-item .nav-label {
+    font-size: inherit !important;
+}
+
+#jazzy-sidebar .nav-item .nav-link {
+    min-height: 3rem;
+}
+
+#jazzy-sidebar .nav-item .nav-icon-wrap {
+    width: 2.9rem !important;
+    height: 2.9rem !important;
+    min-width: 2.9rem !important;
+    font-size: 1.15rem !important;
+    border-radius: 12px !important;
+}
+
+#jazzy-sidebar .nav-item .nav-label {
+    font-size: 1.04rem !important;
+    line-height: 1.2 !important;
+    font-weight: 700;
+}
+
+/* ============================================================
+   Éléments de menu — micro-interactions & animations
+   ============================================================ */
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0;
+    margin: 0.1rem 0.56rem;
+    padding: 0.68rem 0.6rem !important;
+    border-radius: 13px;
+    border: 1px solid rgba(255,255,255,0.02);
+    color: var(--wine-text) !important;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none !important;
+    position: relative;
+    width: calc(100% - 1.12rem);
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+                transform 0.22s var(--ease-out), box-shadow 0.22s ease,
+                width 0.25s ease;
+    will-change: transform;
+}
+
+/* Apparition en cascade à l'ouverture */
+#jazzy-navigation > li:nth-child(1) { animation: wine-in 0.4s var(--ease-out) both; animation-delay: 0.02s; }
+#jazzy-navigation > li:nth-child(2) { animation: wine-in 0.4s var(--ease-out) both; animation-delay: 0.06s; }
+#jazzy-navigation > li:nth-child(3) { animation: wine-in 0.4s var(--ease-out) both; animation-delay: 0.10s; }
+#jazzy-navigation > li:nth-child(4) { animation: wine-in 0.4s var(--ease-out) both; animation-delay: 0.14s; }
+#jazzy-navigation > li:nth-child(5) { animation: wine-in 0.4s var(--ease-out) both; animation-delay: 0.18s; }
+#jazzy-navigation > li:nth-child(6) { animation: wine-in 0.4s var(--ease-out) both; animation-delay: 0.22s; }
+#jazzy-navigation > li:nth-child(7) { animation: wine-in 0.4s var(--ease-out) both; animation-delay: 0.26s; }
+#jazzy-navigation > li:nth-child(8) { animation: wine-in 0.4s var(--ease-out) both; animation-delay: 0.30s; }
+#jazzy-navigation > li:nth-child(9) { animation: wine-in 0.4s var(--ease-out) both; animation-delay: 0.34s; }
+#jazzy-navigation > li:nth-child(10) { animation: wine-in 0.4s var(--ease-out) both; animation-delay: 0.38s; }
+#jazzy-navigation > li:nth-child(11) { animation: wine-in 0.4s var(--ease-out) both; animation-delay: 0.42s; }
+#jazzy-navigation > li:nth-child(12) { animation: wine-in 0.4s var(--ease-out) both; animation-delay: 0.46s; }
+
+@keyframes wine-in {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* Survol : voile or chaud */
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link:hover,
+#jazzy-sidebar .sidebar-menu > .has-treeview.menu-open > .nav-link {
+    background: linear-gradient(90deg, rgba(233, 185, 73, 0.14), rgba(74, 114, 196, 0.07));
+    border-color: rgba(233, 185, 73, 0.3);
+    color: var(--wine-gold-pale) !important;
+    transform: translateX(2px);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), 0 0 16px -6px rgba(233, 185, 73, 0.45);
+}
+
+/* Élément actif : dégradé saphir profond, barre d'or lumineuse, halo pulsant */
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link.active {
+    background:
+        radial-gradient(130% 150% at 100% 0%, rgba(244, 210, 119, 0.2), transparent 62%),
+        linear-gradient(100deg, rgba(45, 78, 150, 0.55) 0%, rgba(20, 34, 70, 0.5) 100%);
+    border-color: var(--wine-active-border);
+    color: var(--wine-gold-pale) !important;
+    font-weight: 650;
+    box-shadow:
+        0 6px 20px -6px rgba(0, 0, 0, 0.6),
+        0 0 24px -4px rgba(233, 185, 73, 0.28) inset;
+    animation: wine-active-pulse 3.2s ease-in-out infinite;
+}
+@keyframes wine-active-pulse {
+    0%, 100% { box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.6), 0 0 24px -4px rgba(233, 185, 73, 0.28) inset; }
+    50%      { box-shadow: 0 6px 24px -6px rgba(233, 185, 73, 0.35), 0 0 26px -2px rgba(233, 185, 73, 0.4) inset; }
+}
+
+/* Barre latérale animée (glisse avec le survol, fixe sur l'actif) */
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link::before {
+    content: '';
+    position: absolute;
+    left: -0.55rem;
+    top: 28%;
+    height: 0;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: linear-gradient(180deg, var(--wine-gold-bright), var(--wine-gold));
+    box-shadow: 0 0 12px rgba(244, 210, 119, 0.9), 0 0 3px rgba(244, 210, 119, 1);
+    transition: height 0.28s var(--ease-out), top 0.28s var(--ease-out), opacity 0.2s ease;
+    opacity: 0;
+}
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link:hover::before {
+    top: 18%;
+    height: 64%;
+    opacity: 0.7;
+}
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link.active::before {
+    top: 16%;
+    height: 68%;
+    opacity: 1;
+}
+
+/* --- Pastilles colorées par section (fond & halo dérivés de la couleur) --- */
+#jazzy-sidebar .nav-icon-wrap {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative;
+    width: 2.3rem !important;
+    height: 2.3rem !important;
+    min-width: 2.3rem !important;
+    border-radius: 11px !important;
+    font-size: 0.92rem !important;
+    flex-shrink: 0 !important;
+    border: 1px solid transparent !important;
+    background: transparent !important;
+    filter: saturate(1.25) !important;
+    padding: 0.22rem !important;
+    transition: transform 0.25s var(--ease-out), box-shadow 0.25s ease, filter 0.25s ease,
+                background-color 0.25s ease, border-color 0.25s ease;
+}
+
+#jazzy-sidebar .nav-icon-wrap i,
+#jazzy-sidebar .nav-icon-wrap svg,
+#jazzy-sidebar .nav-icon-wrap .fas,
+#jazzy-sidebar .nav-icon-wrap .fa {
+    font-size: 0.92rem !important;
+    line-height: 1 !important;
+    display: inline-block !important;
+    opacity: 1 !important;
+}
+
+/* Icône PNG : centrée, nette, ombre portée douce, micro-zoom au survol */
+#jazzy-sidebar .nav-icon-wrap .sb-png,
+#jazzy-sidebar .sf-icon .sb-png,
+#jazzy-sidebar .nav-section-icon .sb-png {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    filter: drop-shadow(0 1px 2px rgba(5, 1, 3, 0.45));
+    transition: transform 0.25s var(--ease-out), filter 0.25s ease;
+}
+#jazzy-sidebar .nav-link:hover .nav-icon-wrap .sb-png,
+#jazzy-sidebar .sf-item:hover .sb-png {
+    transform: scale(1.1);
+}
+#jazzy-sidebar .nav-link.active .nav-icon-wrap .sb-png {
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 5px rgba(255, 215, 130, 0.6));
+}
+
+#jazzy-sidebar .nav-link:hover .nav-icon-wrap {
+    transform: scale(1.05) rotate(-3deg) !important;
+}
+#jazzy-sidebar .nav-link.active .nav-icon-wrap {
+    transform: scale(1.04) !important;
+}
+
+/* Tableau de bord */
+#jazzy-sidebar .nav-icon-dashboard { color: var(--c-tdb); background: transparent; border-color: rgba(255,255,255,0.08); box-shadow: 0 0 10px -6px var(--c-tdb); }
+/* Caisse */
+#jazzy-sidebar .nav-icon-caisse { color: var(--c-caisse); background: transparent; border-color: rgba(255,255,255,0.08); box-shadow: 0 0 10px -6px var(--c-caisse); }
+/* Rapports */
+#jazzy-sidebar .nav-icon-rapports { color: var(--c-report); background: transparent; border-color: rgba(255,255,255,0.08); box-shadow: 0 0 10px -6px var(--c-report); }
+/* Ventes */
+#jazzy-sidebar .nav-icon-ventes { color: var(--c-ventes); background: transparent; border-color: rgba(255,255,255,0.08); box-shadow: 0 0 10px -6px var(--c-ventes); }
+/* Clients */
+#jazzy-sidebar .nav-icon-clients { color: var(--c-clients); background: transparent; border-color: rgba(255,255,255,0.08); box-shadow: 0 0 10px -6px var(--c-clients); }
+/* Produits */
+#jazzy-sidebar .nav-icon-produits { color: var(--c-produits); background: transparent; border-color: rgba(255,255,255,0.08); box-shadow: 0 0 10px -6px var(--c-produits); }
+/* Stocks */
+#jazzy-sidebar .nav-icon-stocks { color: var(--c-stocks); background: transparent; border-color: rgba(255,255,255,0.08); box-shadow: 0 0 10px -6px var(--c-stocks); }
+/* Promotions */
+#jazzy-sidebar .nav-icon-promotions { color: var(--c-promos); background: transparent; border-color: rgba(255,255,255,0.08); box-shadow: 0 0 10px -6px var(--c-promos); }
+/* Comptes */
+#jazzy-sidebar .nav-icon-comptes { color: var(--c-comptes); background: transparent; border-color: rgba(255,255,255,0.08); box-shadow: 0 0 10px -6px var(--c-comptes); }
+/* Categories */
+#jazzy-sidebar .nav-icon-categories { color: var(--c-cat); background: transparent; border-color: rgba(255,255,255,0.08); box-shadow: 0 0 10px -6px var(--c-cat); }
+/* Fournisseurs et bons de commande partagent la teinte des approvisionnements :
+   c'est la même démarche, vue depuis deux écrans. */
+#jazzy-sidebar .nav-icon-commandes { color: var(--c-four); background: transparent; border-color: rgba(255,255,255,0.08); box-shadow: 0 0 10px -6px var(--c-four); }
+/* Paramètres */
+#jazzy-sidebar .nav-icon-parametres { color: var(--c-param); background: transparent; border-color: rgba(255,255,255,0.08); box-shadow: 0 0 10px -6px var(--c-param); }
+/* Journal d'activité */
+#jazzy-sidebar .nav-icon-journal { color: var(--c-journal); background: transparent; border-color: rgba(255,255,255,0.08); box-shadow: 0 0 10px -6px var(--c-journal); }
+
+/* Icône active : pastille embrasée à la couleur de la section */
+#jazzy-sidebar .nav-link:hover .nav-icon-wrap {
+    filter: saturate(1.3) brightness(1.25);
+    background: transparent !important;
+    box-shadow: 0 0 14px -3px currentColor;
+}
+#jazzy-sidebar .nav-link.active .nav-icon-wrap {
+    filter: saturate(1.35) brightness(1.4);
+    background: transparent !important;
+    border-color: rgba(255,255,255,0.12);
+    box-shadow: 0 0 16px -2px var(--wine-gold-bright);
+    transform: scale(1.06);
+}
+
+/* ============================================================
+   Libellés & chevron
+   ============================================================ */
+#jazzy-sidebar .nav-label {
+    display: inline-block !important;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
+    margin-left: 0.55rem;
+    white-space: nowrap;
+    overflow: hidden;
+    opacity: 1 !important;
+    visibility: visible !important;
+    text-overflow: ellipsis;
+    letter-spacing: 0.01em;
+    line-height: 1.15;
+}
+
+#jazzy-sidebar .nav-item .nav-icon-wrap {
+    margin-right: 0;
+}
+
+#jazzy-sidebar .nav-arrow {
+    color: var(--wine-text-dim);
+    font-size: 0.55rem;
+    transition: transform 0.3s var(--ease-out), color 0.25s ease;
+    flex-shrink: 0;
+}
+#jazzy-sidebar .has-treeview.menu-open > .nav-link .nav-arrow {
+    transform: rotate(90deg);
+    color: var(--wine-gold-soft);
+}
+
+/* ============================================================
+   Sous-menus (treeview) — ouverture animée
+   ============================================================ */
+#jazzy-sidebar .nav-treeview {
+    border-left: 1px dashed rgba(212, 168, 83, 0.16);
+    margin-left: 1.45rem;
+    padding-left: 0.2rem;
+    list-style: none;
+}
+#jazzy-sidebar .nav-treeview .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin: 0.07rem 0.45rem;
+    padding: 0.52rem 0.62rem !important;
+    border-radius: 11px;
+    border: 1px solid transparent;
+    color: var(--wine-text-muted) !important;
+    font-size: 0.76rem;
+    font-weight: 500;
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.2s var(--ease-out), padding-left 0.2s ease;
+    text-decoration: none !important;
+}
+#jazzy-sidebar .nav-treeview .nav-link .nav-icon {
+    color: var(--wine-gold);
+    font-size: 0.64rem;
+    width: 1.2rem;
+    flex-shrink: 0;
+    opacity: 0.7;
+    transition: transform 0.2s var(--ease-out), opacity 0.2s ease;
+}
+#jazzy-sidebar .nav-treeview .nav-link:hover {
+    background: rgba(244, 210, 119, 0.055);
+    color: var(--wine-cream) !important;
+    transform: translateX(3px);
+    padding-left: 0.78rem;
+}
+#jazzy-sidebar .nav-treeview .nav-link:hover .nav-icon {
+    transform: scale(1.2);
+    opacity: 1;
+}
+#jazzy-sidebar .nav-treeview .nav-link.active {
+    background: rgba(212, 168, 83, 0.11);
+    border-color: rgba(212, 168, 83, 0.24);
+    color: var(--wine-gold-soft) !important;
+    font-weight: 650;
+    box-shadow: 0 0 18px -4px rgba(212, 168, 83, 0.4);
+}
+
+/* Entrée du sous-menu */
+#jazzy-sidebar .has-treeview.menu-open > .nav-treeview {
+    animation: wine-tree 0.32s var(--ease-out);
+    transform-origin: top;
+}
+@keyframes wine-tree {
+    from { opacity: 0; transform: translateY(-6px) scaleY(0.97); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* ============================================================
+   Badges (Caisse en direct, stock bas)
+   ============================================================ */
+#jazzy-sidebar .nav-badge-live {
+    width: 9px;
+    height: 9px;
+    background: #3ddc84;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(61, 220, 132, 0.55);
+    animation: wine-pulse-live 2.2s ease-in-out infinite;
+    flex-shrink: 0;
+}
+@keyframes wine-pulse-live {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 8px rgba(61, 220, 132, 0.55); }
+    50%      { opacity: 0.35; transform: scale(0.72); box-shadow: 0 0 2px rgba(61, 220, 132, 0.2); }
+}
+
+#jazzy-sidebar .nav-badge-low {
+    width: 9px;
+    height: 9px;
+    background: #ed9a5e;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(237, 154, 94, 0.5);
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   Pied du sidebar
+   ============================================================ */
+#jazzy-sidebar .sidebar-footer {
+    padding: 0.7rem 0.9rem 0.8rem;
+    border-top: 1px solid rgba(244, 210, 119, 0.05);
+    background: rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    flex-shrink: 0;
+}
+#jazzy-sidebar .sf-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.55rem 0.6rem;
+    border-radius: 11px;
+    color: var(--wine-text-muted) !important;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-decoration: none !important;
+    transition: all 0.18s ease;
+}
+#jazzy-sidebar .sf-item:hover {
+    background: rgba(212, 168, 83, 0.09);
+    color: var(--wine-gold-soft) !important;
+    transform: translateX(2px);
+}
+#jazzy-sidebar .sf-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    padding: 0.18rem;
+    border-radius: 9px;
+    background: rgba(212, 168, 83, 0.08);
+    color: var(--wine-gold);
+    font-size: 0.64rem;
+    flex-shrink: 0;
+}
+#jazzy-sidebar .sf-divider {
+    height: 1px;
+    background: rgba(244, 210, 119, 0.055);
+    margin: 0.45rem 0;
+}
+#jazzy-sidebar .sf-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.35rem 0.6rem;
+    color: var(--wine-text-dim);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+#jazzy-sidebar .sf-brand i { color: var(--wine-gold); font-size: 0.56rem; }
+
+/* ============================================================
+   Mode replié (desktop)
+   ============================================================ */
+@media (min-width: 992px) {
+    .sidebar-collapse #jazzy-sidebar .brand-link { justify-content: center; }
+
+    .sidebar-collapse #jazzy-sidebar .sb-logo-plate {
+        width: 42px;
+        height: 42px;
+        padding: 4px;
+        border-radius: 12px;
+    }
+    .sidebar-collapse #jazzy-sidebar .sb-logo-plate img {
+        width: 140%;
+        max-width: none;
+        height: auto;
+        object-fit: contain;
+        transform: translate(6%, 0);
+    }
+    .sidebar-collapse #jazzy-sidebar .sb-embleme { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45), 0 0 18px rgba(212, 168, 83, 0.22); }
+
+    .sidebar-collapse #jazzy-sidebar .sb-title,
+    .sidebar-collapse #jazzy-sidebar .sb-subtitle,
+    .sidebar-collapse #jazzy-sidebar .sb-user-info,
+    .sidebar-collapse #jazzy-sidebar .sb-user-more,
+    .sidebar-collapse #jazzy-sidebar .nav-section-label,
+    .sidebar-collapse #jazzy-sidebar .sf-item span,
+    .sidebar-collapse #jazzy-sidebar .sf-brand span,
+    .sidebar-collapse #jazzy-sidebar .sb-find,
+    .sidebar-collapse #jazzy-sidebar .nav-badge-live,
+    .sidebar-collapse #jazzy-sidebar .nav-badge-low,
+    .sidebar-collapse #jazzy-sidebar .sf-divider,
+    .sidebar-collapse #jazzy-sidebar .nav-arrow {
+        display: none !important;
+    }
+
+    .sidebar-collapse #jazzy-sidebar .nav-label,
+    .sidebar-mini #jazzy-sidebar .nav-label,
+    body.sidebar-collapse #jazzy-sidebar .nav-label {
+        display: inline-block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        width: auto !important;
+        max-width: none !important;
+    }
+
+    .sidebar-collapse #jazzy-sidebar .sidebar-menu > .nav-item > .nav-link {
+        justify-content: center;
+        margin: 0.09rem 0.3rem;
+        padding: 0.7rem !important;
+    }
+    .sidebar-collapse #jazzy-sidebar .sidebar-menu > .nav-item > .nav-link::before { left: -0.3rem; }
+
+    .sidebar-collapse #jazzy-sidebar .sb-user { padding: 0.5rem; margin: 0.55rem; }
+    .sidebar-collapse #jazzy-sidebar .sb-user-cover { display: none; }
+    .sidebar-collapse #jazzy-sidebar .sb-user-main { justify-content: center; padding: 0; }
+    .sidebar-collapse #jazzy-sidebar .sb-avatar { width: 38px; height: 38px; font-size: 0.82rem; }
+
+    .sidebar-collapse #jazzy-sidebar .nav-section {
+        justify-content: center !important;
+        gap: 0;
+        padding: 0.3rem !important;
+        margin: 0.6rem 0.5rem 0.3rem !important;
+        border: none;
+        border-radius: 12px;
+        background: rgba(244, 210, 119, 0.05);
+        box-shadow: none;
+    }
+    .sidebar-collapse #jazzy-sidebar .nav-section::before { display: none; }
+    .sidebar-collapse #jazzy-sidebar .nav-section-icon {
+        width: 26px !important;
+        min-width: 26px !important;
+        height: 26px !important;
+        padding: 0.28rem !important;
+        font-size: 0.68rem !important;
+    }
+
+    .sidebar-collapse #jazzy-sidebar .sidebar-footer { align-items: center; }
+    .sidebar-collapse #jazzy-sidebar .sf-item, 
+    .sidebar-collapse #jazzy-sidebar .sf-brand { justify-content: center; }
+
+    .sidebar-collapse #jazzy-sidebar .nav-treeview { display: none !important; }
+}
+
+/* ============================================================
+   Mobile
+   ============================================================ */
+@media (max-width: 991.98px) {
+    #jazzy-sidebar .sidebar-menu > .nav-item > .nav-link {
+        margin: 0.06rem 0.5rem;
+        padding: 0.6rem 0.66rem !important;
+    }
+    #jazzy-sidebar .nav-section { margin: 0.9rem 0.65rem 0.3rem; }
+}
+
+/* ============================================================
+   Compteurs dynamiques (badges « live » par item)
+   ============================================================ */
+#jazzy-sidebar .nav-badge-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.4rem;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+}
+/* Vert : activité du jour (caisse) */
+#jazzy-sidebar .nav-badge-hot {
+    color: #b9f6d6;
+    background: rgba(61, 220, 132, 0.16);
+    border: 1px solid rgba(61, 220, 132, 0.45);
+    box-shadow: 0 0 12px -5px rgba(61, 220, 132, 0.9);
+}
+/* Orange : stock faible */
+#jazzy-sidebar .nav-badge-low {
+    color: #ffd9b3;
+    background: rgba(237, 154, 94, 0.16);
+    border: 1px solid rgba(237, 154, 94, 0.5);
+    box-shadow: 0 0 12px -5px rgba(237, 154, 94, 0.85);
+}
+/* Ambre intense : rupture de stock */
+#jazzy-sidebar .nav-badge-out {
+    color: #ffc79b;
+    background: rgba(255, 157, 92, 0.16);
+    border: 1px solid rgba(255, 157, 92, 0.55);
+    box-shadow: 0 0 12px -4px rgba(255, 157, 92, 0.9);
+}
+/* Or : promotions actives */
+#jazzy-sidebar .nav-badge-gold {
+    color: #ffe9ad;
+    background: rgba(233, 185, 73, 0.16);
+    border: 1px solid rgba(233, 185, 73, 0.5);
+    box-shadow: 0 0 12px -5px rgba(233, 185, 73, 0.9);
+}
+/* Miel : bons de commande en attente */
+#jazzy-sidebar .nav-badge-honey {
+    color: #ffe6a8;
+    background: rgba(255, 214, 107, 0.16);
+    border: 1px solid rgba(255, 214, 107, 0.5);
+    box-shadow: 0 0 12px -5px rgba(255, 214, 107, 0.9);
+}
+
+/* Item : lien + bouton étoile alignés sur une ligne */
+#jazzy-sidebar .sidebar-menu > .nav-item { display: flex; align-items: center; }
+
+/* Bouton « Épingler » (favori) */
+#jazzy-sidebar .sb-fav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.4rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: rgba(255, 224, 160, 0.26);
+    font-size: 0.55rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.18s ease, color 0.18s ease, background-color 0.18s ease,
+                border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+#jazzy-sidebar .sidebar-menu > .nav-item:hover .sb-fav-btn,
+#jazzy-sidebar .sb-fav-btn:focus-visible { opacity: 1; }
+#jazzy-sidebar .sb-fav-btn:hover {
+    color: var(--wine-gold-bright);
+    background: rgba(233, 185, 73, 0.1);
+    border-color: rgba(233, 185, 73, 0.28);
+    transform: scale(1.08);
+}
+#jazzy-sidebar .sb-fav-btn.sb-is-fav {
+    color: var(--wine-gold-bright);
+    opacity: 1;
+    text-shadow: 0 0 9px rgba(233, 185, 73, 0.75);
+}
+
+/* ============================================================
+   Sections repliables (en-têtes interactifs + compteur)
+   ============================================================ */
+#jazzy-sidebar .nav-section { cursor: pointer; user-select: none; }
+#jazzy-sidebar .nav-section:hover .nav-section-label { color: var(--wine-gold-soft); }
+
+#jazzy-sidebar .sb-section-count {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.45rem;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(233, 185, 73, 0.22), rgba(233, 185, 73, 0.08));
+    border: 1px solid rgba(233, 185, 73, 0.4);
+    box-shadow: inset 0 0 8px rgba(244, 210, 119, 0.12), 0 0 12px -6px rgba(233, 185, 73, 0.8);
+    color: var(--wine-gold-pale);
+    font-size: 0.62rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.03em;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+}
+#jazzy-sidebar .sb-section-chev {
+    position: absolute;
+    top: 50%;
+    right: 2rem;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.15rem;
+    height: 1.15rem;
+    color: var(--wine-gold);
+    font-size: 0.5rem;
+    flex-shrink: 0;
+    opacity: 0.85;
+    transition: transform 0.3s var(--ease-out), color 0.25s ease;
+}
+#jazzy-sidebar li.nav-section.sb-sect-closed .sb-section-chev {
+    transform: translateY(-50%) rotate(-90deg);
+    color: var(--wine-gold);
+}
+
+/* Entrée active lors de la navigation clavier de la recherche */
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link.sb-kbd-active {
+    background: linear-gradient(90deg, rgba(233, 185, 73, 0.2), rgba(74, 114, 196, 0.08));
+    border-color: rgba(233, 185, 73, 0.55);
+    color: var(--wine-gold-pale) !important;
+    box-shadow: 0 0 0 2px rgba(233, 185, 73, 0.14), 0 0 20px -6px rgba(233, 185, 73, 0.55);
+    transform: translateX(2px);
+}
+
+/* L'attribut [hidden] doit toujours gagner sur les mises en forme flex */
+#jazzy-sidebar .nav-section[hidden],
+#jazzy-sidebar .nav-item[hidden],
+#jazzy-sidebar li[hidden] { display: none !important; }
+
+/* Mode replié (desktop) : étoiles & compteurs superflus */
+@media (min-width: 992px) {
+    .sidebar-collapse #jazzy-sidebar .sb-fav-btn,
+    .sidebar-collapse #jazzy-sidebar .sb-section-count,
+    .sidebar-collapse #jazzy-sidebar .sb-section-chev,
+    .sidebar-collapse #jazzy-sidebar .nav-badge-count {
+        display: none !important;
+    }
+}
+
+/* ============================================================
+   Accessibilité & confort
+   ============================================================ */
+#jazzy-sidebar a.nav-link:focus-visible,
+#jazzy-sidebar .sf-item:focus-visible,
+#jazzy-sidebar .brand-link:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #0c0509, 0 0 0 3px var(--wine-gold);
+    border-radius: 8px;
+}
+
+@keyframes wine-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Respect des préférences de mouvement réduit */
+@media (prefers-reduced-motion: reduce) {
+    #jazzy-sidebar *,
+    #jazzy-sidebar *::before,
+    #jazzy-sidebar *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+
+/* ============================================================
+   CONCORDANCE « FIXE & CONFORT » — sidebar épinglée à gauche
+   ------------------------------------------------------------
+   La sidebar reste collée au haut de la fenêtre pendant que le
+   contenu défile : pleine hauteur, avec son propre ascenseur
+   interne (déjà présent sur .sidebar-wrapper). Le fond, l'ombre
+   et l'équilibre des marges sont conservés tels quels.
+   ============================================================ */
+@media (min-width: 992px) {
+    #jazzy-sidebar {
+        position: sticky;
+        top: 0;
+        align-self: flex-start;
+        height: 100vh;
+        z-index: 20;
+    }
+    /* Le bibosome interne scrolle indépendamment du contenu. */
+    #jazzy-sidebar .sidebar-wrapper {
+        flex: 1 1 auto;
+        min-height: 0;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(212, 168, 83, 0.35) transparent;
+    }
+    /* Confort : la zone de marque reste collée en haut, sans
+       jamais quitter l'écran quand on descend. */
+    #jazzy-sidebar .sidebar-brand {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background: rgba(15, 4, 8, 0.8);
+        backdrop-filter: blur(9px);
+    }
+}
+
+/* Sur mobile/petits écrans, la sidebar est déjà hors-champ
+   (glissante) — on ne force aucune position. */
+
+/* ============================================================
+   Présentation standard : compacte, lisible et sans animation
+   ============================================================ */
+#jazzy-sidebar *,
+#jazzy-sidebar *::before,
+#jazzy-sidebar *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+}
+
+#jazzy-sidebar::before,
+#jazzy-sidebar .sidebar-brand::after,
+#jazzy-sidebar .sb-logo-plate::after,
+#jazzy-sidebar .sb-user-cover-shine {
+    display: none !important;
+}
+
+#jazzy-sidebar {
+    background: linear-gradient(180deg, #2a0f1a 0%, #1a0810 100%) !important;
+    border-right: 1px solid rgba(255, 255, 255, .1);
+    box-shadow: 3px 0 12px rgba(0, 0, 0, .16);
+}
+
+#jazzy-sidebar .sidebar-brand {
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, .1);
+    padding: .85rem .9rem;
+}
+
+#jazzy-sidebar .sb-logo-plate {
+    border-radius: 7px;
+    box-shadow: none;
+    height: 36px;
+    width: 76px;
+}
+
+#jazzy-sidebar .sb-title {
+    font-size: .94rem;
+    letter-spacing: 0;
+}
+
+#jazzy-sidebar .sb-subtitle {
+    font-size: .58rem;
+    letter-spacing: .07em;
+}
+
+#jazzy-sidebar .sb-user {
+    background: rgba(255, 255, 255, .045);
+    backdrop-filter: none;
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 8px;
+    box-shadow: none;
+    margin: .65rem .7rem .45rem;
+}
+
+#jazzy-sidebar .sb-user-main {
+    gap: .6rem;
+    padding: .65rem .7rem;
+}
+
+#jazzy-sidebar .sb-avatar {
+    border-radius: 8px;
+    box-shadow: none;
+    height: 36px;
+    width: 36px;
+}
+
+#jazzy-sidebar .sb-user-info strong {
+    font-size: .78rem;
+}
+
+#jazzy-sidebar .sb-user-info small {
+    font-size: .58rem;
+}
+
+#jazzy-sidebar .sb-user .sb-online {
+    animation: none !important;
+    box-shadow: none;
+}
+
+#jazzy-sidebar .sb-find {
+    background: rgba(255, 255, 255, .055);
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: 7px;
+    box-shadow: none;
+    margin: .35rem .7rem .55rem;
+    padding: .43rem .6rem;
+}
+
+#jazzy-sidebar .sb-find:focus-within {
+    background: rgba(255, 255, 255, .08);
+    border-color: rgba(244, 210, 119, .45);
+    box-shadow: none;
+}
+
+#jazzy-sidebar .sb-find input {
+    font-size: .75rem;
+}
+
+#jazzy-sidebar .nav-section {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 5px;
+    box-shadow: none;
+    cursor: pointer;
+    display: flex !important;
+    gap: .55rem;
+    justify-content: flex-start !important;
+    margin: .7rem .7rem .22rem;
+    min-height: 30px;
+    padding: .32rem .45rem;
+    text-align: left;
+}
+
+#jazzy-sidebar .nav-section::before {
+    display: none;
+}
+
+#jazzy-sidebar .nav-section-icon {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: #d5b879 !important;
+    font-size: .72rem !important;
+    height: 1rem !important;
+    min-width: 1rem !important;
+    padding: 0 !important;
+    width: 1rem !important;
+}
+
+#jazzy-sidebar .nav-section-label {
+    color: rgba(255, 255, 255, .58);
+    display: inline-block !important;
+    flex: 1;
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+#jazzy-sidebar .nav-section:hover,
+#jazzy-sidebar .nav-section:focus-within {
+    background: rgba(255, 255, 255, .035);
+    box-shadow: none;
+    transform: none;
+}
+
+#jazzy-sidebar .nav-section:hover .nav-section-label {
+    color: rgba(255, 255, 255, .8);
+}
+
+#jazzy-sidebar .sb-section-count {
+    background: rgba(255, 255, 255, .08);
+    border: 0;
+    box-shadow: none;
+    color: rgba(255, 255, 255, .72);
+    font-size: .58rem;
+    height: 1.15rem;
+    min-width: 1.15rem;
+    right: 1.45rem;
+}
+
+#jazzy-sidebar .sb-section-chev {
+    color: rgba(255, 255, 255, .48);
+    font-size: .45rem;
+    right: .3rem;
+}
+
+#jazzy-sidebar .sidebar-menu > .nav-item {
+    align-items: center;
+    display: flex;
+}
+
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link {
+    border: 1px solid transparent;
+    border-radius: 7px;
+    box-shadow: none;
+    font-size: .8rem;
+    font-weight: 500;
+    margin: .06rem .45rem;
+    min-height: 2.35rem;
+    padding: .42rem .55rem !important;
+    transform: none;
+    width: calc(100% - .9rem);
+    will-change: auto;
+}
+
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link:hover,
+#jazzy-sidebar .sidebar-menu > .has-treeview.menu-open > .nav-link {
+    background: rgba(255, 255, 255, .075);
+    border-color: rgba(255, 255, 255, .08);
+    box-shadow: none;
+    color: #fff !important;
+    transform: none;
+}
+
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link.active,
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link.sb-kbd-active {
+    background: rgba(201, 155, 59, .16);
+    border-color: rgba(201, 155, 59, .28);
+    box-shadow: inset 3px 0 #c99b3b;
+    color: #f4e2b7 !important;
+    font-weight: 650;
+    transform: none;
+}
+
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link::before,
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link:hover::before {
+    display: none;
+}
+
+#jazzy-sidebar .nav-item .nav-icon-wrap {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 5px !important;
+    box-shadow: none !important;
+    filter: none !important;
+    font-size: .86rem !important;
+    height: 1.8rem !important;
+    min-width: 1.8rem !important;
+    padding: .18rem !important;
+    width: 1.8rem !important;
+}
+
+#jazzy-sidebar .nav-icon-wrap i,
+#jazzy-sidebar .nav-icon-wrap svg,
+#jazzy-sidebar .nav-icon-wrap .fas,
+#jazzy-sidebar .nav-icon-wrap .fa {
+    font-size: .86rem !important;
+}
+
+#jazzy-sidebar .nav-link:hover .nav-icon-wrap,
+#jazzy-sidebar .nav-link.active .nav-icon-wrap,
+#jazzy-sidebar .nav-link:hover .nav-icon-wrap .sb-png,
+#jazzy-sidebar .nav-link.active .nav-icon-wrap .sb-png,
+#jazzy-sidebar .sf-item:hover .sb-png {
+    filter: none;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+#jazzy-sidebar .nav-item .nav-label {
+    font-size: .8rem !important;
+    font-weight: inherit;
+    line-height: 1.25 !important;
+}
+
+#jazzy-sidebar .sb-fav-btn {
+    border-radius: 5px;
+    box-shadow: none;
+    font-size: .52rem;
+    opacity: .6;
+    transform: none;
+}
+
+#jazzy-sidebar .sb-fav-btn:hover {
+    background: rgba(255, 255, 255, .08);
+    border-color: rgba(255, 255, 255, .1);
+    color: #e7c77f;
+    transform: none;
+}
+
+#jazzy-sidebar .nav-badge-count {
+    box-shadow: none;
+    font-size: .59rem;
+    height: 1.15rem;
+    min-width: 1.2rem;
+}
+
+#jazzy-sidebar a.nav-link:focus-visible,
+#jazzy-sidebar .sf-item:focus-visible,
+#jazzy-sidebar .brand-link:focus-visible {
+    box-shadow: 0 0 0 2px #2a0f1a, 0 0 0 3px #e1bd6c;
+}
+
+@media (max-width: 991.98px) {
+    #jazzy-sidebar .nav-section {
+        margin: .6rem .65rem .2rem;
+    }
+
+    #jazzy-sidebar .sidebar-menu > .nav-item > .nav-link {
+        font-size: .82rem;
+    }
+}
+
+/* ============================================================
+   EN-TÊTES DE SECTION — encadrés à la couleur « standard »
+   ------------------------------------------------------------
+   Chaque groupe métier est encadré dans un bandeau discret teinté
+   de sa couleur de référence (grenat / or / sage + neutres, voir
+   wineadmin-design.css) : liseré vertical vif, pastille d'icône
+   et libellé en majuscules aux couleurs du groupe. La teinte est
+   portée par la variable --nc posée via data-sb-color.
+   ============================================================ */
+#jazzy-sidebar .nav-section {
+    align-items: center;
+    background: rgba(255, 255, 255, .035);
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: 8px;
+    box-shadow: none;
+    cursor: default;
+    display: flex !important;
+    gap: .55rem;
+    height: auto !important;
+    justify-content: flex-start !important;
+    margin: .72rem .7rem .3rem !important;
+    min-height: 32px !important;
+    overflow: visible !important;
+    padding: .3rem .55rem .3rem .5rem !important;
+    position: relative;
+    text-align: left;
+    user-select: none;
+}
+
+/* Liseré vertical vif à gauche de l'en-tête, dans la teinte du groupe. */
+#jazzy-sidebar .nav-section::before {
+    background: linear-gradient(180deg, var(--nc, var(--c-gold)) 0%, rgba(0, 0, 0, .35) 100%);
+    border-radius: 3px;
+    bottom: .34rem;
+    display: block;
+    left: 0;
+    opacity: 1;
+    position: absolute;
+    right: auto;
+    top: .34rem;
+    width: 3px;
+}
+
+/* Affectation des teintes « standard » (palette design system). */
+#jazzy-sidebar .nav-section[data-sb-color="favoris"]    { --nc: var(--c-gold); }
+#jazzy-sidebar .nav-section[data-sb-color="rapide"]     { --nc: var(--c-gold); }
+#jazzy-sidebar .nav-section[data-sb-color="ventes"]     { --nc: var(--c-wine); }
+#jazzy-sidebar .nav-section[data-sb-color="clients"]    { --nc: var(--c-gold); }
+#jazzy-sidebar .nav-section[data-sb-color="produits"]   { --nc: var(--c-sage); }
+#jazzy-sidebar .nav-section[data-sb-color="stocks"]     { --nc: var(--c-wine); }
+#jazzy-sidebar .nav-section[data-sb-color="promotions"] { --nc: var(--c-gold); }
+#jazzy-sidebar .nav-section[data-sb-color="categories"] { --nc: var(--c-gold); }
+#jazzy-sidebar .nav-section[data-sb-color="reglages"]   { --nc: var(--c-ink); }
+
+/* Pastille d'icône : fond discret, contour neutre, signe teinté. */
+#jazzy-sidebar .nav-section-icon {
+    background: rgba(255, 255, 255, .05) !important;
+    border: 1px solid rgba(255, 255, 255, .09) !important;
+    border-radius: 50% !important;
+    box-shadow: none !important;
+    color: var(--nc, var(--c-gold)) !important;
+    display: inline-flex !important;
+    font-size: .66rem !important;
+    height: 1.5rem !important;
+    line-height: 1 !important;
+    min-width: 1.5rem !important;
+    padding: .22rem !important;
+    width: 1.5rem !important;
+}
+
+#jazzy-sidebar .nav-section-icon .sb-png {
+    filter: none;
+    opacity: .9;
+}
+
+/* Libellé : majuscules, en couleur de groupe. */
+#jazzy-sidebar .nav-section-label {
+    clip: auto;
+    clip-path: none;
+    color: var(--nc, var(--c-gold)) !important;
+    display: inline-block !important;
+    flex: 1;
+    font-size: .64rem;
+    font-weight: 800;
+    height: auto !important;
+    letter-spacing: .09em;
+    line-height: 1.2;
+    margin: 0 !important;
+    overflow: hidden;
+    padding: 0 !important;
+    position: static;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+    width: auto !important;
+}
+
+/* Survol : léger voile, sans déplacement. */
+#jazzy-sidebar .nav-section:hover,
+#jazzy-sidebar .nav-section:focus-within {
+    background: rgba(255, 255, 255, .055);
+    box-shadow: none;
+    transform: none;
+}
+
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link {
+    min-height: 2.65rem;
+    padding: .52rem .6rem !important;
+}
+
+#jazzy-sidebar .nav-item .nav-icon-wrap {
+    height: 2.15rem !important;
+    min-width: 2.15rem !important;
+    width: 2.15rem !important;
+}
+
+#jazzy-sidebar .nav-icon-wrap i,
+#jazzy-sidebar .nav-icon-wrap svg,
+#jazzy-sidebar .nav-icon-wrap .fas,
+#jazzy-sidebar .nav-icon-wrap .fa {
+    font-size: 1.02rem !important;
+}
+
+#jazzy-sidebar .sb-section-count {
+    right: 1.55rem;
+}
+
+/* Marque compacte : aucun bandeau d'administration générique au-dessus du menu. */
+#jazzy-sidebar .wine-brand {
+    align-items: center;
+    background: linear-gradient(105deg, rgba(255, 255, 255, .035), transparent 78%);
+    border-bottom: 1px solid rgba(230, 189, 106, .2);
+    color: #fff;
+    display: flex;
+    gap: .8rem;
+    min-height: 86px;
+    padding: .9rem 1rem;
+    text-decoration: none;
+}
+
+#jazzy-sidebar .sidebar-wrapper {
+    padding-top: .25rem;
+}
+
+#jazzy-sidebar .sb-find {
+    margin: .55rem .7rem .7rem;
+}
+
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link {
+    min-height: 2.55rem;
+}
+
+#jazzy-sidebar .wine-brand:hover {
+    background: rgba(255, 255, 255, .035);
+    color: #fff;
+}
+
+#jazzy-sidebar .wine-brand-mark {
+    display: block;
+    filter: drop-shadow(0 3px 8px rgba(0, 0, 0, .32));
+    flex: 0 0 52px;
+    height: 52px;
+    object-fit: contain;
+    width: 52px;
+}
+
+#jazzy-sidebar .wine-brand-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+#jazzy-sidebar .wine-brand-title {
+    color: #f4e2b7;
+    font-size: .8rem;
+    font-weight: 750;
+    letter-spacing: .065em;
+    line-height: 1.25;
+}
+
+#jazzy-sidebar .wine-brand-subtitle {
+    color: rgba(255, 255, 255, .58);
+    font-size: .62rem;
+    letter-spacing: .08em;
+    margin-top: .2rem;
+    text-transform: uppercase;
+}
+
+@media (min-width: 992px) {
+    .sidebar-collapse #jazzy-sidebar .wine-brand {
+        justify-content: center;
+        min-height: 72px;
+        padding-left: .5rem;
+        padding-right: .5rem;
+    }
+
+    .sidebar-collapse #jazzy-sidebar .wine-brand-mark {
+        flex-basis: 44px;
+        height: 44px;
+        width: 44px;
+    }
+
+    .sidebar-collapse #jazzy-sidebar .sb-find {
+        margin-left: .45rem;
+        margin-right: .45rem;
+    }
+
+    .sidebar-collapse #jazzy-sidebar .wine-brand-text {
+        display: none;
+    }
+}

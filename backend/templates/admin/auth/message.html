@@ -1,0 +1,23 @@
+{% extends "admin/auth/shell.html" %}
+{% block auth_kicker %}{{ msg_title }}{% endblock %}
+{% block auth_title %}{{ msg_title }}{% endblock %}
+{% block auth_sub %}{% endblock %}
+
+{% block auth_body %}
+<div class="alert-box ok" role="status"><i class="fas {{ msg_icon }} mr-2"></i>{{ msg_body }}</div>
+
+{% if recovery_codes_view %}
+<div class="recovery-note">
+  <i class="fas fa-exclamation-triangle mr-1"></i>
+  <strong>Codes de secours</strong> — conservez-les en lieu sûr : chacun ouvre un seul accès
+  si vous perdez votre application d'authentification. Ils ne seront plus jamais affichés.
+</div>
+<ul class="recovery-codes" style="grid-template-columns:1fr 1fr">
+  {% for code in recovery_codes_view %}<li>{{ code }}</li>{% endfor %}
+</ul>
+{% endif %}
+
+{% if msg_action %}
+<a href="{{ msg_url }}" class="btn btn-gold btn-block"><span>{{ msg_action }}<i class="fas fa-arrow-right btn-arrow"></i></span></a>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "admin/change_list.html" %}
+{% load i18n lb_tags %}
+
+{% comment %}
+Onglet « Ventes » de l'espace Caisse : le journal des ventes, c'est-à-dire ce
+qui a déjà été encaissé. La saisie elle-même se fait dans l'onglet voisin
+« Nouvelle vente » — d'où l'absence de bouton de caisse ici, qui ferait doublon
+avec l'onglet.
+{% endcomment %}
+
+{% block content_title %}{% endblock %}
+
+{% block content %}
+{% include "admin/includes/onglets_caisse.html" %}
+
+<div class="lb-hero">
+  <div class="lb-hero-body">
+    <div class="lb-eyebrow">Journal</div>
+    <h1><i class="fas fa-receipt lb-hero-icon"></i>Ventes</h1>
+  </div>
+  <div class="lb-hero-actions">
+    <a class="lb-btn" href="{% url 'rapport-ventes' %}?par=jour&format=csv"><i class="fas fa-file-csv"></i> Exporter</a>
+    <a class="lb-btn lb-btn-ghost" href="{% url 'rapports' %}"><i class="fas fa-chart-pie"></i> Rapports</a>
+  </div>
+</div>
+
+<div class="lb-panel">
+  <div class="lb-panel-body lb-panel-body--flush">{{ block.super }}</div>
+</div>
+{% endblock %}

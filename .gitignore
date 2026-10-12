@@ -1,0 +1,68 @@
+# ============================================================
+#  Projet Soutenance - ignore global (racine)
+# ============================================================
+
+# ---------- Python / Django (backend/) ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+.venv/
+env/
+ENV/
+backend/.env
+backend/.env.*.local
+.env
+*.log
+backend/db.sqlite3
+backend/db.sqlite3-journal
+backend/staticfiles/
+backend/media/
+backend/photo_donnée_reel/
+backend/logs/
+backend/var/
+.pytest_cache/
+.coverage
+htmlcov/
+.freebuff/
+
+# ---------- Node / Angular (frontend/) ----------
+node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/out-tsc/
+frontend/coverage/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---------- IDE / OS ----------
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ---------- Divers ----------
+*.local
+.oxcode-memory/
+.aider*
+
+# ---------- Outils d'assistance IA (non livrés) ----------
+AGENTS.md
+.xgrok/
+.kilo/
+.claude/
+.mcp.json
+.ripgreprc
+
+# ---------- Config système / shell (hors projet) ----------
+.bashrc
+.bash_profile
+.profile
+.zshrc
+.zprofile
+.gitconfig
+.idea
+.vscode

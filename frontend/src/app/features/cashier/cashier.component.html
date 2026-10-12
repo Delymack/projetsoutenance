@@ -1,0 +1,390 @@
+<section class="caisse lb-container" [class.caisse--tactile]="tactile()">
+  <header class="caisse__header">
+    <div>
+      <span class="eyebrow">POS · Lazan'i Betsileo</span>
+      <h1>{{ 'CAISSE.titre' | translate }}</h1>
+      
+    </div>
+    <div class="caisse__top-actions">
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="basculerTiroirAttente()"
+        [class.caisse__action-active]="tiroirAttenteOuvert()"
+        matTooltip="Tickets suspendus en attente (F4)"
+      >
+        <mat-icon>pause_circle</mat-icon>
+        Attente
+        @if (nbPaniersEnAttente() > 0) {
+          <span class="caisse__badge-attente">{{ nbPaniersEnAttente() }}</span>
+        }
+      </button>
+      <button mat-stroked-button type="button" (click)="ouvrirScanner()" [class.caisse__action-active]="scanOuvert()">
+        <mat-icon>qr_code_scanner</mat-icon>
+        {{ 'CAISSE.scanCodeBarres' | translate }}
+      </button>
+      <button mat-stroked-button type="button" (click)="ouvrirEcranClient()">
+        <mat-icon>open_in_new</mat-icon>
+        {{ 'CAISSE.ecranClient' | translate }}
+      </button>
+      <button
+        mat-icon-button
+        type="button"
+        (click)="basculerTactile()"
+        [class.caisse__action-active]="tactile()"
+        [attr.aria-pressed]="tactile()"
+        [attr.aria-label]="'CAISSE.modeTactile' | translate"
+        [matTooltip]="tactile() ? ('CAISSE.modeTactileArene' | translate) : ('CAISSE.modeTactileActif' | translate)"
+      >
+        <mat-icon>{{ tactile() ? 'touch_app' : 'mouse' }}</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        type="button"
+        (click)="basculerSon()"
+        [class.caisse__action-active]="sonActif()"
+        [attr.aria-pressed]="sonActif()"
+        [attr.aria-label]="'CAISSE.son' | translate"
+      >
+        <mat-icon>{{ sonActif() ? 'volume_up' : 'volume_off' }}</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  @if (tiroirAttenteOuvert()) {
+    <section class="caisse__tiroir-attente lb-card">
+      <header class="caisse__tiroir-header">
+        <h2><mat-icon>pause_circle</mat-icon> Tickets en attente ({{ nbPaniersEnAttente() }})</h2>
+        <button mat-icon-button type="button" (click)="basculerTiroirAttente()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+      @if (nbPaniersEnAttente() === 0) {
+        <p class="caisse__attente-vide">Aucun ticket en attente pour le moment.</p>
+      } @else {
+        <div class="caisse__attente-grille">
+          @for (ticket of paniersEnAttente(); track ticket.id) {
+            <div class="caisse__attente-item lb-card">
+              <div class="caisse__attente-meta">
+                <strong>{{ ticket.id }} · {{ ticket.client }}</strong>
+                <span>{{ ticket.date }} · {{ ticket.modePaiement }}</span>
+                <em>{{ ticket.lignes.length }} article(s)</em>
+              </div>
+              <div class="caisse__attente-total">
+                <strong>{{ ticket.total | number:'1.0-0' }} Ar</strong>
+              </div>
+              <div class="caisse__attente-actions">
+                <button mat-flat-button color="primary" type="button" (click)="reprendrePanier(ticket.id)">
+                  <mat-icon>play_arrow</mat-icon> Reprendre
+                </button>
+                <button mat-icon-button color="warn" type="button" (click)="supprimerPanierEnAttente(ticket.id)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  }
+
+  @if (message()) {
+    <div class="caisse__toast" role="status">{{ message() }}</div>
+  }
+
+  @if (paiementOk()) {
+    <div class="caisse__success" role="status">
+      <mat-icon>check_circle</mat-icon>
+      {{ 'CAISSE.paiementReussi' | translate }}
+    </div>
+  }
+
+ <!-- scan code-barres / QR par caméra, avec repli clavier. -->
+  @if (scanOuvert()) {
+    <section class="caisse__scan lb-card" role="region" [attr.aria-label]="'CAISSE.scanCodeBarres' | translate">
+      <header>
+        <h2><mat-icon>qr_code_scanner</mat-icon> {{ 'CAISSE.scanCodeBarres' | translate }}</h2>
+        <button mat-icon-button type="button" (click)="fermerScanner()" [attr.aria-label]="'COMMUN.fermer' | translate">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <app-lecteur-code [actif]="scanOuvert()" (codeLu)="surCodeScanne($event)" />
+
+      @if (scanErreur()) {
+        <p class="caisse__scan-erreur" role="alert">{{ 'CAISSE.scanErreur' | translate }}</p>
+      }
+
+      <form class="caisse__scan-form" [formGroup]="scanForm" (ngSubmit)="validerCodeSaisi()">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'CAISSE.scanSaisie' | translate }}</mat-label>
+          <mat-icon matPrefix>keyboard</mat-icon>
+          <input matInput formControlName="code" inputmode="numeric" autocomplete="off" />
+          @if (scanForm.controls.code.hasError('required')) {
+            <mat-error>{{ 'CAISSE.scanCodeRequis' | translate }}</mat-error>
+          } @else if (scanForm.controls.code.hasError('minlength')) {
+            <mat-error>{{ 'CAISSE.scanCodeTropCourt' | translate }}</mat-error>
+          }
+        </mat-form-field>
+        <button mat-flat-button color="primary" type="submit" [disabled]="scanForm.invalid">
+          {{ 'CAISSE.scanValider' | translate }}
+        </button>
+      </form>
+
+      @if (scanResultat(); as vin) {
+        <div class="caisse__scan-resultat">
+          <img [src]="vin.image" [alt]="vin.nom" />
+          <div>
+            <strong>{{ vin.nom }}</strong>
+            <small>{{ vin.cepage }} · {{ vin.millesime }} · {{ vin.prix | number:'1.0-0' }} Ar</small>
+          </div>
+          <button mat-flat-button color="primary" type="button" (click)="ajouter(vin); fermerScanner()">
+            <mat-icon>add_shopping_cart</mat-icon>
+            {{ 'VIN.ajouterPanier' | translate }}
+          </button>
+        </div>
+      }
+    </section>
+  }
+
+  <div class="caisse__layout">
+    <section class="caisse__catalogue">
+      <div class="caisse__search lb-card">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'CAISSE.recherche' | translate }}</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input #champRecherche matInput type="search" [formControl]="recherche" autocomplete="off" />
+        </mat-form-field>
+        <button mat-icon-button type="button" (click)="rechercheVocale()" [attr.aria-label]="'CAISSE.rechercheVocale' | translate">
+          <mat-icon>{{ ecouteVocale() ? 'graphic_eq' : 'mic' }}</mat-icon>
+        </button>
+      </div>
+
+      <div class="caisse__products" cdkDropList id="catalogue-pos" [cdkDropListData]="vins()" [cdkDropListConnectedTo]="['panier-pos']">
+        @for (vin of vins(); track vin.id) {
+          <article class="caisse-product lb-card" cdkDrag [cdkDragData]="vin">
+            <img [src]="vin.image" [alt]="vin.nom" />
+            <div>
+              <h2>{{ vin.nom }}</h2>
+              <p>{{ vin.cepage }} · {{ vin.millesime }}</p>
+              <strong>{{ vin.prix | number:'1.0-0' }} Ar</strong>
+            </div>
+            <button mat-icon-button type="button" [disabled]="vin.stock < 1" (click)="ajouter(vin)" [attr.aria-label]="'VIN.ajouterPanier' | translate">
+              <mat-icon>add_shopping_cart</mat-icon>
+            </button>
+          </article>
+        } @empty {
+          <div class="caisse__empty lb-card">{{ 'COMMUN.aucunResultat' | translate }}</div>
+        }
+      </div>
+    </section>
+
+    <section class="caisse__panier lb-card" cdkDropList id="panier-pos" [cdkDropListData]="panier.lignes()" (cdkDropListDropped)="deposer($event)">
+      <header class="caisse__panier-header">
+        <div>
+          <h2>{{ 'PANIER.titre' | translate }}</h2>
+          <span>{{ panier.nbArticles() }} {{ panier.nbArticles() > 1 ? ('PANIER.articlePluriel' | translate) : ('PANIER.articleSingulier' | translate) }}</span>
+        </div>
+        <div class="caisse__client-bar">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="caisse__client-field">
+            <mat-icon matPrefix>person</mat-icon>
+            <input matInput [formControl]="clientNom" placeholder="Nom du client" />
+          </mat-form-field>
+        </div>
+      </header>
+
+      @if (panier.estVide()) {
+        <div class="caisse__drop-hint">
+          <mat-icon>swipe</mat-icon>
+          <p>{{ 'CAISSE.glisserIci' | translate }}</p>
+        </div>
+      } @else {
+        <div class="caisse__lines">
+          @for (ligne of panier.lignes(); track ligne.vin.id) {
+            <article class="caisse-line">
+              <div>
+                <strong>{{ ligne.vin.nom }}</strong>
+                <small>{{ ligne.quantite }} × {{ ligne.prixUnitaire | number:'1.0-0' }} Ar</small>
+              </div>
+              <div class="caisse-line__qty">
+                <button mat-icon-button type="button" (click)="modifierQuantite(ligne, -1)">
+                  <mat-icon>remove</mat-icon>
+                </button>
+                <output>{{ ligne.quantite }}</output>
+                <button mat-icon-button type="button" (click)="modifierQuantite(ligne, 1)" [disabled]="ligne.quantite >= ligne.vin.stock">
+                  <mat-icon>add</mat-icon>
+                </button>
+              </div>
+              <strong>{{ totalLigne(ligne) | number:'1.0-0' }} Ar</strong>
+            </article>
+          }
+        </div>
+      }
+
+      <footer class="caisse__totals">
+        <div class="caisse__totaux-lignes">
+          <div><span>{{ 'PANIER.sousTotal' | translate }}</span><strong>{{ panier.sousTotal() | number:'1.0-0' }} Ar</strong></div>
+          <div class="caisse__grand-total"><span>{{ 'PANIER.total' | translate }}</span><strong>{{ panier.total() | number:'1.0-0' }} Ar</strong></div>
+        </div>
+
+        <!-- Choix du mode de paiement -->
+        <div class="caisse__modes-paiement">
+          <span class="caisse__label-bar">Mode de règlement (F2) :</span>
+          <div class="caisse__modes-grille">
+            @for (m of modesPaiement; track m.code) {
+              <button
+                type="button"
+                class="caisse__mode-btn"
+                [class.caisse__mode-btn--actif]="modePaiement() === m.code"
+                (click)="changerModePaiement(m.code)"
+              >
+                <mat-icon>{{ m.icone }}</mat-icon>
+                <span>{{ m.libelle }}</span>
+                @if (m.badge) {
+                  <small class="caisse__mode-badge">{{ m.badge }}</small>
+                }
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Si Espèces : Calculateur de coupures Ariary et rendu de monnaie -->
+        @if (modePaiement() === 'ESPECES') {
+          <div class="caisse__monnaie-box">
+            <div class="caisse__monnaie-saisie">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="caisse__recu-field">
+                <mat-label>Espèces reçues</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  [value]="montantRecu()"
+                  (input)="surSaisieMontantRecu($any($event.target).value)"
+                  placeholder="0"
+                />
+                <span matTextSuffix>Ar</span>
+              </mat-form-field>
+              <button mat-stroked-button type="button" (click)="definirMontantExact()" title="Compte exact">
+                Exact
+              </button>
+              <button mat-icon-button type="button" (click)="reinitialiserMontantRecu()" title="Effacer montant">
+                <mat-icon>backspace</mat-icon>
+              </button>
+            </div>
+
+            <div class="caisse__coupures">
+              @for (billet of coupuresAriary; track billet) {
+                <button type="button" class="caisse__coupure-btn" (click)="ajouterCoupure(billet)">
+                  +{{ billet | number:'1.0-0' }}
+                </button>
+              }
+            </div>
+
+            @if (montantRecu() > 0) {
+              <div class="caisse__monnaie-bilan" [class.caisse__monnaie-bilan--ok]="renduMonnaie() > 0 || montantRecu() === panier.total()">
+                @if (resteAPayer() > 0) {
+                  <span class="caisse__manque">Reste à percevoir : <strong>{{ resteAPayer() | number:'1.0-0' }} Ar</strong></span>
+                } @else {
+                  <span class="caisse__rendu">Monnaie à rendre : <strong>{{ renduMonnaie() | number:'1.0-0' }} Ar</strong></span>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <!-- Si Mobile Money / Carte : saisie référence transaction -->
+          <div class="caisse__mobile-box">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="caisse__ref-field">
+              <mat-label>Réf. Transaction / Reçu SMS</mat-label>
+              <mat-icon matPrefix>receipt</mat-icon>
+              <input matInput [formControl]="referencePaiement" placeholder="Ex: TRX-1928374" />
+            </mat-form-field>
+          </div>
+        }
+
+        <!-- Boutons d'encaissement et mise en attente -->
+        <div class="caisse__actions-finales">
+          <button
+            mat-stroked-button
+            type="button"
+            [disabled]="panier.estVide()"
+            (click)="mettreEnAttente()"
+            class="caisse__btn-attente"
+            matTooltip="Suspendre le ticket (F4)"
+          >
+            <mat-icon>pause</mat-icon>
+            Attente (F4)
+          </button>
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            [disabled]="panier.estVide()"
+            (click)="encaisser()"
+            class="caisse__btn-encaisser"
+          >
+            <mat-icon>check_circle</mat-icon>
+            {{ 'CAISSE.payer' | translate }} ({{ panier.total() | number:'1.0-0' }} Ar) · [F1]
+          </button>
+        </div>
+      </footer>
+    </section>
+
+    <aside class="caisse__side">
+      <div class="caisse__customer lb-card">
+        <app-customer-display />
+      </div>
+
+      <!-- Ticket thermique de caisse -->
+      <section class="ticket ticket-print lb-card">
+        <header>
+          <h2>{{ 'CAISSE.ticket' | translate }}</h2>
+          <div class="ticket__actions">
+            <button mat-icon-button type="button" (click)="partagerWhatsApp()" matTooltip="Partager ticket par WhatsApp">
+              <mat-icon>share</mat-icon>
+            </button>
+            <button mat-icon-button type="button" (click)="imprimerTicket()" [attr.aria-label]="'CAISSE.imprimer' | translate">
+              <mat-icon>print</mat-icon>
+            </button>
+          </div>
+        </header>
+        <div class="ticket__body">
+          <strong>Lazan'i Betsileo</strong>
+          <small>Fianarantsoa · Madagascar</small>
+          <p class="ticket__meta">
+            <span>{{ numeroTicket() }}</span>
+            <span>{{ clientNom.value }}</span>
+            <span>{{ horodatage() | date: 'dd/MM/yyyy HH:mm' }}</span>
+          </p>
+          @for (ligne of ticketLignes(); track ligne.vin.id) {
+            <div class="ticket__line">
+              <span>{{ ligne.quantite }}× {{ ligne.vin.nom }}</span>
+              <span>{{ totalLigne(ligne) | number:'1.0-0' }}</span>
+            </div>
+          } @empty {
+            <p>{{ 'PANIER.vide' | translate }}</p>
+          }
+          <div class="ticket__total">
+            <span>{{ 'PANIER.total' | translate }}</span>
+            <strong>{{ panier.total() | number:'1.0-0' }} Ar</strong>
+          </div>
+          <div class="ticket__paiement-recap">
+            <span>Règlement : <strong>{{ modePaiement() }}</strong></span>
+            @if (modePaiement() === 'ESPECES' && montantRecu() > 0) {
+              <span>Reçu : {{ montantRecu() | number:'1.0-0' }} Ar</span>
+              <span>Rendu : {{ renduMonnaie() | number:'1.0-0' }} Ar</span>
+            }
+          </div>
+          <p class="ticket__pied">{{ 'CAISSE.ticketPied' | translate }}</p>
+        </div>
+      </section>
+
+      <section class="caisse__shortcuts lb-card">
+        <h2>{{ 'CAISSE.raccourcis' | translate }}</h2>
+        <span><kbd>F1</kbd> Encaisser & valider</span>
+        <span><kbd>F2</kbd> Changer mode de paiement</span>
+        <span><kbd>F3</kbd> Focus recherche produit</span>
+        <span><kbd>F4</kbd> Suspendre / reprendre ticket</span>
+        <span><kbd>Échap</kbd> Vider panier / fermer</span>
+      </section>
+    </aside>
+  </div>
+</section>

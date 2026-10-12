@@ -1,0 +1,324 @@
+{% load static l10n %}
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Commander | {{ societe.nom }}</title>
+  <style>
+    :root { --primary:#722F37; --secondary:#5a2430; --bg:#ffffff; --text:#333333; --border:#e0e0e0; --muted:#888888; --accent:#FFD700; }
+    * { box-sizing:border-box; }
+    body { background:linear-gradient(135deg,rgba(189,145,67,.07) 25%,transparent 25%) 0 0/18px 18px,var(--paper); color:var(--ink); font:15px/1.45 Georgia,"Times New Roman",serif; margin:0; }
+    button,input,textarea { font:inherit; }
+    a { color:inherit; }
+    .hero { margin:-1.5rem -1rem 1.5rem; position:relative; }
+    .hero-bg { border-radius:0; }
+    .btn-primary { background:#722F37; border:none; border-radius:8px; color:#fff; cursor:pointer; font-weight:600; text-decoration:none; display:inline-block; transition:all .3s; }
+    .btn-primary:hover { background:#5a2430; transform:translateY(-2px); }
+    .product-card { background:#fff; border:1px solid var(--border); border-radius:12px; overflow:hidden; transition:all .3s; }
+    .product-card:hover { transform:translateY(-4px); box-shadow:0 6px 20px rgba(0,0,0,.1); }
+    .product-image { height:180px; background:#f8f9fa; display:flex; align-items:center; justify-content:center; }
+    .product-image img { max-height:160px; object-fit:cover; }
+    .product-badge { position:absolute; top:12px; right:12px; padding:.3rem .7rem; border-radius:4px; font-size:.72rem; font-weight:600; }
+    .badge-promo { background:#641b2c; color:#fff; }
+    .badge-nouveau { background:#27ae60; color:#fff; }
+    .product-rating { color:#ffc107; margin:.5rem 0 }
+    .product-original-price { text-decoration:line-through; color:var(--muted); margin-left:.5rem }
+    .add-to-cart { background:#722F37; color:#fff; border:none; border-radius:6px; padding:.8rem; font-weight:600; width:100%; margin-top:auto }
+    .add-to-cart:hover { background:#5a2430 }
+    .filters-sidebar { background:#fff; border:1px solid var(--border); border-radius:10px; padding:1.5rem }
+    .filter-group { margin-bottom:1.5rem }
+    .filter-group-title { font-size:1rem; font-weight:600; margin-bottom:.8rem }
+    .filter-checkbox { margin-right:.5rem }
+    .filter-actions { margin-top:1rem }
+    .cart-item { display:flex; gap:1rem; padding:1rem 0; border-bottom:1px solid var(--border) }
+    .cart-item:last-child { border-bottom:none }
+    .cart-item-image { width:80px; height:80px; background:#f8f9fa; border-radius:8px; flex-shrink:0 }
+    .cart-item-details { flex:1 }
+    .cart-item-name { font-size:.9rem; font-weight:600; margin:0 0 .3rem }
+    .cart-item-meta { color:var(--muted); font-size:.82rem; margin:.3rem 0 }
+    .cart-item-controls { display:flex; align-items:center; gap:.5rem; margin-top:.8rem }
+    .cart-item-remove { color:#641b2c; background:none; border:none; cursor:pointer; font-size:.9rem }
+    .shell { margin:auto; max-width:1220px; padding:1.2rem 1rem 3rem; }
+    .topline { align-items:end; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; margin-bottom:1.5rem; padding:.2rem 0 .9rem; }
+    .topline h1 { color:var(--primary); font-size:clamp(1.7rem,3vw,2.35rem); line-height:1.1; margin:0; }
+    .topline p { color:var(--muted); font: .8rem system-ui,sans-serif; margin:.35rem 0 0; }
+    .age { color:var(--muted); font:700 .72rem system-ui,sans-serif; text-align:right; }
+.layout { align-items:start; display:grid; gap:1.5rem; grid-template-columns:280px minmax(0,1fr) 360px; }
+    .catalogue,.order-panel { background:#fff; border:1px solid var(--border); border-radius:12px; }
+    .catalogue { padding:1.5rem; }
+    .catalogue-tools { align-items:center; border-bottom:1px solid var(--border); display:flex; gap:.7rem; padding-bottom:.8rem; }
+    .catalogue-tools input { background:#fbfaf8; border:1px solid var(--border); border-radius:7px; min-height:42px; padding:.55rem .75rem; width:100%; }
+    .count { color:var(--muted); flex:none; font:700 .72rem system-ui,sans-serif; }
+    .products { display:grid; gap:1.2rem; grid-template-columns:repeat(auto-fill,minmax(205px,1fr)); padding-top:1rem; }
+    .product-card { background:#fff; border:1px solid var(--border); border-radius:12px; overflow:hidden; transition:all .3s; display:flex; flex-direction:column; }
+    .product-card:hover { transform:translateY(-4px); box-shadow:0 6px 20px rgba(0,0,0,.1); }
+    .product-image { height:180px; background:#f8f9fa; display:flex; align-items:center; justify:center; position:relative; }
+    .product-image img { max-height:160px; object-fit:cover; }
+    .product-badge { position:absolute; top:12px; right:12px; padding:.3rem .7rem; border-radius:4px; font-size:.72rem; font-weight:600; }
+    .badge-promo { background:#641b2c; color:#fff; }
+    .badge-nouveau { background:#27ae60; color:#fff; }
+    .product-info { padding:1rem; flex:1; display:flex; flex-direction:column; }
+    .product-name { font-size:.95rem; font-weight:600; margin:0 0 .3rem; line-height:1.3; }
+    .product-meta { color:var(--muted); font-size:.8rem; margin-bottom:.6rem; }
+    .product-rating { color:#ffc107; margin:.3rem 0; font-size:.9rem }
+    .product-price-row { display:flex; align-items:center; gap:.5rem; margin-top:auto }
+    .product-current-price { font-size:1.1rem; font-weight:700; color:var(--text); }
+    .product-original-price { text-decoration:line-through; color:var(--muted); font-size:.9rem; }
+    .add-to-cart { background:#722F37; color:#fff; border:none; border-radius:6px; padding:.7rem; font-weight:600; width:100%; margin-top:.8rem; transition:background .3s; }
+    .add-to-cart:hover { background:#5a2430; }
+    .filters-sidebar { background:#fff; border:1px solid var(--border); border-radius:12px; padding:1.5rem; height:fit-content; position:sticky; top:100px; }
+    .filter-group { margin-bottom:1.5rem; }
+    .filter-group-title { font-size:1rem; font-weight:600; margin-bottom:.8rem; color:var(--text); }
+    .filter-option { display:flex; align-items:center; gap:.5rem; margin-bottom:.5rem; cursor:pointer; }
+    .filter-checkbox { accent-color:var(--primary); }
+    .filter-actions { margin-top:1rem; }
+    .btn-filter { background:#722F37; color:#fff; border:none; border-radius:6px; padding:.7rem 1rem; font-weight:600; width:100%; }
+    .btn-filter:hover { background:#5a2430; }
+    .cart-item { display:flex; gap:1rem; padding:1rem 0; border-bottom:1px solid var(--border); }
+    .cart-item:last-child { border-bottom:none; }
+    .cart-item-image { width:80px; height:80px; background:#f8f9fa; border-radius:8px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+    .cart-item-image img { max-width:70px; max-height:70px; object-fit:cover; }
+    .cart-item-details { flex:1; min-width:0; }
+    .cart-item-name { font-size:.9rem; font-weight:600; margin:0 0 .3rem; }
+    .cart-item-meta { color:var(--muted); font-size:.82rem; margin:.3rem 0; }
+    .cart-item-controls { display:flex; align-items:center; gap:.5rem; margin-top:.8rem; }
+    .cart-item-remove { color:#641b2c; background:none; border:none; cursor:pointer; font-size:.9rem; padding:.2rem; }
+    .order-panel { padding:1.5rem; position:sticky; top:100px; }
+    .order-panel h2 { color:var(--text); font-size:1.2rem; margin:0 0 1rem; padding-bottom:.8rem; border-bottom:1px solid var(--border); }
+    .cart-list { max-height:300px; overflow:auto; padding-bottom:.7rem; }
+    .empty { color:var(--muted); font: .82rem system-ui,sans-serif; padding:.65rem 0; text-align:center; }
+    .cart-summary { padding:1rem 0; border-top:1px solid var(--border); margin-top:.5rem; }
+    .summary-row { display:flex; justify-content:space-between; margin:.5rem 0; font-size:.95rem; }
+    .summary-row.total { font-size:1.1rem; font-weight:700; color:var(--text); padding-top:.5rem; border-top:1px solid var(--border); margin-top:.8rem; }
+    .promo-input { display:flex; gap:.5rem; margin-bottom:1rem; }
+    .promo-input input { flex:1; background:#fbfaf8; border:1px solid var(--border); border-radius:6px; padding:.7rem; }
+    .promo-input button { background:#f8f9fa; border:1px solid var(--border); border-radius:6px; padding:.7rem 1rem; font-weight:600; }
+    .submit { background:#722F37; border:0; border-radius:8px; color:#fff; cursor:pointer; font:700 1rem system-ui,sans-serif; margin-top:.5rem; min-height:50px; width:100%; transition:background .3s; }
+    .submit:hover { background:#5a2430; }
+    .submit:disabled { cursor:not-allowed; opacity:.5; }
+    .hint,.error,.success { font: .75rem/1.45 system-ui,sans-serif; margin:.45rem 0; }
+    .hint { color:var(--muted); }
+    .error { background:#fff2f0; border-left:3px solid #a1263a; color:#8c1f33; padding:.55rem .65rem; }
+    .success { background:#edf6ef; border-left:3px solid var(--green); color:#27563b; padding:.65rem; }
+    .success strong { display:block; }
+    .foot { color:var(--muted); font: .7rem system-ui,sans-serif; margin-top:.8rem; text-align:center; }
+    @media(max-width:900px) { .layout { grid-template-columns:minmax(0,1fr) 320px; } }
+    @media(max-width:720px) { .site-head { padding:.75rem 1rem; } .shell { padding:.9rem .7rem 2rem; } .topline { align-items:start; flex-direction:column; gap:.5rem; } .age { text-align:left; } .layout { grid-template-columns:1fr; } .order-panel { position:static; order:-1; } .products { grid-template-columns:repeat(auto-fill,minmax(175px,1fr)); } }
+    @media(max-width:420px) { .nav { gap:.6rem; } .products { grid-template-columns:1fr; } .form-grid { grid-template-columns:1fr; } .field.wide { grid-column:auto; } }
+  </style>
+</head>
+<body>
+    <header class="site-head">
+      <a class="brand" href="{% url 'commande-client' %}">{{ societe.nom }}<small>{{ societe.slogan }}</small></a>
+      <form class="search-form" role="search">
+        <input type="search" placeholder="Rechercher un vin ou un domaine" aria-label="Rechercher un vin">
+        <button type="submit" aria-label="Rechercher"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
+      </form>
+      <div class="header-actions">
+        <a href="#" aria-label="Compte utilisateur"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
+        <a href="#" aria-label="Panier"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4.91a2 2 0 0 1 1.69.59l4.6 4.6a2 2 0 0 1 .59 1.69V19a2 2 0 0 1-2 2zM9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/></svg></a>
+      </div>
+    </header>
+  <section class="hero">
+    <div class="hero-bg" style="background:url('{% static 'images/hero-bottle.jpg' %}') center/cover; height:420px; position:relative;">
+      <div style="position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(114,47,55,.6)"></div>
+      <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:#fff;">
+        <h1 style="font-size:clamp(2.5rem,6vw,3.8rem); margin:0 0 .8rem;">Découvrez l'excellence des vins du monde</h1>
+        <p style="font-size:1.2rem; opacity:.9; margin:0 0 1.5rem;">Sélection premium de domaines et de caves réputées</p>
+        <a href="#catalogue" class="btn btn-primary" style="font-size:1rem; padding:.9rem 2rem;">Voir nos vins</a>
+      </div>
+    </div>
+  </section>
+  <main class="shell">
+    <header class="topline">
+      <div><h1>Votre sélection</h1><p>Choisissez vos bouteilles, puis envoyez votre demande de commande.</p></div>
+      <div class="age">Retrait ou livraison · Paiement à réception<br>Vente réservée aux personnes majeures.</div>
+    </header>
+    {% if confirmation %}<div class="success"><strong>Demande reçue · {{ confirmation.reference }}</strong>Montant estimé : {{ confirmation.montant }} {{ societe.devise }}. L'équipe vous contactera pour confirmer la disponibilité.</div>{% endif %}
+    <div class="layout">
+      <aside class="filters-sidebar">
+        <h3 class="filter-group-title">Filtres</h3>
+        <div class="filter-group">
+          <div class="filter-group-title">Catégories</div>
+          <label class="filter-option"><input type="checkbox" class="filter-checkbox" name="categorie" value="rouge"> Vin Rouge</label>
+          <label class="filter-option"><input type="checkbox" class="filter-checkbox" name="categorie" value="blanc"> Vin Blanc</label>
+          <label class="filter-option"><input type="checkbox" class="filter-checkbox" name="categorie" value="rose"> Vin Rosé</label>
+          <label class="filter-option"><input type="checkbox" class="filter-checkbox" name="categorie" value="effervescent"> Effervescents</label>
+        </div>
+        <div class="filter-group">
+          <div class="filter-group-title">Prix</div>
+          <label class="filter-option"><input type="checkbox" class="filter-checkbox" name="prix" value="0-20"> Moins de 20€</label>
+          <label class="filter-option"><input type="checkbox" class="filter-checkbox" name="prix" value="20-50"> 20€ - 50€</label>
+          <label class="filter-option"><input type="checkbox" class="filter-checkbox" name="prix" value="50-100"> 50€ - 100€</label>
+          <label class="filter-option"><input type="checkbox" class="filter-checkbox" name="prix" value="100+"> Plus de 100€</label>
+        </div>
+        <div class="filter-group">
+          <div class="filter-group-title">Marques</div>
+          <label class="filter-option"><input type="checkbox" class="filter-checkbox" name="marque" value="chateau-lafite"> Château Lafite</label>
+          <label class="filter-option"><input type="checkbox" class="filter-checkbox" name="marque" value="domaine-romanee"> Domaine de la Romanée</label>
+          <label class="filter-option"><input type="checkbox" class="filter-checkbox" name="marque" value="chateau-margaux"> Château Margaux</label>
+        </div>
+        <div class="filter-actions">
+          <button type="button" class="btn-filter" onclick="applyFilters()">Filtrer</button>
+        </div>
+      </aside>
+      <section class="catalogue" id="catalogue" aria-label="Catalogue des vins">
+        <div class="catalogue-tools"><input id="product-search" type="search" placeholder="Rechercher un vin ou un domaine" aria-label="Rechercher un vin"><span class="count" id="product-count">{{ produits|length }} références</span></div>
+        <div class="products" id="products">
+          {% for produit in produits %}
+            <article class="product-card" data-name="{{ produit.nom|lower }} {{ produit.marque|lower }}" data-id="{{ produit.pk }}" data-price="{{ produit.prix_unitaire_vente|unlocalize }}" data-name-label="{{ produit.nom }}" data-stock="{{ produit.stock.quantite }}">
+              <div class="product-image">
+                {% if produit.image_publique %}
+                  <img src="{{ produit.image_publique }}" alt="{{ produit.nom }}" loading="lazy">
+                {% else %}
+                  <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4.91a2 2 0 0 1 1.69.59l4.6 4.6a2 2 0 0 1 .59 1.69V19a2 2 0 0 1-2 2zM9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/></svg>
+                {% endif %}
+                {% if produit.promo %}<span class="product-badge badge-promo">PROMO</span>{% endif %}
+                {% if produit.nouveau %}<span class="product-badge badge-nouveau">NOUVEAU</span>{% endif %}
+              </div>
+              <div class="product-info">
+                <h2 class="product-name">{{ produit.nom }}</h2>
+                <p class="product-meta">{{ produit.marque|default:produit.categorie_nom|default:'Domaine' }} · {{ produit.conditionnement_libelle }}</p>
+                <div class="product-rating" aria-label="Notation">
+                  <span>★</span><span>★</span><span>★</span><span>★</span><span>☆</span>
+                </div>
+                <div class="product-price-row">
+                  <span class="product-current-price">{{ produit.prix_unitaire_vente|floatformat:2 }} {{ societe.devise }}</span>
+                  {% if produit.prix_original and produit.prix_original > produit.prix_unitaire_vente %}
+                    <span class="product-original-price">{{ produit.prix_original|floatformat:2 }} {{ societe.devise }}</span>
+                  {% endif %}
+                </div>
+                <button class="add-to-cart" type="button" data-add="{{ produit.pk }}">Ajouter au panier</button>
+              </div>
+            </article>
+          {% empty %}<p class="empty">Aucun produit disponible actuellement.</p>{% endfor %}
+        </div>
+      </section>
+      <aside class="order-panel">
+        <h2>Votre commande</h2>
+        {% if erreur %}<div class="error" role="alert">{{ erreur }}</div>{% endif %}
+        <div class="cart-list" id="cart-list"><p class="empty">Votre panier est vide.</p></div>
+        <div class="cart-summary">
+          <div class="promo-input">
+            <input type="text" placeholder="Code promo" id="promo-code">
+            <button type="button" onclick="applyPromo()">Appliquer</button>
+          </div>
+          <div class="summary-row"><span>Sous-total</span><span id="cart-subtotal">0,00 {{ societe.devise }}</span></div>
+          <div class="summary-row"><span>Livraison</span><span id="cart-shipping">0,00 {{ societe.devise }}</span></div>
+          <div class="summary-row total"><span>Total</span><span id="cart-total">0,00 {{ societe.devise }}</span></div>
+        </div>
+        <form method="post" id="order-form" novalidate>
+          {% csrf_token %}{{ form.lignes }}
+          <div class="form-grid">
+            <div class="field"><label for="id_nom">Nom</label>{{ form.nom }}</div>
+            <div class="field"><label for="id_prenom">Prénom</label>{{ form.prenom }}</div>
+            <div class="field"><label for="id_telephone">Téléphone</label>{{ form.telephone }}</div>
+            <div class="field"><label for="id_email">Email</label>{{ form.email }}</div>
+            <div class="field"><label for="id_mode_reception">Réception</label>{{ form.mode_reception }}</div>
+            <div class="field wide" id="delivery-address"><label for="id_adresse">Adresse de livraison</label>{{ form.adresse }}</div>
+            <div class="field"><label for="id_date_expiration">Date souhaitée</label>{{ form.date_expiration }}</div>
+            <div class="field"><label for="id_note">Message</label>{{ form.note }}</div>
+          </div>
+          <button class="submit" id="order-submit" type="submit" disabled>Envoyer la demande</button>
+          <p class="hint">Aucun paiement en ligne. La commande sera confirmée par notre équipe.</p>
+        </form>
+      </aside>
+    </div>
+    <p class="foot">{{ societe.nom }} · {{ societe.adresse }} · {{ societe.telephone }}</p>
+  </main>
+  <script>
+    (() => {
+      const devise = '{{ societe.devise|escapejs }}';
+      const selected = new Map();
+      const fmt = (value) => Number(value || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const cart = document.getElementById('cart-list');
+      const subtotalEl = document.getElementById('cart-subtotal');
+      const shippingEl = document.getElementById('cart-shipping');
+      const total = document.getElementById('cart-total');
+      const lines = document.getElementById('id_lignes');
+      const submit = document.getElementById('order-submit');
+      const reception = document.getElementById('id_mode_reception');
+      const address = document.getElementById('delivery-address');
+      const safe = (value) => String(value).replace(/[&<>"']/g, (c) => ({ '&':'&', '<':'<', '>':'>', '"':'"', "'":'&#039;' }[c]));
+      function draw() {
+        let amount = 0;
+        const entries = [...selected.values()];
+        if (!entries.length) {
+          cart.innerHTML = '<p class="empty">Votre panier est vide.</p>';
+        } else {
+          cart.innerHTML = entries.map((item) => {
+            amount += item.price * item.quantity;
+            return `<div class="cart-item" data-id="${item.id}"><div class="cart-item-image">${item.image ? '<img src="'+safe(item.image)+'" alt="">' : ''}</div><div class="cart-item-details"><div class="cart-item-name">${safe(item.name)}</div><div class="cart-item-meta">${fmt(item.price)} ${safe(devise)} x ${item.quantity} = ${fmt(item.price * item.quantity)} ${safe(devise)}</div><div class="cart-item-controls"><button type="button" data-step="-1" aria-label="Retirer une unité">−</button><output>${item.quantity}</output><button type="button" data-step="1" aria-label="Ajouter une unité">+</button><button class="cart-item-remove" type="button" data-remove aria-label="Supprimer">×</button></div></div></div>`;
+          }).join('');
+        }
+        const shipping = amount > 100 ? 0 : 7.90;
+        if (subtotalEl) subtotalEl.textContent = `${fmt(amount)} ${devise}`;
+        if (shippingEl) shippingEl.textContent = shipping === 0 ? 'Offerte' : `${fmt(shipping)} ${devise}`;
+        total.textContent = `${fmt(amount + shipping)} ${devise}`;
+        lines.value = JSON.stringify(entries.map(({ id, quantity }) => ({ produit_id: id, quantite: quantity })));
+        submit.disabled = !entries.length;
+      }
+      function syncReception() {
+        const livraison = reception.value === 'LIVRAISON';
+        address.hidden = !livraison;
+        document.getElementById('id_adresse').required = livraison;
+      }
+      reception.addEventListener('change', syncReception);
+      document.getElementById('products').addEventListener('click', (event) => {
+        const button = event.target.closest('[data-add]');
+        if (!button) return;
+        const card = button.closest('.product-card');
+        const id = Number(card.dataset.id);
+        const item = selected.get(id) || { id, name: card.dataset.nameLabel, price: Number(card.dataset.price), quantity: 0, stock: Number(card.dataset.stock), image: card.querySelector('.product-image img')?.src };
+        if (item.quantity >= item.stock) return;
+        item.quantity += 1;
+        selected.set(id, item);
+        draw();
+      });
+      cart.addEventListener('click', (event) => {
+        const row = event.target.closest('.cart-item');
+        if (!row) return;
+        const id = Number(row.dataset.id);
+        const item = selected.get(id);
+        if (event.target.closest('[data-remove]')) selected.delete(id);
+        else if (event.target.closest('[data-step]')) {
+          item.quantity += Number(event.target.closest('[data-step]').dataset.step);
+          if (item.quantity <= 0) selected.delete(id);
+          else item.quantity = Math.min(item.quantity, item.stock);
+        } else return;
+        draw();
+      });
+      document.getElementById('product-search').addEventListener('input', (event) => {
+        const query = event.target.value.trim().toLocaleLowerCase('fr');
+        document.querySelectorAll('.product-card').forEach((card) => {
+          card.hidden = !card.dataset.name.includes(query);
+        });
+        document.getElementById('product-count').textContent = `${[...document.querySelectorAll('.product-card')].filter((card) => !card.hidden).length} références`;
+      });
+      // Promo code handler
+      const promoInput = document.getElementById('promo-code');
+      if (promoInput) {
+        promoInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') applyPromo();
+        });
+      }
+      function applyPromo() {
+        const code = document.getElementById('promo-code')?.value?.trim().toUpperCase();
+        if (code === 'WELCOME10') {
+          alert('Code promo appliqué : -10%');
+        } else if (code) {
+          alert('Code promo invalide');
+        }
+      }
+      window.applyPromo = applyPromo;
+      function applyFilters() {
+        console.log('Filtres appliqués');
+      }
+      window.applyFilters = applyFilters;
+      syncReception();
+      draw();
+    })();
+  </script>
+</body>
+</html>

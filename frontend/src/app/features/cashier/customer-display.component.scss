@@ -1,0 +1,174 @@
+/*
+  Écran client — lisibilité maximale : c'est le client qui regarde de loin.
+  Police et montants volontairement surdimensionnés par rapport au reste de l'app.
+*/
+:host {
+  display: block;
+}
+
+.ecran-client {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: var(--lb-gap-lg);
+  background: var(--lb-bg);
+}
+
+.ecran-client__entete {
+  text-align: center;
+  padding-bottom: var(--lb-gap);
+  border-bottom: 3px solid var(--lb-primary);
+  margin-bottom: var(--lb-gap);
+
+  h1 {
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    color: var(--lb-primary);
+    margin: 0;
+  }
+}
+
+.ecran-client__sous-titre {
+  color: var(--lb-text-muted);
+  font-size: 0.95rem;
+}
+
+/* ------------------------------------------------------------------
+   Panier vide
+   ------------------------------------------------------------------ */
+.ecran-client__vide {
+  flex: 1;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--lb-gap);
+  color: var(--lb-text-muted);
+}
+
+.ecran-client__vide-icone {
+  font-size: 5rem;
+  opacity: 0.5;
+}
+
+/* ------------------------------------------------------------------
+   Lignes
+   ------------------------------------------------------------------ */
+.ecran-client__lignes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+}
+
+.ecran-client__ligne {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lb-gap);
+  padding: var(--lb-gap) 0;
+  border-bottom: 1px dashed var(--lb-divider);
+  animation: lb-fade-in-up 320ms ease-out both;
+}
+
+.ecran-client__nom {
+  display: flex;
+  flex-direction: column;
+
+  strong {
+    font-family: var(--lb-font-display);
+    font-size: 1.15rem;
+  }
+
+  small {
+    color: var(--lb-text-muted);
+    font-size: 0.85rem;
+  }
+}
+
+.ecran-client__montant {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--lb-primary);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------
+   Totaux
+   ------------------------------------------------------------------ */
+.ecran-client__total {
+  margin-top: var(--lb-gap);
+  padding-top: var(--lb-gap);
+  border-top: 3px solid var(--lb-primary);
+  background: var(--lb-surface);
+  border-radius: var(--lb-radius);
+  padding: var(--lb-gap);
+  box-shadow: var(--lb-shadow-2);
+}
+
+.ecran-client__ligne-total {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 1rem;
+  color: var(--lb-text-muted);
+}
+
+.ecran-client__ligne-total--remise {
+  color: var(--lb-success);
+  font-weight: 600;
+}
+
+.ecran-client__ligne-total--total {
+  margin-top: var(--lb-gap-sm);
+  padding-top: var(--lb-gap-sm);
+  border-top: 2px solid var(--lb-divider);
+  font-size: clamp(1.3rem, 5vw, 1.9rem);
+  font-weight: 800;
+  font-family: var(--lb-font-display);
+  color: var(--lb-primary);
+}
+
+.ecran-client__articles {
+  text-align: center;
+  margin: var(--lb-gap-sm) 0 0;
+  font-size: 0.85rem;
+  color: var(--lb-text-muted);
+}
+
+/* ---------- Mode page entière (route /ecran-client) ---------- */
+.ecran-client--plein-ecran {
+  min-height: 100dvh;
+  justify-content: space-between;
+  padding: clamp(16px, 4vw, 48px);
+  font-size: 1.15rem;
+
+  .ecran-client__entete h1 {
+    font-size: clamp(1.8rem, 5vw, 3rem);
+  }
+
+  .ecran-client__montant,
+  .ecran-client__ligne-total--total span:last-child {
+    font-size: clamp(1.3rem, 4vw, 2rem);
+  }
+}
+
+.ecran-client__remerciement {
+  display: grid;
+  flex: 1;
+  place-content: center;
+  justify-items: center;
+  gap: var(--lb-gap);
+  text-align: center;
+  animation: lb-fade-in-up 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  p {
+    margin: 0;
+    font-family: var(--lb-font-display);
+    font-size: clamp(1.6rem, 5vw, 2.6rem);
+    font-weight: 700;
+  }
+}
+
+.ecran-client__remerciement-icone {
+  font-size: clamp(3rem, 12vw, 6rem);
+  animation: lb-pulse 1.4s ease-in-out infinite;
+}

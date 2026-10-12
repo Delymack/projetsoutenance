@@ -1,0 +1,11 @@
+Bonjour{% if prenom %} {{ prenom }}{% endif %},
+
+Une nouvelle connexion a été détectée sur votre compte LAZAN' BETSILEO.
+
+    Appareil : {{ appareil }}
+    Adresse IP : {{ ip }}
+
+C'est vous ? Aucune action requise. Sinon, déconnectez-vous immédiatement,
+changez votre mot de passe et activez la double authentification.
+
+— L'équipe {{ societe.nom|default:"LAZAN' BETSILEO" }}

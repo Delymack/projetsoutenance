@@ -1,0 +1,115 @@
+<div class="admin-dashboard">
+  <header class="admin-dashboard__header">
+    <h1>{{ 'ADMIN.dashboard' | translate }}</h1>
+    <p class="admin-dashboard__subtitle">{{ 'ADMIN.dashboardDescription' | translate }}</p>
+  </header>
+
+  <section class="admin-dashboard__stats">
+    <mat-card class="stat-card" appearance="outlined">
+      <mat-card-content>
+        <div class="stat-card__content">
+          <div class="stat-card__icon stat-card__icon--primary">
+            <mat-icon>receipt_long</mat-icon>
+          </div>
+          <div class="stat-card__info">
+            <p class="stat-card__label">{{ 'ADMIN.commandesEnAttente' | translate }}</p>
+            <h2 class="stat-card__value">{{ stats().commandesEnAttente }}</h2>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card" appearance="outlined">
+      <mat-card-content>
+        <div class="stat-card__content">
+          <div class="stat-card__icon stat-card__icon--success">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <div class="stat-card__info">
+            <p class="stat-card__label">{{ 'ADMIN.commandesTotal' | translate }}</p>
+            <h2 class="stat-card__value">{{ stats().commandesTotal }}</h2>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card" appearance="outlined">
+      <mat-card-content>
+        <div class="stat-card__content">
+          <div class="stat-card__icon stat-card__icon--info">
+            <mat-icon>people</mat-icon>
+          </div>
+          <div class="stat-card__info">
+            <p class="stat-card__label">{{ 'ADMIN.clientsTotal' | translate }}</p>
+            <h2 class="stat-card__value">{{ stats().clientsTotal }}</h2>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card" appearance="outlined">
+      <mat-card-content>
+        <div class="stat-card__content">
+          <div class="stat-card__icon stat-card__icon--warning">
+            <mat-icon>attach_money</mat-icon>
+          </div>
+          <div class="stat-card__info">
+            <p class="stat-card__label">{{ 'ADMIN.chiffreAffaires' | translate }}</p>
+            <h2 class="stat-card__value">{{ stats().chiffreAffaires | number }} Ar</h2>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </section>
+
+  <section class="admin-dashboard__recent">
+    <div class="admin-dashboard__section-header">
+      <h2>{{ 'ADMIN.commandesRecentes' | translate }}</h2>
+      <a mat-button [routerLink]="['/admin/commandes']">{{ 'ADMIN.voirTout' | translate }}</a>
+    </div>
+
+    <mat-card appearance="outlined" class="admin-dashboard__table-card">
+      <mat-card-content>
+        @if (recentCommands().length === 0) {
+          <div class="empty-state">
+            <mat-icon>receipt_long</mat-icon>
+            <p>{{ 'ADMIN.aucuneCommande' | translate }}</p>
+          </div>
+        } @else {
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>{{ 'ADMIN.reference' | translate }}</th>
+                <th>{{ 'ADMIN.client' | translate }}</th>
+                <th>{{ 'ADMIN.date' | translate }}</th>
+                <th>{{ 'ADMIN.montant' | translate }}</th>
+                <th>{{ 'ADMIN.statut' | translate }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (cmd of recentCommands(); track cmd.reference) {
+                <tr>
+                  <td><strong>{{ cmd.reference }}</strong></td>
+                  <td>{{ cmd.validationStatut ?? '—' }}</td>
+                  <td>{{ cmd.date | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td>{{ total(cmd) | number }} Ar</td>
+                  <td>
+                    <span class="badge" [attr.data-statut]="cmd.statut">
+                      {{ 'HISTORIQUE.statut.' + cmd.statut | translate }}
+                    </span>
+                  </td>
+                  <td>
+                    <a mat-icon-button [routerLink]="['/admin/commandes', cmd.reference]" matTooltip="{{ 'ADMIN.voir' | translate }}">
+                      <mat-icon>visibility</mat-icon>
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </mat-card-content>
+    </mat-card>
+  </section>
+</div>

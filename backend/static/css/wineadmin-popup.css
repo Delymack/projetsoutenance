@@ -1,0 +1,433 @@
+/* ==================================================================
+   Fenêtres flottantes d'ajout lié (« + » à côté d'un champ client,
+   produit, catégorie…) : la modale (document parent) et le formulaire
+   qu'elle charge dans son iframe (`body.popup`).
+
+   Les deux sont commutés par `related_modal_active` (Jazzmin) : la page
+   ouvre une modale Bootstrap contenant l'add/change form de n'importe
+   quel modèle. On habille le tout une seule fois pour que chaque table
+   — client, produit, catégorie, promotion… — présente la même fenêtre.
+   ================================================================== */
+
+/* ------------------------------------------------------------------
+   1. LA MODALE — document parent
+   Le cadre ouvre large, l'en-tête porte la couleur de la maison et le
+   formulaire prend toute la place : c'est une fiche, pas une vignette.
+   ------------------------------------------------------------------ */
+.modal-dialog.modal-dialog-centered.modal-lg {
+    max-width: min(92vw, 880px);
+}
+
+.modal.modal-wide .modal-content {
+    background: var(--lb-surface, #fff);
+    border: 1px solid rgba(201, 155, 59, .35);
+    border-radius: 20px;
+    box-shadow: 0 30px 80px rgba(20, 6, 12, .5);
+    overflow: hidden;
+}
+
+.modal.modal-wide .modal-header {
+    align-items: center;
+    background:
+        radial-gradient(120% 200% at 92% -40%, rgba(201, 155, 59, .34) 0%, rgba(201, 155, 59, 0) 60%),
+        linear-gradient(110deg, #351321, #641b2c 68%, #74223a);
+    border-bottom: 1px solid rgba(230, 189, 106, .28);
+    color: #fff;
+    display: flex;
+    gap: .6rem;
+    min-height: 62px;
+    padding: .85rem 1.25rem;
+    position: relative;
+}
+
+.modal.modal-wide .modal-header::before {
+    background: linear-gradient(90deg, #f0d99a, rgba(240, 217, 154, 0));
+    bottom: -1px;
+    content: "";
+    height: 2px;
+    left: 0;
+    position: absolute;
+    width: 140px;
+}
+
+.modal.modal-wide .modal-title {
+    align-items: center;
+    color: #fff;
+    display: flex;
+    font-size: 1rem;
+    font-weight: 800;
+    gap: .55rem;
+    letter-spacing: .01em;
+}
+
+.modal.modal-wide .modal-title::before {
+    align-items: center;
+    background: rgba(230, 189, 106, .18);
+    border: 1px solid rgba(230, 189, 106, .5);
+    border-radius: 10px;
+    color: #f0d99a;
+    content: "\f067";
+    display: inline-flex;
+    font-family: "Font Awesome 6 Free", "FontAwesome", sans-serif;
+    font-size: .78rem;
+    font-weight: 900;
+    height: 34px;
+    justify-content: center;
+    width: 34px;
+}
+
+.modal.modal-wide .modal-header .btn-close {
+    filter: none;
+    opacity: .9;
+}
+
+.modal.modal-wide .modal-header .btn-close:hover,
+.modal.modal-wide .modal-header .btn-close:focus-visible {
+    opacity: 1;
+    outline: 2px solid #f0d99a;
+    outline-offset: 2px;
+}
+
+.modal.modal-wide .modal-body {
+    padding: 0;
+}
+
+.modal.modal-wide .modal-footer { display: none; }
+
+.modal.modal-wide .related-iframe {
+    background: var(--lb-surface, #fff);
+    border: 0;
+    display: block;
+    height: min(72vh, 640px);
+    width: 100%;
+}
+
+/* Fenêtre imbriquée (ajout depuis une fenêtre déjà ouverte) : on garde
+   la lisibilité mais on ne laisse pas la pile saturer l'écran. */
+.modal.modal-wide.related-modal__nested .modal-dialog {
+    max-width: min(94vw, 640px);
+}
+
+.modal.modal-wide.related-modal__nested .related-iframe {
+    height: min(64vh, 520px);
+}
+
+/* ------------------------------------------------------------------
+   2. LE FORMULAIRE — document de l'iframe (`body.popup`)
+   Dans la fenêtre, la page entière tient dans le cadre : on déplie la
+   mise en page deux colonnes de l'admin et on ramène les actions dans
+   une barre fixe en bas. Chaque champ est libellé au-dessus, la grille
+   s'adapte à la largeur du cadre.
+   ------------------------------------------------------------------ */
+body.popup {
+    background: var(--lb-canvas-2, #f5f2ed);
+}
+
+body.popup .app-main,
+body.popup .app-content,
+body.popup .app-content .container-fluid {
+    margin: 0;
+    max-width: none;
+    padding-bottom: 0;
+    padding-top: 0;
+    width: 100%;
+}
+
+body.popup .app-content > .container-fluid > .row {
+    display: block;
+    margin: 0;
+    width: 100%;
+}
+
+body.popup #content,
+body.popup #content-main {
+    margin: 0;
+    max-width: none;
+    padding: 0;
+    width: 100%;
+}
+
+/* Les deux colonnes (champs + actions) deviennent une seule colonne :
+   le formulaire d'abord, la barre d'action ensuite. */
+body.popup #content-main form > .row {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    width: 100%;
+}
+
+body.popup #content-main form > .row > .col-lg-9 {
+    flex: 0 0 auto;
+    max-width: 100%;
+    order: 1;
+    padding: 0;
+    width: 100%;
+}
+
+body.popup #content-main form > .row > .col-lg-3 {
+    flex: 0 0 auto;
+    max-width: 100%;
+    order: 2;
+    padding: 0;
+}
+
+/* La carte des champs : même esprit que la fiche de saisie rapide. */
+body.popup .fields-card {
+    background: var(--lb-surface, #fff);
+    border: 1px solid var(--lb-line, #e8dfd3);
+    border-radius: 16px;
+    box-shadow: 0 10px 28px rgba(35, 17, 24, .06);
+    margin: 0 0 .9rem;
+    overflow: hidden;
+}
+
+body.popup .fields-card > .card-body {
+    padding: 1.1rem 1.3rem;
+}
+
+/* Onglets de sections : lisibles au-dessus des champs. */
+body.popup #jazzy-tabs {
+    border-bottom: 1px solid var(--lb-line, #e8dfd3);
+    gap: .4rem;
+    margin: 0 0 1rem;
+}
+
+body.popup #jazzy-tabs .nav-link {
+    border: 1px solid transparent;
+    border-radius: 18px 18px 0 0;
+    color: var(--lb-ink-500, #7d7075);
+    font-size: .8rem;
+    font-weight: 750;
+    padding: .45rem 1rem;
+}
+
+body.popup #jazzy-tabs .nav-link.active {
+    background: var(--lb-wine, #641b2c);
+    border-color: var(--lb-wine, #641b2c);
+    color: #fff8e8;
+}
+
+body.popup #jazzy-tabs .nav-link:not(.active):hover {
+    background: var(--lb-wine-100, #f7eef1);
+    color: var(--lb-wine, #641b2c);
+}
+
+/* Chaque section (`.card` renfermant un `.p-5` jazzmin) devient une
+   grille : le formulaire tient en hauteur dans le cadre au lieu de
+   s'étirer sur une colonne interminable. */
+body.popup .fields-card .card .p-5 {
+    align-content: start;
+    display: grid;
+    gap: .85rem 1.35rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    /* Bootstrap impose `3rem !important` aux utilitaires de padding. */
+    padding: 1.1rem 1.3rem !important;
+}
+
+body.popup .fields-card .card .p-5 > .form-group:has(textarea),
+body.popup .fields-card .card .p-5 > .form-group:has(select[multiple]),
+body.popup .fields-card .card .p-5 > .form-group:has(.readonly) {
+    grid-column: 1 / -1;
+}
+
+body.popup .fields-card .form-group {
+    margin: 0;
+    min-width: 0;
+}
+
+/* Libellé au-dessus du champ, quelle que soit la section. */
+body.popup .fields-card .form-group > .row {
+    display: block;
+    margin: 0;
+}
+
+body.popup .fields-card .form-group > .row > label {
+    color: var(--lb-wine, #641b2c);
+    display: block;
+    float: none;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .05em;
+    margin: 0 0 .3rem;
+    padding: 0;
+    text-transform: uppercase;
+    width: auto;
+}
+
+body.popup .fields-card .form-group > .row > [class*="col-"] {
+    float: none;
+    padding: 0;
+    width: 100%;
+}
+
+/* Champs : grande aire de saisie, bordure et focus or. */
+body.popup .fields-card input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+body.popup .fields-card select,
+body.popup .fields-card textarea {
+    border: 1px solid var(--lb-line, #ebe3de);
+    border-radius: 10px;
+    box-shadow: none;
+    color: var(--lb-ink, #292425);
+    font-size: .9rem;
+    min-height: 42px;
+    padding: .5rem .75rem;
+    transition: border-color .16s ease, box-shadow .16s ease;
+    width: 100%;
+}
+
+body.popup .fields-card input:not([type="checkbox"]):not([type="radio"]):focus,
+body.popup .fields-card select:focus,
+body.popup .fields-card textarea:focus {
+    border-color: var(--lb-gold, #c99b3b);
+    box-shadow: 0 0 0 3px rgba(201, 155, 59, .2);
+    outline: none;
+}
+
+body.popup .fields-card .form-group .readonly {
+    background: var(--lb-canvas, #faf7f5);
+    border: 1px dashed var(--lb-line, #e5dbd2);
+    border-radius: 10px;
+    color: var(--lb-ink-500, #5f4e52);
+    display: block;
+    font-size: .88rem;
+    min-height: 40px;
+    padding: .55rem .8rem;
+}
+
+/* Aides, erreurs : lisibles, détachées du champ. */
+body.popup .fields-card .help-block {
+    color: var(--lb-ink-500, #7d7075);
+    font-size: .76rem;
+    margin-top: .3rem;
+}
+
+body.popup .fields-card ul.errorlist {
+    color: #a1263a;
+    font-size: .76rem;
+    font-weight: 700;
+    list-style: none;
+    margin: .3rem 0 0;
+    padding: 0;
+}
+
+body.popup .fields-card .form-group:has(ul.errorlist) input:not([type="hidden"]),
+body.popup .fields-card .form-group:has(ul.errorlist) select,
+body.popup .fields-card .form-group:has(ul.errorlist) textarea {
+    background: #fff7f6;
+    border-color: #a1263a;
+}
+
+/* ------------------------------------------------------------------
+   3. BARRE D'ACTION — les boutons de la fenêtre
+   Collée au bas du cadre, elle reste visible pendant le défilement et
+   porte deux gestes clairs : Enregistrer (plein, couleur maison) et
+   les actions secondaires (garde, suppression) en contours.
+   ------------------------------------------------------------------ */
+body.popup #jazzy-actions {
+    position: sticky;
+    bottom: .9rem;
+    z-index: 5;
+}
+
+body.popup #jazzy-actions > .card.action-card {
+    background: rgba(255, 255, 255, .96);
+    border: 1px solid var(--lb-line, #e8dfd3);
+    border-radius: 16px;
+    box-shadow: 0 10px 28px rgba(35, 17, 24, .09);
+    overflow: hidden;
+}
+
+body.popup #jazzy-actions .action-card::before { content: none; }
+body.popup #jazzy-actions .action-card-head { display: none; }
+
+body.popup #jazzy-actions .card-body {
+    padding: .7rem .9rem;
+}
+
+body.popup #jazzy-actions .d-flex.flex-wrap.gap-2 {
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: .55rem !important;
+    justify-content: flex-end;
+}
+
+body.popup #jazzy-actions .d-flex.flex-wrap.gap-2 .btn {
+    margin: 0 !important;
+    text-align: center;
+    white-space: nowrap;
+    width: auto;
+}
+
+/* Enregistrer : le seul bouton plein, il porte la couleur de la maison. */
+body.popup #jazzy-actions .submit-row [name="_save"] {
+    background: linear-gradient(115deg, #641b2c, #8b3046);
+    border: 1px solid #641b2c;
+    box-shadow: 0 6px 16px rgba(100, 27, 44, .24);
+    color: #fff;
+    font-size: .92rem;
+    font-weight: 800;
+    min-height: 48px;
+    min-width: 148px;
+    padding: .65rem 1.35rem;
+}
+
+body.popup #jazzy-actions .submit-row [name="_save"]:hover {
+    background: #4f1423;
+    box-shadow: 0 9px 22px rgba(100, 27, 44, .32);
+    transform: translateY(-1px);
+}
+
+/* Garde d'un objet en cours d'édition : ardoise discrète. */
+body.popup #jazzy-actions .submit-row [name="_continue"] {
+    min-height: 44px;
+    padding: .55rem 1.05rem;
+}
+
+/* Suppression : contour bordeaux, discret jusqu'au survol. */
+body.popup #jazzy-actions .submit-row .deletelink-box .btn,
+body.popup #jazzy-actions .submit-row a.btn-danger {
+    background: #fff;
+    border: 1px solid rgba(100, 27, 44, .35);
+    color: var(--lb-wine, #641b2c);
+    min-height: 44px;
+    padding: .55rem 1.05rem;
+}
+
+body.popup #jazzy-actions .submit-row a.btn-danger:hover {
+    background: var(--lb-wine, #641b2c);
+    color: #fff;
+}
+
+body.popup #jazzy-actions .btn:focus-visible {
+    box-shadow: 0 0 0 3px rgba(201, 155, 59, .45);
+    outline: none;
+}
+
+/* Écran étroit : les champs descendent en une colonne, la barre d'action
+   passe toute sa largeur aux boutons. */
+@media (max-width: 575.98px) {
+    .modal.modal-wide .related-iframe {
+        height: 86vh;
+    }
+
+    body.popup .app-content > .container-fluid,
+    body.popup .app-content > .container-fluid > .row {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    body.popup .fields-card > .card-body,
+    body.popup .fields-card .card .p-5 {
+        padding: .85rem .9rem !important;
+    }
+
+    body.popup #jazzy-actions .d-flex.flex-wrap.gap-2 {
+        gap: .45rem !important;
+        justify-content: stretch;
+    }
+
+    body.popup #jazzy-actions .d-flex.flex-wrap.gap-2 .btn {
+        flex: 1 1 auto;
+    }
+}

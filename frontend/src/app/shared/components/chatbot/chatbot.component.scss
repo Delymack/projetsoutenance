@@ -1,0 +1,327 @@
+/* Chatbot flottant 
+   ------------------------------------------------------------------
+   Le composant est `position: fixed` en bas à droite : il reste accessible
+   quelles que soient la page et la taille de l'écran (caisse comprise).
+   Le panneau passe au-dessus du contenu avec `z-index` élevé ; le défilement de
+   la zone de conversation est maîtrisé ici, pas par le navigateur. */
+
+:host {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 900;
+}
+
+.chatbot {
+  display: grid;
+  justify-items: end;
+  gap: var(--lb-gap-sm);
+}
+
+/* ------------------------------------------------------------------ Bulle */
+
+.chatbot__bulle-fab {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  color: var(--lb-primary-contrast);
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--lb-primary), var(--lb-bordeaux));
+  border: 2px solid var(--lb-accent);
+  border-radius: 50%;
+  box-shadow: var(--lb-shadow-3);
+  transition:
+    transform var(--lb-transition),
+    background var(--lb-transition);
+
+  mat-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 28px;
+  }
+
+  &:hover {
+    transform: scale(1.08);
+  }
+
+  &.is-ouvert {
+    background: var(--lb-surface);
+    color: var(--lb-primary);
+  }
+}
+
+/* Pastille « nouveau message » : purement décorative, l'état est déjà porté par
+   le libellé accessible du bouton. */
+.chatbot__pastille {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  background: var(--lb-accent);
+  border: 2px solid var(--lb-surface);
+  border-radius: 50%;
+  animation: lb-pulse 1.8s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------ Panneau */
+
+.chatbot__panneau {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  width: min(360px, calc(100vw - 36px));
+  height: min(520px, calc(100vh - 120px));
+  overflow: hidden;
+  background: var(--lb-surface);
+  border: 1px solid var(--lb-border);
+  border-radius: var(--lb-radius-lg);
+  box-shadow: var(--lb-shadow-3);
+}
+
+.chatbot__entete {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  gap: var(--lb-gap-sm);
+  padding: var(--lb-gap-sm) var(--lb-gap);
+  color: var(--lb-primary-contrast);
+  background: linear-gradient(135deg, var(--lb-primary), var(--lb-bordeaux));
+}
+
+.chatbot__avatar {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  font-size: 22px;
+  background: color-mix(in srgb, #fff 18%, transparent);
+  border-radius: 50%;
+}
+
+.chatbot__identite {
+  display: grid;
+
+  small {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    opacity: 0.9;
+  }
+}
+
+.chatbot__statut {
+  width: 8px;
+  height: 8px;
+  background: #7ee2a8;
+  border-radius: 50%;
+}
+
+/* ------------------------------------------------------------------ Conversation */
+
+.chatbot__zone {
+  display: grid;
+  align-content: start;
+  gap: var(--lb-gap-sm);
+  padding: var(--lb-gap);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.chatbot__message {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  animation: lb-fade-in 260ms ease-out;
+
+  &[data-role='user'] {
+    justify-items: end;
+  }
+}
+
+.chatbot__bulle {
+  max-width: 86%;
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  background: var(--lb-surface-2);
+  border: 1px solid var(--lb-border);
+  border-radius: 14px 14px 14px 4px;
+
+  [data-role='user'] & {
+    color: var(--lb-primary-contrast);
+    background: var(--lb-primary);
+    border-color: var(--lb-primary);
+    border-radius: 14px 14px 4px 14px;
+  }
+}
+
+.chatbot__heure {
+  font-size: 0.62rem;
+  color: var(--lb-text-muted);
+}
+
+/* Indicateur « le robot rédige » : trois points animés en CSS pur. */
+.chatbot__bulle--typing {
+  display: flex;
+  gap: 4px;
+  padding: 12px 14px;
+
+  span {
+    width: 6px;
+    height: 6px;
+    background: var(--lb-text-muted);
+    border-radius: 50%;
+    animation: lb-pulse 1.1s ease-in-out infinite;
+
+    &:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+  }
+}
+
+.chatbot__suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chatbot__suggestion {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  color: var(--lb-primary);
+  cursor: pointer;
+  background: transparent;
+  border: 1px dashed var(--lb-accent);
+  border-radius: 999px;
+  transition: background var(--lb-transition);
+
+  &:hover {
+    background: var(--lb-promo-bg);
+  }
+}
+
+/* ------------------------------------------------------------------ Vins liés */
+
+.chatbot__vins {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chatbot__vin {
+  display: grid;
+  grid-template-columns: 40px 1fr 32px;
+  align-items: center;
+  gap: var(--lb-gap-sm);
+  padding: 6px;
+  background: var(--lb-surface-2);
+  border: 1px solid var(--lb-border);
+  border-radius: var(--lb-radius-sm);
+
+  img {
+    object-fit: contain;
+    background: var(--lb-bg-alt);
+    border-radius: 4px;
+  }
+
+  div {
+    display: grid;
+    min-width: 0;
+  }
+
+  strong {
+    overflow: hidden;
+    font-size: 0.8rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  small {
+    font-size: 0.7rem;
+    color: var(--lb-text-muted);
+  }
+}
+
+/* ------------------------------------------------------------------ Saisie */
+
+.chatbot__saisie {
+  display: grid;
+  grid-template-columns: 1fr 44px;
+  gap: 4px;
+  align-items: center;
+  padding: var(--lb-gap-xs) var(--lb-gap-sm);
+  border-top: 1px solid var(--lb-border);
+}
+
+.chatbot__champ {
+  width: 100%;
+}
+
+.chatbot__envoyer {
+  color: var(--lb-primary);
+}
+
+.chatbot__conseiller-bouton {
+  margin: 0 auto var(--lb-gap-xs);
+  font-size: 0.78rem;
+}
+
+/* ------------------------------------------------------------------ Conseiller */
+
+.chatbot__conseiller {
+  display: grid;
+  gap: 4px;
+  padding: var(--lb-gap-sm);
+  overflow-y: auto;
+  background: var(--lb-surface-2);
+  border-top: 1px solid var(--lb-border);
+}
+
+.chatbot__conseiller-titre {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--lb-primary);
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.chatbot__conseiller-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--lb-gap-xs);
+}
+
+/* Le panneau de la caisse occupe déjà le bas de l'écran : on le remonte. */
+:host-context(.caisse) {
+  bottom: 96px;
+}
+
+@media (max-width: 480px) {
+  :host {
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .chatbot__panneau {
+    width: calc(100vw - 24px);
+    height: min(70vh, 460px);
+  }
+}

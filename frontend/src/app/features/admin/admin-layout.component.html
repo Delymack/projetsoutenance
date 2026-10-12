@@ -1,0 +1,187 @@
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside
+    class="admin-sidebar"
+    [class.collapsed]="sidebarCollapsed()"
+    [class.mobile-open]="mobileSidebarOpen()"
+    [attr.aria-label]="'ADMIN.sidebar' | translate"
+  >
+    <div class="admin-sidebar__header">
+      @if (!sidebarCollapsed()) {
+        <h1 class="admin-sidebar__title">
+          <mat-icon>local_drink</mat-icon>
+          <span>{{ 'ADMIN.titre' | translate }}</span>
+        </h1>
+      } @else {
+        <span class="admin-sidebar__title-collapsed" matTooltip="{{ 'ADMIN.titre' | translate }}" matTooltipPosition="right">
+          <mat-icon>local_drink</mat-icon>
+        </span>
+      }
+      <button
+        type="button"
+        class="admin-sidebar__toggle lb-btn-ripple"
+        (click)="toggleSidebar()"
+        [attr.aria-label]="sidebarCollapsed() ? ('ADMIN.etendre' | translate) : ('ADMIN.reduire' | translate)"
+        [matTooltip]="sidebarCollapsed() ? ('ADMIN.etendre' | translate) : ('ADMIN.reduire' | translate)"
+        matTooltipPosition="right"
+      >
+        <mat-icon>{{ sidebarCollapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+      </button>
+    </div>
+
+    <nav class="admin-sidebar__nav">
+      <ul class="admin-menu" role="menubar">
+        @for (item of menuItems; track item.label) {
+          <li class="admin-menu__item" role="none">
+            <a
+              *ngIf="item.route"
+              [routerLink]="item.route"
+              routerLinkActive="active"
+              class="admin-menu__link lb-btn-ripple"
+              role="menuitem"
+              (click)="closeMobileSidebar()"
+            >
+              <mat-icon class="admin-menu__icon">{{ item.icon }}</mat-icon>
+              @if (!sidebarCollapsed()) {
+                <span class="admin-menu__label">{{ item.label | translate }}</span>
+              }
+            </a>
+            @if (!item.route && item.children) {
+              <button
+                type="button"
+                class="admin-menu__link lb-btn-ripple"
+                role="menuitem"
+                [attr.aria-expanded]="false"
+              >
+                <mat-icon class="admin-menu__icon">{{ item.icon }}</mat-icon>
+                @if (!sidebarCollapsed()) {
+                  <span class="admin-menu__label">{{ item.label | translate }}</span>
+                  <mat-icon class="admin-menu__chevron">expand_more</mat-icon>
+                }
+              </button>
+              <ul class="admin-menu__sous-menu" role="menu">
+                @for (child of item.children; track child.label) {
+                  <li role="none">
+                    <a
+                      [routerLink]="child.route"
+                      routerLinkActive="active"
+                      class="admin-menu__sous-lien lb-btn-ripple"
+                      role="menuitem"
+                      (click)="closeMobileSidebar()"
+                    >
+                      @if (!sidebarCollapsed()) {
+                        <mat-icon class="admin-menu__sous-icon">{{ child.icon }}</mat-icon>
+                        <span>{{ child.label | translate }}</span>
+                      } @else {
+                        <span class="admin-menu__sous-label" [matTooltip]="child.label | translate" matTooltipPosition="right">
+                          <mat-icon>{{ child.icon }}</mat-icon>
+                        </span>
+                      }
+                    </a>
+                  </li>
+                }
+              </ul>
+            }
+          </li>
+        }
+      </ul>
+    </nav>
+
+    <div class="admin-sidebar__footer">
+      @if (!sidebarCollapsed()) {
+        <div class="admin-sidebar__user">
+          <app-avatar [nom]="utilisateur()?.nom ?? ''" [photo]="avatarService.photo()" [taille]="36" />
+          <div class="admin-sidebar__user-info">
+            <strong>{{ utilisateur()?.nom }}</strong>
+            <small>{{ 'AUTH.role.' + (authService.role() ?? 'client') | translate }}</small>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="admin-menu__link lb-btn-ripple admin-sidebar__deconnexion"
+          (click)="deconnexion()"
+        >
+          <mat-icon class="admin-menu__icon">logout</mat-icon>
+          <span>{{ 'AUTH.deconnexion' | translate }}</span>
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="admin-menu__link lb-btn-ripple admin-sidebar__deconnexion-collapsed"
+          (click)="deconnexion()"
+          [matTooltip]="'AUTH.deconnexion' | translate"
+          matTooltipPosition="right"
+        >
+          <mat-icon>logout</mat-icon>
+        </button>
+      }
+    </div>
+  </aside>
+
+  <!-- Mobile overlay -->
+  @if (mobileSidebarOpen()) {
+    <div class="admin-overlay" (click)="closeMobileSidebar()" aria-hidden="true"></div>
+  }
+
+  <!-- Main content -->
+  <main class="admin-main" [class.sidebar-collapsed]="sidebarCollapsed()">
+    <!-- Top header -->
+    <header class="admin-header">
+      <button
+        type="button"
+        class="admin-header__menu-btn lb-btn-ripple"
+        (click)="toggleMobileSidebar()"
+        [attr.aria-label]="'ADMIN.menu' | translate"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <nav class="admin-breadcrumb" aria-label="Fil d'Ariane">
+        <ol class="admin-breadcrumb__list">
+          @for (crumb of breadcrumbs(); track crumb.route; let last = $last) {
+            <li class="admin-breadcrumb__item">
+              @if (!last && crumb.route) {
+                <a [routerLink]="crumb.route" class="admin-breadcrumb__link">{{ crumb.label | translate }}</a>
+              } @else {
+                <span class="admin-breadcrumb__current">{{ crumb.label | translate }}</span>
+              }
+              @if (!last) {
+                <mat-icon class="admin-breadcrumb__separator">chevron_right</mat-icon>
+              }
+            </li>
+          }
+        </ol>
+      </nav>
+
+      <div class="admin-header__actions">
+        <button
+          type="button"
+          class="admin-header__btn lb-btn-ripple"
+          matTooltip="{{ 'ADMIN.notifications' | translate }}"
+          matTooltipPosition="left"
+        >
+          <mat-icon>notifications</mat-icon>
+          <span class="admin-header__badge">3</span>
+        </button>
+        <div class="admin-header__user" *ngIf="utilisateur()">
+          <app-avatar [nom]="utilisateur()!.nom" [photo]="avatarService.photo()" [taille]="36" />
+          <span class="admin-header__user-nom">{{ utilisateur()?.nom }}</span>
+          <button
+            type="button"
+            class="admin-header__btn lb-btn-ripple"
+            matTooltip="{{ 'AUTH.deconnexion' | translate }}"
+            matTooltipPosition="left"
+            (click)="deconnexion()"
+          >
+            <mat-icon>logout</mat-icon>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page content -->
+    <div class="admin-content">
+      <router-outlet />
+    </div>
+  </main>
+</div>

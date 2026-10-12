@@ -1,0 +1,60 @@
+{% load i18n static jazzmin %}
+{# Copie du gabarit de Jazzmin, corrigée sur deux points : #}
+{#   — `scope="col"` sur chaque en-tête, pour que la colonne soit annoncée avec #}
+{#     sa valeur par un lecteur d'écran (WCAG 1.3.1) ; #}
+{#   — `column-<champ>`, que Jazzmin perd en remplaçant l'attribut de classe de #}
+{#     Django : sans lui, l'en-tête d'un montant ne peut pas s'aligner avec sa #}
+{#     colonne. Le reste du gabarit est inchangé. #}
+
+{% if result_hidden_fields %}
+<div class="hiddenfields">
+    {% for item in result_hidden_fields %}{{ item }}{% endfor %}
+</div>
+{% endif %}
+
+{% if results %}
+    <div class="card">
+        <div class="card-body table-responsive">
+            <div class="d-flex justify-content-end mb-2">
+                <button type="button" class="lb-btn" onclick="window.print(); return false;" aria-label="Imprimer la liste">
+                    <i class="fas fa-print" aria-hidden="true"></i>
+                    <span>Imprimer</span>
+                </button>
+            </div>
+            <table id="result_list" class="table table-striped">
+                <thead>
+                    <tr>
+                        {% for header in result_headers %}
+                        <th scope="col"{{ header.class_attrib }}{% if header.sorted %} aria-sort="{% if header.ascending %}ascending{% else %}descending{% endif %}"{% endif %} tabindex="0" rowspan="1" colspan="1">
+                            <div class="text">
+                                {% if header.sortable %}
+                                    <a href="{{ header.url_primary }}">{{ header.text|capfirst }}</a>
+                                {% else %}
+                                    <span>{{ header.text|capfirst }}</span>
+                                {% endif %}
+                                {% if header.sorted %}
+                                    <a href="{{ header.url_remove }}">
+                                        <div style="margin-top: .2em;" class="fa fa-times float-end"> </div>
+                                    </a>
+                                    {% if header.ascending %}
+                                        <i style="margin-top: .2em;" class="fa fa-sort-alpha-down"> </i>
+                                    {% else %}
+                                        <i style="margin-top: .2em;" class="fa fa-sort-alpha-up"> </i>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr role="row" class="{% cycle 'even' 'odd' %}">
+                        {% for item in result %}{{ item }}{% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}

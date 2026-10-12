@@ -1,0 +1,717 @@
+{% extends "admin/base_site.html" %}
+{% load static parametres_tags %}
+
+{% block content_title %}
+{% endblock %}
+
+{% block content %}
+<style>
+  .cfg-shell { max-width: 1060px; }
+  .cfg-head {
+    display: flex; flex-wrap: wrap; align-items: center; gap: .8rem;
+    padding: 1rem 1.1rem; margin: 0 0 1rem;
+    background: linear-gradient(100deg, #fffdf8, #f6eedd);
+    border: 1px solid #e5dcc8; border-radius: 14px;
+    box-shadow: 0 10px 26px -16px rgba(100, 27, 44, .35);
+  }
+  .cfg-head h2 { margin: 0; font-size: 1.05rem; font-weight: 800; color: #4a1220; flex: 1; min-width: 220px; }
+  .cfg-head .cfg-tools { display: flex; gap: .4rem; flex-wrap: wrap; }
+  .cfg-sub { display: block; color: #8a7258; font-size: .68rem; font-weight: 500; }
+  .cfg-pill {
+    display: inline-flex; align-items: center; gap: .35rem;
+    font-size: .66rem; font-weight: 700; color: #7a4a20;
+    background: #fff; border: 1px solid #e8d9b8; border-radius: 999px;
+    padding: .28rem .6rem;
+  }
+  .cfg-pill i { color: #c99b3b; }
+  .cfg-tabs {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; flex-wrap: wrap; gap: .3rem;
+    background: #fbf8f2f2; backdrop-filter: blur(8px);
+    padding: .5rem .4rem; margin-bottom: 1rem;
+    border: 1px solid #efe6d3; border-radius: 12px;
+  }
+  .cfg-tab {
+    display: inline-flex; align-items: center; gap: .4rem;
+    border: 1px solid transparent; background: transparent;
+    color: #6d553a; font-size: .74rem; font-weight: 600;
+    padding: .42rem .7rem; border-radius: 9px; cursor: pointer;
+    transition: all .18s ease;
+  }
+  .cfg-tab i { color: #b8862f; }
+  .cfg-tab:hover { background: #fff; color: #2b1b20; border-color: #eadfc6; }
+  .cfg-tab.active { background: linear-gradient(100deg, #255540, #2f6b4f); color: #ffe7cf; box-shadow: 0 6px 16px -8px rgba(44,74,143,.55); }
+  .cfg-tab.active i { color: #f4d277; }
+  .cfg-tab-count {
+    display: none; min-width: 1.05rem; height: 1.05rem; align-items: center; justify-content: center;
+    border-radius: 999px; background: #c99b3b; color: #2c1200; font-size: .58rem; font-weight: 800;
+    padding: 0 .3rem;
+  }
+  .cfg-tab-count[data-count="utilisateurs"], .cfg-tab-count[data-count="sauvegarde"] { display: inline-flex; }
+  .cfg-tab.dirty .cfg-tab-count { display: inline-flex; }
+  .cfg-panel { animation: cfg-fade .25s ease; }
+  @keyframes cfg-fade { from { opacity: 0; transform: translateY(4px); } }
+  .cfg-aide { color: #8a7258; font-size: .78rem; margin: 0 0 .9rem; }
+  .cfg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: .8rem; }
+  .cfg-field {
+    background: #fffdf9; border: 1px solid #eae0cb; border-radius: 12px;
+    padding: .8rem .9rem; transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .cfg-field:focus-within { border-color: #c99b3b; box-shadow: 0 0 0 3px rgba(201,155,59,.12); }
+  .cfg-field.dirty { border-color: #641b2c; background: #fff6f2; }
+  .cfg-label { display: block; font-size: .74rem; font-weight: 700; color: #4a1220; margin-bottom: .3rem; }
+  .cfg-input { font-size: .84rem; }
+  .cfg-hint { display: block; color: #9a8465; font-size: .64rem; margin-top: .35rem; line-height: 1.35; }
+  .cfg-switch { display: flex; align-items: center; gap: .6rem; cursor: pointer; }
+  .cfg-switch input { position: absolute; opacity: 0; }
+  .cfg-switcher {
+    position: relative; width: 38px; height: 21px; flex-shrink: 0;
+    background: #ddd2bd; border-radius: 999px; transition: background .2s ease;
+  }
+  .cfg-switcher::after {
+    content: ''; position: absolute; top: 2px; left: 2px; width: 17px; height: 17px;
+    background: #fff; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,.25);
+    transition: transform .2s ease;
+  }
+  .cfg-switch input:checked + .cfg-switcher { background: #8b3046; }
+  .cfg-switch input:checked + .cfg-switcher::after { transform: translateX(17px); }
+  .cfg-switch input:focus-visible + .cfg-switcher { box-shadow: 0 0 0 3px rgba(139,48,70,.3); }
+  .cfg-name { font-size: .82rem; font-weight: 600; color: #5a2a38; }
+  /* ---- Listes à cases (modes de paiement) ---- */
+  .cfg-multi { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .cfg-chip {
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .3rem .55rem; border: 1px solid #e5dcc8; border-radius: 999px;
+    background: #fff; font-size: .7rem; font-weight: 600; color: #6d553a; cursor: pointer;
+  }
+  .cfg-chip input { margin: 0; }
+  .cfg-chip:has(input:checked) { background: #255540; border-color: #255540; color: #ffe7cf; }
+  /* ---- Comptes ---- */
+  .cfg-card { background: #fffdf9; border: 1px solid #eae0cb; border-radius: 14px; padding: .9rem 1rem; margin-bottom: 1rem; }
+  .cfg-card > h3 { margin: 0 0 .2rem; font-size: .88rem; font-weight: 800; color: #4a1220; }
+  .cfg-card > p { margin: 0 0 .8rem; color: #8a7258; font-size: .72rem; }
+  .cfg-table { width: 100%; border-collapse: collapse; font-size: .76rem; }
+  .cfg-table th {
+    text-align: left; font-size: .62rem; letter-spacing: .04em; text-transform: uppercase;
+    color: #9a8465; font-weight: 700; padding: .35rem .5rem; border-bottom: 1px solid #eee3cd; white-space: nowrap;
+  }
+  .cfg-table td { padding: .5rem; border-bottom: 1px solid #f4ecdb; vertical-align: middle; }
+  .cfg-table tbody tr:hover { background: #fdf7ec; }
+  .cfg-usr { display: flex; align-items: center; gap: .55rem; }
+  .cfg-ava {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #8b3046, #4a1220); color: #f4d277;
+    font-size: .66rem; font-weight: 800; overflow: hidden;
+  }
+  .cfg-ava img { width: 100%; height: 100%; object-fit: cover; }
+  .cfg-usr-nom { font-weight: 700; color: #3d101c; line-height: 1.2; }
+  .cfg-usr-sub { color: #9a8465; font-size: .64rem; }
+  .cfg-badge {
+    display: inline-block; padding: .16rem .5rem; border-radius: 999px;
+    font-size: .6rem; font-weight: 800; letter-spacing: .02em;
+  }
+  .cfg-badge.admin { background: #641b2c; color: #ffe7cf; }
+  .cfg-badge.gestionnaire { background: #255540; color: #e2f3e8; }
+  .cfg-badge.vendeur { background: #f3ecdc; color: #7a4a20; }
+  .cfg-badge.on { background: #e5f4ea; color: #166b3a; }
+  .cfg-badge.off { background: #f6e3e6; color: #8b2033; }
+  .cfg-badge.2fa { background: #f3ecdc; color: #7a4a20; }
+  .cfg-acts { display: flex; gap: .25rem; justify-content: flex-end; }
+  .cfg-acts .btn { padding: .2rem .45rem; font-size: .68rem; }
+  .cfg-matrix td.oui { color: #166b3a; font-weight: 800; }
+  .cfg-matrix td.non { color: #b9a98f; }
+  .cfg-note {
+    display: flex; gap: .5rem; align-items: flex-start;
+    background: #fdf6e6; border: 1px solid #ecd9a6; border-radius: 10px;
+    padding: .6rem .75rem; font-size: .7rem; color: #6d553a; margin-top: .8rem;
+  }
+  .cfg-note i { color: #c99b3b; margin-top: .12rem; }
+  /* ---- Sauvegarde ---- */
+  .cfg-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .6rem; margin-bottom: .9rem; }
+  .cfg-kpi { background: #fffdf9; border: 1px solid #eae0cb; border-radius: 12px; padding: .6rem .75rem; }
+  .cfg-kpi b { display: block; font-size: 1.05rem; color: #4a1220; }
+  .cfg-kpi span { font-size: .62rem; color: #9a8465; text-transform: uppercase; letter-spacing: .04em; }
+  .cfg-empty { text-align: center; padding: 1.6rem 1rem; color: #9a8465; font-size: .76rem; }
+  html[data-bs-theme="dark"] .cfg-chip { background: #2b1b20; border-color: #5a4a4e; color: #c6ded0; }
+  html[data-bs-theme="dark"] .cfg-card, html[data-bs-theme="dark"] .cfg-kpi { background: #2b1b20; border-color: #5a4a4e; }
+  html[data-bs-theme="dark"] .cfg-card > h3 { color: #e9f2ed; }
+  html[data-bs-theme="dark"] .cfg-table td { border-color: #3d2b31; }
+  html[data-bs-theme="dark"] .cfg-table tbody tr:hover { background: #2b1b20; }
+  html[data-bs-theme="dark"] .cfg-usr-nom { color: #f4ece7; }
+  html[data-bs-theme="dark"] .cfg-note { background: #2b1b20; border-color: #5a4a4e; color: #c6ded0; }
+  .cfg-journal { display: grid; gap: .5rem; }
+  .cfg-log {
+    display: flex; align-items: center; gap: .7rem;
+    background: #fffdf9; border: 1px solid #eae0cb; border-radius: 10px; padding: .55rem .7rem;
+  }
+  .cfg-log .cl-ico { width: 30px; height: 30px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: .6rem; background: #f3ecdc; color: #8b3046; flex-shrink: 0; }
+  .cfg-log .cl-main { flex: 1; min-width: 0; }
+  .cfg-log .cl-title { font-size: .74rem; font-weight: 700; color: #4a1220; }
+  .cfg-log .cl-sub { font-size: .62rem; color: #9a8465; }
+  .cfg-log .cl-before, .cfg-log .cl-after { font-size: .6rem; padding: .12rem .4rem; border-radius: 6px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cfg-log .cl-before { color:#8a7258; background:#f4efe3; text-decoration: line-through; }
+  .cfg-log .cl-after { color:#166b3a; background:#e5f4ea; }
+  .cfg-log .cl-who { font-size: .6rem; color: #b8862f; white-space: nowrap; }
+  .cfg-savebar {
+    position: sticky; bottom: 14px; z-index: 30;
+    display: flex; align-items: center; gap: .8rem; justify-content: flex-end;
+    margin-top: 1.2rem; padding: .65rem .9rem;
+    background: linear-gradient(100deg, #2a0f1d, #150a11);
+    border: 1px solid rgba(201,155,59,.4); border-radius: 14px;
+    box-shadow: 0 14px 34px -14px rgba(0,0,0,.6);
+  }
+  .cfg-savebar #cfg-dirty-msg { color: #f4d277; font-size: .72rem; font-weight: 700; }
+  .cfg-savebar .btn { padding: .5rem 1.1rem; font-weight: 800; }
+  html[data-bs-theme="dark"] .cfg-head { background: linear-gradient(100deg, #2b1b20, #2b1b20); border-color: #5a4a4e; }
+  html[data-bs-theme="dark"] .cfg-head h2 { color: #e9f2ed; }
+  html[data-bs-theme="dark"] .cfg-tabs { background: #111a2ee6; border-color: #5a4a4e; }
+  html[data-bs-theme="dark"] .cfg-tab { color: #c6ded0; }
+  html[data-bs-theme="dark"] .cfg-tab:hover { background: #2b1b20; border-color: #5a4a4e; color: #e9f2ed; }
+  html[data-bs-theme="dark"] .cfg-field { background: #2b1b20; border-color: #5a4a4e; }
+  html[data-bs-theme="dark"] .cfg-field.dirty { border-color: #ffd270; background: #2b1b20; }
+  html[data-bs-theme="dark"] .cfg-label { color: #e9f2ed; }
+  html[data-bs-theme="dark"] .cfg-log { background: #2b1b20; border-color: #5a4a4e; }
+  html[data-bs-theme="dark"] .cfg-log .cl-title { color: #f4ece7; }
+  html[data-bs-theme="dark"] .cfg-log .cl-after { background: #143120; }
+  html[data-bs-theme="dark"] .cfg-log .cl-before { background: #2a1f12; }
+
+  .cfg-shell { --cfg-wine: #641b2c; --cfg-gold: #c99b3b; --cfg-sage: #2f6b4f; --cfg-ink: #2b1b20; --cfg-muted: #817276; --cfg-line: #ebe3de; max-width: 1480px; }
+  .cfg-head {
+    align-items: stretch; background: linear-gradient(118deg, #32131f, #641b2c 65%, #7b293d);
+    border: 0; border-radius: 18px; box-shadow: 0 14px 34px rgba(52, 16, 28, .2);
+    color: #fff; display: grid; gap: 1.1rem; grid-template-columns: minmax(250px, 1fr) auto;
+    margin-bottom: 1rem; overflow: hidden; padding: 1.35rem 1.5rem; position: relative;
+  }
+  .cfg-head::after { background: radial-gradient(circle, rgba(255,255,255,.12) 1px, transparent 1.5px); background-size: 17px 17px; content: ""; inset: 0 0 0 58%; opacity: .24; pointer-events: none; position: absolute; }
+  .cfg-head-main, .cfg-overview { position: relative; z-index: 1; }
+  .cfg-eyebrow { color: #e6bd6a; font-size: .65rem; font-weight: 800; letter-spacing: .14em; margin: 0 0 .35rem; text-transform: uppercase; }
+  .cfg-head h1 { color: #fff; font-size: clamp(1.35rem, 2vw, 1.8rem); font-weight: 850; letter-spacing: -.025em; margin: 0; }
+  .cfg-head .cfg-sub { color: rgba(255,255,255,.76); font-size: .78rem; line-height: 1.5; margin-top: .45rem; max-width: 600px; }
+  .cfg-overview { align-content: center; display: grid; gap: .5rem; grid-template-columns: repeat(3, minmax(105px, 1fr)); }
+  .cfg-overview-item { align-items: center; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 12px; display: grid; gap: .18rem .55rem; grid-template-columns: 28px 1fr; min-width: 112px; padding: .6rem .7rem; }
+  .cfg-overview-item > i { color: #e6bd6a; grid-row: span 2; text-align: center; }
+  .cfg-overview-item span { color: rgba(255,255,255,.72); font-size: .61rem; font-weight: 650; }
+  .cfg-overview-item strong { color: #fff; font-size: 1rem; line-height: 1.1; }
+  .cfg-toolbar { align-items: center; background: #fff; border: 1px solid var(--cfg-line); border-radius: 14px; box-shadow: 0 5px 18px rgba(43,27,32,.045); display: flex; flex-wrap: wrap; gap: .7rem; justify-content: space-between; margin-bottom: 1rem; padding: .65rem .75rem; }
+  .cfg-search-box { align-items: center; background: #faf7f5; border: 1px solid #e8dfdb; border-radius: 9px; color: #8a7c7d; display: flex; flex: 1 1 235px; gap: .55rem; max-width: 370px; min-height: 40px; padding: 0 .7rem; }
+  .cfg-search-box:focus-within { border-color: var(--cfg-gold); box-shadow: 0 0 0 3px rgba(201,155,59,.12); }
+  .cfg-search-box input { background: transparent; border: 0; box-shadow: none; color: var(--cfg-ink); min-width: 0; outline: 0; padding: .4rem 0; width: 100%; }
+  .cfg-toolbar-actions { align-items: center; display: flex; flex: 2 1 620px; flex-wrap: wrap; gap: .55rem; justify-content: flex-end; }
+  .cfg-tool-group { align-items: center; background: #faf7f5; border: 1px solid #eee6e2; border-radius: 9px; display: flex; flex-wrap: wrap; gap: .35rem; padding: .28rem .4rem; }
+  .cfg-tool-title { color: var(--cfg-muted); font-size: .64rem; font-weight: 800; padding: 0 .3rem; text-transform: uppercase; }
+  .cfg-tool-group .btn { align-items: center; display: inline-flex; font-size: .7rem; gap: .25rem; min-height: 32px; }
+  .cfg-import-form { align-items: center; display: flex; flex-wrap: wrap; gap: .35rem; max-width: 340px; }
+  .cfg-import-form input[type="file"] { background: #fff; border: 1px solid #e8dfdb; border-radius: 7px; color: var(--cfg-muted); font-size: .68rem; max-width: 205px; padding: .24rem; }
+  .cfg-workspace { align-items: start; display: grid; gap: 1rem; grid-template-columns: 235px minmax(0, 1fr); }
+  .cfg-tabs { align-items: stretch; background: #fff; border: 1px solid var(--cfg-line); border-radius: 14px; box-shadow: 0 6px 20px rgba(43,27,32,.05); display: flex; flex-direction: column; flex-wrap: nowrap; gap: .22rem; margin: 0; padding: .55rem; position: sticky; top: 1rem; }
+  .cfg-tabs::before { color: #9a8465; content: "CENTRE DE CONFIGURATION"; font-size: .59rem; font-weight: 800; letter-spacing: .09em; padding: .4rem .6rem .55rem; }
+  .cfg-tab { border: 1px solid transparent; border-radius: 9px; color: #5a4a4e; font-size: .76rem; justify-content: flex-start; min-height: 41px; padding: .55rem .65rem; text-align: left; width: 100%; }
+  .cfg-tab > i { align-items: center; background: #f7f1ed; border-radius: 7px; display: inline-flex; height: 27px; justify-content: center; min-width: 27px; }
+  .cfg-tab > span:nth-of-type(1) { flex: 1; }
+  .cfg-tab:hover { background: #faf7f5; border-color: #eee6e2; }
+  .cfg-tab.active { background: linear-gradient(105deg, #641b2c, #7b293d); border-color: #641b2c; box-shadow: 0 5px 12px rgba(100,27,44,.17); color: #fff; }
+  .cfg-tab.active > i { background: rgba(255,255,255,.12); color: #f4d277; }
+  .cfg-tab.active .cfg-tab-count { background: #e6bd6a; color: #32131f; }
+  .cfg-tab:focus-visible { outline: 3px solid rgba(201,155,59,.55); outline-offset: 2px; }
+  .cfg-workspace-content { display: grid; gap: .85rem; min-width: 0; }
+  .cfg-workspace-content > #cfg-form { display: grid; gap: .85rem; grid-column: 1 / -1; min-width: 0; }
+  .cfg-workspace-content > #cfg-form > .cfg-panels { display: contents; }
+  .cfg-panel[hidden], .cfg-savebar[hidden] { display: none !important; }
+  .cfg-panel { min-width: 0; }
+  .cfg-panel > .cfg-aide { background: #f7f1ed; border: 1px solid #eee4de; border-left: 3px solid var(--cfg-gold); border-radius: 10px; color: #67585d; line-height: 1.55; margin: 0 0 .75rem; padding: .75rem .9rem; }
+  .cfg-panel > .cfg-aide i { color: var(--cfg-wine); }
+  .cfg-panel-heading { align-items: center; background: #fff; border: 1px solid var(--cfg-line); border-radius: 13px; box-shadow: 0 4px 14px rgba(43,27,32,.035); display: flex; gap: .7rem; justify-content: space-between; margin: 0 0 .75rem; padding: .8rem 1rem; }
+  .cfg-panel-heading h2 { color: #3d101c; font-size: .98rem; font-weight: 850; margin: 0; }
+  .cfg-panel-heading p { color: var(--cfg-muted); font-size: .71rem; margin: .17rem 0 0; }
+  .cfg-panel-heading > span { background: #fbf3e2; border: 1px solid #ecd9a8; border-radius: 999px; color: #7a4a20; font-size: .67rem; font-weight: 800; padding: .28rem .6rem; white-space: nowrap; }
+  .cfg-grid { gap: .7rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); }
+  .cfg-field { box-shadow: 0 3px 10px rgba(43,27,32,.025); min-width: 0; padding: .85rem .9rem; }
+  .cfg-field:hover { border-color: #d9c7bd; }
+  .cfg-field .form-control { border-color: #e4d9d3; border-radius: 8px; min-height: 39px; }
+  .cfg-field textarea.form-control { min-height: 70px; }
+  .cfg-card { box-shadow: 0 5px 17px rgba(43,27,32,.04); margin-bottom: 0; padding: 1rem 1.05rem; }
+  .cfg-card > h3 { align-items: center; display: flex; gap: .45rem; }
+  .cfg-card > h3 i { color: var(--cfg-wine); }
+  .cfg-savebar { bottom: 12px; margin-top: .35rem; }
+  .cfg-savebar #cfg-dirty-msg { margin-right: auto; }
+  .cfg-table th { background: #faf7f5; position: sticky; top: 0; }
+  html[data-bs-theme="dark"] .cfg-toolbar, html[data-bs-theme="dark"] .cfg-tabs, html[data-bs-theme="dark"] .cfg-panel-heading { background: #1a1016; border-color: #5a4a4e; }
+  html[data-bs-theme="dark"] .cfg-search-box, html[data-bs-theme="dark"] .cfg-tool-group { background: #20111a; border-color: #5a4a4e; }
+  html[data-bs-theme="dark"] .cfg-search-box input, html[data-bs-theme="dark"] .cfg-panel-heading h2 { color: #f4e7ea; }
+  html[data-bs-theme="dark"] .cfg-tab { color: #cdb8bd; }
+  html[data-bs-theme="dark"] .cfg-tab > i { background: #2b1b20; }
+  html[data-bs-theme="dark"] .cfg-tab.active { color: #fff; }
+  html[data-bs-theme="dark"] .cfg-panel > .cfg-aide { background: #20111a; border-color: #5a4a4e; border-left-color: #c99b3b; color: #cdb8bd; }
+  @media (max-width: 1050px) {
+    .cfg-head { grid-template-columns: 1fr; }
+    .cfg-overview { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .cfg-workspace { grid-template-columns: 205px minmax(0, 1fr); }
+  }
+  @media (max-width: 760px) {
+    .cfg-workspace { grid-template-columns: 1fr; }
+    .cfg-tabs { flex-direction: row; overflow-x: auto; position: sticky; top: .35rem; z-index: 25; }
+    .cfg-tabs::before { display: none; }
+    .cfg-tab { flex: 0 0 auto; justify-content: center; width: auto; }
+    .cfg-tab > span:nth-of-type(1) { white-space: nowrap; }
+    .cfg-toolbar-actions { justify-content: flex-start; }
+  }
+  @media (max-width: 520px) {
+    .cfg-head { padding: 1rem; }
+    .cfg-overview { gap: .35rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .cfg-overview-item { gap: .1rem; grid-template-columns: 1fr; justify-items: start; min-width: 0; padding: .5rem; }
+    .cfg-overview-item > i { grid-row: auto; }
+    .cfg-overview-item span { font-size: .55rem; }
+    .cfg-overview-item strong { font-size: .9rem; }
+    .cfg-toolbar { align-items: stretch; }
+    .cfg-search-box { max-width: none; }
+    .cfg-toolbar-actions { align-items: stretch; flex-direction: column; }
+    .cfg-tool-group { justify-content: flex-start; }
+    .cfg-import-form { width: 100%; }
+    .cfg-import-form input[type="file"] { flex: 1; min-width: 0; }
+    .cfg-savebar { align-items: stretch; flex-direction: column; }
+    .cfg-savebar .btn { width: 100%; }
+  }
+  .cfg-head {
+    background: var(--lb-surface); border: 1px solid var(--lb-line); border-radius: var(--lb-radius);
+    box-shadow: none; color: var(--lb-ink); grid-template-columns: 1fr; padding: 1rem 1.1rem;
+  }
+  .cfg-head::after, .cfg-overview { display: none; }
+  .cfg-head h1 { color: var(--lb-ink); font-size: 1.25rem; font-weight: 750; letter-spacing: 0; }
+  .cfg-head .cfg-sub { color: var(--lb-ink-500); font-size: .82rem; margin-top: .25rem; }
+  .cfg-eyebrow { color: var(--lb-wine); letter-spacing: 0; }
+  .cfg-card { border-radius: var(--lb-radius-sm); box-shadow: none; }
+  .cfg-table th { letter-spacing: 0; }
+  .cfg-user-toolbar { align-items: center; display: flex; flex-wrap: wrap; gap: .5rem; }
+  .cfg-user-toolbar input { flex: 1 1 210px; max-width: 320px; }
+  html[data-bs-theme="dark"] .cfg-head { background: var(--lb-surface); border-color: var(--lb-line); }
+  html[data-bs-theme="dark"] .cfg-head h1 { color: var(--lb-ink); }
+  @media (max-width: 520px) {
+    .cfg-user-toolbar { align-items: stretch; flex-direction: column; }
+    .cfg-user-toolbar input { max-width: none; }
+  }
+  .cfg-head { border-left: 3px solid var(--lb-wine); margin-bottom: .6rem; padding: .65rem .9rem; }
+  .cfg-eyebrow { display: none; }
+  .cfg-head h1 { font-size: 1.2rem; }
+  .cfg-head .cfg-sub { margin-top: .15rem; }
+  .cfg-tabs { box-shadow: none; gap: .1rem; padding: .4rem; top: .5rem; }
+  .cfg-tabs::before { content: "SECTIONS"; }
+  .cfg-tab { font-size: .72rem; min-height: 37px; padding: .4rem .55rem; }
+  .cfg-tab > i { height: 24px; min-width: 24px; }
+  .cfg-panel-heading { background: transparent; border: 0; border-bottom: 1px solid var(--lb-line); border-radius: 0; box-shadow: none; margin-bottom: .6rem; padding: .25rem 0 .6rem; }
+  .cfg-panel-heading h2 { font-size: .92rem; }
+  .cfg-panel-heading > span { display: none; }
+  .cfg-panel > .cfg-aide { margin-bottom: .6rem; padding: .55rem .7rem; }
+  .cfg-savebar { background: var(--lb-surface); border: 1px solid var(--lb-line); border-radius: var(--lb-radius-sm); box-shadow: 0 5px 18px rgba(43,27,32,.12); }
+  .cfg-savebar #cfg-dirty-msg { color: var(--lb-wine); }
+  .cfg-savebar .btn:disabled { cursor: not-allowed; opacity: .55; }
+  html[data-bs-theme="dark"] .cfg-savebar { background: var(--lb-surface); border-color: var(--lb-line); }
+  html[data-bs-theme="dark"] .cfg-savebar #cfg-dirty-msg { color: var(--lb-gold-200); }
+  @media (prefers-reduced-motion: reduce) {
+    .cfg-panel, .cfg-tab, .cfg-field { animation: none; transition: none; }
+  }
+</style>
+
+<div class="cfg-shell">
+  <header class="cfg-head">
+    <div class="cfg-head-main">
+      <p class="cfg-eyebrow">CONFIGURATION</p>
+      <h1>Paramètres</h1>
+      <p class="cfg-sub">Boutique · Comptes · Sauvegardes</p>
+    </div>
+  </header>
+
+  <div class="cfg-toolbar">
+    <label class="cfg-search-box" for="cfg-search">
+      <i class="fas fa-search" aria-hidden="true"></i>
+      <input type="search" id="cfg-search" placeholder="Rechercher un réglage…" autocomplete="off">
+    </label>
+  </div>
+
+  {% comment %} La barre d'onglets vit *hors* du formulaire : les onglets Utilisateurs
+     et Sauvegarde contiennent leurs propres formulaires, et un formulaire
+     dans un formulaire est du HTML invalide. {% endcomment %}
+  <div class="cfg-workspace">
+  <div class="cfg-tabs" id="cfg-tabs" role="tablist" aria-label="Sections de la console">
+    <button type="button" class="cfg-tab" id="tab-utilisateurs" data-tab="utilisateurs" role="tab" aria-controls="panel-utilisateurs" aria-selected="false" tabindex="-1">
+      <i class="fas fa-users-gear"></i><span>Utilisateurs</span>
+      <span class="cfg-tab-count" data-count="utilisateurs">{{ utilisateurs|length }}</span>
+    </button>
+    {% for section in sections %}
+      <button type="button" class="cfg-tab" id="tab-{{ section.code }}" data-tab="{{ section.code }}" data-section="1" role="tab" aria-controls="panel-{{ section.code }}" aria-selected="false" tabindex="-1">
+        <i class="{{ section.icone }}"></i><span>{{ section.libelle }}</span>
+        <span class="cfg-tab-count" data-count="{{ section.code }}"></span>
+      </button>
+    {% endfor %}
+    <button type="button" class="cfg-tab" id="tab-sauvegarde" data-tab="sauvegarde" role="tab" aria-controls="panel-sauvegarde" aria-selected="false" tabindex="-1">
+      <i class="fas fa-database"></i><span>Sauvegarde</span>
+      <span class="cfg-tab-count" data-count="sauvegarde">{{ sauvegardes|length }}</span>
+    </button>
+  </div>
+
+  <div class="cfg-workspace-content">
+  {# ============================ UTILISATEURS ============================ #}
+  <section class="cfg-panel" id="panel-utilisateurs" role="tabpanel" tabindex="0" aria-labelledby="tab-utilisateurs" hidden>
+    <div class="cfg-card">
+      <h3><i class="fas fa-user-plus mr-1"></i> Comptes et accès</h3>
+      <p>Créer un compte, modifier son rôle ou réinitialiser son mot de passe.</p>
+      <div class="cfg-user-toolbar">
+        {% if url_ajout_utilisateur %}
+        <a class="btn btn-sm btn-warning" href="{{ url_ajout_utilisateur }}"><i class="fas fa-user-plus mr-1"></i>Nouvel utilisateur</a>
+        {% endif %}
+        <input type="search" id="us-search" class="form-control form-control-sm" placeholder="Rechercher un compte…" autocomplete="off">
+        <span class="cfg-pill"><i class="fas fa-shield-halved"></i> {{ utilisateurs|length }} compte(s)</span>
+      </div>
+    </div>
+
+    <div class="cfg-card">
+      <h3><i class="fas fa-list mr-1"></i> Comptes</h3>
+      <p class="cfg-search-empty" style="display:none">Aucun compte ne correspond à cette recherche.</p>
+      <div style="overflow-x:auto">
+      <table class="cfg-table" id="us-table">
+        <thead>
+          <tr>
+            <th>Utilisateur</th><th>Rôle</th><th>État</th><th>Dernier accès</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in utilisateurs %}
+          <tr data-us="{{ u.username|lower }} {{ u.email|lower }} {{ u.nom_complet|lower }} {{ u.get_role_display|lower }}">
+            <td>
+              <div class="cfg-usr">
+                <span class="cfg-ava">
+                  {% if u.avatar_url %}<img src="{{ u.avatar_url }}" alt="">{% else %}{{ u.initiales }}{% endif %}
+                </span>
+                <span>
+                  <span class="cfg-usr-nom">{{ u.username }}</span>
+                  <span class="cfg-usr-sub">{{ u.nom_complet }} · {{ u.email|default:"—" }}</span>
+                </span>
+              </div>
+            </td>
+            <td>
+              <span class="cfg-badge {{ u.role|lower }}">{{ u.get_role_display }}</span>
+              {% if u.is_superuser %}<span class="cfg-badge 2fa">Super</span>{% endif %}
+            </td>
+            <td>
+              {% if u.is_active %}<span class="cfg-badge on">Actif</span>{% else %}<span class="cfg-badge off">Désactivé</span>{% endif %}
+              {% if u.totp_enabled %}<span class="cfg-badge 2fa">2FA</span>{% endif %}
+            </td>
+            <td>{% if u.est_vide %}<span class="cfg-usr-sub">Jamais</span>{% else %}{{ u.last_login|date:"d/m/Y H:i" }}{% endif %}</td>
+            <td>
+              <div class="cfg-acts">
+                <a class="btn btn-sm btn-outline-dark" href="{{ u.url_modifier }}" title="Modifier la fiche"><i class="fas fa-pen"></i></a>
+                <a class="btn btn-sm btn-outline-dark" href="{{ u.url_mot_de_passe }}" title="Réinitialiser le mot de passe"><i class="fas fa-key"></i></a>
+                {% if u.peut_etre_supprime %}
+                <a class="btn btn-sm btn-outline-danger" href="{{ u.url_supprimer }}" title="Supprimer le compte"><i class="fas fa-trash"></i></a>
+                {% else %}
+                <button class="btn btn-sm btn-outline-secondary" disabled title="Vous ne pouvez pas supprimer votre propre compte"><i class="fas fa-trash"></i></button>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="cfg-empty">Aucun compte.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+  </section>
+
+  {# ============================ PARAMÈTRES ============================ #}
+  <form method="post" id="cfg-form" action="{% url 'parametres:index' %}">
+    {% csrf_token %}
+    <input type="hidden" name="onglet" value="ventes">
+    <div class="cfg-panels">
+      {% for section in sections %}
+      <section class="cfg-panel" id="panel-{{ section.code }}" role="tabpanel" tabindex="0" aria-labelledby="tab-{{ section.code }}" hidden>
+        <header class="cfg-panel-heading">
+          <div><h2>{{ section.libelle }}</h2></div>
+        </header>
+        <p class="cfg-aide"><i class="{{ section.icone }} mr-1"></i>{{ section.aide }}</p>
+        <div class="cfg-grid">
+          {% for p in section.params %}
+          <div class="cfg-field" data-cle="{{ p.cle }}">
+            {% if p.type == 'BOOL' %}
+              <label class="cfg-switch">
+                <input type="checkbox" name="{{ p.cle }}" value="1" {% if p.valeur|stringformat:'s' == '1' %}checked{% endif %}>
+                <span class="cfg-switcher"></span>
+                <span class="cfg-name">{{ p.libelle }}</span>
+              </label>
+              {% if p.aide %}<small class="cfg-hint">{{ p.aide }}</small>{% endif %}
+            {% else %}
+              <label class="cfg-label" for="id-{{ p.cle }}">{{ p.libelle }}</label>
+              {% if p.type == 'CHOICE' %}
+                <select class="form-control cfg-input" id="id-{{ p.cle }}" name="{{ p.cle }}">
+                  {% for val, lab in p.options.choix %}
+                    <option value="{{ val }}" {% if p.valeur|stringformat:'s' == val %}selected{% endif %}>{{ lab }}</option>
+                  {% endfor %}
+                </select>
+              {% elif p.type == 'MULTI' %}
+                <div class="cfg-multi">
+                  {% for val, lab in p.options.choix %}
+                    <label class="cfg-chip">
+                      <input type="checkbox" name="{{ p.cle }}" value="{{ val }}"
+                             {% if val in p.valeur|to_list %}checked{% endif %}>
+                      <span>{{ lab }}</span>
+                    </label>
+                  {% endfor %}
+                </div>
+              {% elif p.type == 'TEXTAREA' %}
+                <textarea class="form-control cfg-input" id="id-{{ p.cle }}" name="{{ p.cle }}" rows="2">{{ p.valeur|default:'' }}</textarea>
+              {% elif p.type == 'INT' %}
+                <input class="form-control cfg-input" id="id-{{ p.cle }}" name="{{ p.cle }}" type="number" step="1" value="{{ p.valeur|default:'' }}">
+              {% elif p.type == 'DECIMAL' %}
+                <input class="form-control cfg-input" id="id-{{ p.cle }}" name="{{ p.cle }}" type="number" step="0.01" value="{{ p.valeur|default:'' }}">
+              {% elif p.type == 'EMAIL' %}
+                <input class="form-control cfg-input" id="id-{{ p.cle }}" name="{{ p.cle }}" type="email" value="{{ p.valeur|default:'' }}">
+              {% else %}
+                <input class="form-control cfg-input" id="id-{{ p.cle }}" name="{{ p.cle }}" type="text" value="{{ p.valeur|default:'' }}">
+              {% endif %}
+              {% if p.aide %}<small class="cfg-hint">{{ p.aide }}</small>{% endif %}
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        <p class="cfg-search-empty" style="display:none;color:#8a7258;font-size:.78rem;margin-top:1rem;">Aucun paramètre ne correspond à votre recherche.</p>
+      </section>
+      {% endfor %}
+    </div>
+
+    <div class="cfg-savebar">
+      <span id="cfg-dirty-msg"></span>
+      <button type="submit" class="btn btn-warning" id="cfg-save" disabled><i class="fas fa-save mr-1"></i> Enregistrer</button>
+    </div>
+  </form>
+
+  {# ============================ SAUVEGARDE ============================ #}
+  <section class="cfg-panel" id="panel-sauvegarde" role="tabpanel" tabindex="0" aria-labelledby="tab-sauvegarde" hidden>
+    <div class="cfg-card">
+      <h3><i class="fas fa-database mr-1"></i> Sauvegarde de la base de données</h3>
+      <p>Copie complète de la base. Téléchargez-la hors du serveur pour la conserver.</p>
+      <div class="cfg-kpis">
+        <div class="cfg-kpi"><b>{{ sauvegardes|length }}</b><span>sauvegarde(s) conservée(s)</span></div>
+        <div class="cfg-kpi"><b>{{ sauvegarde_volume|floatformat:0 }} o</b><span>volume cumulé</span></div>
+        <div class="cfg-kpi"><b>{{ site_config.systeme_sauvegarde_retention|default:30 }} j</b><span>rétention configurée</span></div>
+      </div>
+      {% if sauvegarde_autorisee %}
+      <form method="post" action="{% url 'parametres:sauvegarde-creer' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-warning"><i class="fas fa-download mr-1"></i>Sauvegarder maintenant</button>
+      </form>
+      {% else %}
+      <div class="cfg-note"><i class="fas fa-lock"></i><span>Seuls un administrateur ou un gestionnaire peuvent déclencher une sauvegarde.</span></div>
+      {% endif %}
+      <div class="cfg-note">
+        <i class="fas fa-circle-info"></i>
+        <span>Les cinq dernières copies sont conservées. Les plus anciennes expirées sont supprimées à la prochaine sauvegarde.</span>
+      </div>
+    </div>
+
+    <div class="cfg-card">
+      <h3><i class="fas fa-clock-rotate-left mr-1"></i> Historique</h3>
+      <p>20 dernières copies · de la plus récente à la plus ancienne.</p>
+      <div style="overflow-x:auto">
+      <table class="cfg-table">
+        <thead>
+          <tr><th>Date</th><th>Format</th><th>Taille</th><th>Contenu</th><th>Auteur</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for s in sauvegardes %}
+          <tr>
+            <td>{{ s.date|date:"d/m/Y H:i" }}</td>
+            <td>
+              <span class="cfg-badge {% if s.statut == 'REUSSIE' %}on{% else %}off{% endif %}">{{ s.get_format_display }}</span>
+              {% if s.erreur %}<span class="cfg-usr-sub" title="{{ s.erreur }}">repli : export JSON</span>{% endif %}
+            </td>
+            <td>{{ s.taille_lisible }}</td>
+            <td>{{ s.nb_tables }} table(s) · {{ s.nb_lignes }} ligne(s)</td>
+            <td>{{ s.utilisateur.username|default:"—" }}</td>
+            <td>
+              <div class="cfg-acts">
+                {% if s.disponible %}
+                <a class="btn btn-sm btn-outline-dark" href="{% url 'parametres:sauvegarde-telecharger' s.pk %}" title="Télécharger"><i class="fas fa-download"></i></a>
+                {% endif %}
+                {% if sauvegarde_autorisee %}
+                <form method="post" action="{% url 'parametres:sauvegarde-supprimer' s.pk %}" onsubmit="return confirm('Supprimer définitivement cette sauvegarde ?');">
+                  {% csrf_token %}
+                  <button class="btn btn-sm btn-outline-danger" type="submit" title="Supprimer"><i class="fas fa-trash"></i></button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="cfg-empty"><i class="fas fa-database mr-1"></i>Aucune sauvegarde pour le moment.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var ACCENTS = {
+    or: { '--wine-gold': '#e9b949', '--wine-gold-soft': '#f4d277', '--wine-gold-pale': '#f7e0a6', '--wine-gold-bright': '#ffcf6e' },
+    rubis: { '--wine-gold': '#cf5b76', '--wine-gold-soft': '#e08a9d', '--wine-gold-pale': '#f2c3cd', '--wine-gold-bright': '#d96f8b' },
+    ambre: { '--wine-gold': '#e08a3c', '--wine-gold-soft': '#f0a95f', '--wine-gold-pale': '#f6cd9b', '--wine-gold-bright': '#f0a94f' }
+  };
+  function applyAccent(name) {
+    var vars = ACCENTS[name] || ACCENTS.or;
+    Object.keys(vars).forEach(function (k) {
+      document.documentElement.style.setProperty(k, vars[k]);
+    });
+  }
+  function initialAccent() {
+    var sel = document.getElementById('id-appearance_accent');
+    return sel ? sel.value : 'or';
+  }
+  function initialDensity() {
+    var sel = document.getElementById('id-appearance_densite');
+    return sel ? (sel.value === 'compact') : false;
+  }
+  applyAccent(initialAccent());
+  document.body.classList.toggle('wine-dense', initialDensity());
+
+  var selAccent = document.getElementById('id-appearance_accent');
+  if (selAccent) selAccent.addEventListener('change', function () { applyAccent(this.value); });
+
+  var selMode = document.getElementById('id-appearance_mode_defaut');
+  if (selMode) selMode.addEventListener('change', function () {
+    document.documentElement.setAttribute('data-bs-theme', this.value === 'sombre' ? 'dark' : 'light');
+  });
+
+  var selDens = document.getElementById('id-appearance_densite');
+  if (selDens) selDens.addEventListener('change', function () {
+    document.body.classList.toggle('wine-dense', this.value === 'compact');
+  });
+
+  var tabs = document.querySelectorAll('.cfg-tab');
+  function activer(code) {
+    tabs.forEach(function (t) {
+      var active = t.getAttribute('data-tab') === code;
+      t.classList.toggle('active', active);
+      t.setAttribute('aria-selected', active ? 'true' : 'false');
+      t.setAttribute('tabindex', active ? '0' : '-1');
+    });
+    document.querySelectorAll('.cfg-panel').forEach(function (p) { p.hidden = true; });
+    var bouton = document.querySelector('.cfg-tab[data-tab="' + code + '"]');
+    var panel = document.getElementById('panel-' + code);
+    if (!bouton || !panel) return false;
+    panel.hidden = false;
+    var form = document.getElementById('cfg-form');
+    var savebar = document.querySelector('.cfg-savebar');
+    if (form) form.classList.toggle('cfg-settings-active', bouton.hasAttribute('data-section'));
+    if (savebar) savebar.hidden = !bouton.hasAttribute('data-section');
+    return true;
+  }
+  tabs.forEach(function (tab, index) {
+    tab.addEventListener('click', function () { activer(tab.getAttribute('data-tab')); });
+    tab.addEventListener('keydown', function (event) {
+      var nextIndex = index;
+      if (event.key === 'ArrowDown' || event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+      else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+      else if (event.key === 'Home') nextIndex = 0;
+      else if (event.key === 'End') nextIndex = tabs.length - 1;
+      else return;
+      event.preventDefault();
+      tabs[nextIndex].focus();
+      activer(tabs[nextIndex].getAttribute('data-tab'));
+    });
+  });
+  // Onglet demandé par l'URL (``?onglet=sauvegarde``) ; sinon la première
+  // section de paramètres, qui reste le point d'entrée historique.
+  var demande = new URLSearchParams(window.location.search).get('onglet');
+  if (!demande || !activer(demande)) {
+    var premiere = document.querySelector('.cfg-tab[data-section]');
+    if (premiere) activer(premiere.getAttribute('data-tab'));
+  }
+
+  var counts = document.getElementById('cfg-dirty-msg');
+  var saveButton = document.getElementById('cfg-save');
+  var hasDirty = false;
+  function recalc() {
+    hasDirty = false;
+    var nbSection = {};
+    document.querySelectorAll('.cfg-panel').forEach(function () {});
+    document.querySelectorAll('#cfg-form .cfg-field').forEach(function (f) {
+      var cle = f.getAttribute('data-cle');
+      var input = f.querySelector('input, select, textarea');
+      var changed = false;
+      if (input && input.type === 'checkbox') {
+        changed = input.checked !== input.defaultChecked;
+      } else if (input) {
+        changed = input.value !== input.defaultValue;
+      }
+      f.classList.toggle('dirty', changed);
+      if (changed) hasDirty = true;
+    });
+    document.querySelectorAll('[data-count]').forEach(function (el) {
+      var code = el.getAttribute('data-count');
+      var panel = document.getElementById('panel-' + code);
+      var n = 0;
+      if (panel) panel.querySelectorAll('.cfg-field.dirty').forEach(function () { n++; });
+      el.textContent = n;
+      var tab = document.querySelector('.cfg-tab[data-tab="' + code + '"]');
+      if (tab) tab.classList.toggle('dirty', n > 0);
+    });
+    counts.textContent = hasDirty ? 'Modifications non enregistrées' : '';
+    if (saveButton) saveButton.disabled = !hasDirty;
+  }
+  document.querySelectorAll('#cfg-form input, #cfg-form select, #cfg-form textarea').forEach(function (el) {
+    ['input', 'change', 'keyup'].forEach(function (ev) { el.addEventListener(ev, recalc); });
+  });
+  recalc();
+
+  var searchEl = document.getElementById('cfg-search');
+  function filterFields() {
+    if (!searchEl) return;
+    var q = searchEl.value.trim().toLowerCase();
+    var n = 0;
+    var firstMatch = null;
+    document.querySelectorAll('#cfg-form .cfg-field').forEach(function (f) {
+      var text = (f.textContent || '').toLowerCase();
+      var visible = !q || text.indexOf(q) !== -1;
+      f.style.display = visible ? '' : 'none';
+      if (visible) {
+        n++;
+        if (q && !firstMatch) firstMatch = f.closest('.cfg-panel');
+      }
+    });
+    document.querySelectorAll('.cfg-panel').forEach(function (p) {
+      var empty = p.querySelector('.cfg-search-empty');
+      if (empty) empty.style.display = p.hidden ? 'none' : (n ? 'none' : 'block');
+    });
+    if (q && firstMatch) activer(firstMatch.id.replace('panel-', ''));
+  }
+  if (searchEl) {
+    searchEl.addEventListener('input', filterFields);
+    var tabs = document.querySelectorAll('.cfg-tab');
+    tabs.forEach(function (t) { t.addEventListener('click', filterFields); });
+  }
+
+  // Recherche dans la liste des comptes : elle filtre sur ce qui est affiché,
+  // jamais sur un champ caché.
+  var usSearch = document.getElementById('us-search');
+  if (usSearch) {
+    usSearch.addEventListener('input', function () {
+      var q = usSearch.value.trim().toLowerCase();
+      var n = 0;
+      document.querySelectorAll('#us-table tbody tr[data-us]').forEach(function (tr) {
+        var ok = !q || (tr.getAttribute('data-us') || '').indexOf(q) !== -1;
+        tr.style.display = ok ? '' : 'none';
+        if (ok) n++;
+      });
+      var vide = document.querySelector('#panel-utilisateurs .cfg-search-empty');
+      if (vide) vide.style.display = n ? 'none' : 'block';
+    });
+  }
+})();
+</script>
+{% endblock %}

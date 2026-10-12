@@ -1,0 +1,260 @@
+<!--
+  Panneau de compte (coin haut droit) — monté dans un mat-menu de la barre.
+  Ordre : la carte de membre, l'activité en cours, la dernière commande, les
+  raccourcis, puis les réglages et la sortie.
+-->
+<div class="compte">
+
+  <!-- ------------------------------------------------------ Carte de membre -->
+  <header class="compte__carte">
+    <div class="compte__avatar">
+      <!-- Anneau d'avancement : le tour complet vaut le palier suivant. -->
+      <svg class="compte__anneau" viewBox="0 0 64 64" aria-hidden="true">
+        <circle class="compte__anneau-fond" cx="32" cy="32" [attr.r]="rayon" />
+        <circle
+          class="compte__anneau-jauge"
+          cx="32"
+          cy="32"
+          [attr.r]="rayon"
+          [attr.stroke-dasharray]="circonference"
+          [attr.stroke-dashoffset]="tiret()"
+        />
+      </svg>
+
+      <app-avatar [nom]="nom()" [photo]="photo()" [taille]="56" />
+
+      <button
+        type="button"
+        class="compte__photo"
+        [disabled]="photoEnCours()"
+        (click)="choisirPhoto()"
+        [attr.aria-label]="'COMPTE.changerPhoto' | translate"
+        [matTooltip]="'COMPTE.changerPhoto' | translate"
+      >
+        <mat-icon>{{ photoEnCours() ? 'hourglass_top' : 'photo_camera' }}</mat-icon>
+      </button>
+      <input
+        #selecteur
+        type="file"
+        class="compte__selecteur"
+        accept="image/*"
+        (change)="changerPhoto($event)"
+      />
+    </div>
+
+    <div class="compte__identite">
+      <strong class="compte__nom">{{ nom() }}</strong>
+      @if (contact()) {
+        <small class="compte__contact">{{ contact() }}</small>
+      }
+      <div class="compte__etiquettes">
+        <span class="compte__etiquette">
+          <mat-icon>verified_user</mat-icon>
+          {{ 'AUTH.role.' + role() | translate }}
+        </span>
+        <span class="compte__etiquette compte__etiquette--palier">
+          <mat-icon>{{ palier().icone }}</mat-icon>
+          {{ palier().cle }}
+        </span>
+      </div>
+    </div>
+
+    <div class="compte__fidelite">
+      <p class="compte__points">
+        <strong>{{ points() | number }}</strong>
+        <small>{{ 'PROFIL.points' | translate }}</small>
+      </p>
+      <div
+        class="compte__jauge"
+        role="progressbar"
+        [attr.aria-valuenow]="progression()"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      >
+        <span [style.width.%]="progression()"></span>
+      </div>
+      @if (palierSuivant(); as suivant) {
+        <small class="compte__suivant">
+          {{
+            'COMPTE.versPalier'
+              | translate: { points: (pointsRestants() | number), palier: suivant.cle }
+          }}
+        </small>
+      } @else {
+        <small class="compte__suivant">{{ 'COMPTE.auSommet' | translate }}</small>
+      }
+    </div>
+  </header>
+
+  @if (retourPhoto(); as retour) {
+    <p class="compte__retour lb-fade-in" role="status">{{ retour | translate }}</p>
+  }
+
+  <!-- ------------------------------------------------------ Activité -->
+  <ul class="compte__chiffres lb-stagger">
+    @for (chiffre of chiffres(); track chiffre.cle; let i = $index) {
+      <li [style.--i]="i">
+        <a
+          class="compte__chiffre"
+          [class.is-alerte]="chiffre.alerte"
+          [routerLink]="chiffre.chemin"
+          [queryParams]="chiffre.params ?? {}"
+        >
+          <mat-icon>{{ chiffre.icone }}</mat-icon>
+          <strong>{{ chiffre.valeur }}</strong>
+          <small>{{ chiffre.libelle | translate }}</small>
+        </a>
+      </li>
+    }
+  </ul>
+
+  <!-- ------------------------------------------------------ Dernière commande -->
+  @if (derniereCommande(); as commande) {
+    <a class="compte__commande" routerLink="/historique">
+      <span class="compte__commande-tete">
+        <mat-icon>local_shipping</mat-icon>
+        <strong>{{ commande.reference }}</strong>
+        <em [attr.data-statut]="commande.statut">
+          {{ 'HISTORIQUE.statuts.' + commande.statut | translate }}
+        </em>
+      </span>
+      <span class="compte__commande-corps">
+        <small>{{ commande.date | date: 'dd/MM/yyyy' }}</small>
+        <strong>{{ commandes.total(commande) | number }} Ar</strong>
+      </span>
+    </a>
+  } @else {
+    <p class="compte__vide">{{ 'COMPTE.aucuneCommande' | translate }}</p>
+  }
+
+  <mat-divider />
+
+  <!-- ------------------------------------------------------ Raccourcis -->
+  <nav class="compte__liens" [attr.aria-label]="'COMPTE.espace' | translate">
+    @for (raccourci of raccourcis; track raccourci.cle) {
+      <a
+        mat-menu-item
+        class="compte__lien"
+        [routerLink]="raccourci.chemin"
+        [queryParams]="raccourci.params ?? {}"
+      >
+        <mat-icon>{{ raccourci.icone }}</mat-icon>
+        <span class="compte__lien-texte">{{ raccourci.cle | translate }}</span>
+        @if (raccourci.compteur; as compteur) {
+          @if (compteur() > 0) {
+            <em class="compte__compteur">{{ compteur() }}</em>
+          }
+        }
+      </a>
+    }
+  </nav>
+
+  <mat-divider />
+
+  <!-- ------------------------------------------------------ Réglages -->
+  <div class="compte__reglages">
+    <div class="compte__reglage">
+      <span class="compte__reglage-titre">
+        <mat-icon>{{ estSombre() ? 'dark_mode' : 'light_mode' }}</mat-icon>
+        {{ 'COMPTE.theme' | translate }}
+      </span>
+      <div class="compte__segments" role="group" [attr.aria-label]="'COMPTE.theme' | translate">
+        <button
+          type="button"
+          [class.is-actif]="!estSombre()"
+          [attr.aria-pressed]="!estSombre()"
+          (click)="definirTheme('clair')"
+        >
+          {{ 'THEME.clair' | translate }}
+        </button>
+        <button
+          type="button"
+          [class.is-actif]="estSombre()"
+          [attr.aria-pressed]="estSombre()"
+          (click)="definirTheme('sombre')"
+        >
+          {{ 'THEME.sombre' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <div class="compte__reglage">
+      <span class="compte__reglage-titre">
+        <mat-icon>translate</mat-icon>
+        {{ 'LANGUE.selectionner' | translate }}
+      </span>
+      <div
+        class="compte__segments"
+        role="group"
+        [attr.aria-label]="'LANGUE.selectionner' | translate"
+      >
+        @for (langue of langues; track langue.code) {
+          <button
+            type="button"
+            [class.is-actif]="langue.code === langueCourante()"
+            [attr.aria-pressed]="langue.code === langueCourante()"
+            (click)="changerLangue(langue.code)"
+          >
+            <span aria-hidden="true">{{ langue.drapeau }}</span>
+            {{ langue.code.toUpperCase() }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <button
+      type="button"
+      class="compte__reglage compte__reglage--bascule"
+      [class.is-actif]="sonActif()"
+      [attr.aria-pressed]="sonActif()"
+      (click)="basculerSon()"
+    >
+      <span class="compte__reglage-titre">
+        <mat-icon>{{ sonActif() ? 'volume_up' : 'volume_off' }}</mat-icon>
+        {{ 'COMPTE.son' | translate }}
+      </span>
+      <span class="compte__interrupteur" aria-hidden="true"><i></i></span>
+    </button>
+  </div>
+
+  <mat-divider />
+
+  <!-- ------------------------------------------------------ Pied -->
+  <footer class="compte__pied">
+    <a class="compte__completude" routerLink="/profil" [queryParams]="{ section: 'securite' }">
+      <span class="compte__reglage-titre">
+        <mat-icon>donut_large</mat-icon>
+        {{ 'COMPTE.completude' | translate }}
+      </span>
+      <strong>{{ completude() }} %</strong>
+    </a>
+    <div
+      class="compte__jauge compte__jauge--claire"
+      role="progressbar"
+      [attr.aria-valuenow]="completude()"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      <span [style.width.%]="completude()"></span>
+    </div>
+
+    @if (confirmation()) {
+      <div class="compte__confirmation lb-fade-in">
+        <p>{{ 'COMPTE.confirmerDeconnexion' | translate }}</p>
+        <div class="compte__confirmation-actions">
+          <button mat-flat-button color="warn" type="button" (click)="seDeconnecter()">
+            {{ 'COMMUN.confirmer' | translate }}
+          </button>
+          <button mat-button type="button" (click)="confirmation.set(false)">
+            {{ 'COMMUN.annuler' | translate }}
+          </button>
+        </div>
+      </div>
+    } @else {
+      <button type="button" class="compte__sortie" (click)="confirmation.set(true)">
+        <mat-icon>logout</mat-icon>
+        {{ 'AUTH.deconnexion' | translate }}
+      </button>
+    }
+  </footer>
+</div>

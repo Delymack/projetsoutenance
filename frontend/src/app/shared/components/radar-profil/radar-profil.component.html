@@ -1,0 +1,41 @@
+<!--
+  Radar du profil gustatif. Les libellés vivent dans le SVG pour qu'ils
+  héritent des variables CSS du thème (aucune couleur en dur).
+-->
+<svg
+  class="radar"
+  [attr.width]="taille()"
+  [attr.height]="taille()"
+  [attr.viewBox]="'0 0 ' + taille() + ' ' + taille()"
+  role="img"
+  [attr.aria-label]="etiquette()"
+>
+  <!-- Anneaux de fond -->
+  @for (anneau of anneaux; track anneau) {
+    <polygon class="radar__anneau" [attr.points]="pointsAnneau(anneau)" />
+  }
+
+  <!-- Axes et libellés -->
+  @for (position of positions(); track position.cle) {
+    <line
+      class="radar__axe"
+      [attr.x1]="centre()"
+      [attr.y1]="centre()"
+      [attr.x2]="position.x"
+      [attr.y2]="position.y"
+    />
+    <text class="radar__libelle" [attr.x]="position.xLabel" [attr.y]="position.yLabel" [attr.text-anchor]="position.ancrage">
+      {{ libelle(position.cle) }}
+    </text>
+  }
+
+  <!-- Profil -->
+  <polygon class="radar__profil" [attr.points]="pointsProfil()" />
+
+  <!-- Points sur les axes -->
+  @for (position of positions(); track position.cle) {
+    <circle class="radar__point" [attr.cx]="position.x" [attr.cy]="position.y" r="4">
+      <title>{{ libelle(position.cle) }} : {{ position.valeur * 100 | number: '1.0-0' }} %</title>
+    </circle>
+  }
+</svg>

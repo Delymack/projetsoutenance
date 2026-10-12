@@ -1,0 +1,116 @@
+{% extends "admin/auth/shell.html" %}
+{% load jazzmin %}
+{% block auth_card_class %}wide{% endblock %}
+{% block auth_kicker %}Centre de sécurité{% endblock %}
+{% block auth_title %}Sécurité de mon compte{% endblock %}
+{% block auth_sub %}Sessions actives, connexions récentes et double authentification.{% endblock %}
+
+{% block auth_body %}
+<div class="row" style="display:flex;gap:1rem;flex-wrap:wrap">
+  <div class="col" style="flex:1.2;min-width:300px">
+    <div class="shield-row">
+      <span class="icn-box"><i class="fas fa-user"></i></span>
+      <div>
+        <h4>{{ request.user.get_full_name|default:request.user.username }}</h4>
+        <p>{{ request.user.email }} · {{ request.user.get_role_display }}</p>
+      </div>
+      <div class="meta">Membre depuis<br>{{ request.user.date_creation|date:"d M Y" }}</div>
+    </div>
+
+    <div class="shield-row">
+      <span class="icn-box"><i class="fas fa-shield-halved"></i></span>
+      <div>
+        <h4>Double authentification</h4>
+        <p>{% if request.user.totp_enabled %}Activée{% else %}Non activée{% endif %}{% if request.user.totp_enabled and recovery_count %}, {{ recovery_count }} code{% if recovery_count > 1 %}s{% endif %} de secours restant{% if recovery_count > 1 %}s{% endif %}{% elif request.user.totp_enabled %} · aucun code de secours{% endif %}</p>
+      </div>
+      <div class="meta">
+        {% if request.user.totp_enabled %}
+          <span class="pill ok">Protégé</span>
+        {% else %}
+          <span class="pill warn">À renforcer</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin:.2rem 0 1.1rem">
+      <a href="{% url 'admin:password_change' %}" class="btn-ghost"><i class="fas fa-key mr-1"></i>Changer le mot de passe</a>
+      {% if request.user.totp_enabled %}
+        <a href="{% url 'auth-2fa-disable' %}" class="btn-ghost"><i class="fas fa-shield mr-1"></i>Désactiver la 2FA</a>
+      {% else %}
+        <a href="{% url 'auth-2fa-enable' %}" class="btn-gold"><i class="fas fa-shield-halved mr-1"></i>Activer la 2FA</a>
+      {% endif %}
+      {% if sessions|length > 1 %}
+        <form method="post" action="{% url 'auth-logout-others' %}" onsubmit="return confirm('Déconnecter tous les autres appareils ?')" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn-ghost"><i class="fas fa-right-from-bracket mr-1"></i>Déconnecter les autres appareils</button>
+        </form>
+      {% endif %}
+    </div>
+
+    <h3 style="font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#8a7a7d">
+      <i class="fas fa-laptop mr-1"></i>Sessions actives ({{ sessions|length }})
+    </h3>
+    <div style="border:1px solid #eadfd7;border-radius:13px;overflow:hidden">
+      <table class="table-dev">
+        <tr><th>Appareil</th><th>IP</th><th>Depuis</th><th></th></tr>
+        {% for s in sessions %}
+        <tr>
+          <td class="{% if s.current %}cur{% endif %}">
+            {% if s.current %}<i class="fas fa-circle mr-1" style="color:#3aa76d;font-size:.55rem"></i>{% endif %}{{ s.device }}
+            {% if s.current %}<span class="pill ok" style="font-size:.6rem">Cette session</span>{% endif %}
+          </td>
+          <td>{{ s.ip|default:"—" }}</td>
+          <td>
+            {% if s.login_at %}{{ s.login_at|date:"d M · H:i" }}{% else %}{{ s.expire_date|date:"d M Y" }}{% endif %}
+            <br><small style="color:#b3a3a5">expire {{ s.expire_date|date:"d M Y H:i" }}</small>
+          </td>
+          <td>
+            {% if not s.current %}
+            <form method="post" action="{% url 'auth-revoke-session' s.key %}" onsubmit="return confirm('Révoquer cette session ?')" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn-mini"><i class="fas fa-xmark mr-1"></i>Révoquer</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" style="color:#a8999b">Aucune session active.</td></tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+  <div class="col" style="flex:1;min-width:270px">
+    <h3 style="font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#8a7a7d">
+      <i class="fas fa-history mr-1"></i>Connexions récentes
+    </h3>
+    <div style="border:1px solid #eadfd7;border-radius:13px;overflow:hidden">
+      <table class="table-dev">
+        <tr><th>Statut</th><th>Appareil</th><th>IP</th><th>Quand</th></tr>
+        {% for ev in events %}
+        <tr>
+          <td>
+            {% if ev.statut == 'SUCCESS' %}<span class="pill ok">OK</span>
+            {% elif ev.statut == 'FAILED' %}<span class="pill warn">Échec</span>
+            {% else %}<span class="pill">Verrouillée</span>{% endif %}
+          </td>
+          <td>{{ ev.appareil|default:"—" }}</td>
+          <td>{{ ev.ip|default:"—" }}</td>
+          <td>{{ ev.cree_le|date:"d M · H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" style="color:#a8999b">Aucune connexion enregistrée.</td></tr>
+        {% endfor %}
+      </table>
+    </div>
+    <p style="color:#a8999b;font-size:.75rem;margin-top:.6rem"><i class="fas fa-envelope mr-1"></i>Une alerte e-mail est envoyée à chaque nouvel appareil détecté.</p>
+  </div>
+</div>
+
+<div class="trust-row">
+  <span><i class="fas fa-shield-alt"></i> Session chiffrée</span>
+  <span><i class="fas fa-fingerprint"></i> 2FA disponible</span>
+  <span><i class="fas fa-headset"></i> Support</span>
+  <span style="margin-left:auto"><a href="/admin/"><i class="fas fa-arrow-left mr-1"></i>Retour au tableau de bord</a></span>
+</div>
+{% endblock %}

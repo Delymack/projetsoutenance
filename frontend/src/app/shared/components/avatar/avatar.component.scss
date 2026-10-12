@@ -1,0 +1,31 @@
+/* Pastille d'identité — photo du compte ou initiales.
+   Le rendu est volontairement neutre : c'est l'écran qui l'accueille (barre,
+   panneau, bandeau du profil) qui décide de l'anneau et de la couleur. */
+
+:host {
+  display: inline-flex;
+  flex: none;
+}
+
+.avatar__photo,
+.avatar__initiales {
+  display: block;
+  border-radius: 50%;
+  flex: none;
+}
+
+.avatar__photo {
+  object-fit: cover;
+  background: var(--lb-surface-2);
+  border: 1px solid color-mix(in srgb, var(--lb-accent) 45%, transparent);
+}
+
+.avatar__initiales {
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: linear-gradient(140deg, var(--lb-bordeaux) 0%, var(--lb-bordeaux-clair) 60%, #56001a 100%);
+  border: 1px solid color-mix(in srgb, var(--lb-accent) 50%, transparent);
+}

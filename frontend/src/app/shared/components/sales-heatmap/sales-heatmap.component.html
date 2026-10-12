@@ -1,0 +1,79 @@
+<!--
+ Heatmap des ventes : grille 7 jours × 24 heures.
+
+  Rendu en CSS grid : `grid-template-columns: auto repeat(24, 1fr)` sur chaque
+  ligne plutôt qu'une grille unique, ce qui aligne les colonnes même si un
+  libellé de ligne est plus large qu'un autre.
+-->
+<section class="heatmap">
+  <header class="heatmap__entete">
+    <h3 class="heatmap__titre">
+      <mat-icon>grid_on</mat-icon>
+      {{ titre() | translate }}
+    </h3>
+    @if (meilleurJour(); as jour) {
+      <p class="heatmap__sous-titre">
+        <strong>{{ 'HEATMAP.meilleurJour' | translate: { jour: (jour.libelle | translate) } }}</strong>
+      </p>
+    }
+  </header>
+
+  <div class="heatmap__grille" role="grid" [attr.aria-label]="titre() | translate">
+    <!-- Ligne d'en-tête : une colonne toutes les 3 heures (8 colonnes étalées
+           sur les 24 heures de la grille, d'où `justify-content: space-between`). -->
+    <div class="heatmap__ligne heatmap__ligne--entete" role="row">
+      <span class="heatmap__coin" aria-hidden="true">{{ 'HEATMAP.colonne' | translate }}</span>
+      @for (heure of entetesHeures; track heure) {
+        <span class="heatmap__heure" role="columnheader">{{ heure }}h</span>
+      }
+    </div>
+
+    <!-- Une ligne par jour -->
+    @for (ligne of lignes(); track ligne.jour) {
+      <div class="heatmap__ligne" role="row" [attr.aria-label]="libelleLigne(ligne)">
+        <span class="heatmap__jour" role="rowheader">{{ ligne.libelle | translate }}</span>
+
+        @for (case_ of ligne.cases; track case_.heure) {
+          <button
+            type="button"
+            class="heatmap__case"
+            role="gridcell"
+            [ngStyle]="styleCase(case_)"
+            [class.is-vide]="case_.ventes === 0"
+            [class.is-selectionnee]="caseSelectionnee()?.jour === case_.jour && caseSelectionnee()?.heure === case_.heure"
+            [matTooltip]="libelleCase(case_)"
+            [attr.aria-label]="libelleCase(case_)"
+            (click)="selectionner(case_)"
+          >
+            <span class="lb-visually-hidden">{{ libelleCase(case_) }}</span>
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Légende : dégradé continu + bornes numériques -->
+  <div class="heatmap__legende">
+    <span class="heatmap__legende-borne">{{ plancher() }}</span>
+    <span class="heatmap__legende-degrade" aria-hidden="true">
+      @for (palier of paliers; track palier) {
+        <span class="heatmap__legende-pas" [style.--lb-intensite]="palier + '%'"></span>
+      }
+    </span>
+    <span class="heatmap__legende-borne">{{ plafond() }}</span>
+    <span class="heatmap__legende-unite">{{ 'HEATMAP.bouteilles' | translate }}</span>
+  </div>
+
+  <!-- Détail de la case cliquée -->
+  @if (caseSelectionnee(); as case_) {
+    <div class="heatmap__detail lb-slide-in-right">
+      <mat-icon>insights</mat-icon>
+      <p>
+        <strong>{{ libelleCase(case_) }}</strong>
+      </p>
+      <p class="heatmap__detail-ca">
+        {{ 'HEATMAP.ca' | translate }} : {{ case_.ca | number: '1.0-0' }} Ar
+      </p>
+    </div>
+  }
+</section>

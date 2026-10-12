@@ -1,0 +1,8 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block extrastyle %}{{ block.super }}<style>
+  .lb-full-width { grid-column: 1 / -1; }
+  .model-client.change-form .lb-panel { border-radius: var(--lb-radius-lg); }
+</style>
+{% endblock %}

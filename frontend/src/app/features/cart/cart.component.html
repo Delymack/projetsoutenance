@@ -1,0 +1,106 @@
+<section class="cart lb-container">
+  <header class="cart__header">
+    <div>
+      <span class="eyebrow">Lazan'i Betsileo</span>
+      <h1>{{ 'PANIER.titre' | translate }}</h1>
+      <p>{{ panier.nbArticles() }} {{ panier.nbArticles() === 1 ? ('PANIER.articleSingulier' | translate) : ('PANIER.articlePluriel' | translate) }}</p>
+    </div>
+    @if (!panier.estVide()) {
+      <button mat-button type="button" (click)="vider()">
+        <mat-icon>delete_sweep</mat-icon>
+        {{ 'PANIER.vider' | translate }}
+      </button>
+    }
+  </header>
+
+  @if (panier.estVide()) {
+    <div class="cart__empty lb-card" role="status">
+      <span class="cart__empty-icon" aria-hidden="true">🍷</span>
+      <h2>{{ 'PANIER.vide' | translate }}</h2>
+      <a mat-flat-button color="primary" routerLink="/catalogue">
+        <mat-icon>storefront</mat-icon>
+        {{ 'ACCUEIL.ctaCatalogue' | translate }}
+      </a>
+    </div>
+  } @else {
+    <div class="cart__layout">
+      <div class="cart__lines" [attr.aria-label]="'PANIER.articlesAria' | translate">
+        @for (ligne of panier.lignes(); track ligne.vin.id) {
+          <article class="cart-line lb-card">
+            <a [routerLink]="['/vin', ligne.vin.id]" class="cart-line__image">
+              <img [src]="ligne.vin.image" [alt]="ligne.vin.nom" />
+            </a>
+
+            <div class="cart-line__main">
+              <div class="cart-line__product">
+                <div>
+                  <h2><a [routerLink]="['/vin', ligne.vin.id]">{{ ligne.vin.nom }}</a></h2>
+                  <p>{{ ligne.vin.cepage }} · {{ ligne.vin.millesime }}</p>
+                </div>
+                <button
+                  mat-icon-button
+                  type="button"
+                  (click)="panier.retirer(ligne.vin.id)"
+                  [attr.aria-label]="('PANIER.retirer' | translate) + ' ' + ligne.vin.nom"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+
+              <div class="cart-line__bottom">
+                <div class="quantity" [attr.aria-label]="'PANIER.quantiteAria' | translate: { count: ligne.quantite }">
+                  <button
+                    mat-icon-button
+                    type="button"
+                    (click)="modifierQuantite(ligne, -1)"
+                    [attr.aria-label]="('PANIER.diminuerQuantite' | translate) + ' ' + ligne.vin.nom"
+                  >
+                    <mat-icon>remove</mat-icon>
+                  </button>
+                  <output>{{ ligne.quantite }}</output>
+                  <button
+                    mat-icon-button
+                    type="button"
+                    (click)="modifierQuantite(ligne, 1)"
+                    [disabled]="ligne.quantite >= ligne.vin.stock"
+                    [attr.aria-label]="('PANIER.augmenterQuantite' | translate) + ' ' + ligne.vin.nom"
+                  >
+                    <mat-icon>add</mat-icon>
+                  </button>
+                </div>
+                <strong>{{ totalLigne(ligne) | number:'1.0-0' }} Ar</strong>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+
+      <aside class="cart-summary lb-card" [attr.aria-label]="'PANIER.resumeAria' | translate">
+        <h2>{{ 'PANIER.total' | translate }}</h2>
+        <div class="cart-summary__row">
+          <span>{{ 'PANIER.sousTotal' | translate }}</span>
+          <span>{{ panier.sousTotal() | number:'1.0-0' }} Ar</span>
+        </div>
+        <div class="cart-summary__row cart-summary__row--total">
+          <strong>{{ 'PANIER.total' | translate }}</strong>
+          <strong>{{ panier.total() | number:'1.0-0' }} Ar</strong>
+        </div>
+        <!-- Connecté : on commande directement (le lien partait vers
+             `/caisse`, un écran d'équipe, et rebondissait sur l'accueil. -->
+        <a
+          mat-flat-button
+          color="primary"
+          class="cart-summary__checkout"
+          [routerLink]="auth.connecte() ? '/commande' : '/connexion'"
+          [queryParams]="auth.connecte() ? null : { returnUrl: '/commande' }"
+        >
+          <mat-icon>point_of_sale</mat-icon>
+          {{ 'PANIER.passerCommande' | translate }}
+        </a>
+        <a mat-button class="cart-summary__continue" routerLink="/catalogue">
+          {{ 'PANIER.continuerAchats' | translate }}
+        </a>
+      </aside>
+    </div>
+  }
+</section>

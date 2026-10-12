@@ -1,0 +1,198 @@
+{% extends "admin/base.html" %}
+{% load i18n static jazzmin dashboard_tags accounts_tags %}
+{% get_jazzmin_settings request as jazzmin_settings %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script>window.WINE_CONFIG = {{ site_config_json|safe }};</script>
+    <script>
+      (function () {
+        var cfg = window.WINE_CONFIG || {};
+        var ACCENTS = { or: { '--wine-gold': '#e9b949', '--wine-gold-soft': '#f4d277', '--wine-gold-pale': '#f7e0a6', '--wine-gold-bright': '#ffcf6e' }, rubis: { '--wine-gold': '#cf5b76', '--wine-gold-soft': '#e08a9d', '--wine-gold-pale': '#f2c3cd', '--wine-gold-bright': '#d96f8b' }, ambre: { '--wine-gold': '#e08a3c', '--wine-gold-soft': '#f0a95f', '--wine-gold-pale': '#f6cd9b', '--wine-gold-bright': '#f0a94f' } };
+        var vars = ACCENTS[cfg.appearance_accent] || ACCENTS.or;
+        Object.keys(vars).forEach(function (k) { document.documentElement.style.setProperty(k, vars[k]); });
+        var pref = null;
+        try { pref = localStorage.getItem('jazzmin-theme-mode'); } catch (e) {}
+        if (pref === null && cfg.appearance_mode_defaut === 'sombre') {
+          document.documentElement.setAttribute('data-bs-theme', 'dark');
+        }
+        if (cfg.appearance_densite === 'compact') {
+          document.addEventListener('DOMContentLoaded', function () { document.body.classList.add('wine-dense'); });
+        }
+      })();
+    </script>
+{% endblock %}
+
+{% block sidebar %}
+{% if jazzmin_settings.show_sidebar %}
+<aside class="app-sidebar wine-sidebar {{ jazzmin_ui.sidebar_classes }}" id="jazzy-sidebar" data-bs-theme="dark">
+
+  {# ---- Identité de la boutique ---- #}
+  <a href="{% url 'admin:index' %}" class="wine-brand" id="jazzy-logo" title="Accueil — {{ jazzmin_settings.site_header|default:"LAZAN'I BETSILEO" }}">
+    <img class="wine-brand-mark" src="{% static 'img/lazani-betsileo-mark.svg' %}" alt="" width="52" height="52" aria-hidden="true">
+    <span class="wine-brand-text">
+      <span class="wine-brand-title">{{ jazzmin_settings.site_header|default:"LAZAN'I BETSILEO" }}</span>
+      <span class="wine-brand-subtitle">Cave &amp; Boutique</span>
+    </span>
+  </a>
+
+  <div class="sidebar-wrapper">
+    {# ---- Search ---- #}
+    <div class="sb-find">
+      <i class="fas fa-search sb-find-ic"></i>
+      <input id="sb-find-input" type="search" spellcheck="false" autocomplete="off"
+             placeholder="Rechercher… ( Ctrl+K ou / )" aria-label="Rechercher dans la navigation">
+      <kbd class="sb-find-esc">esc</kbd>
+    </div>
+    <div class="sb-find-empty" id="sb-find-empty">Aucun résultat</div>
+
+    {# ---- Navigation ---- #}
+    <nav class="wine-nav" aria-label="Navigation principale">
+      <ul class="nav sidebar-menu flex-column" id="jazzy-navigation" role="navigation" data-lte-toggle="treeview" data-accordion="true">
+
+        {# ============ FAVORIS (peuplés par JS) ============ #}
+        <li class="nav-section" id="sb-fav-section" data-sb-color="favoris" hidden>
+          <span class="nav-section-icon"><i class="fas fa-star"></i></span>
+          <span class="nav-section-label">Favoris</span>
+        </li>
+
+        {# ============ ACCÈS RAPIDE ============ #}
+        <li class="nav-section" data-sb-section data-sb-color="rapide">
+          <span class="nav-section-icon"><i class="fas fa-bolt"></i></span>
+          <span class="nav-section-label">Accès rapide</span>
+        </li>
+
+        <li class="nav-item">
+          <a href="{% url 'admin:index' %}" class="nav-link {% if request.path == '/admin/' %}active{% endif %}">
+            <span class="nav-icon-wrap nav-icon-dashboard"><img class="sb-png" src="{% sidebar_icon 'dashboard' %}" alt=""></span>
+            <span class="nav-label">Accueil</span>
+          </a>
+          <button type="button" class="sb-fav-btn" data-sb-fav-href="{% url 'admin:index' %}" aria-label="Épingler Accueil" title="Épingler"><i class="fas fa-star"></i></button>
+        </li>
+
+        <li class="nav-item">
+          <a href="{% url 'rapports' %}" class="nav-link {% if '/admin/rapports/' in request.path %}active{% endif %}">
+            <span class="nav-icon-wrap nav-icon-rapports"><img class="sb-png" src="{% sidebar_icon 'rapports' %}" alt=""></span>
+            <span class="nav-label">Rapports</span>
+          </a>
+          <button type="button" class="sb-fav-btn" data-sb-fav-href="{% url 'rapports' %}" aria-label="Épingler Rapports" title="Épingler"><i class="fas fa-star"></i></button>
+        </li>
+
+        {% comment %}La caisse regroupe le comptoir, le journal et les commandes clients.{% endcomment %}
+        <li class="nav-section" data-sb-section data-sb-color="ventes">
+          <span class="nav-section-icon">
+            {% sidebar_icon 'ventes' as icon_url %}
+            {% if icon_url %}<img class="sb-png" src="{{ icon_url }}" alt="">{% else %}<i class="fas fa-wine-bottle"></i>{% endif %}
+          </span>
+          <span class="nav-section-label">Ventes</span>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'caisse-enregistreuse' %}" class="nav-link caisse-link {% if '/admin/caisse/' in request.path or '/admin/ventes/' in request.path %}active{% endif %}">
+            <span class="nav-icon-wrap nav-icon-caisse"><img class="sb-png" src="{% sidebar_icon 'caisse' %}" alt=""></span>
+            <span class="nav-label">Caisse</span>
+            {% if sb_badges.ventes_jour %}
+              <span class="nav-badge-count nav-badge-hot" title="{{ sb_badges.ventes_jour }} vente{{ sb_badges.ventes_jour|pluralize }} aujourd'hui">{{ sb_badges.ventes_jour }}</span>
+            {% else %}
+              <span class="nav-badge-live"></span>
+            {% endif %}
+          </a>
+          <button type="button" class="sb-fav-btn" data-sb-fav-href="{% url 'caisse-enregistreuse' %}" aria-label="Épingler Caisse" title="Épingler"><i class="fas fa-star"></i></button>
+        </li>
+
+        <li class="nav-item">
+          <a href="{% url 'admin:ventes_reservation_changelist' %}" class="nav-link {% if '/admin/ventes/reservation/' in request.path %}active{% endif %}">
+            <span class="nav-icon-wrap nav-icon-commandes"><img class="sb-png" src="{% sidebar_icon 'commandes' %}" alt=""></span>
+            <span class="nav-label">Commandes</span>
+            {% if sb_badges.commandes_attente %}
+              <span class="nav-badge-count nav-badge-gold" title="{{ sb_badges.commandes_attente }} commande{{ sb_badges.commandes_attente|pluralize }} client en attente">{{ sb_badges.commandes_attente }}</span>
+            {% endif %}
+          </a>
+          <button type="button" class="sb-fav-btn" data-sb-fav-href="{% url 'admin:ventes_reservation_changelist' %}" aria-label="Épingler Commandes" title="Épingler"><i class="fas fa-star"></i></button>
+        </li>
+
+        {# Modules métier : menu complet, trié par usage, icônes PNG uniques par modèle. #}
+        {% for app in available_apps|order_apps %}
+          {% if app.app_label == 'clients' or app.app_label == 'produits' or app.app_label == 'stocks' or app.app_label == 'promotions' or app.app_label == 'categories' %}
+          {% comment %}Source unique de vérité : JAZZMIN_SETTINGS['hide_models'].
+          app_models_visibles filtre les modèles masqués ET supprime la section
+          si plus rien n'y reste : pas d'intitulé orphelin au-dessus d'un menu
+          vide. Les règlements clients sont saisis sur la fiche client.{% endcomment %}
+          {% app_models_visibles app as modeles_visibles %}
+          {% if modeles_visibles %}
+            <li class="nav-section" data-sb-section data-sb-color="{{ app.app_label }}">
+              <span class="nav-section-icon">
+                {% sidebar_icon app.app_label as icon_url %}
+                {% if icon_url %}<img class="sb-png" src="{{ icon_url }}" alt="">{% else %}<i class="fas fa-folder"></i>{% endif %}
+              </span>
+              <span class="nav-section-label">{{ app.app_label|sidebar_label }}</span>
+            </li>
+
+            {% for model in modeles_visibles %}
+              {% with app.app_label|add:"."|add:model.object_name as model_key %}
+              <li class="nav-item">
+                <a href="{{ model.admin_url }}" class="nav-link {% if model.admin_url in request.path %}active{% endif %}">
+                  <span class="nav-icon-wrap {{ app.app_label|sidebar_tint }}">
+                    {% with png_file=model_key|icon_png %}
+                    {% if png_file %}
+                      <img class="sb-png" src="{% static 'icone/'|add:png_file %}" alt="">
+                    {% else %}
+                      <i class="{{ jazzmin_settings.icons|dget:model_key|default:'fas fa-circle-dot' }}"></i>
+                    {% endif %}
+                    {% endwith %}
+                  </span>
+                  <span class="nav-label">{{ model.name }}</span>
+                  {% if model.object_name == 'Stock' and sb_badges.stock_alerte %}
+                    <span class="nav-badge-count {% if sb_badges.stock_ruptures %}nav-badge-out{% else %}nav-badge-low{% endif %}" title="{{ sb_badges.stock_alerte }} référence{{ sb_badges.stock_alerte|pluralize }} à ré-embouteiller ({{ sb_badges.stock_ruptures }} en rupture)">{{ sb_badges.stock_alerte }}</span>
+                  {% elif model.object_name == 'Promotion' and sb_badges.promos_actives %}
+                    <span class="nav-badge-count nav-badge-gold" title="{{ sb_badges.promos_actives }} promotion{{ sb_badges.promos_actives|pluralize }} active{{ sb_badges.promos_actives|pluralize }}">{{ sb_badges.promos_actives }}</span>
+                  {% endif %}
+                </a>
+                <button type="button" class="sb-fav-btn" data-sb-fav-href="{{ model.admin_url }}" aria-label="Épingler {{ model.name }}" title="Épingler"><i class="fas fa-star"></i></button>
+              </li>
+              {% endwith %}
+              {% endfor %}
+
+          {% endif %}
+          {% endif %}
+        {% endfor %}
+
+        {% comment %}Les paramètres et les comptes sont regroupés dans une même console.{% endcomment %}
+        <li class="nav-section" data-sb-section data-sb-color="reglages">
+          <span class="nav-section-icon">
+            {% sidebar_icon 'parametres' as icon_url %}
+            {% if icon_url %}<img class="sb-png" src="{{ icon_url }}" alt="">{% else %}<i class="fas fa-cog"></i>{% endif %}
+          </span>
+          <span class="nav-section-label">Réglages</span>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'parametres:index' %}" class="nav-link {% if '/admin/parametres/' in request.path or '/admin/accounts/user/' in request.path %}active{% endif %}"
+             title="Paramètres, comptes, rôles et sauvegarde de la base">
+            <span class="nav-icon-wrap nav-icon-parametres"><img class="sb-png" src="{% sidebar_icon 'parametres' %}" alt=""></span>
+            <span class="nav-label">Réglages</span>
+          </a>
+          <button type="button" class="sb-fav-btn" data-sb-fav-href="{% url 'parametres:index' %}" aria-label="Épingler Réglages" title="Épingler"><i class="fas fa-star"></i></button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  {# ---- Footer ---- #}
+  <div class="sidebar-footer">
+    <a href="/api/docs/" target="_blank" rel="noopener" class="sf-item">
+      <span class="sf-icon"><i class="fas fa-book-open"></i></span>
+      <span>Documentation API</span>
+    </a>
+    <a href="{% url 'admin:password_change' %}" class="sf-item">
+      <span class="sf-icon"><img class="sb-png" src="{% sidebar_icon 'securite' %}" alt=""></span>
+      <span>Changer le mot de passe</span>
+    </a>
+    <div class="sf-divider"></div>
+    <div class="sf-brand">
+      <i class="fas fa-wine-bottle"></i>
+      <span>LAZAN' BETSILEO — v1.1</span>
+    </div>
+  </div>
+</aside>
+{% endif %}
+{% endblock %}

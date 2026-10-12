@@ -1,0 +1,34 @@
+{% extends "registration/base.html" %}
+{% load static i18n jazzmin %}
+{% get_jazzmin_settings request as jazzmin_settings %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="{% static 'css/wineadmin-auth.css' %}">
+{% block auth_extrastyle %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<main class="wine-auth">
+  <div class="wine-auth-bg" aria-hidden="true"><span class="blob blob-a"></span><span class="blob blob-b"></span></div>
+  <div class="auth-card {% block auth_card_class %}{% endblock %}">
+    <header class="auth-head">
+      <div class="ah-brand">
+        <span class="logo-bubble"><i class="fas fa-wine-bottle"></i></span>
+        {{ jazzmin_settings.site_brand|default:jazzmin_settings.site_title }}
+      </div>
+      <div class="kicker">{% block auth_kicker %}Espace sécurisé{% endblock %}</div>
+      <h1>{% block auth_title %}{% endblock %}</h1>
+      <p class="sub">{% block auth_sub %}{% endblock %}</p>
+    </header>
+    <div class="auth-body">
+      {% block auth_body %}{% endblock %}
+      <div class="auth-foot">
+        <span>© {{ jazzmin_settings.copyright|default:"LAZAN'I BETSILEO" }}</span>
+        <span><i class="fas fa-lock"></i> Chiffré de bout en bout</span>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="{% static 'js/wineadmin-auth.js' %}"></script>
+{% block auth_scripts %}{% endblock %}
+{% endblock %}

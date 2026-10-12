@@ -1,0 +1,115 @@
+<!--
+ Panneau de notifications — monté dans un mat-menu de la navbar.
+  Ordre : état de la permission, réglages par catégorie, puis l'historique.
+-->
+<div class="notif">
+  <!-- ------------------------------------------------------ Permission -->
+  @if (disponible()) {
+    @switch (autorisation()) {
+      @case ('granted') {
+        <p class="notif__permission notif__permission--ok">
+          <mat-icon>notifications_active</mat-icon>
+          {{ 'NOTIF.autorisee' | translate }}
+        </p>
+      }
+      @case ('denied') {
+        <p class="notif__permission notif__permission--ko">
+          <mat-icon>notifications_off</mat-icon>
+          {{ 'NOTIF.refusee' | translate }}
+        </p>
+      }
+      @default {
+        <div class="notif__permission notif__permission--demande">
+          <p>
+            <strong>{{ 'NOTIF.titreDemande' | translate }}</strong>
+          </p>
+          <button
+            mat-flat-button
+            type="button"
+            [disabled]="demandeEnCours()"
+            (click)="demanderAutorisation()"
+          >
+            <mat-icon>notifications</mat-icon>
+            {{ 'NOTIF.autoriser' | translate }}
+          </button>
+        </div>
+      }
+    }
+  } @else {
+    <p class="notif__permission notif__permission--ko">
+      <mat-icon>notifications_off</mat-icon>
+      {{ 'NOTIF.indisponible' | translate }}
+    </p>
+  }
+
+  @if (message(); as texte) {
+    <p class="notif__message lb-fade-in">{{ texte }}</p>
+  }
+
+  <!-- ------------------------------------------------------ Réglages -->
+  <div class="notif__prefs">
+    @for (categorie of categories; track categorie) {
+      <button
+        type="button"
+        class="notif__pref"
+        [class.is-active]="preferences()[categorie]"
+        [attr.aria-pressed]="preferences()[categorie]"
+        (click)="basculer(categorie)"
+      >
+        <mat-icon>{{ icone(categorie) }}</mat-icon>
+        <span>{{ ('NOTIF.categories.' + categorie) | translate }}</span>
+        <mat-icon class="notif__pref-etat">
+          {{ preferences()[categorie] ? 'toggle_on' : 'toggle_off' }}
+        </mat-icon>
+      </button>
+    }
+  </div>
+
+  <mat-divider />
+
+  <!-- ------------------------------------------------------ Historique -->
+  @if (alertes().length === 0) {
+    <p class="notif__vide">{{ 'NOTIF.aucune' | translate }}</p>
+  } @else {
+    <ul class="notif__liste">
+      @for (alerte of alertes(); track alerte.id) {
+        <li class="notif__item" [class.is-lue]="alerte.lue" [attr.data-categorie]="alerte.categorie">
+          <mat-icon class="notif__item-icone">{{ icone(alerte.categorie) }}</mat-icon>
+          <div class="notif__item-corps">
+            <p class="notif__item-titre">{{ alerte.titre }}</p>
+            <p class="notif__item-message">{{ alerte.message }}</p>
+            <time class="notif__item-date" [attr.datetime]="alerte.date">
+              {{ alerte.date | date: 'dd/MM/yy HH:mm' }}
+            </time>
+          </div>
+          @if (alerte.lien) {
+            <button
+              mat-icon-button
+              type="button"
+              class="notif__item-voir"
+              (click)="ouvrir(alerte.id, alerte.lien)"
+              [attr.aria-label]="('NOTIF.voir' | translate) + ' — ' + alerte.titre"
+              [matTooltip]="'NOTIF.voir' | translate"
+            >
+              <mat-icon>open_in_new</mat-icon>
+            </button>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  <mat-divider />
+
+  <!-- ------------------------------------------------------ Actions -->
+  <div class="notif__actions">
+    <button mat-button type="button" (click)="toutMarquerLu()" [disabled]="alertes().length === 0">
+      <mat-icon>done_all</mat-icon>
+      {{ 'NOTIF.toutLu' | translate }}
+    </button>
+    <button mat-button type="button" (click)="effacer()" [disabled]="alertes().length === 0">
+      <mat-icon>delete_sweep</mat-icon>
+      {{ 'NOTIF.effacer' | translate }}
+    </button>
+  </div>
+</div>

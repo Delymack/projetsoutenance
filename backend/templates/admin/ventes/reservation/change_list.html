@@ -1,0 +1,35 @@
+{% extends "admin/change_list.html" %}
+{% load i18n lb_tags %}
+
+{% comment %}
+Onglet « Commandes clients » de l'espace Caisse : ce que le client a mis de
+côté avant de revenir. Une commande n'est pas une vente — le stock ne bouge pas
+tant qu'elle n'est pas soldée — mais c'est bien du travail de comptoir, d'où
+sa place dans le même espace que la caisse et le journal.
+{% endcomment %}
+
+{% block content_title %}{% endblock %}
+
+{% block content %}
+{% include "admin/includes/onglets_caisse.html" %}
+
+  <div class="lb-hero">
+  <div class="lb-hero-body">
+    <div class="lb-eyebrow">À reprendre</div>
+    <h1><i class="fas fa-basket-shopping lb-hero-icon"></i>Commandes clients</h1>
+  </div>
+  <div class="lb-hero-actions">
+    {% if perms.ventes.add_reservation %}
+    <a class="lb-btn" href="{% url 'admin:commande-manuelle' %}"><i class="fas fa-plus"></i> Nouvelle commande manuelle</a>
+    {% endif %}
+    {% if perms.ventes.view_messageclient %}
+    <a class="lb-btn" href="{% url 'admin:ventes_messageclient_changelist' %}"><i class="fas fa-envelope"></i> Messages clients</a>
+    {% endif %}
+    <a class="lb-btn" href="{% url 'caisse-enregistreuse' %}"><i class="fas fa-cash-register"></i> Encaisser une vente</a>
+  </div>
+</div>
+
+<div class="lb-panel">
+  <div class="lb-panel-body lb-panel-body--flush">{{ block.super }}</div>
+</div>
+{% endblock %}

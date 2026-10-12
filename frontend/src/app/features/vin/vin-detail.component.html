@@ -1,0 +1,146 @@
+<section class="vin-detail lb-container">
+  @if (chargement()) {
+    <div class="vin-detail__loading">
+      <app-skeleton forme="carte" [hauteur]="'420px'" />
+      <app-skeleton forme="carte" [hauteur]="'420px'" />
+    </div>
+  } @else if (erreur() || !vin()) {
+    <div class="vin-detail__state lb-card" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <h1>{{ 'ERREURS.404' | translate }}</h1>
+      <a mat-stroked-button routerLink="/catalogue">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'CATALOGUE.titre' | translate }}
+      </a>
+    </div>
+  } @else {
+    @let bouteille = vin()!;
+    <div class="vin-detail__hero">
+      <div class="vin-detail__visual lb-card">
+        <div class="vin-detail__bottle" aria-hidden="true">
+          <img [src]="bouteille.image" [alt]="bouteille.nom" [class.vin-detail__bottle--spin]="rotationActive()" />
+          <button
+            mat-icon-button
+            type="button"
+            class="vin-detail__rotate-btn"
+            (click)="basculerRotation()"
+            [attr.aria-label]="'VIN.tourner' | translate"
+          >
+            <mat-icon>360</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <article class="vin-detail__info">
+        <span class="eyebrow">{{ bouteille.categorie }} · {{ bouteille.millesime }}</span>
+        <h1>{{ bouteille.nom }}</h1>
+        <p class="vin-detail__description">{{ bouteille.description }}</p>
+
+        <div class="vin-detail__meta">
+          @if (remisePct(bouteille); as remise) {
+            <span class="vin-detail__prix">
+              <small class="vin-detail__prix-barre">{{ bouteille.prixBarre | number:'1.0-0' }} Ar</small>
+              <strong>{{ bouteille.prix | number:'1.0-0' }} Ar</strong>
+              <span class="lb-badge-promo">-{{ remise }} %</span>
+            </span>
+          } @else {
+            <span><strong>{{ bouteille.prix | number:'1.0-0' }} Ar</strong></span>
+          }
+          <!-- Aucun avis n'est exposé par l'API produits : la note n'apparaît
+               qu'une fois qu'un client en a réellement laissé un. -->
+          @if (bouteille.nombreAvis + nbAvisSupplementaires() > 0) {
+            <span><mat-icon>star</mat-icon>{{ bouteille.noteMoyenne }} · {{ 'VIN.notes' | translate: { count: bouteille.nombreAvis + nbAvisSupplementaires() } }}</span>
+          }
+          <span><mat-icon>inventory_2</mat-icon>{{ bouteille.stock }} {{ 'VIN.stock' | translate }}</span>
+        </div>
+
+        <div class="vin-detail__actions">
+          <button mat-flat-button color="primary" type="button" [disabled]="bouteille.stock < 1" (click)="ajouterAuPanier(bouteille)">
+            <mat-icon>add_shopping_cart</mat-icon>
+            {{ 'VIN.ajouterPanier' | translate }}
+          </button>
+          <button mat-stroked-button type="button" (click)="basculerFavori(bouteille)">
+            <mat-icon>{{ favoris.estFavori(bouteille.id) ? 'favorite' : 'favorite_border' }}</mat-icon>
+            {{ (favoris.estFavori(bouteille.id) ? 'VIN.retirerFavoris' : 'VIN.ajouterFavoris') | translate }}
+          </button>
+ <!-- Partage réutilisable -->
+          <app-share
+            [url]="urlCourante()"
+            [titre]="bouteille.nom"
+            [message]="('PARTAGE.messageVin' | translate: { nom: bouteille.nom })"
+            [compact]="true"
+          />
+        </div>
+      </article>
+    </div>
+
+    <mat-tab-group class="vin-detail__tabs" animationDuration="220ms">
+      <mat-tab [label]="'VIN.details' | translate">
+        <div class="vin-detail__tab-grid">
+          <section class="lb-card vin-detail__panel">
+            <h2>{{ 'VIN.notesDegustation' | translate }}</h2>
+            <ul>
+              @for (note of bouteille.notesDegustation; track note) {
+                <li>{{ note }}</li>
+              }
+            </ul>
+          </section>
+          <section class="lb-card vin-detail__panel vin-detail__facts">
+            <h2>{{ 'VIN.details' | translate }}</h2>
+            <dl>
+              <div><dt>{{ 'VIN.cepage' | translate }}</dt><dd>{{ bouteille.cepage }}</dd></div>
+              <div><dt>{{ 'VIN.region' | translate }}</dt><dd>{{ bouteille.region }}</dd></div>
+              <div><dt>{{ 'VIN.alcool' | translate }}</dt><dd>{{ bouteille.alcool }} %</dd></div>
+              <div><dt>{{ 'VIN.volume' | translate }}</dt><dd>{{ bouteille.volume }} cl</dd></div>
+              <div><dt>{{ 'VIN.producteur' | translate }}</dt><dd>{{ bouteille.producteur }}</dd></div>
+            </dl>
+          </section>
+        </div>
+      </mat-tab>
+
+      <mat-tab [label]="'VIN.accords' | translate">
+        <div class="vin-detail__chips lb-card">
+          @for (accord of bouteille.accords; track accord) {
+            <span class="vin-detail__chip">{{ accord }}</span>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab [label]="'VIN.avis' | translate">
+ <!-- Avis réutilisables -->
+        <app-review [vinId]="bouteille.id" />
+      </mat-tab>
+
+      <mat-tab [label]="'VIN.promotions' | translate">
+        <div class="vin-detail__promos">
+          @for (promo of promotionsVin(); track promo.id) {
+            <article class="lb-card vin-detail__promo">
+              <span class="lb-badge-promo">
+                {{ promo.remisePct ? '-' + promo.remisePct + ' %' : ('PROMO.lot' | translate) }}
+              </span>
+              <h2>{{ promo.libelle }}</h2>
+              <p>
+                @if (promo.remisePct) {
+                  -{{ promo.remisePct }} %
+                } @else {
+                  Offre spéciale
+                }
+              </p>
+              <small>Jusqu'au {{ promo.dateFin | date:'mediumDate' }}</small>
+            </article>
+          } @empty {
+            <div class="lb-card vin-detail__panel">{{ 'PROMO.aucunePromo' | translate }}</div>
+          }
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+
+    <div class="vin-detail__sticky">
+      <strong>{{ bouteille.prix | number:'1.0-0' }} Ar</strong>
+      <button mat-flat-button color="primary" type="button" [disabled]="bouteille.stock < 1" (click)="ajouterAuPanier(bouteille)">
+        <mat-icon>add_shopping_cart</mat-icon>
+        {{ 'VIN.ajouterPanier' | translate }}
+      </button>
+    </div>
+  }
+</section>

@@ -1,0 +1,213 @@
+/* Panneau de notifications 
+   La largeur est bornée : le panneau s'ouvre sous la cloche, donc il doit rester
+   lisible sans devenir une fenêtre. */
+
+:host {
+  display: block;
+}
+
+.notif {
+  width: min(360px, 78vw);
+  padding: var(--lb-gap-sm);
+}
+
+/* ------------------------------------------------------------------ Permission */
+
+.notif__permission {
+  display: flex;
+  align-items: center;
+  gap: var(--lb-gap-sm);
+  margin: 0 0 var(--lb-gap-sm);
+  padding: var(--lb-gap-sm);
+  font-size: 0.8rem;
+  border-radius: var(--lb-radius-sm);
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+
+  &--ok {
+    color: var(--lb-success);
+    background: color-mix(in srgb, var(--lb-success) 12%, transparent);
+  }
+
+  &--ko {
+    color: var(--lb-text-muted);
+    background: var(--lb-bg-alt);
+  }
+}
+
+.notif__permission--demande {
+  display: grid;
+  gap: var(--lb-gap-xs);
+  background: var(--lb-promo-bg);
+  border: 1px solid var(--lb-accent);
+
+  p {
+    display: grid;
+    gap: 2px;
+    margin: 0;
+  }
+
+  small {
+    font-size: 0.74rem;
+    color: var(--lb-text-muted);
+  }
+
+  button {
+    justify-self: start;
+  }
+}
+
+.notif__message {
+  margin: 0 0 var(--lb-gap-sm);
+  padding: 6px var(--lb-gap-sm);
+  font-size: 0.78rem;
+  color: var(--lb-text-muted);
+  background: var(--lb-bg-alt);
+  border-radius: var(--lb-radius-sm);
+}
+
+/* ------------------------------------------------------------------ Réglages */
+
+.notif__prefs {
+  display: grid;
+  gap: 2px;
+  margin-bottom: var(--lb-gap-sm);
+}
+
+.notif__pref {
+  display: grid;
+  grid-template-columns: 20px 1fr 24px;
+  align-items: center;
+  gap: var(--lb-gap-sm);
+  padding: 6px var(--lb-gap-sm);
+  font-size: 0.82rem;
+  color: var(--lb-text-muted);
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: var(--lb-radius-sm);
+  transition: background var(--lb-transition);
+
+  &:hover {
+    background: var(--lb-surface-2);
+  }
+
+  &.is-active {
+    color: var(--lb-primary);
+  }
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+}
+
+.notif__pref-etat {
+  color: var(--lb-accent);
+}
+
+/* ------------------------------------------------------------------ Liste */
+
+.notif__liste {
+  max-height: 320px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.notif__item {
+  display: grid;
+  grid-template-columns: 24px 1fr 32px;
+  gap: var(--lb-gap-sm);
+  align-items: start;
+  padding: var(--lb-gap-sm) 4px;
+  border-bottom: 1px solid var(--lb-divider);
+
+  /* Non lue : pastille discrète + fond légèrement plus dense. */
+  &:not(.is-lue) {
+    background: var(--lb-promo-bg);
+  }
+
+  &[data-categorie='stock'] .notif__item-icone {
+    color: var(--lb-warning);
+  }
+
+  &[data-categorie='promo'] .notif__item-icone {
+    color: var(--lb-primary);
+  }
+
+  &[data-categorie='commande'] .notif__item-icone {
+    color: var(--lb-success);
+  }
+}
+
+.notif__item-icone {
+  width: 22px;
+  height: 22px;
+  font-size: 22px;
+}
+
+.notif__item-corps {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.notif__item-titre {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.notif__item-message {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--lb-text-muted);
+}
+
+.notif__item-date {
+  font-size: 0.68rem;
+  color: var(--lb-text-muted);
+}
+
+.notif__item-voir {
+  width: 32px;
+  height: 32px;
+  padding: 4px;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.notif__vide {
+  margin: 0;
+  padding: var(--lb-gap) 0;
+  font-size: 0.82rem;
+  font-style: italic;
+  text-align: center;
+  color: var(--lb-text-muted);
+}
+
+.notif__actions {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--lb-gap-xs);
+  padding-top: var(--lb-gap-xs);
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}

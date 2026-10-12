@@ -1,0 +1,139 @@
+{% extends "admin/change_list.html" %}
+{% load i18n lb_tags %}
+
+{% block content_title %}{% endblock %}
+
+{# Conserver les filtres métier sans ajouter le bandeau natif au-dessus de la liste. #}
+{% block filters %}{% endblock %}
+{% block date_hierarchy %}{% endblock %}
+
+{% block search %}
+{% comment %} Le nom du champ de recherche est `q`, la constante admin.views.main.SEARCH_VAR ;
+   les autres paramètres sont conservés pour ne pas perdre le filtre actif. {% endcomment %}
+<form id="changelist-search" class="lb-searchbar" method="get" role="search">
+  <i class="fas fa-magnifying-glass lb-searchbar-icon" aria-hidden="true"></i>
+  <input type="search" name="q" value="{{ cl.query }}" id="searchbar"
+         placeholder="Nom, téléphone, e-mail ou adresse…"
+         aria-label="Rechercher un client" autocomplete="off">
+  {% for pair in cl.params.items %}
+    {% if pair.0 != 'q' %}<input type="hidden" name="{{ pair.0 }}" value="{{ pair.1 }}">{% endif %}
+  {% endfor %}
+  <button type="submit" class="lb-btn lb-btn-primary">Rechercher</button>
+  {% if cl.query or cl.params %}
+    <a class="lb-btn lb-btn-ghost" href="{% url 'admin:clients_client_changelist' %}">Tout afficher</a>
+  {% endif %}
+  <span class="lb-searchbar-count">
+    <b>{{ cl.result_count }}</b> client{{ cl.result_count|pluralize }}
+  </span>
+</form>
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<style>
+  .model-client.change-list .lb-kpi small { max-width: 78%; }
+  .model-client.change-list #result_list { table-layout: auto; }
+  .model-client.change-list .lb-panel-body--flush { padding: 0; }
+  /* Le bandeau retiré ne doit pas laisser de colonne vide à gauche. */
+  .model-client.change-list #changelist { display: block; }
+  .model-client.change-list #changelist.filtered #changelist-form { width: 100%; }
+  .model-client.change-list #changelist .changelist-form-container { width: 100%; }
+
+  /* Barre de recherche : une seule ligne, recherche à gauche, compteur à droite. */
+  .model-client.change-list .lb-portefeuille { flex-wrap: wrap; }
+  .model-client.change-list .lb-searchbar {
+      align-items: center;
+      border-bottom: 1px solid var(--lb-line);
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin: 0;
+      padding: 0 1.25rem .9rem;
+  }
+  .model-client.change-list .lb-searchbar-icon { color: var(--lb-ink-500); }
+  .model-client.change-list .lb-searchbar input[type="search"] {
+      border: 1px solid var(--lb-line);
+      border-radius: var(--lb-radius-sm);
+      color: var(--lb-ink);
+      flex: 1 1 15rem;
+      font: inherit;
+      min-width: 0;
+      padding: .55rem .75rem;
+  }
+  .model-client.change-list .lb-searchbar input[type="search"]:focus {
+      border-color: var(--lb-wine);
+      box-shadow: 0 0 0 3px var(--lb-wine-100);
+      outline: none;
+  }
+  .model-client.change-list .lb-searchbar-count {
+      color: var(--lb-ink-500);
+      font-size: .82rem;
+      margin-left: auto;
+  }
+  .model-client.change-list .lb-searchbar-count b { color: var(--lb-ink); }
+
+  /* Actions de masse (balisage jazzmin) : une ligne discrète, sans Select all. */
+  .model-client.change-list .change-list-actions { margin: 0; padding: 0 1.25rem .8rem; }
+  .model-client.change-list .change-list-actions .actions {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+  }
+  .model-client.change-list .change-list-actions .actions label { margin: 0; }
+  .model-client.change-list .change-list-actions .actions select { min-width: 16rem; }
+  .model-client.change-list .change-list-actions .action-select { display: none; }
+  .model-client.change-list .change-list-actions .action-checkbox { width: auto; }
+  .model-client.change-list .change-list-actions span { color: var(--lb-ink-500); font-size: .82rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="lb-hero">
+  <div class="lb-hero-body">
+    <div class="lb-eyebrow">Fidélité</div>
+    <h1><i class="fas fa-users lb-hero-icon"></i>Clients</h1>
+  </div>
+  <div class="lb-hero-actions">
+    <a class="lb-btn" href="{% url 'admin:clients_client_add' %}"><i class="fas fa-user-plus"></i> Nouveau client</a>
+  </div>
+</div>
+
+<section class="lb-kpis">
+  <a class="lb-kpi is-clickable" href="{% url 'admin:clients_client_changelist' %}">
+    <i class="fas fa-users lb-kpi-icon"></i>
+    <small>Clients enregistrés</small>
+    <strong>{{ clients_kpis.total|intcomma }}</strong>
+  </a>
+  <a class="lb-kpi lb-kpi-ok is-clickable" href="?fidelite=fidelite">
+    <i class="fas fa-crown lb-kpi-icon"></i>
+    <small>Acheteurs actifs</small>
+    <strong>{{ clients_kpis.actifs|intcomma }}</strong>
+  </a>
+  <a class="lb-kpi lb-kpi-warn is-clickable" href="?solde_due=1">
+    <i class="fas fa-scale-balanced lb-kpi-icon"></i>
+    <small>Encours total</small>
+    <strong>{{ clients_kpis.encours|floatformat:0|intcomma }}</strong>
+  </a>
+  <a class="lb-kpi is-clickable" href="?fidelite=ambassadeur">
+    <i class="fas fa-chart-line lb-kpi-icon"></i>
+    <small>CA clients</small>
+    <strong>{{ clients_kpis.ca_total|floatformat:0|intcomma }}</strong>
+  </a>
+  <a class="lb-kpi lb-kpi-neutral is-clickable" href="?type_client__exact=REVENDEUR">
+    <i class="fas fa-store lb-kpi-icon"></i>
+    <small>Revendeurs</small>
+    <strong>{{ clients_kpis.revenus|intcomma }}</strong>
+  </a>
+  <a class="lb-kpi lb-kpi-danger is-clickable" href="?inactif_90j=1">
+    <i class="fas fa-user-clock lb-kpi-icon"></i>
+    <small>Sans achat 90 j</small>
+    <strong>{{ clients_kpis.sans_achat_90j|intcomma }}</strong>
+  </a>
+</section>
+
+<div class="lb-panel">
+  <div class="lb-panel-head lb-portefeuille">
+    <h2><i class="fas fa-layer-group lb-kpi-icon"></i> Portefeuille clients</h2>
+  </div>
+  <div class="lb-panel-body lb-panel-body--flush">{{ block.super }}</div>
+</div>
+{% endblock %}

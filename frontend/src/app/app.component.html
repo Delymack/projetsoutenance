@@ -1,0 +1,31 @@
+<!--
+  Coquille applicative.
+  Le padding-bottom laisse la place au bandeau hors ligne (position: fixed).
+  Sur les routes marquées `sansChrome` (écran client), la navbar et le footer
+  sont masqués : cet écran est destiné à être affiché face au client.
+-->
+<div class="app">
+  @if (chromeVisible()) {
+    <app-navbar />
+  }
+
+  <main class="app__contenu" id="contenu-principal">
+    <router-outlet />
+  </main>
+
+  @if (chromeVisible()) {
+    <footer class="app__footer">
+      <div class="lb-container">
+        <p>© {{ annee }} {{ 'APP.nom' | translate }} — {{ 'APP.baseline' | translate }}</p>
+      </div>
+    </footer>
+  }
+
+ <!-- bandeau hors ligne + file d'attente de synchronisation -->
+  <app-bandeau-hors-ligne />
+
+ <!-- chatbot flottant, disponible sur toutes les pages sauf l'écran client -->
+  @if (chromeVisible()) {
+    <app-chatbot />
+  }
+</div>

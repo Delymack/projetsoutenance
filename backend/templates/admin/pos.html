@@ -1,0 +1,635 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static lb_tags %}
+
+{% block content_title %}{% endblock %}
+{% block content %}
+<style>
+  /* ============ CAISSE — « Cave & Or » ============ */
+  .pos { --wine:#641b2c; --wine-2:#8b3046; --ink:#2b1b20; --gold:#c99b3b; --gold-2:#e6bd6a;
+         --cream:#fbf8f2; --line:#ece5df; --green:#17733e; --red:#8c1f33; --amber:#986200;
+         --cible:44px;   /* toute cible tactile fait au moins 44 px */
+         color:var(--ink); max-width:1600px; margin:auto;
+         font-family:"Segoe UI",system-ui,-apple-system,sans-serif; }
+  .pos button { font-family:inherit; }
+  .pos ::-webkit-scrollbar { height:6px; width:8px; }
+  .pos ::-webkit-scrollbar-thumb { background:#e2d6cf; border-radius:6px; }
+
+  /* ---------- En-tête hero : hauteur fixe 56 px ---------- */
+  .pos .pos-head { align-items:center; background:radial-gradient(70% 160% at 88% -60%, rgba(230,189,106,.30), transparent 60%),
+                  linear-gradient(118deg,#2e0e18 0%,#5a1d31 58%,#3a1422 100%);
+                  border-radius:16px; box-shadow:0 14px 34px rgba(46,14,24,.28); color:#fff;
+                  display:flex; flex-wrap:wrap; gap:.4rem .75rem; justify-content:space-between;
+                  margin:.5rem 0 .55rem; min-height:56px; padding:.35rem .9rem; position:relative; overflow:hidden; }
+  .pos .pos-head::after { content:''; position:absolute; inset:0; background:linear-gradient(100deg,transparent 40%,rgba(255,255,255,.05) 50%,transparent 60%); transform:translateX(-120%); animation:pos-sheen 9s ease-in-out infinite; }
+  @keyframes pos-sheen { 0%,55%{transform:translateX(-130%)} 85%,100%{transform:translateX(130%)} }
+  .pos .pos-head h1 { align-items:center; display:flex; font-size:1.02rem; font-weight:800; gap:.5rem; letter-spacing:.01em; margin:0; }
+  .pos .pos-head h1 i { color:#f0d58e; }
+  .pos .head-stats { align-items:center; display:flex; flex-wrap:wrap; gap:.35rem; }
+  .pos .hstat { align-items:center; background:rgba(255,255,255,.08); border:1px solid rgba(230,189,106,.25); border-radius:999px; color:#ffe9cf; display:inline-flex; font-size:.73rem; font-weight:800; gap:.3rem; padding:.25rem .6rem; }
+  .pos .hstat.gold { background:rgba(230,189,106,.16); border-color:rgba(230,189,106,.45); color:#ffd88a; }
+  .pos .head-right { align-items:center; display:flex; gap:.35rem; }
+  .pos .mini-btn { align-items:center; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16); border-radius:9px; color:#ffe3cd; cursor:pointer; display:inline-flex; height:34px; justify-content:center; transition:background .15s; width:34px; }
+  .pos .mini-btn:hover { background:rgba(230,189,106,.24); color:#fff; }
+  .pos .mini-btn.active { background:var(--gold); border-color:var(--gold); color:#2b1c09; }
+  .pos .clock { color:#ffe9cf; font-size:.84rem; font-variant-numeric:tabular-nums; font-weight:800; }
+  .pos .cashier-chip { align-items:center; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); border-radius:999px; color:#ffe3cd; display:inline-flex; font-size:.73rem; font-weight:700; gap:.3rem; padding:.25rem .6rem; }
+  .pos .cashier-chip.bad { background:rgba(224,116,104,.24); border-color:rgba(224,116,104,.5); color:#f6ecee; }
+
+  /* ---------- Bandeau d'état (session, aide scanner) ---------- */
+  .pos .pos-status-strip { align-items:center; background:#fff; border:1px solid var(--line); border-radius:13px;
+      display:flex; flex-wrap:wrap; gap:.4rem; margin:0 0 .6rem; padding:.4rem .55rem; }
+  .pos .pos-status-pill { align-items:center; background:var(--cream); border:1px solid var(--line); border-radius:999px;
+      color:#6d5c60; display:inline-flex; font-size:.73rem; font-weight:800; gap:.35rem; padding:.3rem .65rem; }
+  .pos .pos-status-pill i { color:var(--gold); }
+  .pos .pos-status-pill.success { background:#e9f8ef; border-color:#bde5c9; color:#146c3a; }
+  .pos .pos-status-pill.success i { color:#1d8a4c; }
+  .pos .pos-status-pill.bad { background:#f6ecee; border-color:#e7d2d7; color:#8c1f33; }
+  .pos .pos-status-pill.bad i { color:var(--red); }
+  .pos .pos-status-pill button { background:currentColor; border:0; border-radius:7px; color:#fff; cursor:pointer; font-size:.71rem; font-weight:800; padding:.2rem .5rem; }
+  .pos .scan-hint { color:#7c6b6e; font-size:.71rem; margin-left:auto; }
+  .pos .scan-hint kbd { background:#f3ede8; border:1px solid #ded2cd; border-bottom-width:2px; border-radius:5px; font-family:inherit; font-size:.67rem; font-weight:800; padding:.05rem .3rem; }
+
+  /* ---------- Toolbar catalogue ---------- */
+  .pos .catalogue { background:linear-gradient(180deg,#fff,var(--cream)); border:1px solid var(--line); border-radius:16px; box-shadow:0 8px 26px rgba(43,27,32,.06); padding:.85rem; }
+  .pos .toolbar-row { align-items:center; display:flex; flex-wrap:wrap; gap:.4rem; }
+  .pos .search-wrap { flex:1 1 240px; position:relative; }
+  .pos .search-wrap>i { color:#6f5f62; left:.9rem; position:absolute; top:50%; transform:translateY(-50%); }
+  .pos #search-input { border:1px solid #ded2cd; border-radius:11px; font-size:.95rem; padding:.55rem 2.4rem .55rem 2.4rem; transition:border-color .15s, box-shadow .15s; width:100%; }
+  .pos #search-input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,155,59,.18); outline:0; }
+  .pos .search-clear { background:transparent; border:0; color:#8a7a7d; cursor:pointer; font-size:.85rem; position:absolute; right:.7rem; top:50%; transform:translateY(-50%); }
+  .pos .search-clear:hover { color:var(--wine); }
+  .pos .tool-toggle { align-items:center; background:#fff; border:1px solid #e2d8d2; border-radius:9px; color:#6d5c60; cursor:pointer; display:inline-flex; font-size:.75rem; font-weight:800; gap:.35rem; min-height:var(--cible); padding:0 .7rem; transition:all .15s; white-space:nowrap; }
+  .pos .tool-toggle:hover { border-color:var(--gold); color:var(--wine); }
+  .pos .tool-toggle.active { background:var(--wine); border-color:var(--wine); color:#fff; }
+  .pos .product-count { color:#6f5f62; font-size:.79rem; font-weight:600; margin:.55rem .1rem .35rem; }
+  .pos .product-count b { color:var(--wine); }
+
+  /* ---------- Filtres catégorie ---------- */
+  .pos .category-list { display:flex; gap:.35rem; margin:.45rem 0; overflow-x:auto; padding:.1rem .1rem .3rem; }
+  .pos .category { background:#fff; border:1px solid #e2d8d2; border-radius:999px; color:#6d5c60; cursor:pointer; font-size:.79rem; font-weight:700; min-height:34px; padding:0 .8rem; transition:all .15s; white-space:nowrap; }
+  .pos .category:hover { border-color:#c8899a; color:var(--wine); }
+  .pos .category.active { background:linear-gradient(100deg,var(--wine),var(--wine-2)); border-color:var(--wine); color:#fff; }
+  .pos .category.promo-chip.active { background:linear-gradient(100deg,var(--gold),#a87c22); border-color:var(--gold); }
+
+  /* ---------- Grille produits : DENSE (défaut) / PHOTO ---------- */
+  .pos .product-list { display:grid; gap:.55rem; grid-template-columns:repeat(auto-fill,minmax(155px,1fr)); }
+  /* DENSE : la vignette disparaît. Au comptoir il faut voir 40 références d'un
+     coup d'œil, pas contempler des photos. PHOTO sert à reconnaître une
+     bouteille posée sur le comptoir qu'on ne connaît pas par cœur. */
+  .pos.dense .product-list { grid-template-columns:repeat(auto-fill,minmax(142px,1fr)); }
+  .pos.dense .product { min-height:0; }
+  .pos.dense .product-thumb { display:none; }
+  .pos.dense .product-body { padding:.55rem .55rem .5rem; }
+  .pos.dense .product-name { font-size:.8rem; -webkit-line-clamp:3; }
+
+  .pos .product { background:#fff; border:1px solid var(--line); border-radius:13px; content-visibility:auto; contain-intrinsic-size:auto 180px; cursor:pointer; min-height:180px; overflow:hidden; padding:0; position:relative; text-align:left; transition:border-color .16s, transform .16s, box-shadow .16s; }
+  .pos .product:hover:not(:disabled) { border-color:rgba(201,155,59,.75); box-shadow:0 12px 26px rgba(100,27,44,.14); transform:translateY(-2px); }
+  .pos .product:active:not(:disabled) { transform:translateY(-1px) scale(.99); }
+  .pos .product:disabled { background:#faf7f6; cursor:not-allowed; opacity:.72; }
+  .pos .product-body { display:block; padding:.65rem .6rem .6rem; }
+  .pos .product-thumb { align-items:center; background:linear-gradient(150deg,#f7f0eb,#f1e7e0); border-radius:10px; display:flex; height:58px; justify-content:center; margin-bottom:.45rem; overflow:hidden; position:relative; width:58px; }
+  .pos .product-thumb img { height:100%; object-fit:cover; width:100%; }
+  .pos .product-thumb .bottle { color:var(--wine-2); font-size:1.1rem; }
+  .pos .thumb-promo::after { border-bottom:22px solid rgba(201,155,59,.9); border-right:22px solid transparent; content:''; position:absolute; right:0; top:0; }
+  .pos .thumb-promo i { color:#fff; font-size:.6rem; position:absolute; right:3px; top:2px; z-index:1; }
+  .pos .promo-badge { background:linear-gradient(100deg,var(--gold),#a87c22); border-radius:999px; box-shadow:0 3px 10px rgba(168,124,34,.35); color:#fff; font-size:.62rem; font-weight:800; padding:.22rem .45rem; position:absolute; right:.55rem; top:.55rem; z-index:2; }
+  .pos .product-name { -webkit-box-orient:vertical; color:var(--ink); display:-webkit-box; font-size:.84rem; font-weight:800; -webkit-line-clamp:2; line-height:1.25; margin:.1rem 0 .15rem; overflow:hidden; }
+  .pos .product-brand { color:#7c6b6e; display:block; font-size:.71rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pos .product-bottom { align-items:end; display:flex; justify-content:space-between; margin-top:.45rem; }
+  .pos .price-wrap { display:flex; flex-direction:column; line-height:1.15; }
+  .pos .price { color:var(--wine); font-size:.96rem; font-weight:800; }
+  .pos .price-promo { color:var(--green); font-size:.96rem; font-weight:800; }
+  .pos .price-original { color:#8a7a7d; font-size:.69rem; font-weight:700; text-decoration:line-through; }
+  .pos .stock { border-radius:999px; font-size:.62rem; font-weight:800; padding:.2rem .42rem; }
+  .pos .in-stock { background:#e9f8ef; color:var(--green); }
+  .pos .low-stock { background:#fff6e4; color:var(--amber); }
+  .pos .out-stock { background:#f6ecee; color:var(--red); }
+  /* Pastille de quantité déjà au panier : le caissier voit ce qu'il a pris. */
+  .pos .cart-qty { align-items:center; background:var(--wine); border:2px solid #fff; border-radius:999px; box-shadow:0 2px 8px rgba(46,14,24,.4); color:#fff; display:none; font-size:.7rem; font-weight:800; height:24px; justify-content:center; left:.35rem; min-width:24px; padding:0 .25rem; position:absolute; top:.35rem; z-index:3; }
+  .pos .cart-qty.on { display:flex; }
+  .pos .qty-flash { animation:pos-flash .5s ease; }
+  @keyframes pos-flash { 0%{ box-shadow:0 0 0 4px rgba(201,155,59,.35);} 100%{ box-shadow:0 0 0 0 rgba(201,155,59,0);} }
+
+  /* ---------- Panier ---------- */
+  .pos .cart { background:linear-gradient(180deg,#fff, #fffefb); border:1px solid var(--line); border-radius:16px; box-shadow:0 8px 26px rgba(43,27,32,.08); height:fit-content; overflow:hidden; position:sticky; top:1.1rem; }
+  .pos .cart-head { align-items:center; background:linear-gradient(120deg,var(--cream),#fffaf0); border-bottom:1px solid var(--line); display:flex; justify-content:space-between; padding:.7rem .85rem; }
+  .pos .cart-head h2 { align-items:center; color:var(--ink); display:flex; font-size:.92rem; font-weight:800; gap:.4rem; margin:0; }
+  .pos .items-badge { background:linear-gradient(100deg,var(--wine),var(--wine-2)); border-radius:999px; color:#fff; font-size:.68rem; font-weight:800; min-width:22px; padding:.22rem .48rem; text-align:center; }
+  .pos .items-badge.pop { animation:pos-pop .35s ease; }
+  @keyframes pos-pop { 0%{transform:scale(1)} 45%{transform:scale(1.25)} 100%{transform:scale(1)} }
+  .pos .cart-actions { display:flex; gap:.3rem; }
+  .pos .cart-actions button { align-items:center; background:var(--cream); border:1px solid var(--line); border-radius:9px; color:var(--wine); cursor:pointer; display:inline-flex; font-size:.71rem; font-weight:800; gap:.25rem; min-height:34px; padding:0 .45rem; transition:all .15s; }
+  .pos .cart-actions button:hover { border-color:var(--gold); }
+  .pos .cart-actions button.danger:hover { border-color:#e7d2d7; color:var(--red); }
+  .pos .cart-body { padding:.85rem; }
+  .pos .loyalty-hint { animation:pos-in .2s ease; background:linear-gradient(120deg,#fbf4e4,#fdf8ee); border:1px solid #ecdcbc; border-radius:11px; color:#7c5315; display:none; font-size:.74rem; font-weight:700; margin-top:.4rem; padding:.4rem .55rem; }
+  @keyframes pos-in { from{opacity:0; transform:translateY(-4px)} to{opacity:1; transform:none} }
+  .pos .client-label-row { align-items:center; display:flex; justify-content:space-between; }
+  .pos label { display:block; font-size:.73rem; font-weight:800; margin-bottom:.28rem; }
+  .pos .client-row { align-items:center; display:flex; gap:.4rem; }
+  .pos .client-row select { border:1px solid #ded2cd; border-radius:9px; flex:1; font-size:.87rem; min-height:var(--cible); }
+  .pos .client-row input { border:1px solid #ded2cd; border-radius:9px; flex:1; font-size:.87rem; min-height:var(--cible); padding:0 .6rem; }
+  .pos .client-row input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,155,59,.15); outline:0; }
+  .pos .client-row select:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,155,59,.15); outline:0; }
+  .pos .promo-code-row { margin:.55rem 0; }
+  .pos .promo-code-row input { border:1px solid #ded2cd; border-radius:9px; font-size:.87rem; min-height:var(--cible); padding:0 .6rem; width:100%; }
+  .pos .promo-code-row input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,155,59,.15); outline:0; }
+  .pos .promo-code-feedback { color:#6f5f62; display:block; font-size:.72rem; margin-top:.2rem; }
+  .pos .promo-code-feedback.error { color:var(--red); font-weight:700; }
+  .pos .promo-code-feedback.success { color:var(--green); font-weight:700; }
+  .pos .add-client { align-items:center; background:var(--cream); border:1px solid var(--line); border-radius:9px; color:var(--wine); cursor:pointer; display:inline-flex; flex:0 0 var(--cible); height:var(--cible); justify-content:center; }
+  .pos .add-client:hover { background:var(--wine); border-color:var(--wine); color:#fff; }
+  .pos .cart-items { border-bottom:1px solid var(--line); border-top:1px solid var(--line); margin:.7rem 0; max-height:290px; min-height:100px; overflow:auto; }
+  .pos .empty { color:#a39294; font-size:.85rem; padding:1.8rem .5rem; text-align:center; }
+  .pos .cart-item { border-bottom:1px solid #f1ebe7; padding:.55rem .1rem; }
+  .pos .cart-item:last-child { border:0; }
+  .pos .item-top,.pos .item-bottom { align-items:center; display:flex; justify-content:space-between; }
+  .pos .item-name { font-size:.82rem; font-weight:800; max-width:70%; }
+  .pos .item-promo { color:var(--green); font-size:.67rem; font-weight:800; margin-top:.1rem; }
+  .pos .item-remise { color:var(--amber); font-size:.67rem; font-weight:800; margin-top:.1rem; }
+  .pos .remove { background:transparent; border:0; color:#c2b2b5; cursor:pointer; padding:.15rem .3rem; }
+  .pos .remove:hover { color:var(--red); }
+  .pos .quantity { align-items:center; display:flex; gap:.28rem; }
+  .pos .qty-btn { align-items:center; background:var(--cream); border:1px solid var(--line); border-radius:8px; color:var(--wine); cursor:pointer; display:flex; font-weight:800; height:30px; justify-content:center; transition:all .12s; width:30px; }
+  .pos .qty-btn:hover:not(:disabled) { background:var(--wine); border-color:var(--wine); color:#fff; }
+  .pos .qty-btn:disabled { cursor:not-allowed; opacity:.4; }
+  .pos .qty-input { border:1px solid var(--line); border-radius:8px; font-size:.81rem; font-weight:800; height:30px; text-align:center; width:46px; }
+  .pos .subtotal { font-size:.84rem; font-weight:800; }
+  .pos .subtotal-promo { color:var(--green); font-size:.84rem; font-weight:800; }
+  .pos .line-tools { display:flex; gap:.28rem; margin-top:.3rem; }
+  .pos .line-tools button { background:#fff; border:1px solid var(--line); border-radius:7px; color:#6d5c60; cursor:pointer; font-size:.67rem; font-weight:800; min-height:28px; padding:0 .4rem; }
+  .pos .line-tools button:hover { border-color:var(--gold); color:var(--wine); }
+  .pos .pay-pills { background:var(--cream); border-radius:11px; display:flex; gap:.18rem; padding:.2rem; }
+  .pos .pay-pills button { background:transparent; border:0; border-radius:8px; color:#6d5c60; cursor:pointer; flex:1; font-size:.7rem; font-weight:800; min-height:var(--cible); padding:.2rem; transition:all .15s; }
+  .pos .pay-pills button i { display:block; font-size:.88rem; margin-bottom:.08rem; }
+  .pos .pay-pills button:hover { color:var(--wine); }
+  .pos .pay-pills button.active { background:#fff; box-shadow:0 3px 10px rgba(43,27,32,.14); color:var(--wine); }
+  /* Sept moyens de paiement : la rangée se replie sur deux lignes plutôt que
+     de réduire les boutons sous la taille de cible tactile. */
+  .pos .pay-pills-wrap { display:grid; grid-template-columns:repeat(4,1fr); }
+  .pos .pay-pills button.active[data-mode="MOBILE_MONEY"], .pos .pay-pills button.active[data-mode="MVOLA"],
+  .pos .pay-pills button.active[data-mode="ORANGE_MONEY"], .pos .pay-pills button.active[data-mode="AIRTEL_MONEY"] { color:#2f6b4f; }
+  .pos .pay-pills button.active[data-mode="CARTE"] { color:#255540; }
+  .pos .pay-pills button.active[data-mode="CHEQUE"] { color:var(--ink); }
+  .pos .pay-pills button.active[data-mode="CREDIT"] { color:#7c5315; }
+  .pos .ref-box { background:var(--cream); border-radius:11px; margin-top:.5rem; padding:.5rem .65rem; }
+  .pos .ref-box label { display:block; font-size:.7rem; font-weight:800; margin-bottom:.25rem; }
+  .pos .ref-box input { border:1px solid var(--line); border-radius:9px; font-size:.95rem; font-weight:800; min-height:var(--cible); padding:.3rem .6rem; width:100%; }
+  .pos .savings-row { align-items:center; background:linear-gradient(100deg,#e9f8ef,#eafaf1); border-radius:11px; color:#146c3a; display:flex; font-size:.77rem; font-weight:800; justify-content:space-between; margin-top:.6rem; padding:.45rem .65rem; }
+  .pos .pts-row { align-items:center; background:#fbf6ea; border-radius:9px; color:#7c5315; display:flex; font-size:.71rem; font-weight:800; justify-content:space-between; margin-top:.4rem; padding:.4rem .6rem; }
+  .pos .total-row { align-items:end; display:flex; justify-content:space-between; margin:.8rem 0 .55rem; }
+  .pos .total-row small { color:#6f5f62; font-weight:700; }
+  .pos .total { color:var(--wine); font-size:1.55rem; font-variant-numeric:tabular-nums; font-weight:850; line-height:1; }
+  .pos .total.is-promo { color:var(--green); }
+  .pos .tool-row { display:grid; gap:.3rem; grid-template-columns:1fr 1fr; margin-bottom:.5rem; }
+  .pos .tool-row button { align-items:center; background:#fff; border:1px solid var(--line); border-radius:9px; color:#6d5c60; cursor:pointer; display:inline-flex; font-size:.72rem; font-weight:800; gap:.3rem; justify-content:center; min-height:var(--cible); padding:0 .5rem; }
+  .pos .tool-row button:hover:not(:disabled) { border-color:var(--gold); color:var(--wine); }
+  .pos .tool-row button:disabled { cursor:not-allowed; opacity:.45; }
+  .pos .tool-row button.warn:hover:not(:disabled) { border-color:#e7d2d7; color:var(--red); }
+  .pos .checkout { background:linear-gradient(100deg,#641b2c,#8b3046); background-size:200% 100%; border:0; border-radius:12px; box-shadow:0 10px 22px rgba(100,27,44,.3); color:#fff; cursor:pointer; font-size:.92rem; font-weight:800; min-height:52px; padding:.55rem; transition:transform .15s,box-shadow .15s,background-position .6s; width:100%; }
+  .pos .checkout:not(:disabled):hover { background-position:100% 0; box-shadow:0 14px 28px rgba(100,27,44,.38); transform:translateY(-1px); }
+  .pos .checkout:disabled { cursor:not-allowed; opacity:.5; }
+  .pos .secure { color:#7c6b6e; font-size:.67rem; margin:.5rem 0 0; text-align:center; }
+  .pos .secure b { color:#7a6a6d; }
+  .pos .notice { border-radius:10px; display:none; font-size:.79rem; font-weight:700; margin-bottom:.65rem; padding:.6rem .7rem; }
+  .pos .notice.error { animation:pos-in .2s ease; background:#f6ecee; color:#8c1f33; display:block; }
+  .pos .notice.success { animation:pos-in .2s ease; background:#e9f8ef; color:#146c3a; display:block; }
+
+  /* ---------- Modales ---------- */
+  .pos-modal { align-items:center; background:rgba(16,8,11,.6); backdrop-filter:blur(3px); display:none; inset:0; justify-content:center; padding:1rem; position:fixed; z-index:2000; }
+  .pos-modal.open { animation:pos-fade .18s ease; display:flex; }
+  @keyframes pos-fade { from{opacity:0} to{opacity:1} }
+  .pos-modal .pay-card { background:#fff; border-radius:18px; box-shadow:0 30px 70px rgba(0,0,0,.45); max-height:94vh; max-width:620px; overflow:auto; width:100%; }
+  .pos-modal .wide { max-width:760px; }
+  .pos-modal .pay-head { align-items:center; background:linear-gradient(115deg,#2e0e18,#5a1d31); color:#fff; display:flex; justify-content:space-between; padding:.85rem 1.05rem; }
+  .pos-modal .pay-head h3 { font-size:.93rem; font-weight:800; margin:0; }
+  .pos-modal .pay-close { background:transparent; border:0; color:rgba(255,255,255,.85); cursor:pointer; font-size:1rem; }
+  .pos-modal .pay-body { padding:1rem 1.05rem 1.15rem; }
+  .pos-modal .amount-big { color:var(--wine); font-size:1.85rem; font-variant-numeric:tabular-nums; font-weight:850; line-height:1; text-align:center; }
+  .pos-modal .amount-sub { color:#6f5f62; font-size:.77rem; font-weight:700; margin-top:.28rem; text-align:center; }
+  .pos-modal .input-cash, .pos-modal .form-control-pos { border:1px solid #ded2cd; border-radius:11px; font-size:1rem; font-variant-numeric:tabular-nums; font-weight:800; min-height:var(--cible); padding:.5rem .75rem; width:100%; }
+  .pos-modal .input-cash { text-align:right; }
+  .pos-modal .input-cash:focus, .pos-modal .form-control-pos:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,155,59,.18); outline:0; }
+  .pos-modal .change-box { animation:pos-in .2s ease; background:#e9f8ef; border-radius:10px; color:#146c3a; display:flex; font-size:.81rem; font-weight:800; justify-content:space-between; margin-top:.7rem; padding:.55rem .7rem; }
+  .pos-modal .change-box.negar { background:#f6ecee; color:#8c1f33; }
+  .pos-modal .confirm-pay { background:linear-gradient(100deg,#17733e,#1d8a4c); background-size:200% 100%; border:0; border-radius:11px; box-shadow:0 8px 18px rgba(23,115,62,.32); color:#fff; cursor:pointer; font-weight:800; margin-top:.8rem; min-height:50px; padding:.6rem; transition:background-position .5s; width:100%; }
+  .pos-modal .confirm-pay:not(:disabled):hover { background-position:100% 0; }
+  .pos-modal .confirm-pay:disabled { cursor:not-allowed; opacity:.5; }
+  .pos-modal .secondary-pay { background:#fff; border:1px solid var(--line); box-shadow:none; color:#5f4e52; margin-top:.35rem; }
+  .pos-modal .info-line { color:#7a6a6d; font-size:.75rem; line-height:1.5; }
+  .pos-modal .quick-cash { display:flex; flex-wrap:wrap; gap:.3rem; margin-top:.4rem; }
+  .pos-modal .quick-cash button { background:#f7f3ee; border:1px solid #e7dfd8; border-radius:8px; cursor:pointer; font-size:.75rem; font-weight:800; min-height:36px; padding:0 .55rem; }
+  .pos-modal .quick-cash button:hover { border-color:var(--gold); color:var(--wine); }
+  .pos-modal .cash-more { background:none; border:0; color:var(--wine); cursor:pointer; font-size:.72rem; font-weight:800; margin-top:.3rem; padding:.12rem 0; text-decoration:underline dotted; }
+  .pos-modal .cash-more:hover { color:var(--gold); }
+
+  /* ---------- Pavé numérique tactile ---------- */
+  .pave { display:grid; gap:.35rem; grid-template-columns:repeat(3,1fr); margin-top:.6rem; }
+  .pave.four { grid-template-columns:repeat(4,1fr); }
+  .pave button { align-items:center; background:#fff; border:1px solid #e2d8d2; border-radius:11px; color:var(--ink); cursor:pointer; display:flex; font-size:1.2rem; font-weight:800; justify-content:center; min-height:var(--cible); transition:background .1s,transform .06s; }
+  .pave button:active { background:var(--cream); transform:scale(.96); }
+  .pave button.op { background:var(--cream); color:#6d5c60; font-size:.85rem; }
+  .pave button.ok { background:linear-gradient(100deg,#17733e,#1d8a4c); border-color:#17733e; color:#fff; }
+  .pave button.clr { background:#f6ecee; color:var(--red); }
+
+  /* ---------- Lignes de paiement mixte ---------- */
+  .split { border:1px solid var(--line); border-radius:11px; margin-top:.6rem; overflow:hidden; }
+  .split .split-head { background:var(--cream); border-bottom:1px solid var(--line); color:var(--wine); font-size:.69rem; font-weight:800; letter-spacing:.06em; padding:.45rem .65rem; text-transform:uppercase; }
+  .split .split-line { align-items:center; border-bottom:1px solid #f4eeea; display:grid; gap:.45rem; grid-template-columns:1fr auto auto; padding:.45rem .65rem; }
+  .split .split-line:last-child { border-bottom:0; }
+  .split .split-line .who { align-items:center; display:flex; font-size:.79rem; font-weight:800; gap:.35rem; }
+  .split .split-line .who i { color:var(--wine); width:15px; }
+  .split .split-line input { border:1px solid #ded2cd; border-radius:8px; font-size:.84rem; font-variant-numeric:tabular-nums; font-weight:800; min-height:36px; padding:0 .45rem; text-align:right; width:105px; }
+  .split .split-line .del { background:transparent; border:0; color:#c2b2b5; cursor:pointer; }
+  .split .split-line .del:hover { color:var(--red); }
+  .split .restant { color:#8c1f33; font-size:.77rem; font-weight:800; padding:.45rem .65rem; }
+  .split .restant.ok { color:#146c3a; }
+  .split .add-mode { background:#fff; border:1px dashed #d9cfc9; border-radius:10px; color:#6d5c60; cursor:pointer; font-size:.75rem; font-weight:800; margin-top:.45rem; min-height:var(--cible); width:100%; }
+  .split .add-mode:hover { border-color:var(--gold); color:var(--wine); }
+
+  /* ---------- Retours ---------- */
+  .retour-line { align-items:center; border-bottom:1px solid #f1ebe7; display:grid; gap:.45rem; grid-template-columns:1fr auto auto; padding:.5rem .1rem; }
+  .retour-line:last-child { border-bottom:0; }
+  .retour-line .nom { font-size:.81rem; font-weight:800; }
+  .retour-line .info { color:#7c6b6e; font-size:.69rem; }
+  .retour-line input { border:1px solid #ded2cd; border-radius:8px; font-size:.84rem; font-weight:800; height:34px; text-align:center; width:54px; }
+  .retour-line .max { color:#a8999b; font-size:.67rem; }
+
+  /* ---------- Surcouche reçu ---------- */
+  .overlay { align-items:center; background:rgba(16,8,11,.66); backdrop-filter:blur(4px); display:none; inset:0; justify-content:center; padding:1rem; position:fixed; z-index:2500; }
+  .overlay.open { animation:pos-fade .18s ease; display:flex; }
+  .overlay .receipt { background:#fff; border-radius:18px; box-shadow:0 30px 80px rgba(0,0,0,.5); max-height:94vh; max-width:520px; overflow:auto; width:100%; }
+  .overlay .ok-banner { align-items:center; background:linear-gradient(120deg,#17733e,#1d8a4c); border-radius:18px 18px 0 0; color:#fff; display:flex; gap:.65rem; padding:.9rem 1.1rem; }
+  .overlay .ok-banner .big { font-size:1.6rem; }
+  .overlay .ok-banner h3 { font-size:1rem; font-weight:800; margin:0; }
+  .overlay .ok-banner p { color:rgba(255,255,255,.85); font-size:.79rem; margin:.12rem 0 0; }
+  .overlay .rec-body { padding:1rem 1.1rem; }
+  .overlay .rec-lines { border-bottom:1px solid var(--line); border-top:1px solid var(--line); margin:.7rem 0; max-height:190px; overflow:auto; padding:.35rem 0; }
+  .overlay .rec-line { align-items:center; display:flex; font-size:.81rem; justify-content:space-between; padding:.22rem 0; }
+  .overlay .rec-line .q { color:#6d5c60; font-weight:700; }
+  .overlay .rec-total { align-items:baseline; display:flex; justify-content:space-between; }
+  .overlay .rec-total strong { color:var(--wine); font-size:1.4rem; font-variant-numeric:tabular-nums; }
+  .overlay .rec-meta { color:#6f5f62; font-size:.77rem; line-height:1.6; }
+  .overlay .rec-actions { display:grid; gap:.35rem; grid-template-columns:1fr 1fr; margin-top:.9rem; }
+  .overlay .rec-actions .wide { grid-column:1 / -1; }
+  .overlay .rec-actions a, .overlay .rec-actions button { align-items:center; background:var(--wine); border:0; border-radius:10px; color:#fff; cursor:pointer; display:inline-flex; font-size:.81rem; font-weight:800; gap:.35rem; justify-content:center; min-height:var(--cible); padding:0 .65rem; text-decoration:none; }
+  .overlay .rec-actions .alt { background:#fff; border:1px solid var(--line); color:#5f4e52; }
+  .overlay .rec-actions .wa { background:#1da851; }
+  .overlay .rec-actions .wa:disabled { background:#cfe3d4; color:#6b8b74; cursor:not-allowed; }
+
+  /* ---------- Blocage de caisse ---------- */
+  .bloquer { align-items:center; background:linear-gradient(160deg,#2e0e18,#5a1d31); border-radius:15px; color:#fff; display:none; gap:1rem; justify-content:space-between; margin-bottom:.6rem; padding:.9rem 1.1rem; }
+  .bloquer.on { animation:pos-in .2s ease; display:flex; }
+  .bloquer h3 { font-size:.95rem; font-weight:800; margin:0 0 .18rem; }
+  .bloquer p { color:rgba(255,255,255,.82); font-size:.79rem; margin:0; }
+  .bloquer .fonds { background:rgba(255,255,255,.12); border:1px solid rgba(230,189,106,.4); border-radius:10px; color:#ffe9cf; font-size:.92rem; font-weight:800; margin-bottom:.4rem; min-height:var(--cible); padding:.45rem .65rem; width:170px; }
+  .bloquer .fonds:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(230,189,106,.2); outline:0; }
+  .bloquer .go { background:var(--gold); border:0; border-radius:10px; color:#2b1c09; cursor:pointer; font-size:.83rem; font-weight:800; min-height:var(--cible); padding:0 1rem; width:100%; }
+  .bloquer .go:hover { filter:brightness(1.08); }
+
+  /* ---------- Client express ---------- */
+  .express-card { background:#fff; border-radius:18px; box-shadow:0 30px 70px rgba(0,0,0,.45); max-width:380px; overflow:hidden; width:100%; }
+  .express-head { align-items:center; background:linear-gradient(115deg,#2e0e18,#5a1d31); color:#fff; display:flex; justify-content:space-between; padding:.85rem 1.05rem; }
+  .express-head h3 { font-size:.93rem; font-weight:800; margin:0; }
+  .express-body { padding:1rem; }
+  .express-body .form-control { border:1px solid #ded2cd; border-radius:10px; font-size:.89rem; min-height:var(--cible); }
+  .express-body .form-control:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,155,59,.18); outline:0; }
+  .express-body .btn-exp { background:linear-gradient(100deg,var(--wine),var(--wine-2)); border:0; border-radius:10px; box-shadow:0 8px 18px rgba(100,27,44,.28); color:#fff; font-weight:800; margin-top:.3rem; min-height:var(--cible); padding:0; width:100%; }
+  .express-body .btn-exp:disabled { cursor:not-allowed; opacity:.55; }
+
+  /* ---------- Toasts ---------- */
+  .pos-toasts { display:flex; flex-direction:column; gap:.4rem; position:fixed; right:1rem; top:1rem; z-index:3000; }
+  .pos-toast { align-items:center; background:#2e0e18; border:1px solid rgba(230,189,106,.4); border-radius:11px; box-shadow:0 12px 28px rgba(0,0,0,.3); color:#ffe9cf; display:flex; font-size:.79rem; font-weight:700; gap:.45rem; max-width:330px; padding:.6rem .8rem; animation:pos-toast-in .25s ease; }
+  .pos-toast.green { border-color:rgba(65,190,120,.5); }
+  .pos-toast.red { border-color:rgba(224,116,104,.6); }
+  .pos-toast.out { animation:pos-toast-out .25s ease forwards; }
+  @keyframes pos-toast-in { from{opacity:0; transform:translateX(16px)} to{opacity:1; transform:none} }
+  @keyframes pos-toast-out { to{opacity:0; transform:translateX(16px)} }
+
+  @media (max-width:991px) { .pos .cart { position:static; } }
+  @media (max-width:575px) {
+    .pos .product-list, .pos.dense .product-list { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .pos .scan-hint { display:none; }
+    .pos .tool-row { grid-template-columns:1fr; }
+  }
+</style>
+
+<main class="pos" id="pos-root">
+  {% include "admin/includes/onglets_caisse.html" %}
+  <!-- ================= EN-TÊTE 56 px ================= -->
+  <header class="pos-head">
+    <h1><i class="fas fa-cash-register"></i> Nouvelle vente</h1>
+    <div class="head-stats">
+      <span class="cashier-chip" id="cashier-chip"><i class="fas fa-user-tie"></i> <span id="cashier-name">{{ request.user.get_full_name|default:request.user.username }}</span></span>
+      <span class="hstat"><i class="fas fa-shopping-basket"></i><span id="hstat-items">0 article</span></span>
+      <span class="hstat gold" id="hstat-savings" style="display:none"><i class="fas fa-tag"></i><span id="hstat-savings-txt">-0,00</span></span>
+      <span class="hstat"><i class="fas fa-bolt"></i><span id="hstat-promos">0 promo</span></span>
+    </div>
+    <div class="head-right">
+      <span class="clock" id="pos-clock">--:--:--</span>
+      <button class="mini-btn" id="layout-toggle" type="button" title="Basculer DENSE / PHOTO"><i class="fas fa-table-cells"></i></button>
+      <button class="mini-btn" id="sound-toggle" type="button" title="Activer / couper le bip"><i class="fas fa-volume-mute"></i></button>
+      <button class="mini-btn" id="fullscreen-toggle" type="button" title="Plein écran (F11)"><i class="fas fa-expand"></i></button>
+    </div>
+  </header>
+
+  <!-- ================= BLOCAGE SESSION ================= -->
+  <section class="bloquer" id="session-block">
+    <div>
+      <h3><i class="fas fa-lock mr-2"></i>Caisse fermée</h3>
+      <p>Déclarez le fonds de caisse pour pouvoir encaisser aujourd'hui.</p>
+    </div>
+    <div>
+      <input class="fonds" id="session-fonds" type="number" min="0" step="0.01" value="0" aria-label="Fonds de caisse" placeholder="Fonds de caisse">
+      <button class="go" id="session-open" type="button"><i class="fas fa-unlock mr-1"></i> Ouvrir la caisse</button>
+    </div>
+  </section>
+
+  <!-- ================= BANDEAU D'ÉTAT ================= -->
+  <div class="pos-status-strip">
+    <span class="pos-status-pill" id="pill-session"><i class="fas fa-circle"></i> <span>Session…</span></span>
+    <span class="pos-status-pill" id="pill-remise" style="display:none"><i class="fas fa-tag"></i> <span>Remise autorisée</span></span>
+    <span class="pos-status-pill"><i class="fas fa-shield-alt"></i> Stock contrôlé à la validation</span>
+    <span class="scan-hint">Douchette active — <kbd>F2</kbd> scanner, <kbd>Entrée</kbd> ajoute au panier</span>
+  </div>
+
+  <div class="row">
+    <!-- ================= CATALOGUE ================= -->
+    <section class="col-lg-8 mb-3">
+      <div class="catalogue">
+        <div class="toolbar-row">
+          <div class="search-wrap">
+            <i class="fas fa-barcode"></i>
+            <input id="search-input" class="form-control" type="search" autocomplete="off" placeholder="Scanner ou rechercher : nom, marque, millésime…" aria-label="Scanner ou rechercher un produit">
+            <button class="search-clear" id="search-clear" type="button" title="Effacer (Échap)"><i class="fas fa-times-circle"></i></button>
+          </div>
+          <button class="tool-toggle" id="hide-rupture" type="button"><i class="fas fa-boxes"></i> Masquer ruptures</button>
+          <button class="tool-toggle" id="promo-only" type="button"><i class="fas fa-tag"></i> En promo</button>
+        </div>
+        <div class="category-list" id="category-list" aria-label="Filtrer par catégorie"></div>
+        <div class="product-count" id="product-count">Chargement du catalogue…</div>
+        <div class="product-list" id="product-list" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- ================= PANIER ================= -->
+    <aside class="col-lg-4 mb-3">
+      <section class="cart">
+        <header class="cart-head">
+          <h2><span class="items-badge" id="items-count">0</span>Panier</h2>
+          <span class="cart-actions">
+            <button id="cancel-sale" class="danger" type="button" title="Annuler la vente (F9)"><i class="fas fa-trash"></i></button>
+          </span>
+        </header>
+        <div class="cart-body">
+          <div id="notice" class="notice" role="alert"></div>
+
+          <div class="client-label-row">
+            <label for="client-select">Client</label>
+            <span style="font-size:.73rem;font-weight:700;color:#a39294"><i class="fas fa-gem mr-1"></i><span id="client-niveau">Fidélité</span></span>
+          </div>
+          <div class="client-row">
+            <select id="client-select" class="form-control"><option value="">Client de passage</option></select>
+            <button class="add-client" id="express-client" type="button" title="Créer un client rapidement"><i class="fas fa-user-plus"></i></button>
+          </div>
+          {# Saisie libre du nom quand aucune fiche client n'est sélectionnée. #}
+          <div class="client-row" id="client-libelle-row" style="display:none;margin-top:.35rem">
+            <input type="text" id="client-libelle" class="form-control" placeholder="Nom du client (facultatif)" maxlength="150" autocomplete="off">
+          </div>
+          <div id="loyalty-hint" class="loyalty-hint"></div>
+          <div class="cart-items" id="cart-items">
+            <div class="empty"><i class="fas fa-shopping-basket d-block mb-2" style="font-size:1.4rem"></i>Votre panier est vide.</div>
+          </div>
+
+          <div class="tool-row">
+            <button id="open-remise" type="button" disabled><i class="fas fa-percent"></i> Remise</button>
+            <button id="open-retour" type="button" class="warn"><i class="fas fa-rotate-left"></i> Retour</button>
+          </div>
+
+          {# Plus de code promotionnel : les offres s'appliquent toutes seules. #}
+          <div class="promo-code-row">
+            <span id="promo-code-feedback" class="promo-code-feedback" role="status"></span>
+          </div>
+
+          <label>Mode de paiement</label>
+          <div class="pay-pills pay-pills-wrap" id="payment-pills" role="group" aria-label="Mode de paiement">
+            {% for code, libelle in modes_paiement %}
+              <button type="button" data-mode="{{ code }}" {% if forloop.first %}class="active"{% endif %}><i class="fas {{ icone_paiement|call:code }}"></i>{{ libelle }}</button>
+            {% endfor %}
+          </div>
+          <span class="pts-row" id="pts-row" style="display:none"><span><i class="fas fa-star mr-1" style="color:#c99b3b"></i>Fidélité estimée</span><span id="pts-amount">0 pts</span></span>
+          <div class="savings-row" id="savings-row" style="display:none"><span><i class="fas fa-tag mr-1"></i>Économies</span><span id="savings-amount">- 0,00</span></div>
+          <div class="total-row"><small>Total à encaisser</small><span class="total" id="cart-total">0,00</span></div>
+          <button class="checkout" id="checkout-btn" type="button" disabled><i class="fas fa-lock mr-1"></i> Encaisser la vente</button>
+          <p class="secure"><b>F1</b> bip · <b>F2</b> scanner · <b>F4</b> payer · <b>F5</b> mixte · <b>F6</b> remise · <b>F7</b> retour · <b>F9</b> annuler · <b>F10</b> clôture</p>
+        </div>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<!-- ================= MODALE ENCAISSEMENT ================= -->
+<div class="pos-modal" id="pay-modal" role="dialog" aria-modal="true" aria-labelledby="pay-title">
+  <div class="pay-card">
+    <header class="pay-head"><h3 id="pay-title"><i class="fas fa-cash-register mr-2"></i>Encaissement</h3><button class="pay-close" id="pay-close" type="button" aria-label="Fermer"><i class="fas fa-times"></i></button></header>
+    <div class="pay-body">
+      <div class="amount-big" id="pay-total">0,00</div>
+      <div class="amount-sub" id="pay-sub"></div>
+
+      <div style="margin-top:.8rem">
+        <label>Mode de paiement</label>
+        <div class="pay-pills pay-pills-wrap" id="pay-method" role="group" aria-label="Mode de paiement du modal">
+          {% for code, libelle in modes_paiement %}
+            <button type="button" data-mode="{{ code }}" {% if forloop.first %}class="active"{% endif %}><i class="fas {{ icone_paiement|call:code }}"></i>{{ libelle }}</button>
+          {% endfor %}
+        </div>
+        <div class="ref-box" id="ref-box" style="display:none">
+          <label for="pay-reference">Référence de transaction</label>
+          <input id="pay-reference" type="text" autocomplete="off" placeholder="N° de transaction reçu par SMS">
+        </div>
+        <div class="change-box" id="credit-box" style="display:none"><span>Crédit disponible</span><span id="credit-available">0,00</span></div>
+      </div>
+
+      <div id="cash-section" style="margin-top:.8rem">
+        <label for="cash-received">Montant reçu</label>
+        <input id="cash-received" class="input-cash" type="text" inputmode="decimal" placeholder="0,00" autocomplete="off">
+        <button class="cash-more" id="cash-more" type="button"><i class="fas fa-hashtag mr-1"></i> Saisir un autre montant</button>
+        <div id="cash-extras">
+          <div class="quick-cash" id="quick-cash"></div>
+          <div class="pave" id="pave">
+            <button type="button" data-key="7">7</button>
+            <button type="button" data-key="8">8</button>
+            <button type="button" data-key="9">9</button>
+            <button type="button" class="op" data-key="back" aria-label="Effacer un chiffre"><i class="fas fa-backspace"></i></button>
+            <button type="button" data-key="4">4</button>
+            <button type="button" data-key="5">5</button>
+            <button type="button" data-key="6">6</button>
+            <button type="button" class="op" data-key="exact">= Total</button>
+            <button type="button" data-key="1">1</button>
+            <button type="button" data-key="2">2</button>
+            <button type="button" data-key="3">3</button>
+            <button type="button" class="clr" data-key="clear">C</button>
+            <button type="button" data-key="0">0</button>
+            <button type="button" data-key="00">00</button>
+            <button type="button" class="ok" data-key="ok" aria-label="Valider"><i class="fas fa-check"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="change-box" id="change-box" style="display:none"><span>Monnaie à rendre</span><span id="change-amount">0,00</span></div>
+      <button class="confirm-pay" id="confirm-pay" type="button" disabled><i class="fas fa-check-circle mr-1"></i> Confirmer le paiement</button>
+      <button class="confirm-pay secondary-pay" id="switch-mixte" type="button"><i class="fas fa-layer-group mr-1"></i> Répartir sur plusieurs moyens (F5)</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODALE PAIEMENT MIXTE ================= -->
+<div class="pos-modal" id="mixte-modal" role="dialog" aria-modal="true" aria-labelledby="mixte-title">
+  <div class="pay-card">
+    <header class="pay-head"><h3 id="mixte-title"><i class="fas fa-layer-group mr-2"></i>Paiement mixte</h3><button class="pay-close" id="mixte-close" type="button" aria-label="Fermer"><i class="fas fa-times"></i></button></header>
+    <div class="pay-body">
+      <div class="amount-big" id="mixte-total">0,00</div>
+      <div class="amount-sub">Répartissez le total entre plusieurs moyens. La somme doit être exacte.</div>
+      <div class="split">
+        <div class="split-head">Répartition</div>
+        <div id="split-lines"></div>
+        <div class="restant" id="split-rest">Reste à répartir : 0,00</div>
+      </div>
+      <button class="add-mode" id="add-mode" type="button"><i class="fas fa-plus mr-1"></i> Ajouter un moyen de paiement</button>
+      <div class="split" id="mixte-modes" style="display:grid;grid-template-columns:repeat(2,1fr);gap:.3rem;padding:.5rem"></div>
+      <div style="margin-top:.7rem">
+        <label for="split-motif">Motif de la remise globale</label>
+        <input id="split-motif" class="form-control-pos" type="text" maxlength="255" placeholder="Obligatoire si une remise est appliquée">
+        <p class="info-line" style="margin-top:.3rem">La remise elle-même se saisit ligne par ligne avec le bouton <b>Remise</b> du panier.</p>
+      </div>
+      <button class="confirm-pay" id="confirm-mixte" type="button" disabled><i class="fas fa-check-circle mr-1"></i> Valider le paiement mixte</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODALE REMISE ================= -->
+<div class="pos-modal" id="remise-modal" role="dialog" aria-modal="true" aria-labelledby="remise-title">
+  <div class="pay-card">
+    <header class="pay-head"><h3 id="remise-title"><i class="fas fa-percent mr-2"></i>Remise au comptoir</h3><button class="pay-close" id="remise-close" type="button" aria-label="Fermer"><i class="fas fa-times"></i></button></header>
+    <div class="pay-body">
+      <label for="remise-ligne">Ligne à remiser</label>
+      <select id="remise-ligne" class="form-control-pos"></select>
+      <p class="info-line" id="remise-plafond" style="margin-top:.3rem"></p>
+      <div class="quick-cash" id="remise-rapides" style="margin-top:.5rem"></div>
+      <div style="margin-top:.6rem">
+        <label for="remise-montant">Montant de la remise</label>
+        <input id="remise-montant" class="input-cash" type="text" inputmode="decimal" placeholder="0,00">
+      </div>
+      <div style="margin-top:.6rem">
+        <label for="remise-pct">ou en pourcentage</label>
+        <input id="remise-pct" class="input-cash" type="text" inputmode="decimal" placeholder="0">
+      </div>
+      <div class="change-box" id="remise-apres" style="display:none"><span>Ligne après remise</span><span id="remise-apres-val">0,00</span></div>
+      <button class="confirm-pay" id="confirm-remise" type="button" disabled><i class="fas fa-check mr-1"></i> Appliquer la remise</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODALE RETOUR ================= -->
+<div class="pos-modal" id="retour-modal" role="dialog" aria-modal="true" aria-labelledby="retour-title">
+  <div class="pay-card wide">
+    <header class="pay-head"><h3 id="retour-title"><i class="fas fa-rotate-left mr-2"></i>Retour client</h3><button class="pay-close" id="retour-close" type="button" aria-label="Fermer"><i class="fas fa-times"></i></button></header>
+    <div class="pay-body">
+      <label for="retour-ref">Référence de la vente (ou scan du code produit du ticket)</label>
+      <input id="retour-ref" class="form-control-pos" type="search" placeholder="FAC-XXXXXXXX" autocomplete="off">
+      <div class="quick-cash" id="retour-suggestions" style="margin-top:.4rem"></div>
+
+      <div id="retour-contenu" style="display:none">
+        <p class="info-line" id="retour-tete" style="margin-top:.6rem"></p>
+        <div id="retour-lignes" style="margin-top:.4rem"></div>
+        <div style="display:grid;gap:.45rem;grid-template-columns:1fr 1fr;margin-top:.7rem">
+          <div><label for="retour-motif">Motif du retour *</label><input id="retour-motif" class="form-control-pos" type="text" placeholder="Casse, erreur…"></div>
+          <div><label for="retour-mode">Remboursement</label>
+            <select id="retour-mode" class="form-control-pos">
+              <option value="ESPECES">Espèces</option>
+              <option value="MOBILE_MONEY">Mobile Money</option>
+              <option value="CARTE">Carte</option>
+            </select>
+          </div>
+        </div>
+        <div class="change-box" id="retour-total" style="display:none"><span>Remboursement</span><span id="retour-total-val">0,00</span></div>
+        <button class="confirm-pay" id="confirm-retour" type="button" disabled style="background:linear-gradient(100deg,#8c1f33,#641b2c)"><i class="fas fa-check mr-1"></i> Valider le retour</button>
+      </div>
+      <p class="info-line" id="retour-vide" style="margin-top:.5rem">Le ticket d'origine n'est jamais réécrit : le stock est réintégré et le rapprochement de caisse déduit le remboursement.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODALE CLIENT EXPRESS ================= -->
+<div class="pos-modal" id="express-modal" role="dialog" aria-modal="true" aria-labelledby="express-title">
+  <div class="express-card">
+    <header class="express-head"><h3 id="express-title"><i class="fas fa-user-plus mr-2"></i>Client express</h3><button class="pay-close" id="express-close" type="button" aria-label="Fermer"><i class="fas fa-times"></i></button></header>
+    <div class="express-body">
+      <div class="form-group mb-2"><label for="exp-nom">Nom *</label><input id="exp-nom" class="form-control" autocomplete="off"></div>
+      <div class="form-group mb-2"><label for="exp-prenom">Prénom *</label><input id="exp-prenom" class="form-control" autocomplete="off"></div>
+      <div class="form-group mb-2"><label for="exp-tel">Téléphone *</label><input id="exp-tel" class="form-control" type="tel" autocomplete="off"></div>
+      <div class="form-group mb-2"><label for="exp-email">Email (optionnel)</label><input id="exp-email" class="form-control" type="email" autocomplete="off"></div>
+      <button class="btn-exp" id="exp-submit" type="button"><i class="fas fa-user-check mr-1"></i> Créer et sélectionner</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODALE CLÔTURE ================= -->
+<div class="pos-modal" id="cloture-modal" role="dialog" aria-modal="true" aria-labelledby="cloture-title">
+  <div class="pay-card">
+    <header class="pay-head"><h3 id="cloture-title"><i class="fas fa-lock mr-2"></i>Clôture de caisse</h3><button class="pay-close" id="cloture-close" type="button" aria-label="Fermer"><i class="fas fa-times"></i></button></header>
+    <div class="pay-body">
+      <div class="change-box" style="display:block;background:#faf6f3;color:#5f4e52;line-height:1.8">
+        <div style="display:flex;justify-content:space-between"><span>Tickets</span><b id="cl-nb-tickets">0</b></div>
+        <div style="display:flex;justify-content:space-between"><span>CA espèces</span><b id="cl-ca-especes">0,00</b></div>
+        <div style="display:flex;justify-content:space-between"><span>CA mobile money</span><b id="cl-ca-mobile">0,00</b></div>
+        <div style="display:flex;justify-content:space-between"><span>CA carte</span><b id="cl-ca-carte">0,00</b></div>
+        <div style="display:flex;justify-content:space-between"><span>CA compte client</span><b id="cl-ca-credit">0,00</b></div>
+        <div style="display:flex;justify-content:space-between"><span>Retours</span><b id="cl-rembourse">0,00</b></div>
+        <div style="display:flex;justify-content:space-between;border-top:1px solid #ded2cd;margin-top:.35rem;padding-top:.35rem"><span>Fonds de caisse</span><b id="cl-fonds">0,00</b></div>
+        <div style="display:flex;justify-content:space-between;font-size:1.02rem"><span>Attendu en caisse</span><b id="cl-attendu" style="color:#641b2c">0,00</b></div>
+      </div>
+      <div style="margin-top:.8rem"><label for="cl-reel">Espèces comptées</label><input id="cl-reel" class="input-cash" type="text" inputmode="decimal" placeholder="0,00"></div>
+      <div class="pave four" id="cl-pave">
+        <button type="button" data-key="1">1</button><button type="button" data-key="2">2</button>
+        <button type="button" data-key="3">3</button><button type="button" class="op" data-key="back" aria-label="Effacer"><i class="fas fa-backspace"></i></button>
+        <button type="button" data-key="4">4</button><button type="button" data-key="5">5</button>
+        <button type="button" data-key="6">6</button><button type="button" class="clr" data-key="clear">C</button>
+        <button type="button" data-key="7">7</button><button type="button" data-key="8">8</button>
+        <button type="button" data-key="9">9</button><button type="button" class="op" data-key="exact">= Att.</button>
+        <button type="button" data-key="0">0</button><button type="button" data-key="00">00</button>
+        <button type="button" data-key="000">000</button><button type="button" class="ok" data-key="ok" aria-label="Valider"><i class="fas fa-check"></i></button>
+      </div>
+      <div class="change-box" id="cl-ecart" style="display:none"><span>Écart</span><span id="cl-ecart-val">0,00</span></div>
+      <div style="margin-top:.7rem"><label for="cl-note">Note</label><input id="cl-note" class="form-control-pos" type="text" placeholder="Écart, frais, retrait…"></div>
+      <button class="confirm-pay" id="confirm-cloture" type="button" disabled><i class="fas fa-lock mr-1"></i> Archiver la clôture</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SURCOUCHE REÇU ================= -->
+<div class="overlay" id="receipt-overlay" role="dialog" aria-modal="true" aria-labelledby="receipt-title">
+  <div class="receipt">
+    <div class="ok-banner">
+      <i class="big fas fa-circle-check"></i>
+      <div><h3 id="receipt-title">Vente enregistrée</h3><p id="receipt-sub"></p></div>
+    </div>
+    <div class="rec-body">
+      <div class="rec-lines" id="receipt-lines"></div>
+      <div class="rec-total"><span>Total</span><strong id="receipt-total">0,00</strong></div>
+      <div class="change-box" id="receipt-change" style="display:none"><span>Monnaie rendue</span><span id="receipt-change-val">0,00</span></div>
+      <p class="rec-meta" id="receipt-meta" style="margin-top:.7rem"></p>
+      <div class="rec-actions">
+        <button type="button" class="wa wide" id="receipt-wa" disabled><i class="fab fa-whatsapp mr-1"></i> Envoyer sur WhatsApp</button>
+        <a class="alt" id="receipt-print" href="#"><i class="fas fa-print mr-1"></i> Ticket</a>
+        <a class="alt" id="receipt-facture" href="#"><i class="fas fa-file-invoice mr-1"></i> Facture</a>
+        <button type="button" class="wide" id="receipt-next"><i class="fas fa-arrow-right mr-1"></i> Vente suivante (Entrée)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pos-toasts" id="pos-toasts" aria-live="polite"></div>
+
+<script src="{% static 'js/wineadmin-pos.js' %}" defer></script>
+{% endblock %}

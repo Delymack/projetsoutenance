@@ -1,0 +1,115 @@
+<div class="admin-commandes">
+  <header class="admin-commandes__header">
+    <div class="admin-commandes__titre">
+      <h1>{{ 'ADMIN.commandes' | translate }}</h1>
+      <p class="admin-commandes__subtitle">{{ 'ADMIN.commandesDescription' | translate }}</p>
+    </div>
+    <div class="admin-commandes__actions">
+      <mat-form-field appearance="outline" class="admin-commandes__recherche">
+        <mat-label>{{ 'ADMIN.rechercher' | translate }}</mat-label>
+        <input matInput [value]="recherche()" (input)="onRechercheChange($event)" placeholder="{{ 'ADMIN.rechercherPlaceholder' | translate }}">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="admin-commandes__filtre">
+        <mat-label>{{ 'ADMIN.filtreStatut' | translate }}</mat-label>
+        <mat-select [value]="filtreStatut()" (selectionChange)="onFiltreChange($event.value)">
+          <mat-option value="tous">{{ 'ADMIN.tous' | translate }}</mat-option>
+          @for (statut of statuts; track statut) {
+            <mat-option [value]="statut">
+              {{ 'ADMIN.statut.' + statut | translate }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </header>
+
+  <!-- Vue Kanban -->
+  <section class="admin-commandes__kanban" aria-label="Pipeline de validation des commandes">
+    @for (statut of statuts; track statut) {
+      <div class="kanban-colonne">
+        <header class="kanban-colonne__header">
+          <h2 class="kanban-colonne__titre">
+            {{ 'ADMIN.statut.' + statut | translate }}
+          </h2>
+          <span class="kanban-colonne__badge">{{ compter(statut) }}</span>
+        </header>
+
+        <div class="kanban-colonne__cartes" cdkDropList [cdkDropListData]="commandesParStatut()[statut]" (cdkDropListDropped)="onDrop($event, statut)">
+          @for (cmd of commandesParStatut()[statut]; track cmd.reference) {
+            <article class="kanban-carte" cdkDrag [cdkDragData]="cmd">
+              <header class="kanban-carte__header">
+                <strong class="kanban-carte__reference">{{ cmd.reference }}</strong>
+                <span class="kanban-carte__date">{{ cmd.date | date: 'dd/MM/yyyy HH:mm' }}</span>
+              </header>
+
+              <div class="kanban-carte__client">
+                <div class="kanban-carte__client-nom">{{ cmd.clientNom }}</div>
+                <div class="kanban-carte__client-email">{{ cmd.clientEmail }}</div>
+              </div>
+
+              <div class="kanban-carte__total">
+                {{ cmd.total | number }} Ar
+              </div>
+
+              <div class="kanban-carte__details">
+                <span class="kanban-carte__lignes">{{ cmd.lignes.length }} article(s)</span>
+                <span class="kanban-carte__source" [attr.data-source]="cmd.source">
+                  {{ cmd.source === 'reservation' ? ('ADMIN.sourceReservation' | translate) : ('ADMIN.sourceVente' | translate) }}
+                </span>
+              </div>
+
+              <footer class="kanban-carte__actions">
+                <button
+                  type="button"
+                  mat-icon-button
+                  [matMenuTriggerFor]="menuActions"
+                  class="kanban-carte__menu-btn"
+                  [attr.aria-label]="'ADMIN.actions' | translate"
+                >
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menuActions="matMenu">
+                  <button mat-menu-item (click)="validerCommande(cmd)" *ngIf="cmd.statut === 'A_VALIDER'">
+                    <mat-icon>check_circle</mat-icon>
+                    <span>{{ 'ADMIN.valider' | translate }}</span>
+                  </button>
+                  <button mat-menu-item (click)="refuserCommande(cmd)" *ngIf="cmd.statut === 'A_VALIDER'">
+                    <mat-icon>cancel</mat-icon>
+                    <span>{{ 'ADMIN.refuser' | translate }}</span>
+                  </button>
+                  <button mat-menu-item (click)="encaisserCommande(cmd)" *ngIf="cmd.statut === 'VALIDEE'">
+                    <mat-icon>payments</mat-icon>
+                    <span>{{ 'ADMIN.encaisser' | translate }}</span>
+                  </button>
+                  <button mat-menu-item (click)="expeditionCommande(cmd)" *ngIf="cmd.statut === 'ENCAISSEE'">
+                    <mat-icon>local_shipping</mat-icon>
+                    <span>{{ 'ADMIN.expedier' | translate }}</span>
+                  </button>
+                  <button mat-menu-item (click)="livrerCommande(cmd)" *ngIf="cmd.statut === 'EXPEDIEE'">
+                    <mat-icon>done_all</mat-icon>
+                    <span>{{ 'ADMIN.livrer' | translate }}</span>
+                  </button>
+                  <button mat-menu-item (click)="annulerCommande(cmd)" *ngIf="!['LIVREE', 'ANNULEE', 'REFUSEE'].includes(cmd.statut)">
+                    <mat-icon>block</mat-icon>
+                    <span>{{ 'ADMIN.annuler' | translate }}</span>
+                  </button>
+                  <button mat-menu-item disabled>
+                    <mat-icon>visibility</mat-icon>
+                    <span>{{ 'ADMIN.voirDetails' | translate }}</span>
+                  </button>
+                </mat-menu>
+              </footer>
+            </article>
+          }
+          @if (commandesParStatut()[statut].length === 0) {
+            <div class="kanban-colonne__vide">
+              <mat-icon>inbox</mat-icon>
+              <span>{{ 'ADMIN.aucuneCommande' | translate }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </section>
+</div>

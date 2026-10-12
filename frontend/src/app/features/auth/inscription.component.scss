@@ -1,0 +1,712 @@
+/* ==================================================================
+   Design WineShop — Auth (inscription + connexion, 3 étapes)
+   Standard soutenance : bordeaux #76001f, or #c9a227, fond crème.
+   Fichier partagé : login.component.ts réutilise ce style.
+   Navbar globale unique (app-navbar) — aucun header local ici.
+   ================================================================== */
+
+/* Page auth : fond premium « bouteille » — vignettage bordeaux + halo crème/or.
+   Standard soutenance : reprend l'ambiance de la référence (halo central
+   lumineux, coins bordeaux profonds, accent doré discret). */
+
+/* ------------------------------------------------------------------
+   1. Conteneur principal — fond premium « bouteille » : halo crème
+      central, vignettage bordeaux profond, liseré doré discret.
+   ------------------------------------------------------------------ */
+.ws-auth {
+  position: relative;
+  isolation: isolate;
+  min-height: calc(100vh - 68px);
+  padding: clamp(1.5rem, 4vw, 3rem) 1rem clamp(3rem, 6vw, 4.5rem);
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 42%, #fdf8ec 0%, #f7ecd4 34%, #e9d3a8 55%, rgba(118, 0, 31, 0.55) 82%, #4a0413 100%),
+    #4a0413;
+
+  /* Halo doré doux derrière la carte */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(circle at 50% 30%, rgba(227, 196, 106, 0.35), transparent 26rem),
+      radial-gradient(circle at 12% 85%, rgba(118, 0, 31, 0.35), transparent 20rem),
+      radial-gradient(circle at 88% 80%, rgba(118, 0, 31, 0.35), transparent 20rem);
+    pointer-events: none;
+  }
+
+  &__inner {
+    position: relative;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+}
+
+/* ------------------------------------------------------------------
+   2. Progression 3 étapes — pastilles crème/or sur fond bordeaux
+   ------------------------------------------------------------------ */
+.ws-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+
+  &__step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+
+    &--active {
+      .ws-progress__num {
+        background: var(--lb-accent);
+        color: #2a1c16;
+        border-color: var(--lb-accent);
+        box-shadow: 0 4px 14px rgba(201, 162, 39, 0.45);
+      }
+
+      .ws-progress__label {
+        color: #fdf8ec;
+        font-weight: 700;
+      }
+    }
+
+    &--current {
+      .ws-progress__num {
+        box-shadow:
+          0 0 0 3px rgba(227, 196, 106, 0.45),
+          0 4px 14px rgba(201, 162, 39, 0.45);
+      }
+    }
+  }
+
+  &__num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid rgba(253, 248, 236, 0.55);
+    background: rgba(20, 6, 8, 0.45);
+    color: #f7ecd4;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(2px);
+  }
+
+  &__label {
+    font-size: 0.72rem;
+    color: rgba(253, 248, 236, 0.85);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    transition: all 0.3s ease;
+    text-shadow: 0 1px 6px rgba(20, 6, 8, 0.6);
+  }
+
+  &__line {
+    width: 40px;
+    height: 2px;
+    background: rgba(253, 248, 236, 0.35);
+    border-radius: 1px;
+    transition: background 0.3s ease;
+
+    &--active {
+      background: var(--lb-accent);
+    }
+  }
+}
+
+@media (min-width: 480px) {
+  .ws-progress__line {
+    width: 70px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   3. Carte formulaire — verre dépoli crème sur fond bordeaux
+   ------------------------------------------------------------------ */
+.ws-card {
+  background: color-mix(in srgb, var(--lb-surface) 96%, transparent);
+  border: 1px solid color-mix(in srgb, var(--lb-accent) 35%, var(--lb-border));
+  border-radius: var(--lb-radius-lg);
+  box-shadow:
+    0 24px 60px rgba(20, 6, 8, 0.45),
+    0 2px 0 rgba(201, 162, 39, 0.35) inset;
+  backdrop-filter: blur(8px);
+  padding: 2rem 1.5rem;
+  animation: ws-montee 420ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  &__header {
+    text-align: center;
+    margin-bottom: 1.75rem;
+  }
+
+  &__title {
+    margin: 0 0 0.4rem;
+    font-family: var(--lb-font-display);
+    font-size: clamp(1.5rem, 4vw, 1.85rem);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--lb-primary);
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--lb-text-muted);
+  }
+}
+
+@keyframes ws-montee {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (min-width: 480px) {
+  .ws-card {
+    padding: 2.5rem 2rem;
+  }
+}
+
+/* ------------------------------------------------------------------
+   5. Champs de formulaire
+   ------------------------------------------------------------------ */
+.ws-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.ws-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  &__label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--lb-text);
+  }
+
+  &__wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0 0.9rem;
+    height: 48px;
+    border: 1px solid var(--lb-border);
+    border-radius: 8px;
+    background: var(--lb-surface-2);
+    transition: all 0.2s ease;
+
+    &:focus-within {
+      border-color: var(--lb-primary);
+      background: var(--lb-surface);
+      box-shadow: 0 0 0 3px rgba(114, 47, 55, 0.1);
+    }
+  }
+
+  &__icon {
+    color: var(--lb-text-muted);
+    font-size: 1.2rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  &__input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 0.92rem;
+    color: var(--lb-text);
+    height: 100%;
+    width: 100%;
+
+    &::placeholder {
+      color: var(--lb-text-muted);
+    }
+  }
+
+  &__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--lb-text-muted);
+    padding: 0;
+
+    &:hover {
+      color: var(--lb-primary);
+    }
+
+    mat-icon {
+      font-size: 1.2rem;
+      width: 1.2rem;
+      height: 1.2rem;
+    }
+  }
+
+  &__error {
+    font-size: 0.78rem;
+    color: var(--lb-danger);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+}
+
+/* ------------------------------------------------------------------
+   6. Choix du canal (email / SMS)
+   ------------------------------------------------------------------ */
+.ws-canal {
+  border: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+
+  &__legend {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--lb-text);
+    margin-bottom: 0.6rem;
+  }
+
+  &__options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    border: 1.5px solid var(--lb-border);
+    border-radius: 10px;
+    background: var(--lb-surface-2);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: var(--lb-accent);
+      background: var(--lb-surface);
+    }
+
+    &--checked {
+      border-color: var(--lb-primary);
+      background: color-mix(in srgb, var(--lb-primary) 10%, var(--lb-surface));
+
+      .ws-canal__radio {
+        border-color: var(--lb-primary);
+        background: var(--lb-primary);
+
+        &::after {
+          transform: scale(1);
+        }
+      }
+
+      .ws-canal__icon {
+        color: var(--lb-primary);
+      }
+    }
+
+    input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+  }
+
+  &__radio {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--lb-border);
+    background: var(--lb-surface);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    &::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--lb-primary-contrast);
+      transform: scale(0);
+      transition: transform 0.2s ease;
+    }
+  }
+
+  &__icon {
+    color: var(--lb-text-muted);
+    font-size: 1.4rem;
+    width: 1.4rem;
+    height: 1.4rem;
+    flex-shrink: 0;
+    transition: color 0.2s ease;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+
+    strong {
+      font-size: 0.9rem;
+      color: var(--lb-text);
+      font-weight: 600;
+    }
+
+    small {
+      font-size: 0.78rem;
+      color: var(--lb-text-muted);
+    }
+  }
+}
+
+/* ------------------------------------------------------------------
+   7. Boutons
+   ------------------------------------------------------------------ */
+.ws-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 48px;
+  padding: 0 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+
+  &--primary {
+    width: 100%;
+    background: linear-gradient(135deg, #722F37 0%, #8B3A44 100%);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(114, 47, 55, 0.25);
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(114, 47, 55, 0.35);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    mat-spinner {
+      --mdc-circular-progress-active-indicator-color: currentColor;
+    }
+  }
+
+  &--social {
+    flex: 1;
+    background: var(--lb-surface);
+    border: 1px solid var(--lb-border);
+    color: var(--lb-text);
+    font-weight: 500;
+    font-size: 0.88rem;
+
+    &:hover {
+      background: var(--lb-bg-alt);
+      border-color: var(--lb-border);
+    }
+
+    svg {
+      flex-shrink: 0;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------
+   8. Séparateur social
+   ------------------------------------------------------------------ */
+.ws-separator {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.25rem 0;
+  color: var(--lb-text-muted);
+  font-size: 0.82rem;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--lb-border);
+  }
+}
+
+.ws-social {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ------------------------------------------------------------------
+   9. Lien bascule
+   ------------------------------------------------------------------ */
+.ws-switch {
+  text-align: center;
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--lb-text-muted);
+
+  a {
+    color: var(--lb-primary);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------
+   10. Étape 2 — Code + timer
+   ------------------------------------------------------------------ */
+.ws-intro {
+  text-align: center;
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: var(--lb-text-muted);
+  line-height: 1.5;
+
+  strong {
+    color: var(--lb-text);
+    word-break: break-all;
+  }
+}
+
+.ws-timer {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0 auto 1.25rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: var(--lb-surface-2);
+  border: 1px solid var(--lb-border);
+  color: var(--lb-text-muted);
+  font-size: 0.85rem;
+  width: fit-content;
+  display: flex;
+
+  mat-icon {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+    color: var(--lb-accent);
+  }
+
+  strong {
+    color: var(--lb-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &--alert {
+    border-color: rgba(211, 47, 47, 0.4);
+    background: color-mix(in srgb, var(--lb-danger) 10%, var(--lb-surface));
+    color: var(--lb-danger);
+
+    mat-icon {
+      color: var(--lb-danger);
+    }
+
+    strong {
+      color: var(--lb-danger);
+    }
+  }
+}
+
+.ws-code {
+  display: flex;
+  gap: clamp(6px, 1.5vw, 10px);
+  justify-content: center;
+  margin-bottom: 1.5rem;
+
+  &__digit {
+    width: clamp(44px, 11vw, 56px);
+    height: clamp(52px, 13vw, 64px);
+    padding: 0;
+    text-align: center;
+    font-size: clamp(1.3rem, 3.5vw, 1.6rem);
+    font-weight: 700;
+    color: var(--lb-text);
+    background: var(--lb-surface-2);
+    border: 1.5px solid var(--lb-border);
+    border-radius: 10px;
+    outline: none;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: var(--lb-primary);
+      background: var(--lb-surface);
+      box-shadow: 0 0 0 3px rgba(114, 47, 55, 0.12);
+    }
+
+    &:not(:placeholder-shown) {
+      border-color: var(--lb-primary);
+      background: color-mix(in srgb, var(--lb-primary) 10%, var(--lb-surface));
+    }
+  }
+}
+
+.ws-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+
+.ws-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem;
+  border: none;
+  background: transparent;
+  color: var(--lb-primary);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(114, 47, 55, 0.06);
+    border-radius: 6px;
+  }
+
+  &:disabled {
+    color: var(--lb-text-muted);
+    cursor: not-allowed;
+  }
+
+  mat-icon {
+    font-size: 1.1rem;
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  &--muted {
+    color: var(--lb-text-muted);
+    font-weight: 500;
+
+    &:hover:not(:disabled) {
+      color: var(--lb-text);
+      background: var(--lb-bg-alt);
+    }
+  }
+}
+
+/* ------------------------------------------------------------------
+   11. Étape 3 — Succès
+   ------------------------------------------------------------------ */
+.ws-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem 0;
+  text-align: center;
+
+  &__icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--lb-success) 12%, var(--lb-surface));
+    border: 2px solid color-mix(in srgb, var(--lb-success) 35%, var(--lb-border));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    mat-icon {
+      font-size: 2.8rem;
+      width: 2.8rem;
+      height: 2.8rem;
+      color: var(--lb-success);
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.35rem;
+    color: var(--lb-text);
+  }
+
+  &__text {
+    margin: 0;
+    color: var(--lb-text-muted);
+    font-size: 0.92rem;
+  }
+}
+
+/* ------------------------------------------------------------------
+   12. Alertes
+   ------------------------------------------------------------------ */
+.ws-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  font-size: 0.86rem;
+  line-height: 1.4;
+
+  mat-icon {
+    flex-shrink: 0;
+    font-size: 1.15rem;
+    width: 1.15rem;
+    height: 1.15rem;
+    margin-top: 0.1rem;
+  }
+
+  &--error {
+    background: color-mix(in srgb, var(--lb-danger) 10%, var(--lb-surface));
+    border: 1px solid color-mix(in srgb, var(--lb-danger) 30%, var(--lb-border));
+    color: var(--lb-danger);
+
+    mat-icon {
+      color: var(--lb-danger);
+    }
+  }
+
+  &--success {
+    background: color-mix(in srgb, var(--lb-success) 12%, var(--lb-surface));
+    border: 1px solid color-mix(in srgb, var(--lb-success) 30%, var(--lb-border));
+    color: var(--lb-success);
+
+    mat-icon {
+      color: var(--lb-success);
+    }
+  }
+}
+
+:host-context([data-theme='sombre']) .ws-auth {
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 42%, #302421 0%, #211917 40%, #171311 78%),
+    var(--lb-bg);
+}

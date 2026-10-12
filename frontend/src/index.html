@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="fr" data-theme="clair">
+  <head>
+    <meta charset="utf-8" />
+    <title>Lazan'i Betsileo — Vins de Fianarantsoa</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Lazan'i Betsileo — vente et promotion de vins de Fianarantsoa, Madagascar. Catalogue, sommelier virtuel, quiz gustatif, accords mets-vins."
+    />
+
+    <!-- Couleur de la barre d'adresse mobile ; mise à jour par ThemeService -->
+    <meta name="theme-color" content="#faf6ef" />
+
+ <!-- PWA -->
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="assets/icons/icon-192.svg" />
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.svg" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+ <!-- Open Graph / partage social -->
+    <meta property="og:title" content="Lazan'i Betsileo" />
+    <meta property="og:description" content="Vins de Fianarantsoa & Betsileo" />
+    <meta property="og:type" content="website" />
+
+    <!-- Typographies : serif pour les titres, sans-serif pour le corps -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Material Icons -->
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="mat-typography">
+    <app-root>
+      <!-- Écran de chargement affiché avant l'amorçage d'Angular -->
+      <div class="app-loader">
+        <div class="app-loader__verre" aria-hidden="true">🍷</div>
+        <p>Lazan'i Betsileo</p>
+        <div class="app-loader__bar"><span></span></div>
+      </div>
+    </app-root>
+  </body>
+</html>

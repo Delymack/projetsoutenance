@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maintenance en cours — LAZAN'I BETSILEO</title>
+<link rel="stylesheet" href="{% static 'vendor/fontawesome-free/css/all.min.css' %}">
+<script>if (window.location === window.top.location) { document.documentElement.style.visibility = 'hidden'; document.addEventListener('DOMContentLoaded', function(){ document.documentElement.style.visibility = ''; }); }</script>
+<style>
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; display: flex; align-items: center; justify-content: center;
+    background:
+      radial-gradient(120% 90% at 110% -20%, rgba(74, 114, 196, .45), transparent 60%),
+      radial-gradient(130% 95% at -25% 118%, rgba(233, 185, 73, .22), transparent 50%),
+      linear-gradient(178deg, #2b1b20 0%, #120509 46%, #0e0509 100%);
+    font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+    color: #ffe7cf; text-align: center; padding: 20px;
+  }
+  .card {
+    max-width: 460px; padding: 40px 34px;
+    background: rgba(255, 190, 120, .04);
+    border: 1px solid rgba(233, 185, 73, .25);
+    border-radius: 20px;
+    box-shadow: 0 30px 70px -30px rgba(0, 0, 0, .85), 0 0 60px -20px rgba(233, 185, 73, .25);
+  }
+  .halo {
+    width: 74px; height: 74px; margin: 0 auto 18px;
+    border-radius: 20px; background: linear-gradient(145deg, #f4d277, #c08a2f);
+    display: flex; align-items: center; justify-content: center;
+    color: #2c1200; font-size: 32px;
+    box-shadow: 0 0 0 1px rgba(245,224,168,.4) inset, 0 12px 32px -8px rgba(212,168,83,.7);
+    animation: breathe 2.8s ease-in-out infinite;
+  }
+  @keyframes breathe { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-4px) scale(1.04); } }
+  h1 { font-size: 22px; margin: 0 0 8px; }
+  p { margin: 0; color: rgba(255, 208, 168, .8); font-size: 14.5px; line-height: 1.6; }
+  .hint { margin-top: 18px; font-size: 12px; color: rgba(255, 208, 168, .5); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="halo"><i class="fas fa-gears"></i></div>
+    <h1>Maintenance en cours</h1>
+    <p>L’espace d’administration est momentanément indisponible.<br>
+       Une mise à jour est en préparation — revenez dans quelques minutes.</p>
+    <p class="hint">Seul un administrateur disposant des droits superutilisateur peut accéder pendant cette période.</p>
+  </div>
+</body>
+</html>

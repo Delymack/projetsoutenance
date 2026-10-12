@@ -1,0 +1,59 @@
+<!--
+ Bandeau d'état hors ligne / PWA.
+  `position: fixed` : il flotte au-dessus du contenu pour rester visible
+  même en plein milieu d'une saisie en caisse, sans déplacer la mise en page.
+-->
+@if (visible()) {
+  <div
+    class="hors-ligne"
+    [class.hors-ligne--succes]="variante() === 'succes'"
+    [class.hors-ligne--alerte]="variante() === 'alerte'"
+    [class.hors-ligne--info]="!horsLigne() && !nouvelleVersion() && !installationDisponible()"
+    role="status"
+    aria-live="polite"
+  >
+    @if (nouvelleVersion()) {
+      <mat-icon class="hors-ligne__icone">system_update</mat-icon>
+      <div class="hors-ligne__textes">
+        <strong>{{ 'PWA.miseAJour' | translate }}</strong>
+      </div>
+      <button mat-flat-button color="primary" type="button" (click)="actualiser()">
+        <mat-icon>refresh</mat-icon>
+        {{ 'PWA.miseAJourAction' | translate }}
+      </button>
+    } @else if (installationDisponible() && !horsLigne()) {
+      <mat-icon class="hors-ligne__icone">install_desktop</mat-icon>
+      <div class="hors-ligne__textes">
+        <strong>{{ 'PWA.installer' | translate }}</strong>
+      </div>
+      <button mat-flat-button color="primary" type="button" (click)="installer()">
+        <mat-icon>download</mat-icon>
+        {{ 'PWA.installer' | translate }}
+      </button>
+      <button mat-button type="button" (click)="reporter()">{{ 'COMMUN.plusTard' | translate }}</button>
+    } @else if (horsLigne()) {
+      <mat-icon class="hors-ligne__icone">cloud_off</mat-icon>
+
+      <div class="hors-ligne__textes">
+        <strong>{{ 'HORS_LIGNE.banniere' | translate }}</strong>
+        @if (message(); as texte) {
+          <small>{{ texte }}</small>
+        }
+      </div>
+
+      <button mat-stroked-button type="button" (click)="synchroniser()">
+        <mat-icon>sync</mat-icon>
+        {{ 'COMMUN.reessayer' | translate }}
+      </button>
+    } @else {
+      <mat-icon class="hors-ligne__icone">cloud_done</mat-icon>
+
+      <div class="hors-ligne__textes">
+        <strong>{{ 'HORS_LIGNE.enLigne' | translate }}</strong>
+        @if (message(); as texte) {
+          <small>{{ texte }}</small>
+        }
+      </div>
+    }
+  </div>
+}

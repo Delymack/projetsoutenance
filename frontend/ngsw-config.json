@@ -1,0 +1,90 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "resources": {
+        "files": [
+          "/favicon.svg",
+          "/manifest.webmanifest",
+          "/index.html",
+          "/*.css",
+          "/*.js"
+        ]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/**",
+          "/media/**",
+          "/**/*.(svg|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
+        ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "catalogue-produits",
+      "urls": [
+        "/api/vins/**",
+        "/api/produits/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 100,
+        "maxAge": "12h",
+        "timeout": "3s",
+        "refreshAhead": "1h"
+      }
+    },
+    {
+      "name": "promotions",
+      "urls": [
+        "/api/promotions/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 30,
+        "maxAge": "1h",
+        "timeout": "3s"
+      }
+    },
+    {
+      "name": "i18n",
+      "urls": [
+        "/assets/i18n/*.json"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 10,
+        "maxAge": "30d"
+      }
+    },
+    {
+      "name": "ventes-pos",
+      "urls": [
+        "/api/ventes/**",
+        "/api/caisse/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 50,
+        "maxAge": "1d",
+        "timeout": "5s"
+      }
+    }
+  ],
+  "navigationRequestStrategy": "performance",
+  "navigationUrls": [
+    "/**",
+    "!/**/*.*",
+    "!/**/*__*",
+    "!/**/*__*/**"
+  ]
+}

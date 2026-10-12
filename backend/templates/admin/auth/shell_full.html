@@ -1,0 +1,55 @@
+{% extends "registration/base.html" %}
+{% load static i18n jazzmin %}
+{% get_jazzmin_settings request as jazzmin_settings %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="{% static 'css/wineadmin-auth.css' %}">
+{% block auth_extrastyle %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="lb-auth">
+  <aside class="lb-auth__marque">
+    <span class="lb-auth__lueur lb-auth__lueur--or" aria-hidden="true"></span>
+    <span class="lb-auth__lueur lb-auth__lueur--rouge" aria-hidden="true"></span>
+
+    <div class="lb-auth__marque-contenu">
+      <span class="lb-auth__sceau" aria-hidden="true"><i class="fas fa-wine-bottle"></i></span>
+      <h1 class="lb-auth__titre">{{ jazzmin_settings.site_brand|default:jazzmin_settings.site_title }}</h1>
+      <span class="lb-auth__filet" aria-hidden="true"><i></i><b></b><i></i></span>
+
+      <ul class="lb-auth__atouts">
+        <li>
+          <span class="lb-auth__pu">{% block auth_atout_1_icon %}<i class="fas fa-envelope-open-text"></i>{% endblock %}</span>
+          <span>{% block auth_atout_1 %}Code de vérification par e-mail ou par SMS{% endblock %}</span>
+        </li>
+        <li>
+          <span class="lb-auth__pu">{% block auth_atout_2_icon %}<i class="fas fa-clock"></i>{% endblock %}</span>
+          <span>{% block auth_atout_2 %}Valable 10 minutes, renvoyable{% endblock %}</span>
+        </li>
+        <li>
+          <span class="lb-auth__pu">{% block auth_atout_3_icon %}<i class="fas fa-user-shield"></i>{% endblock %}</span>
+          <span>{% block auth_atout_3 %}Compte validé avant la première commande{% endblock %}</span>
+        </li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="lb-auth__panneau">
+    <div class="lb-auth__carte">
+      <header class="lb-auth__entete">
+        <span class="lb-auth__repere">{% block auth_repere %}Étape 1 sur 3{% endblock %}</span>
+        <h2 class="lb-auth__soustitre">{% block auth_title %}{% endblock %}</h2>
+        <ol class="jalons" aria-hidden="true">
+          <li class="jalons__point {% block jalon_1 %}jalons__point--actif{% endblock %}"></li>
+          <li class="jalons__point {% block jalon_2 %}{% endblock %}"></li>
+          <li class="jalons__point {% block jalon_3 %}{% endblock %}"></li>
+        </ol>
+      </header>
+      {% block auth_body %}{% endblock %}
+    </div>
+  </main>
+</div>
+<script src="{% static 'js/wineadmin-auth.js' %}"></script>
+{% block auth_scripts %}{% endblock %}
+{% endblock %}

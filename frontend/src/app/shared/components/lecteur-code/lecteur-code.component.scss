@@ -1,0 +1,41 @@
+.lecteur {
+  display: grid;
+  gap: var(--lb-gap-sm);
+}
+
+.lecteur__cadre {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--lb-radius);
+  background: #150e0a;
+}
+
+.lecteur__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Repère de visée : cadre doré au centre de l'image. */
+.lecteur__viseur {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 70%;
+  height: 45%;
+  border: 2px dashed var(--lb-accent);
+  border-radius: var(--lb-radius-sm);
+  box-shadow: 0 0 0 100vmax rgb(0 0 0 / 25%);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.lecteur__attente {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 45%);
+}
+

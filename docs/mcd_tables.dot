@@ -1,0 +1,379 @@
+digraph MCD {
+  graph [
+    rankdir=LR,
+    splines=ortho,
+    nodesep=0.75,
+    ranksep=1.2,
+    bgcolor="white",
+    label="MCD / Relations des tables Django",
+    labelloc=t,
+    fontsize=24,
+    fontname="Arial"
+  ];
+
+  node [
+    shape=plain,
+    fontname="Arial"
+  ];
+
+  edge [
+    fontname="Arial",
+    fontsize=10,
+    color="#555555",
+    arrowsize=0.7
+  ];
+
+  User [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#641b2c"><FONT COLOR="white"><B>accounts_user</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">username</TD></TR>
+      <TR><TD ALIGN="LEFT">email</TD></TR>
+      <TR><TD ALIGN="LEFT">role</TD></TR>
+      <TR><TD ALIGN="LEFT">totp_enabled</TD></TR>
+    </TABLE>
+  >];
+
+  LoginEvent [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#9d2449"><FONT COLOR="white"><B>accounts_login_event</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK user_id</TD></TR>
+      <TR><TD ALIGN="LEFT">statut</TD></TR>
+      <TR><TD ALIGN="LEFT">ip</TD></TR>
+      <TR><TD ALIGN="LEFT">cree_le</TD></TR>
+    </TABLE>
+  >];
+
+  UserNotification [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#9d2449"><FONT COLOR="white"><B>accounts_user_notification</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK user_id</TD></TR>
+      <TR><TD ALIGN="LEFT">key</TD></TR>
+      <TR><TD ALIGN="LEFT">etat</TD></TR>
+      <TR><TD ALIGN="LEFT">unique(user, key)</TD></TR>
+    </TABLE>
+  >];
+
+  Categorie [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#2b5cad"><FONT COLOR="white"><B>categories_categorie</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">nom</TD></TR>
+      <TR><TD ALIGN="LEFT">description</TD></TR>
+      <TR><TD ALIGN="LEFT">statut</TD></TR>
+    </TABLE>
+  >];
+
+  Fournisseur [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#2b5cad"><FONT COLOR="white"><B>fournisseurs_fournisseur</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">nom</TD></TR>
+      <TR><TD ALIGN="LEFT">type_fournisseur</TD></TR>
+      <TR><TD ALIGN="LEFT">telephone</TD></TR>
+      <TR><TD ALIGN="LEFT">email</TD></TR>
+      <TR><TD ALIGN="LEFT">statut</TD></TR>
+    </TABLE>
+  >];
+
+  Produit [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#17733e"><FONT COLOR="white"><B>produits_produit</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK categorie_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">FK fournisseur_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">nom, type_vin, marque</TD></TR>
+      <TR><TD ALIGN="LEFT">millesime, volume</TD></TR>
+      <TR><TD ALIGN="LEFT">prix_achat, prix_vente</TD></TR>
+      <TR><TD ALIGN="LEFT">code_barre unique</TD></TR>
+      <TR><TD ALIGN="LEFT">unite_vente, contenance</TD></TR>
+    </TABLE>
+  >];
+
+  Stock [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#17733e"><FONT COLOR="white"><B>stocks_stock</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">OneToOne produit_id</TD></TR>
+      <TR><TD ALIGN="LEFT">quantite</TD></TR>
+      <TR><TD ALIGN="LEFT">seuil_alerte</TD></TR>
+    </TABLE>
+  >];
+
+  MouvementStock [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#17733e"><FONT COLOR="white"><B>stocks_mouvement</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK produit_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK utilisateur_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">quantite</TD></TR>
+      <TR><TD ALIGN="LEFT">type_mouvement</TD></TR>
+      <TR><TD ALIGN="LEFT">reference_id</TD></TR>
+    </TABLE>
+  >];
+
+  Client [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#986200"><FONT COLOR="white"><B>clients_client</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">nom, prenom</TD></TR>
+      <TR><TD ALIGN="LEFT">telephone, email</TD></TR>
+      <TR><TD ALIGN="LEFT">type_client</TD></TR>
+      <TR><TD ALIGN="LEFT">niveau</TD></TR>
+      <TR><TD ALIGN="LEFT">points_fidelite</TD></TR>
+      <TR><TD ALIGN="LEFT">max_credit, solde_du</TD></TR>
+    </TABLE>
+  >];
+
+  ReglementClient [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#986200"><FONT COLOR="white"><B>clients_reglement</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK client_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK utilisateur_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">montant</TD></TR>
+      <TR><TD ALIGN="LEFT">mode</TD></TR>
+      <TR><TD ALIGN="LEFT">reference_facture</TD></TR>
+    </TABLE>
+  >];
+
+  SessionCaisse [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#b42318"><FONT COLOR="white"><B>ventes_session_caisse</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK utilisateur_id</TD></TR>
+      <TR><TD ALIGN="LEFT">date_ventes</TD></TR>
+      <TR><TD ALIGN="LEFT">statut</TD></TR>
+      <TR><TD ALIGN="LEFT">ca_total, ca_net</TD></TR>
+      <TR><TD ALIGN="LEFT">nb_tickets, nb_articles</TD></TR>
+    </TABLE>
+  >];
+
+  Vente [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#b42318"><FONT COLOR="white"><B>ventes_vente</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK client_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">FK utilisateur_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK session_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">reference unique</TD></TR>
+      <TR><TD ALIGN="LEFT">date_vente</TD></TR>
+      <TR><TD ALIGN="LEFT">total, acompte_anticipe</TD></TR>
+      <TR><TD ALIGN="LEFT">mode_paiement, statut</TD></TR>
+    </TABLE>
+  >];
+
+  LigneVente [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#b42318"><FONT COLOR="white"><B>ventes_ligne_vente</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK vente_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK produit_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK promotion_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">quantite, unite</TD></TR>
+      <TR><TD ALIGN="LEFT">prix_unitaire</TD></TR>
+      <TR><TD ALIGN="LEFT">remise, sous_total</TD></TR>
+      <TR><TD ALIGN="LEFT">unique(vente, produit)</TD></TR>
+    </TABLE>
+  >];
+
+  Paiement [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#b42318"><FONT COLOR="white"><B>ventes_paiement</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK vente_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">FK reservation_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">mode</TD></TR>
+      <TR><TD ALIGN="LEFT">montant</TD></TR>
+      <TR><TD ALIGN="LEFT">reference</TD></TR>
+    </TABLE>
+  >];
+
+  Reservation [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#b42318"><FONT COLOR="white"><B>ventes_reservation</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK client_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK utilisateur_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK vente_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">reference unique</TD></TR>
+      <TR><TD ALIGN="LEFT">statut</TD></TR>
+      <TR><TD ALIGN="LEFT">montant_total, montant_acompte</TD></TR>
+    </TABLE>
+  >];
+
+  LigneReservation [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#b42318"><FONT COLOR="white"><B>ventes_ligne_reservation</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK reservation_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK produit_id</TD></TR>
+      <TR><TD ALIGN="LEFT">quantite, unite</TD></TR>
+      <TR><TD ALIGN="LEFT">prix_unitaire</TD></TR>
+      <TR><TD ALIGN="LEFT">unique(reservation, produit)</TD></TR>
+    </TABLE>
+  >];
+
+  RetourVente [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#b42318"><FONT COLOR="white"><B>ventes_retour</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK vente_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK ligne_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK utilisateur_id</TD></TR>
+      <TR><TD ALIGN="LEFT">quantite</TD></TR>
+      <TR><TD ALIGN="LEFT">motif</TD></TR>
+      <TR><TD ALIGN="LEFT">montant_rembourse</TD></TR>
+    </TABLE>
+  >];
+
+  NumeroSequence [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#606d7d"><FONT COLOR="white"><B>commandes_numero_sequence</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">annee unique</TD></TR>
+      <TR><TD ALIGN="LEFT">suivant</TD></TR>
+    </TABLE>
+  >];
+
+  BonCommande [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#606d7d"><FONT COLOR="white"><B>commandes_bon_commande</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK fournisseur_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK cree_par_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">numero unique</TD></TR>
+      <TR><TD ALIGN="LEFT">date_commande</TD></TR>
+      <TR><TD ALIGN="LEFT">statut</TD></TR>
+      <TR><TD ALIGN="LEFT">total, total_recu</TD></TR>
+    </TABLE>
+  >];
+
+  LigneBonCommande [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#606d7d"><FONT COLOR="white"><B>commandes_ligne_bon_commande</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK bon_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK produit_id</TD></TR>
+      <TR><TD ALIGN="LEFT">prix_unitaire</TD></TR>
+      <TR><TD ALIGN="LEFT">quantite_commandee</TD></TR>
+      <TR><TD ALIGN="LEFT">quantite_recue</TD></TR>
+      <TR><TD ALIGN="LEFT">sous_total</TD></TR>
+    </TABLE>
+  >];
+
+  Promotion [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#6f42c1"><FONT COLOR="white"><B>promotions_promotion</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">nom</TD></TR>
+      <TR><TD ALIGN="LEFT">type_promotion</TD></TR>
+      <TR><TD ALIGN="LEFT">valeur</TD></TR>
+      <TR><TD ALIGN="LEFT">code unique nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">date_debut, date_fin</TD></TR>
+      <TR><TD ALIGN="LEFT">type_cible, statut</TD></TR>
+    </TABLE>
+  >];
+
+  PromotionProduit [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#6f42c1"><FONT COLOR="white"><B>promotions_promotion_produit</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK promotion_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK produit_id</TD></TR>
+      <TR><TD ALIGN="LEFT">unique(promotion, produit)</TD></TR>
+    </TABLE>
+  >];
+
+  PromotionCategorie [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#6f42c1"><FONT COLOR="white"><B>promotions_promotion_categories</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">FK promotion_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK categorie_id</TD></TR>
+      <TR><TD ALIGN="LEFT">table M2M Django</TD></TR>
+    </TABLE>
+  >];
+
+  Parametre [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#444444"><FONT COLOR="white"><B>parametres_parametre</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">section</TD></TR>
+      <TR><TD ALIGN="LEFT">cle unique</TD></TR>
+      <TR><TD ALIGN="LEFT">libelle</TD></TR>
+      <TR><TD ALIGN="LEFT">type, valeur</TD></TR>
+      <TR><TD ALIGN="LEFT">options JSON</TD></TR>
+    </TABLE>
+  >];
+
+  EntreeJournal [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#444444"><FONT COLOR="white"><B>parametres_journal</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK utilisateur_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">action</TD></TR>
+      <TR><TD ALIGN="LEFT">section, cle</TD></TR>
+      <TR><TD ALIGN="LEFT">avant, apres</TD></TR>
+      <TR><TD ALIGN="LEFT">date</TD></TR>
+    </TABLE>
+  >];
+
+  Sauvegarde [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#444444"><FONT COLOR="white"><B>parametres_sauvegardes</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK utilisateur_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">fichier</TD></TR>
+      <TR><TD ALIGN="LEFT">format, engine</TD></TR>
+      <TR><TD ALIGN="LEFT">taille, nb_tables</TD></TR>
+      <TR><TD ALIGN="LEFT">statut</TD></TR>
+    </TABLE>
+  >];
+
+  Categorie -> Produit [taillabel="1", headlabel="0,N", label="categorie"];
+  Fournisseur -> Produit [taillabel="1", headlabel="0,N", label="approvisionne"];
+  Produit -> Stock [taillabel="1", headlabel="0,1", label="stock"];
+  Produit -> MouvementStock [taillabel="1", headlabel="0,N", label="mouvements"];
+  User -> MouvementStock [taillabel="1", headlabel="0,N", label="saisit"];
+
+  Client -> Vente [taillabel="1", headlabel="0,N", label="achats"];
+  User -> Vente [taillabel="1", headlabel="0,N", label="vendeur"];
+  SessionCaisse -> Vente [taillabel="1", headlabel="0,N", label="contient"];
+  Vente -> LigneVente [taillabel="1", headlabel="1,N", label="details"];
+  Produit -> LigneVente [taillabel="1", headlabel="0,N", label="vendu"];
+  Promotion -> LigneVente [taillabel="1", headlabel="0,N", label="appliquee"];
+
+  Vente -> Paiement [taillabel="1", headlabel="0,N", label="paiements"];
+  Reservation -> Paiement [taillabel="1", headlabel="0,N", label="acomptes"];
+
+  Client -> Reservation [taillabel="1", headlabel="0,N", label="reserve"];
+  User -> Reservation [taillabel="1", headlabel="0,N", label="cree"];
+  Vente -> Reservation [taillabel="1", headlabel="0,N", label="generee"];
+  Reservation -> LigneReservation [taillabel="1", headlabel="1,N", label="details"];
+  Produit -> LigneReservation [taillabel="1", headlabel="0,N", label="reserve"];
+
+  Vente -> RetourVente [taillabel="1", headlabel="0,N", label="retours"];
+  LigneVente -> RetourVente [taillabel="1", headlabel="0,N", label="ligne retournee"];
+  User -> RetourVente [taillabel="1", headlabel="0,N", label="enregistre"];
+
+  Client -> ReglementClient [taillabel="1", headlabel="0,N", label="reglements"];
+  User -> ReglementClient [taillabel="1", headlabel="0,N", label="encaisse"];
+
+  Fournisseur -> BonCommande [taillabel="1", headlabel="0,N", label="commandes"];
+  User -> BonCommande [taillabel="1", headlabel="0,N", label="cree"];
+  BonCommande -> LigneBonCommande [taillabel="1", headlabel="1,N", label="details"];
+  Produit -> LigneBonCommande [taillabel="1", headlabel="0,N", label="commande"];
+
+  Promotion -> PromotionProduit [taillabel="1", headlabel="0,N", label="cible"];
+  Produit -> PromotionProduit [taillabel="1", headlabel="0,N", label="concerne"];
+  Promotion -> PromotionCategorie [taillabel="1", headlabel="0,N", label="cible"];
+  Categorie -> PromotionCategorie [taillabel="1", headlabel="0,N", label="concerne"];
+
+  User -> SessionCaisse [taillabel="1", headlabel="0,N", label="caissier"];
+  User -> LoginEvent [taillabel="1", headlabel="0,N", label="connexions"];
+  User -> UserNotification [taillabel="1", headlabel="0,N", label="notifications"];
+  User -> EntreeJournal [taillabel="1", headlabel="0,N", label="audit"];
+  User -> Sauvegarde [taillabel="1", headlabel="0,N", label="sauvegardes"];
+}

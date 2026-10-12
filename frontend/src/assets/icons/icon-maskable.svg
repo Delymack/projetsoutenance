@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Lazan'i Betsileo">
+  <defs>
+    <linearGradient id="lb-degrade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8c2f3c"/>
+      <stop offset="100%" stop-color="#6b1f2a"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="0" fill="url(#lb-degrade)"/>
+  <text x="256.0" y="328" font-size="266" text-anchor="middle">🍷</text>
+</svg>

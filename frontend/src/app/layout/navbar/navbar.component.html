@@ -1,0 +1,224 @@
+<!--
+ Barre de navigation.
+  Mobile first : sur petit écran seuls le logo, le panier et le menu sont visibles.
+-->
+<header class="navbar">
+  <div class="navbar__inner lb-container">
+
+    <!-- Logo / marque -->
+    <a routerLink="/" class="navbar__marque" [attr.aria-label]="'ACCUEIL.titre' | translate">
+      <span class="navbar__logo" aria-hidden="true">🍷</span>
+      <span class="navbar__titre">
+        <strong>{{ 'APP.nom' | translate }}</strong>
+        <small>{{ 'APP.baseline' | translate }}</small>
+      </span>
+    </a>
+
+    <!-- Liens (desktop uniquement) -->
+    <nav class="navbar__links" [attr.aria-label]="'NAV.menu' | translate">
+      @for (lien of liens; track lien.chemin) {
+        <a
+          [routerLink]="lien.chemin"
+          routerLinkActive="is-actif"
+          class="navbar__lien"
+          [matTooltip]="lien.cle | translate"
+        >
+          <mat-icon class="navbar__icone">{{ lien.icone }}</mat-icon>
+          <span>{{ lien.cle | translate }}</span>
+        </a>
+      }
+      <!-- Équipe : réception des commandes, tableau de bord, rapports. -->
+      @if (estEncadrant()) {
+        @for (lien of liensEncadrant; track lien.chemin) {
+          <a
+            [routerLink]="lien.chemin"
+            routerLinkActive="is-actif"
+            class="navbar__lien navbar__lien--equipe"
+            [matTooltip]="lien.cle | translate"
+          >
+            <mat-icon class="navbar__icone">{{ lien.icone }}</mat-icon>
+            <span>{{ lien.cle | translate }}</span>
+          </a>
+        }
+      }
+    </nav>
+
+    <!-- Actions -->
+    <div class="navbar__actions">
+
+ <!-- Sélecteur de langue -->
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="menuLangue"
+        class="navbar__action"
+        [attr.aria-label]="'LANGUE.selectionner' | translate"
+        [matTooltip]="'LANGUE.selectionner' | translate"
+      >
+        <span class="navbar__langue">
+          <span aria-hidden="true">{{ langueCourante() === 'fr' ? '🇫🇷' : langueCourante() === 'mg' ? '🇲🇬' : '🇬🇧' }}</span>
+          <small>{{ langueCourante().toUpperCase() }}</small>
+        </span>
+      </button>
+      <mat-menu #menuLangue="matMenu" class="lb-menu">
+        @for (l of langues; track l.code) {
+          <button mat-menu-item (click)="changerLangue(l.code)" [class.is-actif-menu]="l.code === langueCourante()">
+            <span aria-hidden="true">{{ l.drapeau }}</span>
+            <span class="lb-menu__texte">{{ l.libelle }}</span>
+            @if (l.code === langueCourante()) {
+              <mat-icon class="lb-menu__check">check</mat-icon>
+            }
+          </button>
+        }
+      </mat-menu>
+
+ <!-- Notifications : la cloche ouvre le panneau -->
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="menuNotifications"
+        class="navbar__action lb-btn-ripple"
+        [attr.aria-label]="('NOTIF.titre' | translate) + (nonLues() > 0 ? ' (' + nonLues() + ')' : '')"
+        [matTooltip]="'NOTIF.titre' | translate"
+      >
+        @if (nonLues() > 0) {
+          <mat-icon [matBadge]="nonLues()" matBadgeColor="warn" matBadgeSize="small">notifications</mat-icon>
+        } @else {
+          <mat-icon>notifications_none</mat-icon>
+        }
+      </button>
+      <mat-menu #menuNotifications="matMenu" class="lb-menu lb-menu--large">
+        <!-- `matMenuContent` + `stopPropagation` : le menu reste ouvert pendant
+             qu'on manipule le panneau (sans quoi Material le referme au moindre
+             clic, sur les réglages comme sur « tout marquer lu »). La fermeture
+             reste possible par la touche Échap ou un clic hors du panneau. -->
+        <div class="lb-menu__bloc" matMenuContent (click)="$event.stopPropagation()">
+          <app-notification-panneau />
+        </div>
+      </mat-menu>
+
+ <!-- Bascule de thème -->
+      <button
+        mat-icon-button
+        (click)="basculerTheme()"
+        class="navbar__action navbar__action--theme lb-btn-ripple"
+        [attr.aria-label]="(estSombre() ? 'THEME.clair' : 'THEME.sombre') | translate"
+        [matTooltip]="(estSombre() ? 'THEME.clair' : 'THEME.sombre') | translate"
+      >
+        <mat-icon>{{ estSombre() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      </button>
+
+ <!-- compte : panneau de profil, inscription sinon.
+           Le clic ouvre le panneau (et non la page profil) : c'est le premier
+           lien du panneau qui mène au profil, comme dans tout logiciel de
+           gestion. Le panneau se place à gauche du bouton pour ne pas sortir
+           de l'écran, le bouton étant au bord droit. -->
+      @if (auth.connecte()) {
+        <button
+          type="button"
+          mat-icon-button
+          class="navbar__action navbar__action--compte lb-btn-ripple"
+          [matMenuTriggerFor]="menuCompte"
+          [attr.aria-label]="'COMPTE.ouvrir' | translate"
+          [matTooltip]="'COMPTE.ouvrir' | translate"
+        >
+          <app-avatar [nom]="auth.utilisateur()?.nom ?? ''" [photo]="photo()" [taille]="28" />
+          @if (nonLusMessages() > 0) {
+            <em class="navbar__pip" [attr.aria-label]="'PROFIL.messages' | translate">
+              {{ nonLusMessages() }}
+            </em>
+          }
+        </button>
+        <mat-menu #menuCompte="matMenu" class="lb-menu lb-menu--compte" xPosition="before">
+          <!-- `matMenuContent` + `stopPropagation` : les réglages du panneau
+               (thème, langue, sons) ne doivent pas refermer le menu au clic. -->
+          <div class="lb-menu__bloc" matMenuContent (click)="$event.stopPropagation()">
+            <app-profil-panneau />
+          </div>
+        </mat-menu>
+      } @else {
+        <a
+          routerLink="/inscription"
+          mat-flat-button
+          color="primary"
+          class="navbar__inscription lb-btn-ripple"
+        >
+          <mat-icon>person_add</mat-icon>
+          {{ 'AUTH.inscription' | translate }}
+        </a>
+      }
+
+      <!-- Panier -->
+      <a
+        routerLink="/panier"
+        mat-icon-button
+        class="navbar__action"
+        [attr.aria-label]="('NAV.panier' | translate) + ' (' + nbArticles() + ')'"
+        [matTooltip]="'NAV.panier' | translate"
+      >
+        @if (nbArticles() > 0) {
+          <mat-icon [matBadge]="nbArticles()" matBadgeColor="warn" matBadgeSize="small">shopping_cart</mat-icon>
+        } @else {
+          <mat-icon>shopping_cart</mat-icon>
+        }
+      </a>
+
+      <!-- Menu mobile -->
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="menuMobile"
+        class="navbar__action navbar__burger"
+        [attr.aria-label]="'NAV.menu' | translate"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+      <mat-menu #menuMobile="matMenu">
+        @for (lien of liens; track lien.chemin) {
+          <a mat-menu-item [routerLink]="lien.chemin" routerLinkActive="is-actif-menu">
+            <mat-icon>{{ lien.icone }}</mat-icon>
+            <span class="lb-menu__texte">{{ lien.cle | translate }}</span>
+          </a>
+        }
+        @if (estEncadrant()) {
+          <mat-divider></mat-divider>
+          @for (lien of liensEncadrant; track lien.chemin) {
+            <a mat-menu-item [routerLink]="lien.chemin" routerLinkActive="is-actif-menu">
+              <mat-icon>{{ lien.icone }}</mat-icon>
+              <span class="lb-menu__texte">{{ lien.cle | translate }}</span>
+            </a>
+          }
+        }
+        <mat-divider></mat-divider>
+        @if (auth.connecte()) {
+          <a mat-menu-item routerLink="/profil">
+            <mat-icon>person</mat-icon>
+            <span class="lb-menu__texte">{{ 'NAV.profil' | translate }}</span>
+          </a>
+          <a mat-menu-item routerLink="/commande">
+            <mat-icon>shopping_bag</mat-icon>
+            <span class="lb-menu__texte">{{ 'NAV.commander' | translate }}</span>
+          </a>
+          <button mat-menu-item (click)="auth.deconnexion()">
+            <mat-icon>logout</mat-icon>
+            <span class="lb-menu__texte">{{ 'AUTH.deconnexion' | translate }}</span>
+          </button>
+        } @else {
+          <a mat-menu-item routerLink="/inscription">
+            <mat-icon>person_add</mat-icon>
+            <span class="lb-menu__texte">{{ 'AUTH.inscription' | translate }}</span>
+          </a>
+          <a mat-menu-item routerLink="/connexion">
+            <mat-icon>login</mat-icon>
+            <span class="lb-menu__texte">{{ 'AUTH.connexion' | translate }}</span>
+          </a>
+        }
+      </mat-menu>
+    </div>
+  </div>
+
+  <!-- Fil d'ariane visuel : petit bandeau sous la barre (desktop) -->
+  @if (horsLigne()) {
+    <div class="navbar__hors-ligne" role="status">
+      <mat-icon>cloud_off</mat-icon>
+      <span>{{ 'HORS_LIGNE.banniere' | translate }}</span>
+    </div>
+  }
+</header>

@@ -1,0 +1,121 @@
+{% extends "admin/base_site.html" %}
+{% load static l10n %}
+{% block extrastyle %}{{ block.super }}
+<style>
+  .cm-page { color:#292425; margin:0 auto; max-width:1280px; }
+  .cm-head { align-items:center; background:linear-gradient(110deg,#542430,#743745 72%,#356b4c); border-radius:10px; color:#fff; display:flex; justify-content:space-between; margin:.8rem 0 1rem; padding:1rem 1.2rem; }
+  .cm-head h1 { color:#fff; font-size:1.2rem; margin:0; }
+  .cm-head p { color:#f0e6e2; font-size:.78rem; margin:.25rem 0 0; }
+  .cm-head a { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); border-radius:7px; color:#fff; padding:.55rem .75rem; text-decoration:none; }
+  .cm-grid { align-items:start; display:grid; gap:1rem; grid-template-columns:minmax(0,1fr) 340px; }
+  .cm-panel { background:#fff; border:1px solid #e5ddd7; border-radius:9px; padding:1rem; }
+  .cm-tools { display:flex; gap:.55rem; margin-bottom:.75rem; }
+  .cm-tools input,.cm-panel select,.cm-panel input:not([type=hidden]),.cm-panel textarea { border:1px solid #ded5ce; border-radius:6px; min-height:38px; padding:.45rem .6rem; width:100%; }
+  .cm-products { display:grid; gap:.5rem; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); }
+  .cm-product { align-items:center; border:1px solid #ece6e0; border-radius:7px; display:grid; gap:.55rem; grid-template-columns:minmax(0,1fr) auto; padding:.65rem; }
+  .cm-product[hidden] { display:none; }
+  .cm-product strong { display:block; font-size:.82rem; }
+  .cm-product small { color:#77716c; font-size:.71rem; }
+  .cm-product button,.cm-submit { background:#542430; border:0; border-radius:6px; color:white; cursor:pointer; font-weight:700; min-height:36px; padding:0 .65rem; }
+  .cm-side h2 { color:#542430; font-size:1rem; margin:0 0 .8rem; }
+  .cm-field { margin:.65rem 0; }
+  .cm-field label { display:block; font-size:.75rem; font-weight:700; margin-bottom:.25rem; }
+  .cm-cart { border-bottom:1px solid #e5ddd7; max-height:260px; overflow:auto; padding-bottom:.6rem; }
+  .cm-line { align-items:center; border-top:1px solid #f1ece8; display:flex; justify-content:space-between; padding:.45rem 0; }
+  .cm-line strong { font-size:.78rem; }
+  .cm-step { display:flex; align-items:center; gap:.25rem; }
+  .cm-step button { background:#f4eee8; border:1px solid #e5ddd7; border-radius:5px; height:28px; width:28px; }
+  .cm-total { color:#542430; display:flex; font-size:.95rem; font-weight:800; justify-content:space-between; padding:.7rem 0; }
+  .cm-submit { min-height:44px; width:100%; }
+  .cm-submit:disabled { opacity:.45; }
+  .cm-alert { background:#fff1ee; border-left:3px solid #a1263a; color:#8c1f33; margin:.7rem 0; padding:.6rem; }
+  @media(max-width:850px) { .cm-grid { grid-template-columns:1fr; } .cm-side { order:-1; } }
+</style>{% endblock %}
+{% block content %}
+<main class="cm-page">
+  <header class="cm-head"><div><h1>Nouvelle commande client</h1></div><a href="{% url 'admin:ventes_reservation_changelist' %}"><i class="fas fa-arrow-left mr-1"></i>Commandes reçues</a></header>
+  {% if erreur %}<div class="cm-alert" role="alert">{{ erreur }}</div>{% endif %}
+  {% if form.errors %}<div class="cm-alert" role="alert">Corrigez les champs signalés puis réessayez.</div>{% endif %}
+  <form method="post" id="manual-order-form">
+    {% csrf_token %}{{ form.lignes }}
+    <div class="cm-grid">
+      <section class="cm-panel">
+        <div class="cm-tools"><input id="cm-search" type="search" placeholder="Rechercher un produit" aria-label="Rechercher un produit"></div>
+        <div class="cm-products" id="cm-products">
+          {% for produit in produits %}
+          <article class="cm-product" data-id="{{ produit.pk }}" data-name="{{ produit.nom|lower }} {{ produit.marque|lower }}" data-title="{{ produit.nom }}" data-price="{{ produit.prix_unitaire_vente|unlocalize }}" data-stock="{{ produit.stock.quantite }}" data-unit="{{ produit.unite_vente }}">
+            <span><strong>{{ produit.nom }}</strong><small>{{ produit.marque }} · {{ produit.conditionnement_libelle }} · {{ produit.prix_unitaire_vente }} {{ devise }} · {{ produit.stock.quantite }} dispo.</small></span>
+            <button type="button" data-add="{{ produit.pk }}" aria-label="Ajouter {{ produit.nom }}">Ajouter</button>
+          </article>
+          {% empty %}<p>Aucun produit en stock.</p>{% endfor %}
+        </div>
+      </section>
+      <aside class="cm-panel cm-side">
+        <h2>Client et réception</h2>
+        <div class="cm-field"><label for="id_client">Client</label>{{ form.client }}</div>
+        <div class="cm-field"><label for="id_mode_reception">Mode de réception</label>{{ form.mode_reception }}</div>
+        <div class="cm-field" id="cm-delivery-address"><label for="id_adresse_livraison">Adresse de livraison</label>{{ form.adresse_livraison }}</div>
+        <div class="cm-field"><label for="id_date_expiration">Date de retrait</label>{{ form.date_expiration }}</div>
+        <div class="cm-field"><label for="id_note">Note de commande</label>{{ form.note }}</div>
+        <h2>Articles</h2>
+        <div class="cm-cart" id="cm-cart"><p>Aucun article sélectionné.</p></div>
+        <div class="cm-total"><span>Total estimé</span><span id="cm-total">0,00 {{ devise }}</span></div>
+        <button class="cm-submit" id="cm-submit" type="submit" disabled>Créer la commande</button>
+      </aside>
+    </div>
+  </form>
+</main>
+<script>
+(() => {
+  const chosen = new Map();
+  const currency = '{{ devise|escapejs }}';
+  const format = (value) => Number(value || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const esc = (value) => String(value).replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' }[c]));
+  function render() {
+    let total = 0;
+    const rows = [...chosen.values()];
+    document.getElementById('cm-cart').innerHTML = rows.length ? rows.map((item) => {
+      total += item.price * item.quantity;
+      return `<div class="cm-line" data-id="${item.id}"><span><strong>${esc(item.name)}</strong><br><small>${format(item.price * item.quantity)} ${esc(currency)}</small></span><span class="cm-step"><button type="button" data-step="-1" aria-label="Moins">−</button><output>${item.quantity}</output><button type="button" data-step="1" aria-label="Plus">+</button></span></div>`;
+    }).join('') : '<p>Aucun article sélectionné.</p>';
+    document.getElementById('cm-total').textContent = `${format(total)} ${currency}`;
+    document.getElementById('id_lignes').value = JSON.stringify(rows.map(({ id, quantity, unit }) => ({ produit_id:id, quantite:quantity, unite:unit })));
+    document.getElementById('cm-submit').disabled = !rows.length;
+  }
+  document.getElementById('cm-products').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-add]');
+    if (!button) return;
+    const card = button.closest('.cm-product');
+    const id = Number(card.dataset.id);
+    const item = chosen.get(id) || { id, name:card.dataset.title, price:Number(card.dataset.price), stock:Number(card.dataset.stock), unit:card.dataset.unit, quantity:0 };
+    if (item.quantity < item.stock) item.quantity += 1;
+    chosen.set(id, item);
+    render();
+  });
+  document.getElementById('cm-cart').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-step]');
+    if (!button) return;
+    const row = button.closest('.cm-line');
+    const item = chosen.get(Number(row.dataset.id));
+    item.quantity += Number(button.dataset.step);
+    if (item.quantity <= 0) chosen.delete(item.id);
+    else item.quantity = Math.min(item.quantity, item.stock);
+    render();
+  });
+  document.getElementById('cm-search').addEventListener('input', (event) => {
+    const query = event.target.value.trim().toLocaleLowerCase('fr');
+    document.querySelectorAll('.cm-product').forEach((card) => { card.hidden = !card.dataset.name.includes(query); });
+  });
+  const reception = document.getElementById('id_mode_reception');
+  const address = document.getElementById('cm-delivery-address');
+  function syncReception() {
+    const livraison = reception.value === 'LIVRAISON';
+    address.hidden = !livraison;
+    document.getElementById('id_adresse_livraison').required = livraison;
+  }
+  reception.addEventListener('change', syncReception);
+  syncReception();
+  render();
+})();
+</script>
+{% endblock %}

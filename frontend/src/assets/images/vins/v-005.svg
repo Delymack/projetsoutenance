@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img" aria-label="Malbec Ambatondrazaka">
+  <defs>
+    <linearGradient id="v" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3d0f16"/>
+      <stop offset="45%" stop-color="#7a2430"/>
+      <stop offset="100%" stop-color="#3d0f16"/>
+    </linearGradient>
+    <linearGradient id="f" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#f)"/>
+  <g transform="translate(150 20)">
+    <rect x="18" y="0" width="16" height="26" rx="3" fill="#3a2a22"/>
+    <path d="M18 26 h16 v18 q0 10 10 18 v96 q0 14 -14 14 h-8 q-14 0 -14 -14 v-96 q10 -8 10 -18 z" fill="url(#v)"/>
+    <rect x="20" y="14" width="3" height="150" rx="1.5" fill="#ffffff" opacity="0.22"/>
+    <rect x="8" y="112" width="36" height="40" rx="3" fill="#faf6ef" stroke="#3d0f16" stroke-width="1"/>
+    <text x="26" y="128" font-size="8" text-anchor="middle" fill="#3d0f16" font-family="Georgia, serif">Malbec Ambatondr</text>
+    <text x="26" y="143" font-size="11" text-anchor="middle" fill="#3d0f16" font-family="Georgia, serif" font-weight="bold">58 kAr</text>
+  </g>
+</svg>

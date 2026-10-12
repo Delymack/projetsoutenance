@@ -1,0 +1,226 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static jazzmin dashboard_tags %}
+
+{% block bodyclass %}{{ block.super }} wine-home{% endblock %}
+{% block content_title %}{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/wineadmin-dashboard.css' %}?v=2">
+{% endblock %}
+
+{% block content %}
+{% get_dashboard_stats as stats %}
+{% get_media_prefix as media_prefix %}
+<main class="wine-home-content">
+  <header class="wine-welcome">
+    <div>
+      <h1>Tableau de bord</h1>
+      <p class="wine-date">{% now "l d F Y" %}</p>
+    </div>
+    <div class="wine-welcome-actions">
+      <a class="wine-button wine-button-primary" href="{% url 'caisse-enregistreuse' %}" data-quick-create="wide">
+        <i class="fas fa-cash-register" aria-hidden="true"></i>
+        <span>Nouvelle vente</span>
+      </a>
+      <a class="wine-button wine-button-light" href="{% url 'rapports' %}">
+        <i class="fas fa-chart-column" aria-hidden="true"></i>
+        <span>Rapports</span>
+      </a>
+    </div>
+  </header>
+
+  <section class="wine-kpis" aria-label="Indicateurs du mois">
+    <a class="wine-kpi wine-kpi-revenue" href="{% url 'admin:ventes_vente_changelist' %}">
+      <span class="wine-kpi-icon"><i class="fas fa-coins" aria-hidden="true"></i></span>
+      <span class="wine-kpi-label">Chiffre d’affaires du mois</span>
+      <strong>{{ stats.ca_mois|floatformat:0|intcomma }} <small>{{ societe.devise|default:"Ar" }}</small></strong>
+      {% if stats.tendance_ca_mois != None %}
+      <span class="wine-kpi-foot {% if stats.tendance_ca_mois >= 0 %}is-up{% else %}is-down{% endif %}">
+        <i class="fas {% if stats.tendance_ca_mois >= 0 %}fa-arrow-trend-up{% else %}fa-arrow-trend-down{% endif %}" aria-hidden="true"></i>
+        {{ stats.tendance_ca_mois|floatformat:"+" }} % vs mois précédent
+      </span>
+      {% else %}
+      <span class="wine-kpi-foot">Depuis le début du mois</span>
+      {% endif %}
+    </a>
+    <a class="wine-kpi" href="{% url 'admin:ventes_vente_changelist' %}">
+      <span class="wine-kpi-icon"><i class="fas fa-wine-bottle" aria-hidden="true"></i></span>
+      <span class="wine-kpi-label">Unités vendues du mois</span>
+      <strong>{{ stats.produits_vendus_mois|intcomma }}</strong>
+      <span class="wine-kpi-foot">Ventes encaissées</span>
+    </a>
+    <a class="wine-kpi wine-kpi-stock" href="{% url 'admin:stocks_stock_changelist' %}">
+      <span class="wine-kpi-icon"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i></span>
+      <span class="wine-kpi-label">Produits en rupture</span>
+      <strong>{{ stats.ruptures|intcomma }}</strong>
+      <span class="wine-kpi-foot">Voir les stocks</span>
+    </a>
+    <a class="wine-kpi" href="{% url 'admin:promotions_promotion_changelist' %}">
+      <span class="wine-kpi-icon"><i class="fas fa-tags" aria-hidden="true"></i></span>
+      <span class="wine-kpi-label">Promotions actives</span>
+      <strong>{{ stats.nombre_promotions_actives|intcomma }}</strong>
+      <span class="wine-kpi-foot">En cours aujourd’hui</span>
+    </a>
+  </section>
+
+  <section class="wine-dashboard-grid wine-dashboard-primary">
+    <article class="wine-panel wine-sales-panel">
+      <header class="wine-panel-heading">
+        <div>
+          <h2>Chiffre d’affaires · 6 derniers mois</h2>
+        </div>
+        <span class="wine-panel-period">6 derniers mois</span>
+      </header>
+      <div class="wine-month-chart" role="img" aria-label="Chiffre d’affaires des six derniers mois">
+        {% for mois in stats.ventes_par_mois %}
+        <div class="wine-month-column" title="{{ mois.label }} : {{ mois.ca|floatformat:0|intcomma }} {{ societe.devise|default:'Ar' }}">
+          <span class="wine-month-value">{% if mois.ca %}{{ mois.ca|floatformat:0|intcomma }}{% endif %}</span>
+          <div class="wine-month-track"><span class="wine-month-bar" style="--bar-height:{{ mois.hauteur }}%"></span></div>
+          <span class="wine-month-label">{{ mois.label }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </article>
+
+    <article class="wine-panel wine-region-panel">
+      <header class="wine-panel-heading">
+        <div>
+          <h2>Ventes par appellation</h2>
+        </div>
+        <span class="wine-panel-period">Ce mois</span>
+      </header>
+      {% if stats.ventes_par_appellation %}
+      <div class="wine-region-content">
+        <div class="wine-donut" id="wine-region-chart" role="img" aria-label="Répartition du chiffre d’affaires par appellation"></div>
+        <ul class="wine-legend" id="wine-region-legend">
+          {% for origine in stats.ventes_par_appellation %}
+          <li>
+            <span class="wine-legend-name"><i aria-hidden="true"></i>{{ origine.label }}</span>
+            <strong>{{ origine.ca|floatformat:0|intcomma }} <small>{{ societe.devise|default:"Ar" }}</small></strong>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% else %}
+      <div class="wine-empty"><i class="fas fa-chart-pie" aria-hidden="true"></i><span>Aucune vente ce mois</span></div>
+      {% endif %}
+    </article>
+  </section>
+
+  <section class="wine-dashboard-grid wine-dashboard-secondary">
+    <article class="wine-panel wine-products-panel">
+      <header class="wine-panel-heading">
+        <div>
+          <h2>Meilleures ventes</h2>
+        </div>
+        <a class="wine-panel-link" href="{% url 'admin:produits_produit_changelist' %}">Catalogue <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+      </header>
+      {% if stats.meilleures_ventes %}
+      <ol class="wine-top-products">
+        {% for produit in stats.meilleures_ventes %}
+        <li>
+          <span class="wine-product-rank">{{ forloop.counter|stringformat:"02d" }}</span>
+          {% if produit.produit__image %}
+            <img class="wine-product-image" src="{{ media_prefix }}{{ produit.produit__image }}" alt="" loading="lazy">
+          {% else %}
+            <span class="wine-product-image wine-product-placeholder"><i class="fas fa-wine-bottle" aria-hidden="true"></i></span>
+          {% endif %}
+          <span class="wine-product-name">{{ produit.produit__nom }}</span>
+          <strong class="wine-product-units">{{ produit.total_vendu }} <small>vendu{% if produit.total_vendu != 1 %}s{% endif %}</small></strong>
+        </li>
+        {% endfor %}
+      </ol>
+      {% else %}
+      <div class="wine-empty"><i class="fas fa-wine-bottle" aria-hidden="true"></i><span>Aucune vente enregistrée</span></div>
+      {% endif %}
+    </article>
+
+    <article class="wine-panel wine-recent-panel">
+      <header class="wine-panel-heading">
+        <div>
+          <h2>Ventes récentes</h2>
+        </div>
+        <a class="wine-panel-link" href="{% url 'admin:ventes_vente_changelist' %}">Tout voir <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+      </header>
+      {% if stats.ventes_recentes %}
+      <div class="wine-table-scroll">
+        <table class="wine-recent-table">
+          <thead><tr><th>Référence</th><th>Client</th><th>Articles</th><th>Total</th></tr></thead>
+          <tbody>
+            {% for vente in stats.ventes_recentes %}
+            <tr>
+              <td><a href="{% url 'admin:ventes_vente_change' vente.pk %}">{{ vente.reference }}</a><time>{{ vente.date_vente|date:"d/m · H:i" }}</time></td>
+              <td>{{ vente.nom_client }}</td>
+              <td>{{ vente.quantite_totale }}</td>
+              <td class="wine-sale-total">{{ vente.total_net|floatformat:0|intcomma }} <small>{{ societe.devise|default:"Ar" }}</small></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="wine-empty"><i class="fas fa-receipt" aria-hidden="true"></i><span>Aucune vente récente</span></div>
+      {% endif %}
+    </article>
+  </section>
+
+  <section class="wine-panel wine-promotions-panel">
+    <header class="wine-panel-heading">
+      <div>
+        <h2>Promotions actives</h2>
+      </div>
+      <a class="wine-panel-link" href="{% url 'admin:promotions_promotion_changelist' %}">Gérer les promotions <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+    </header>
+    {% if stats.promotions_actives %}
+    <div class="wine-promotions-list">
+      {% for promotion in stats.promotions_actives %}
+      <article class="wine-promotion-card">
+        <span class="wine-promo-icon"><i class="fas fa-tag" aria-hidden="true"></i></span>
+        <div class="wine-promo-info">
+          <h3>{{ promotion.nom }}</h3>
+          <span>{{ promotion.get_type_promotion_display }}</span>
+        </div>
+        <strong class="wine-promo-value">
+          {% if promotion.type_promotion == "POURCENTAGE" %}-{{ promotion.valeur|floatformat:"-2" }} %
+          {% elif promotion.type_promotion == "MONTANT_FIXE" %}-{{ promotion.valeur|floatformat:0|intcomma }} {{ societe.devise|default:"Ar" }}
+          {% elif promotion.type_promotion == "PRIX_PROMO" %}{{ promotion.prix_promotionnel|floatformat:0|intcomma }} {{ societe.devise|default:"Ar" }}
+          {% else %}{{ promotion.quantite_achetee }} + {{ promotion.quantite_offerte }}{% endif %}
+        </strong>
+        <span class="wine-promo-end">Jusqu’au {{ promotion.date_fin|date:"d/m/Y" }}</span>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="wine-empty wine-empty-inline"><i class="fas fa-tags" aria-hidden="true"></i><span>Aucune promotion en cours</span></div>
+    {% endif %}
+  </section>
+</main>
+
+{{ stats.ventes_par_appellation|json_script:"wine-region-data" }}
+<script>
+  (function () {
+    var dataNode = document.getElementById('wine-region-data');
+    var chart = document.getElementById('wine-region-chart');
+    var legend = document.getElementById('wine-region-legend');
+    if (!dataNode || !chart || !legend) return;
+    var data = JSON.parse(dataNode.textContent || '[]');
+    var colors = ['#76253c', '#bd8b42', '#536b54', '#b66f54', '#9c8790', '#d6bd8e'];
+    var total = data.reduce(function (sum, item) { return sum + item.ca; }, 0);
+    if (!total) return;
+    var offset = 0;
+    var segments = data.map(function (item, index) {
+      var start = offset;
+      offset += item.ca / total * 100;
+      var swatch = colors[index % colors.length];
+      legend.querySelectorAll('li')[index].style.setProperty('--legend-color', swatch);
+      return swatch + ' ' + start + '% ' + offset + '%';
+    });
+    chart.style.background = 'conic-gradient(' + segments.join(',') + ')';
+    chart.setAttribute('aria-label', 'Répartition du chiffre d’affaires : ' + data.map(function (item) {
+      return item.label + ' ' + Math.round(item.ca / total * 100) + ' pour cent';
+    }).join(', '));
+  })();
+</script>
+{% endblock %}

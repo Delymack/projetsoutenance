@@ -1,0 +1,467 @@
+/* ==================================================================
+   Fenêtre de saisie rapide : la modale qui enveloppe les formulaires
+   d'ajout et de modification chargés en AJAX.
+   ================================================================== */
+
+.wine-quick-create[aria-hidden="true"] { display: none; }
+
+.wine-quick-create {
+    align-items: center;
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: clamp(.75rem, 3vw, 2rem);
+    position: fixed;
+    z-index: 1200;
+}
+
+/* Voile assombri et légèrement flouté : la page derrière s'efface au lieu
+   de garder la lecture, on sait que le focus est dans la fenêtre. */
+.wine-quick-create-backdrop {
+    backdrop-filter: blur(3px);
+    background: rgba(15, 8, 11, .68);
+    border: 0;
+    cursor: default;
+    inset: 0;
+    position: absolute;
+    width: 100%;
+}
+
+.wine-quick-create-dialog {
+    animation: wine-quick-create-entree .22s cubic-bezier(.2, .8, .3, 1) both;
+    background: var(--lb-surface, #fff);
+    border: 1px solid var(--lb-line, #e8dfd3);
+    border-radius: 22px;
+    box-shadow:
+        0 40px 110px rgba(0, 0, 0, .45),
+        0 0 0 1px rgba(255, 255, 255, .1),
+        0 2px 8px rgba(0, 0, 0, .18);
+    display: flex;
+    flex-direction: column;
+    height: min(820px, 90dvh);
+    max-width: 900px;
+    overflow: hidden;
+    position: relative;
+    width: min(100%, 900px);
+}
+
+@keyframes wine-quick-create-entree {
+    from { opacity: 0; transform: translateY(14px) scale(.985); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wine-quick-create-dialog { animation: none; }
+    .wine-quick-create-state.is-success i { animation: none; }
+}
+
+.wine-quick-create-dialog.is-wide {
+    height: min(900px, 94vh);
+    max-width: 1440px;
+    width: min(96vw, 1440px);
+}
+
+/* --- En-tête ------------------------------------------------------ */
+.wine-quick-create-header {
+    align-items: center;
+    background:
+        radial-gradient(120% 200% at 90% -40%, rgba(201, 155, 59, .3) 0%, rgba(201, 155, 59, 0) 62%),
+        linear-gradient(110deg, #351321, #641b2c 70%, #74223a);
+    border-bottom: 1px solid rgba(230, 189, 106, .28);
+    color: #fff;
+    display: flex;
+    flex: 0 0 auto;
+    gap: .85rem;
+    min-height: 72px;
+    padding: .9rem 1.25rem;
+    position: relative;
+}
+
+.wine-quick-create-icon {
+    align-items: center;
+    background: rgba(230, 189, 106, .15);
+    border: 1px solid rgba(230, 189, 106, .45);
+    border-radius: 11px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12);
+    color: #f0d99a;
+    display: inline-flex;
+    font-size: .95rem;
+    height: 38px;
+    justify-content: center;
+    width: 38px;
+}
+
+.wine-quick-create-header h2 {
+    color: inherit;
+    flex: 1;
+    font-size: 1.04rem;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    margin: 0;
+}
+
+.wine-quick-create-close {
+    align-items: center;
+    background: rgba(255, 255, 255, .08);
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 10px;
+    color: #fff;
+    display: inline-flex;
+    height: 40px;
+    justify-content: center;
+    transition: background .16s ease, border-color .16s ease, transform .12s ease;
+    width: 40px;
+}
+
+.wine-quick-create-close:hover,
+.wine-quick-create-close:focus-visible {
+    background: rgba(255, 255, 255, .18);
+    border-color: rgba(230, 189, 106, .6);
+    outline: 2px solid #f0d99a;
+    outline-offset: 2px;
+}
+
+.wine-quick-create-close:active { transform: scale(.94); }
+
+/* --- Corps -------------------------------------------------------- */
+.wine-quick-create-content {
+    background: var(--lb-canvas-2, #f5f2ed);
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: clamp(1rem, 2.8vw, 1.75rem);
+    width: 100%;
+}
+
+.wine-quick-create-state {
+    align-items: center;
+    color: #5f4e52;
+    display: flex;
+    font-size: .92rem;
+    gap: .7rem;
+    justify-content: center;
+    min-height: 180px;
+}
+
+.wine-quick-create-state i { color: #8a3046; font-size: 1.05rem; }
+.wine-quick-create-state.is-error { color: #8c1f33; }
+.wine-quick-create-state.is-error i { color: inherit; }
+
+/* Panneau de confirmation après un enregistrement accepté : la liste va
+   être rechargée, on laisse juste le temps de le lire. */
+.wine-quick-create-state.is-success {
+    color: #1c7a4d;
+    flex-direction: column;
+    gap: .8rem;
+    text-align: center;
+}
+
+.wine-quick-create-state.is-success i {
+    animation: wine-quick-create-succes .4s cubic-bezier(.2, .8, .3, 1) both;
+    color: #1c7a4d;
+    font-size: 2.6rem;
+}
+
+.wine-quick-create-state.is-success span { font-weight: 800; }
+
+@keyframes wine-quick-create-succes {
+    from { opacity: 0; transform: scale(.5); }
+    to { opacity: 1; transform: none; }
+}
+
+.wine-quick-create-content .content-header,
+.wine-quick-create-content .breadcrumbs,
+.wine-quick-create-content #jazzy-tabs { display: none; }
+.wine-quick-create-content #content { margin: 0; max-width: none; padding: 0; }
+.wine-quick-create-content #content-main,
+.wine-quick-create-content #content-main form,
+.wine-quick-create-content #content-main form > .row {
+    margin: 0;
+    max-width: none;
+    width: 100%;
+}
+
+.wine-quick-create-content .wine-quick-create-fields {
+    flex: 0 0 100%;
+    max-width: 100%;
+    padding: 0;
+    width: 100%;
+}
+
+/* La carte des champs : c'est elle qui donne au formulaire l'épaisseur
+   d'une fiche plutôt que l'air d'une page détachée. */
+.wine-quick-create-content .fields-card {
+    background: var(--lb-surface, #fff);
+    border: 1px solid #e9e1d8;
+    border-radius: 16px;
+    box-shadow: 0 10px 28px rgba(35, 17, 24, .06);
+    margin: 0;
+    overflow: hidden;
+}
+
+.wine-quick-create-content .fields-card > .card-body {
+    padding: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+.wine-quick-create-content .fields-card > .card-header {
+    background: var(--lb-wine-800, #34101c);
+    border-bottom: 0;
+    color: #fff;
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    padding: .7rem 1.25rem;
+    text-transform: uppercase;
+}
+
+/* --- Sections dépliées (les onglets de jazzmin deviennent des
+       sections enchaînées, chacune avec son titre d'origine) --------- */
+.wine-quick-create-content .wine-pane-title {
+    color: var(--lb-wine, #641b2c);
+    font-size: .76rem;
+    font-weight: 900;
+    letter-spacing: .09em;
+    margin: .1rem 0 .55rem;
+    padding: 0 0 .5rem;
+    position: relative;
+    text-transform: uppercase;
+}
+
+.wine-quick-create-content .wine-pane-title::after {
+    background: linear-gradient(90deg, var(--lb-gold, #c99b3b), rgba(201, 155, 59, 0));
+    border-radius: 3px;
+    bottom: 0;
+    content: "";
+    height: 2px;
+    left: 0;
+    position: absolute;
+    width: 78px;
+}
+
+.wine-quick-create-content .tab-pane + .tab-pane {
+    border-top: 1px solid var(--lb-line-soft, #f3ece8);
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+}
+
+/* --- Champs : grille deux colonnes, libellé au-dessus -------------- */
+/* Chaque fieldset (chaque carte `.p-5` de jazzmin) devient une grille :
+   le formulaire tient sur un écran au lieu d'une colonne interminable. */
+.wine-quick-create-content .fields-card .p-5 {
+    align-content: start;
+    display: grid;
+    gap: .85rem 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    /* Bootstrap impose `3rem !important` aux utilitaires de padding. */
+    padding: clamp(1rem, 2vw, 1.35rem) clamp(1.1rem, 2.4vw, 1.5rem) !important;
+}
+
+/* Les champs à rallonge occupent toute la largeur de la grille. */
+.wine-quick-create-content .fields-card .p-5 > .form-group:has(textarea),
+.wine-quick-create-content .fields-card .p-5 > .form-group:has(select[multiple]),
+.wine-quick-create-content .fields-card .p-5 > .form-group:has(.readonly) {
+    grid-column: 1 / -1;
+}
+
+.wine-quick-create-content .fields-card .form-group {
+    margin: 0;
+    min-width: 0;
+}
+
+/* Le markup jazzmin empile le label et le champ dans des colonnes de
+   grille Bootstrap : dans la fenêtre on les remet l'un au-dessus de
+   l'autre, la modale est trop étroite pour une ligne de deux colonnes. */
+.wine-quick-create-content .fields-card .form-group > .row {
+    display: block;
+    margin: 0;
+}
+
+.wine-quick-create-content .fields-card .form-group > .row > label {
+    color: var(--lb-wine, #641b2c);
+    display: block;
+    float: none;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    margin: 0 0 .32rem;
+    padding: 0;
+    text-transform: uppercase;
+    width: auto;
+}
+
+.wine-quick-create-content .fields-card .form-group > .row > [class*="col-"] {
+    float: none;
+    padding: 0;
+    width: 100%;
+}
+
+.wine-quick-create-content .fields-card input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+.wine-quick-create-content .fields-card select,
+.wine-quick-create-content .fields-card textarea {
+    border: 1px solid var(--lb-line, #ebe3de);
+    border-radius: 10px;
+    box-shadow: none;
+    min-height: 44px;
+    padding: .5rem .75rem;
+    transition: border-color .16s ease, box-shadow .16s ease;
+    width: 100%;
+}
+
+.wine-quick-create-content .fields-card input:not([type="checkbox"]):not([type="radio"]):focus,
+.wine-quick-create-content .fields-card select:focus,
+.wine-quick-create-content .fields-card textarea:focus {
+    border-color: var(--lb-gold, #c99b3b);
+    box-shadow: 0 0 0 3px rgba(201, 155, 59, .2);
+    outline: none;
+}
+
+/* Lecture seule : calculs, historique, compteurs. */
+.wine-quick-create-content .form-group .readonly {
+    background: var(--lb-canvas, #faf7f5);
+    border: 1px dashed var(--lb-line, #e5dbd2);
+    border-radius: 10px;
+    color: #5f4e52;
+    font-size: .88rem;
+    min-height: 42px;
+    padding: .6rem .8rem;
+}
+
+/* Aides et erreurs. */
+.wine-quick-create-content .help-block {
+    color: #7d7075;
+    font-size: .78rem;
+    margin-top: .3rem;
+}
+
+.wine-quick-create-content ul.errorlist {
+    color: #a1263a;
+    font-size: .78rem;
+    font-weight: 700;
+    list-style: none;
+    margin: .3rem 0 0;
+    padding: 0;
+}
+
+.wine-quick-create-content .form-group:has(ul.errorlist) input:not([type="hidden"]),
+.wine-quick-create-content .form-group:has(ul.errorlist) select,
+.wine-quick-create-content .form-group:has(ul.errorlist) textarea {
+    background: #fff7f6;
+    border-color: #a1263a;
+}
+
+/* --- Barre d'action ----------------------------------------------- */
+/* La barre suit le défilement avec le formulaire : dans une fenêtre de
+   saisie, un bouton figé au bas de l'écran masque les derniers champs et
+   donne l'impression que l'enregistrement est déjà lancé. */
+.wine-quick-create-content .submit-row.wine-quick-create-actions {
+    align-items: center;
+    background: rgba(255, 255, 255, .96);
+    border: 1px solid #e8dfd3;
+    border-radius: 15px;
+    box-shadow: 0 10px 28px rgba(35, 17, 24, .09);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: .65rem;
+    justify-content: flex-end;
+    margin: 1rem 0 .1rem;
+    padding: .85rem 1.05rem;
+}
+
+.wine-quick-create-content .submit-row.wine-quick-create-actions > div {
+    align-items: center;
+    display: contents;
+}
+
+.wine-quick-create-content .submit-row.wine-quick-create-actions button,
+.wine-quick-create-content .submit-row.wine-quick-create-actions input[type="submit"] {
+    align-items: center;
+    border-radius: 11px;
+    display: inline-flex;
+    font-size: .88rem;
+    font-weight: 750;
+    gap: .5rem;
+    justify-content: center;
+    letter-spacing: .01em;
+    min-height: 48px;
+    min-width: 132px;
+    padding: .7rem 1.25rem;
+    transition: background .16s ease, border-color .16s ease, box-shadow .16s ease, transform .12s ease;
+    width: auto;
+}
+
+/* Enregistrer : seul bouton plein, il porte la couleur de la maison. */
+.wine-quick-create-content .submit-row.wine-quick-create-actions [name="_save"],
+.wine-quick-create-content .submit-row.wine-quick-create-actions .wine-quick-create-save {
+    background: linear-gradient(115deg, #641b2c, #8b3046);
+    border: 1px solid #641b2c;
+    box-shadow: 0 6px 16px rgba(100, 27, 44, .24);
+    color: #fff;
+}
+
+.wine-quick-create-content .submit-row.wine-quick-create-actions [name="_save"]:hover,
+.wine-quick-create-content .submit-row.wine-quick-create-actions .wine-quick-create-save:hover {
+    background: #4f1423;
+    box-shadow: 0 9px 22px rgba(100, 27, 44, .32);
+    transform: translateY(-1px);
+}
+
+.wine-quick-create-content .submit-row.wine-quick-create-actions .wine-quick-create-cancel {
+    background: #fff;
+    border: 1px solid #d8cec5;
+    color: #645b5d;
+}
+
+.wine-quick-create-content .submit-row.wine-quick-create-actions .wine-quick-create-cancel:hover {
+    background: #f5f2ef;
+    border-color: #b7a9a2;
+    color: #3d3034;
+}
+
+.wine-quick-create-content .submit-row.wine-quick-create-actions button:focus-visible {
+    box-shadow: 0 0 0 3px rgba(201, 155, 59, .45);
+    outline: none;
+}
+
+.wine-quick-create-content .submit-row.wine-quick-create-actions button:active { transform: translateY(0); }
+
+.wine-quick-create-content .submit-row.wine-quick-create-actions .wine-quick-create-feedback {
+    flex: 1 0 100%;
+    color: #605459;
+    font-size: .82rem;
+    margin: .15rem 0 0;
+    text-align: right;
+}
+
+.wine-quick-create-content .wine-quick-create-feedback.is-error { color: #a1263a; }
+.wine-quick-create-content .submit-row button:disabled { cursor: wait; opacity: .65; }
+
+body.wine-quick-create-open { overflow: hidden; }
+
+@media (max-width: 575.98px) {
+    .wine-quick-create { padding: .4rem; }
+    .wine-quick-create-dialog,
+    .wine-quick-create-dialog.is-wide {
+        border-radius: 14px;
+        height: 96dvh;
+        max-width: none;
+        width: 100%;
+    }
+    .wine-quick-create-header { min-height: 62px; padding: .7rem .85rem; }
+    .wine-quick-create-content .submit-row.wine-quick-create-actions {
+        gap: .5rem;
+        margin-left: -.35rem;
+        margin-right: -.35rem;
+        padding: .65rem;
+    }
+    .wine-quick-create-content .submit-row.wine-quick-create-actions button,
+    .wine-quick-create-content .submit-row.wine-quick-create-actions input[type="submit"] {
+        flex: 1 1 0;
+        min-width: 0;
+        padding: .65rem .55rem;
+    }
+    .wine-quick-create-content .submit-row.wine-quick-create-actions .wine-quick-create-feedback {
+        text-align: center;
+    }
+}

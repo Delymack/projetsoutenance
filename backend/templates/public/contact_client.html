@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nous contacter | {{ societe.nom }}</title>
+  <style>
+    :root { --wine:#542430; --gold:#bd9143; --ink:#262321; --muted:#77716c; --paper:#f7f4ef; --line:#e4ddd3; }
+    * { box-sizing:border-box; }
+    body { background:linear-gradient(135deg,rgba(189,145,67,.07) 25%,transparent 25%) 0 0/18px 18px,var(--paper); color:var(--ink); font:15px/1.5 Georgia,"Times New Roman",serif; margin:0; }
+    .head { align-items:center; background:#fff; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; padding:.9rem max(1rem,calc((100% - 980px)/2)); }
+    a { color:var(--wine); font:700 .82rem system-ui,sans-serif; text-decoration:none; }
+    .brand { font:bold 1rem Georgia,serif; }
+    main { background:#fff; border:1px solid var(--line); border-radius:10px; margin:3rem auto; max-width:720px; padding:clamp(1.2rem,4vw,2.5rem); }
+    .eyebrow { color:var(--gold); font:800 .69rem system-ui,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
+    h1 { color:var(--wine); font-size:2rem; margin:.25rem 0; }
+    p { color:var(--muted); margin:.2rem 0 1.2rem; }
+    form { display:grid; gap:.85rem; grid-template-columns:1fr 1fr; }
+    .field { min-width:0; }
+    .wide { grid-column:1/-1; }
+    label { display:block; font:700 .74rem system-ui,sans-serif; margin-bottom:.25rem; }
+    input,textarea { background:#fbfaf8; border:1px solid var(--line); border-radius:7px; font: .92rem system-ui,sans-serif; min-height:44px; padding:.65rem .75rem; width:100%; }
+    textarea { min-height:160px; resize:vertical; }
+    button { background:var(--wine); border:0; border-radius:7px; color:white; cursor:pointer; font:800 .85rem system-ui,sans-serif; min-height:46px; padding:0 1.3rem; }
+    .success,.error { border-left:3px solid #356b4c; background:#edf6ef; color:#27563b; font: .85rem system-ui,sans-serif; margin:1rem 0; padding:.8rem; }
+    .error { background:#fff2f0; border-color:#a1263a; color:#8c1f33; }
+    @media(max-width:560px) { main { margin:1.25rem .7rem; } form { grid-template-columns:1fr; } .wide { grid-column:auto; } }
+  </style>
+</head>
+<body>
+  <header class="head"><a class="brand" href="{% url 'commande-client' %}">{{ societe.nom }}</a><a href="{% url 'commande-client' %}">Retour aux vins</a></header>
+  <main>
+    <span class="eyebrow">Service client</span>
+    <h1>Écrivez-nous</h1>
+    <p>Une question sur un vin ou une commande ? Laissez vos coordonnées et notre équipe vous répondra.</p>
+    {% if succes %}<div class="success" role="status">Votre message a bien été reçu. Merci, notre équipe revient vers vous.</div>{% endif %}
+    {% if form.errors %}<div class="error" role="alert">Vérifiez les champs indiqués puis réessayez.</div>{% endif %}
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="field"><label for="id_nom">Nom</label>{{ form.nom }}</div>
+      <div class="field"><label for="id_telephone">Téléphone</label>{{ form.telephone }}</div>
+      <div class="field wide"><label for="id_email">Email</label>{{ form.email }}</div>
+      <div class="field wide"><label for="id_sujet">Sujet</label>{{ form.sujet }}</div>
+      <div class="field wide"><label for="id_message">Message</label>{{ form.message }}</div>
+      <div class="field wide"><button type="submit">Envoyer le message</button></div>
+    </form>
+  </main>
+</body>
+</html>

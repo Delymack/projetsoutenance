@@ -1,0 +1,86 @@
+/* Partage social */
+
+:host {
+  display: block;
+}
+
+.partage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lb-gap-sm);
+}
+
+.partage__intitule {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--lb-text-muted);
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.partage__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lb-gap-xs);
+}
+
+.partage__bouton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  color: var(--lb-text-muted);
+  cursor: pointer;
+  background: var(--lb-surface-2);
+  border: 1px solid var(--lb-border);
+  border-radius: 999px;
+  transition:
+    color var(--lb-transition),
+    background var(--lb-transition),
+    border-color var(--lb-transition),
+    transform var(--lb-transition);
+
+  mat-icon {
+    width: 17px;
+    height: 17px;
+    font-size: 17px;
+  }
+
+  &:hover {
+    color: var(--lb-primary);
+    background: var(--lb-promo-bg);
+    border-color: var(--lb-accent);
+    transform: translateY(-2px);
+  }
+
+  /* Couleur de marque subtile par réseau, sans quitter la palette. */
+  &[data-reseau='facebook']:hover {
+    color: #1877f2;
+    border-color: #1877f2;
+  }
+
+  &[data-reseau='whatsapp']:hover {
+    color: #128c7e;
+    border-color: #128c7e;
+  }
+
+  &[data-reseau='telegram']:hover {
+    color: #229ed9;
+    border-color: #229ed9;
+  }
+}
+
+/* Variante compacte : une pastille par réseau, pour les cartes produit. */
+.partage--compact .partage__bouton {
+  padding: 5px;
+  border-radius: 50%;
+}

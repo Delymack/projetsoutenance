@@ -1,0 +1,326 @@
+/* ============================================================
+   WineAdmin — MODE SOMBRE PREMIUM
+   Déclenché par html[data-bs-theme="dark"] (Bootstrap/AdminLTE).
+   Palette nuit bordeaux-or : profondeurs chaudes, or conservé.
+   ============================================================ */
+
+/* Transition douce lors de la bascule (classe temporaire posée par JS) */
+html.wine-theme-switching *,
+html.wine-theme-switching *::before,
+html.wine-theme-switching *::after {
+    transition: background-color .28s ease, color .28s ease, border-color .28s ease, box-shadow .28s ease !important;
+}
+
+/* ------------------------------------------------------------
+   FONDS & SURFACES GÉNÉRAUX
+   ------------------------------------------------------------ */
+html[data-bs-theme="dark"] body,
+html[data-bs-theme="dark"] body.bg-body-tertiary {
+    background: linear-gradient(180deg, #150a10 0%, #1c0c14 60%, #241019 100%) !important;
+}
+
+html[data-bs-theme="dark"] .app-main,
+html[data-bs-theme="dark"] .app-content { background: transparent !important; }
+
+html[data-bs-theme="dark"] .app-content-header {
+    background: linear-gradient(180deg, rgba(42, 18, 29, .85), rgba(28, 12, 20, .6));
+    border-bottom-color: rgba(201, 155, 59, .2);
+}
+html[data-bs-theme="dark"] .app-content-header h3.mb-0,
+html[data-bs-theme="dark"] .form-entity { color: #f7ebd8; }
+html[data-bs-theme="dark"] .app-content-header .breadcrumb-item a { color: #e6bd6a; }
+html[data-bs-theme="dark"] .app-content-header .breadcrumb-item.active,
+html[data-bs-theme="dark"] .app-content-header .breadcrumb-item + .breadcrumb-item::before {
+    color: #a89298;
+}
+
+/* Cartes */
+html[data-bs-theme="dark"] .card,
+html[data-bs-theme="dark"] .panel,
+html[data-bs-theme="dark"] .change-list .card,
+html[data-bs-theme="dark"] .change-form .card {
+    background: linear-gradient(180deg, #120509 0%, #1f1017 100%);
+    border-color: rgba(201, 155, 59, .14);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .38);
+}
+html[data-bs-theme="dark"] .card .card-header,
+html[data-bs-theme="dark"] .change-list .card .card-header,
+html[data-bs-theme="dark"] .change-form .card .card-header {
+    background: linear-gradient(120deg, rgba(201, 155, 59, .10), rgba(100, 27, 44, .16));
+    border-bottom-color: rgba(201, 155, 59, .16);
+    color: #f2e6d4;
+}
+html[data-bs-theme="dark"] .change-form #content-main form > .row > .col-lg-9 > .card {
+    background: transparent;
+    box-shadow: none;
+}
+html[data-bs-theme="dark"] .card-body { color: #eadede; }
+
+/* Tableaux */
+html[data-bs-theme="dark"] .table { --bs-table-bg: transparent; color: #eadede; }
+html[data-bs-theme="dark"] .table td { border-color: rgba(201, 155, 59, .12); }
+html[data-bs-theme="dark"] .table th { border-color: rgba(201, 155, 59, .18); color: #c9b9be; }
+html[data-bs-theme="dark"] .table-hover > tbody > tr:hover,
+html[data-bs-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) {
+    --bs-table-accent-bg: rgba(230, 189, 106, .05);
+}
+html[data-bs-theme="dark"] .table a { color: #e6bd6a; }
+
+/* ------------------------------------------------------------
+   FORMULAIRES
+   ------------------------------------------------------------ */
+html[data-bs-theme="dark"] .form-control,
+html[data-bs-theme="dark"] .form-select,
+html[data-bs-theme="dark"] input[type="text"],
+html[data-bs-theme="dark"] input[type="email"],
+html[data-bs-theme="dark"] input[type="password"],
+html[data-bs-theme="dark"] input[type="number"],
+html[data-bs-theme="dark"] input[type="tel"],
+html[data-bs-theme="dark"] input[type="date"],
+html[data-bs-theme="dark"] input[type="datetime-local"],
+html[data-bs-theme="dark"] input[type="search"] {
+    background-color: #120509;
+    border-color: #5a4a4e;
+    color: #f4ece7;
+}
+html[data-bs-theme="dark"] .form-control::placeholder { color: #8f7a80; }
+html[data-bs-theme="dark"] .form-control:focus,
+html[data-bs-theme="dark"] .form-select:focus {
+    background-color: #120509;
+    border-color: #c99b3b !important;
+    box-shadow: 0 0 0 .22rem rgba(201, 155, 59, .22) !important;
+}
+html[data-bs-theme="dark"] .form-control:disabled,
+html[data-bs-theme="dark"] .form-select:disabled { background-color: #120509; }
+
+html[data-bs-theme="dark"] .change-form label,
+html[data-bs-theme="dark"] .change-form .form-group > .row > label { color: #e9d9c8; }
+html[data-bs-theme="dark"] .change-form .readonly {
+    background: #22101a;
+    border-color: rgba(201, 155, 59, .3);
+    color: #e6bd6a;
+}
+html[data-bs-theme="dark"] .help-block { color: #a89298; }
+html[data-bs-theme="dark"] input[type="checkbox"], html[data-bs-theme="dark"] input[type="radio"] { accent-color: #e6bd6a; }
+
+/* Select2 */
+html[data-bs-theme="dark"] .select2-container--default .select2-selection--single,
+html[data-bs-theme="dark"] .select2-container--default .select2-selection--multiple {
+    background-color: #120509 !important;
+    border-color: #5a4a4e !important;
+}
+html[data-bs-theme="dark"] .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #f4ece7 !important;
+}
+html[data-bs-theme="dark"] .select2-container--default .select2-selection--single .select2-selection__placeholder { color: #8f7a80; }
+html[data-bs-theme="dark"] .select2-dropdown {
+    background-color: #120509;
+    border-color: #5a4a4e;
+    color: #f4ece7;
+}
+html[data-bs-theme="dark"] .select2-container--default .select2-results__option {
+    color: #f4ece7;
+}
+html[data-bs-theme="dark"] .select2-container--default .select2-selection--single .select2-selection__arrow b { border-color: #e6bd6a transparent transparent; }
+
+/* Onglets & champsets */
+html[data-bs-theme="dark"] #jazzy-tabs { border-bottom-color: rgba(201, 155, 59, .18); }
+html[data-bs-theme="dark"] #jazzy-tabs .nav-link {
+    background: rgba(255, 255, 255, .05);
+    border-color: rgba(230, 189, 106, .16);
+    color: #c9b9be;
+}
+html[data-bs-theme="dark"] #jazzy-tabs .nav-link:hover { color: #e6bd6a; }
+
+/* Panneau d'actions */
+html[data-bs-theme="dark"] .action-card {
+    background: linear-gradient(180deg, #2a1420 0%, #1f1017 100%);
+    border-color: rgba(201, 155, 59, .28);
+}
+html[data-bs-theme="dark"] .action-card-head { color: #f2e6d4; }
+html[data-bs-theme="dark"] .action-card .card-body { background: transparent; }
+
+/* Modales & alertes */
+html[data-bs-theme="dark"] .modal-content {
+    background: #120509;
+    border-color: rgba(233, 185, 73, .3);
+}
+html[data-bs-theme="dark"] .modal-body,
+html[data-bs-theme="dark"] .modal-footer { background: #120509; color: #e8eefc; }
+html[data-bs-theme="dark"] .modal-header { background: linear-gradient(120deg, #1a0810, #1a0810); }
+html[data-bs-theme="dark"] .alert { color: #e8eefc; }
+html[data-bs-theme="dark"] .breadcrumb { background: transparent; }
+
+/* ------------------------------------------------------------
+   DROPDOWNS DE LA NAVBAR
+   ------------------------------------------------------------ */
+html[data-bs-theme="dark"] #jazzy-navbar .dropdown-menu {
+    background: linear-gradient(180deg, rgba(17, 27, 52, .97), rgba(9, 16, 35, .99));
+    border-color: rgba(233, 185, 73, .35);
+}
+html[data-bs-theme="dark"] #jazzy-navbar .dropdown-menu .dropdown-item,
+html[data-bs-theme="dark"] #jazzy-theme-chooser select.form-select { color: #e9f2ed; }
+html[data-bs-theme="dark"] #jazzy-navbar .dropdown-menu .dropdown-item:hover {
+    background: rgba(233, 185, 73, .13);
+    color: #ffe7b0;
+}
+html[data-bs-theme="dark"] #jazzy-navbar .dropdown-menu .dropdown-divider { border-top-color: rgba(233, 185, 73, .25); }
+
+/* ------------------------------------------------------------
+   PAGINATION & FILTRES
+   ------------------------------------------------------------ */
+html[data-bs-theme="dark"] .pagination .page-link {
+    background: #120509;
+    border-color: #5a4a4e;
+    color: #e6bd6a;
+}
+html[data-bs-theme="dark"] .pagination .page-link:hover { background: #1a0810; }
+html[data-bs-theme="dark"] .pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, #2f6b4f, #1a0810);
+    border-color: #c99b3b;
+}
+html[data-bs-theme="dark"] #changelist-search .form-control,
+html[data-bs-theme="dark"] .filterset { background-color: #120509; }
+
+/* ------------------------------------------------------------
+   BOUTONS (ajustements sombre)
+   ------------------------------------------------------------ */
+html[data-bs-theme="dark"] .btn-light {
+    background: #1a0810 !important;
+    border-color: #5a4a4e !important;
+    color: #f2e9e6 !important;
+}
+html[data-bs-theme="dark"] .btn-outline-secondary {
+    border-color: #52354a !important;
+    color: #d8c9cd !important;
+}
+html[data-bs-theme="dark"] .btn-outline-secondary:hover { background: rgba(201, 155, 59, .12) !important; }
+html[data-bs-theme="dark"] .btn-outline-dark {
+    border-color: #e6bd6a !important;
+    color: #e6bd6a !important;
+}
+html[data-bs-theme="dark"] .btn-outline-dark:hover { background: rgba(201, 155, 59, .14) !important; color: #f2e9e6 !important; }
+
+/* ------------------------------------------------------------
+   SIDEBAR & NAVBAR (micro-ajustements sombre)
+   ------------------------------------------------------------ */
+html[data-bs-theme="dark"] #jazzy-sidebar { border-right-color: rgba(201, 155, 59, .35); }
+html[data-bs-theme="dark"] #jazzy-navbar { border-bottom-color: rgba(201, 155, 59, .35); }
+
+/* ------------------------------------------------------------
+   PAGE DE CONNEXION
+   ------------------------------------------------------------ */
+html[data-bs-theme="dark"] .login-card,
+html[data-bs-theme="dark"] .login-feature,
+html[data-bs-theme="dark"] .imaginable .login-card {
+    background: #120509;
+    border-color: rgba(201, 155, 59, .2);
+    color: #eadede;
+}
+html[data-bs-theme="dark"] .login-panel .form-control {
+    background-color: #120509;
+    border-color: #5a4a4e;
+    color: #f4ece7;
+}
+
+/* ------------------------------------------------------------
+   CAISSE (POS)
+   ------------------------------------------------------------ */
+html[data-bs-theme="dark"] .pos .cart { background: #120509; border-color: rgba(201, 155, 59, .18); }
+html[data-bs-theme="dark"] .pos .cart-item { border-bottom-color: rgba(201, 155, 59, .12); }
+html[data-bs-theme="dark"] .pos .empty,
+html[data-bs-theme="dark"] .pos .pos-card { background: #1f1017; color: #c9b9be; }
+html[data-bs-theme="dark"] .pos .qty-btn,
+html[data-bs-theme="dark"] .pos .remove { color: #d8c9cd; }
+html[data-bs-theme="dark"] .pos .cart-item .item-name { color: #f2e9e6; }
+
+/* ------------------------------------------------------------
+   TABLEAU DE BORD — variante sombre
+   (spécificité supérieure au <style> du template)
+   ------------------------------------------------------------ */
+html[data-bs-theme="dark"] .wine-dashboard .metric,
+html[data-bs-theme="dark"] .wine-dashboard .panel,
+html[data-bs-theme="dark"] .wine-dashboard .dash-toolbar {
+    background: linear-gradient(180deg, #120509 0%, #1f1017 100%);
+    border-color: rgba(201, 155, 59, .14);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, .34);
+}
+html[data-bs-theme="dark"] .wine-dashboard .metric:hover {
+    box-shadow: 0 14px 32px rgba(0, 0, 0, .5);
+}
+html[data-bs-theme="dark"] .wine-dashboard .metric-icon {
+    background: rgba(201, 155, 59, .14);
+    color: #e6bd6a;
+}
+html[data-bs-theme="dark"] .wine-dashboard .metric.alert .metric-icon { background: rgba(178, 35, 24, .2); color: #e7d2d7; }
+html[data-bs-theme="dark"] .wine-dashboard .label { color: #b39b8c; }
+html[data-bs-theme="dark"] .wine-dashboard .value { color: #fff3e2; }
+html[data-bs-theme="dark"] .wine-dashboard .trend.up { background: rgba(46, 139, 87, .18); color: #6fe3a3; }
+html[data-bs-theme="dark"] .wine-dashboard .trend.down { background: rgba(178, 35, 24, .22); color: #e7d2d7; }
+html[data-bs-theme="dark"] .wine-dashboard .trend.flat { background: rgba(255, 255, 255, .06); color: #b39b8c; }
+html[data-bs-theme="dark"] .wine-dashboard .panel-head { border-bottom-color: rgba(201, 155, 59, .14); }
+html[data-bs-theme="dark"] .wine-dashboard h2 { color: #f2e6d4; }
+html[data-bs-theme="dark"] .wine-dashboard .panel-link { color: #e6bd6a; }
+html[data-bs-theme="dark"] .wine-dashboard .bar-label,
+html[data-bs-theme="dark"] .wine-dashboard .bar-value,
+html[data-bs-theme="dark"] .wine-dashboard .hm-label,
+html[data-bs-theme="dark"] .wine-dashboard .hm-head,
+html[data-bs-theme="dark"] .wine-dashboard .data-table th,
+html[data-bs-theme="dark"] .wine-dashboard .rr-meta,
+html[data-bs-theme="dark"] .wine-dashboard .ex-meta { color: #a89298; }
+html[data-bs-theme="dark"] .wine-dashboard .data-table td { border-color: rgba(201, 155, 59, .12); }
+html[data-bs-theme="dark"] .wine-dashboard .data-table a { color: #e6bd6a; }
+html[data-bs-theme="dark"] .wine-dashboard .pill.paid { background: rgba(46, 139, 87, .2); color: #7be7ab; }
+html[data-bs-theme="dark"] .wine-dashboard .pill.cancelled,
+html[data-bs-theme="dark"] .wine-dashboard .pill.empty-stock { background: rgba(178, 35, 24, .24); color: #e7d2d7; }
+html[data-bs-theme="dark"] .wine-dashboard .pill.low-stock { background: rgba(201, 155, 59, .2); color: #f1c76f; }
+html[data-bs-theme="dark"] .wine-dashboard .ranking li,
+html[data-bs-theme="dark"] .wine-dashboard .reassort li,
+html[data-bs-theme="dark"] .wine-dashboard .expiring li { border-bottom-color: rgba(201, 155, 59, .12); }
+html[data-bs-theme="dark"] .wine-dashboard .rank { background: rgba(201, 155, 59, .14); color: #e6bd6a; }
+html[data-bs-theme="dark"] .wine-dashboard .rr-name,
+html[data-bs-theme="dark"] .wine-dashboard .ex-name { color: #f2e6d4; }
+html[data-bs-theme="dark"] .wine-dashboard .rr-ru { background: rgba(178, 35, 24, .22); color: #e7d2d7; }
+html[data-bs-theme="dark"] .wine-dashboard .rr-urgent { background: rgba(201, 155, 59, .2); color: #f1c76f; }
+html[data-bs-theme="dark"] .wine-dashboard .rr-bientot { background: rgba(43, 92, 173, .2); color: #c6ded0; }
+html[data-bs-theme="dark"] .wine-dashboard .rr-bar { background: rgba(255, 255, 255, .08); }
+html[data-bs-theme="dark"] .wine-dashboard .ex-count { background: rgba(201, 155, 59, .2); color: #f1c76f; }
+html[data-bs-theme="dark"] .wine-dashboard .empty { color: #a89298; }
+
+/* Heatmap : virer en or en mode sombre */
+html[data-bs-theme="dark"] .wine-dashboard .hm-cell {
+    background: rgba(230, 189, 106, var(--heat, .18));
+}
+
+/* Toolbar */
+html[data-bs-theme="dark"] .wine-dashboard .dt-label { color: #b39b8c; }
+html[data-bs-theme="dark"] .wine-dashboard .dt-btn {
+    background: #2e1a24;
+    border-color: #5a4a4e;
+    color: #d8c9cd;
+}
+html[data-bs-theme="dark"] .wine-dashboard .dt-btn:hover { border-color: #c99b3b; color: #e6bd6a; }
+html[data-bs-theme="dark"] .wine-dashboard .dt-btn.dt-export { background: rgba(201, 155, 59, .14); border-color: rgba(201, 155, 59, .4); color: #f1c76f; }
+html[data-bs-theme="dark"] .wine-dashboard .dt-btn.dt-print { background: rgba(43, 92, 173, .14); border-color: rgba(43, 92, 173, .4); color: #c6ded0; }
+html[data-bs-theme="dark"] .wine-dashboard .dt-precise { color: #b39b8c; }
+
+/* Mesure : barres animées, médailles, révélations, horloge (nouveaux) */
+html[data-bs-theme="dark"] .wine-dashboard .medal.gold { background: linear-gradient(140deg, #e6bd6a, #b98a2e); color: #0e0509; }
+html[data-bs-theme="dark"] .wine-dashboard .medal.silver { background: linear-gradient(140deg, #d9d2cc, #aaa29c); color: #0e0509; }
+html[data-bs-theme="dark"] .wine-dashboard .medal.bronze { background: linear-gradient(140deg, #d9a06a, #a86a34); color: #0e0509; }
+html[data-bs-theme="dark"] .wine-dashboard .hero-clock { color: #efd48e; }
+html[data-bs-theme="dark"] .wine-dashboard .data-table tbody tr:hover { background: rgba(201, 155, 59, .08); }
+html[data-bs-theme="dark"] .wine-dashboard .rank-line { background: rgba(255, 255, 255, .08); }
+html[data-bs-theme="dark"] .wine-dashboard .chart::before { background: repeating-linear-gradient(180deg, transparent 0, transparent 49px, rgba(255, 255, 255, .05) 49px, rgba(255, 255, 255, .05) 50px); }
+html[data-bs-theme="dark"] .wine-dashboard .hero-stat .hs-label { color: rgba(255, 255, 255, .6); }
+html[data-bs-theme="dark"] .wine-dashboard .dt-btn.active { color: #fff; }
+
+/* ------------------------------------------------------------
+   DIVERS — scrollbars & sélection
+   ------------------------------------------------------------ */
+html[data-bs-theme="dark"] ::selection { background: rgba(201, 155, 59, .35); }
+html[data-bs-theme="dark"] * { scrollbar-color: rgba(201, 155, 59, .35) #1c0c14; }
+html[data-bs-theme="dark"] ::-webkit-scrollbar { width: 10px; height: 10px; }
+html[data-bs-theme="dark"] ::-webkit-scrollbar-track { background: #1c0c14; }
+html[data-bs-theme="dark"] ::-webkit-scrollbar-thumb { background: #5a4a4e; border-radius: 6px; }
+html[data-bs-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #5a3a50; }

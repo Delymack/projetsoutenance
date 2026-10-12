@@ -1,0 +1,357 @@
+:host {
+  display: block;
+}
+
+.vin-detail {
+  padding-block: 2rem 5rem;
+}
+
+.vin-detail__loading,
+.vin-detail__hero,
+.vin-detail__tab-grid,
+.vin-detail__reviews {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
+  gap: 1.25rem;
+}
+
+.vin-detail__visual {
+  display: grid;
+  min-height: 430px;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 25%, var(--lb-surface-2), transparent 42%),
+    var(--lb-bg-alt);
+}
+
+.vin-detail__bottle {
+  position: relative;
+  width: min(280px, 72%);
+  transform-style: preserve-3d;
+}
+
+.vin-detail__bottle--spin {
+  animation: bottle-turn 6s linear infinite;
+}
+
+.vin-detail__bottle img {
+  width: 100%;
+  height: 390px;
+  object-fit: contain;
+  filter: drop-shadow(0 24px 22px rgba(0, 0, 0, 0.28));
+}
+
+.vin-detail__info {
+  align-self: center;
+}
+
+.vin-detail__info h1 {
+  margin: 0.4rem 0 0.75rem;
+  font-size: clamp(2.25rem, 5vw, 4rem);
+}
+
+.eyebrow {
+  color: var(--lb-primary);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.vin-detail__description {
+  max-width: 68ch;
+  color: var(--lb-text-muted);
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.vin-detail__meta,
+.vin-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.vin-detail__meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 36px;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--lb-border);
+  border-radius: 999px;
+  background: var(--lb-surface);
+}
+
+.vin-detail__meta mat-icon,
+.vin-detail__review span mat-icon {
+  color: var(--lb-accent);
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.vin-detail__tabs {
+  margin-top: 1.5rem;
+}
+
+.vin-detail__panel,
+.vin-detail__chips,
+.vin-detail__review-form,
+.vin-detail__review,
+.vin-detail__promo {
+  padding: 1.25rem;
+}
+
+.vin-detail__panel ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--lb-text-muted);
+  line-height: 1.8;
+}
+
+.vin-detail__facts dl {
+  display: grid;
+  gap: 0.8rem;
+  margin: 0;
+}
+
+.vin-detail__facts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--lb-divider);
+  padding-bottom: 0.65rem;
+}
+
+.vin-detail__facts dt {
+  color: var(--lb-text-muted);
+}
+
+.vin-detail__facts dd {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+}
+
+.vin-detail__chips,
+.vin-detail__promos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.vin-detail__chip {
+  border: 1px solid var(--lb-border);
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+  background: var(--lb-bg-alt);
+  color: var(--lb-text);
+  font-weight: 700;
+}
+
+.vin-detail__review-form {
+  display: grid;
+  gap: 0.75rem;
+  align-self: start;
+}
+
+.vin-detail__review-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.vin-detail__review header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.vin-detail__review header span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--lb-accent);
+  font-weight: 800;
+}
+
+.vin-detail__review p {
+  color: var(--lb-text-muted);
+}
+
+.vin-detail__review small,
+.vin-detail__promo small {
+  color: var(--lb-text-muted);
+}
+
+.vin-detail__success {
+  margin: 0;
+  color: var(--lb-success);
+  font-weight: 700;
+}
+
+.vin-detail__promo {
+  min-width: min(100%, 260px);
+}
+
+.vin-detail__promo p {
+  color: var(--lb-primary);
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.vin-detail__state {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  max-width: 620px;
+  margin-inline: auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.vin-detail__state mat-icon {
+  color: var(--lb-danger);
+  font-size: 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.vin-detail__sticky {
+  position: fixed;
+  right: max(1rem, calc((100vw - 1200px) / 2));
+  bottom: 1rem;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--lb-border);
+  border-radius: var(--lb-radius);
+  background: var(--lb-surface);
+  box-shadow: var(--lb-shadow-3);
+}
+
+.vin-detail__sticky strong {
+  color: var(--lb-primary);
+}
+
+.vin-detail__prix {
+  display: flex;
+  align-items: center;
+  gap: var(--lb-gap-sm);
+  flex-wrap: wrap;
+}
+
+.vin-detail__prix-barre {
+  text-decoration: line-through;
+  color: var(--lb-text-muted);
+  font-size: 0.9rem;
+}
+
+@keyframes bottle-turn {
+  0%,
+  100% {
+    transform: rotateY(-10deg);
+  }
+  50% {
+    transform: rotateY(12deg);
+  }
+}
+
+@media (max-width: 860px) {
+  .vin-detail__loading,
+  .vin-detail__hero,
+  .vin-detail__tab-grid,
+  .vin-detail__reviews {
+    grid-template-columns: 1fr;
+  }
+
+  .vin-detail__visual {
+    min-height: 320px;
+  }
+
+  .vin-detail__bottle img {
+    height: 280px;
+  }
+
+  .vin-detail__sticky {
+    right: 1rem;
+    left: 1rem;
+    justify-content: space-between;
+  }
+}
+
+/* WineShop detail page */
+.vin-detail {
+  padding-block: 1.5rem 5rem;
+  width: min(1440px, 100% - 2rem);
+  background: transparent;
+}
+
+.vin-detail__hero {
+  grid-template-columns: minmax(280px, 0.85fr) minmax(0, 1.15fr);
+  padding: 1rem;
+  border: 1px solid var(--lb-border);
+  border-radius: var(--lb-radius-lg);
+  background: var(--lb-surface);
+  box-shadow: var(--lb-shadow-2);
+}
+
+.vin-detail__visual {
+  border: 0;
+  box-shadow: none;
+  background: linear-gradient(180deg, var(--lb-bg-alt), var(--lb-surface));
+}
+
+.vin-detail__info {
+  padding: clamp(0.5rem, 2vw, 1.4rem);
+}
+
+.vin-detail__info h1 {
+  font-family: var(--lb-font-body);
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 950;
+}
+
+.vin-detail__description {
+  font-size: 1rem;
+}
+
+.vin-detail__meta span {
+  border-radius: var(--lb-radius-sm);
+}
+
+.vin-detail__prix strong,
+.vin-detail__meta > span:first-child strong {
+  color: var(--lb-primary);
+  font-size: 1.5rem;
+}
+
+.vin-detail__actions button {
+  min-height: 46px;
+}
+
+.vin-detail__tabs {
+  overflow: hidden;
+  border: 1px solid var(--lb-border);
+  border-radius: var(--lb-radius-lg);
+  background: var(--lb-surface);
+  box-shadow: var(--lb-shadow-1);
+}
+
+.vin-detail__panel,
+.vin-detail__chips,
+.vin-detail__promo {
+  border: 0;
+  box-shadow: none;
+}
+
+@media (max-width: 860px) {
+  .vin-detail__hero {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,675 @@
+{% load i18n static jazzmin admin_urls accounts_tags %}
+{% get_current_language as LANGUAGE_CODE %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+{% get_jazzmin_settings request as jazzmin_settings %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <!--  Prevent admin panel being crawled by search engines -->
+    <meta name="robots" content="none, noarchive">
+    <script>
+        (function() {
+            var mode = localStorage.getItem('jazzmin-theme-mode') || '{{ jazzmin_ui.default_theme_mode|default:"light" }}';
+            if (mode === 'auto') {
+                mode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            document.documentElement.setAttribute('data-bs-theme', mode);
+        })();
+    </script>
+
+    <title>{% block title %}{{ title }} | {{ jazzmin_settings.site_title }}{% endblock %}</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="{% static "vendor/fontawesome-free/css/all.min.css" %}">
+
+    <!-- Bootstrap and adminLTE -->
+    <link rel="stylesheet" href="{% static "vendor/adminlte/css/adminlte.min.css" %}" id="adminlte-css">
+
+    <!-- Bootswatch theme -->
+    <link rel="stylesheet" {% if jazzmin_ui.theme.name != 'default' %}href="{{ jazzmin_ui.theme.src }}"{% endif %} id="jazzmin-theme" data-theme-base="{% static 'vendor/bootswatch' %}" />
+    {% if jazzmin_settings.show_theme_chooser %}
+    <script>
+        (function() {
+            var savedTheme = localStorage.getItem('jazzmin-theme');
+            if (savedTheme && savedTheme !== 'default') {
+                var link = document.getElementById('jazzmin-theme');
+                link.setAttribute('href', link.getAttribute('data-theme-base') + '/' + savedTheme + '/bootstrap.min.css');
+            }
+        })();
+    </script>
+    {% endif %}
+
+    <!-- Custom fixes for django -->
+    <link rel="stylesheet" href="{% static "jazzmin/css/main.css" %}">
+
+    {% if jazzmin_settings.custom_css %}
+    <!-- Custom CSS (versionnée pour contourner le cache navigateur) -->
+    <link rel="stylesheet" href="{% static jazzmin_settings.custom_css %}?v=12">
+    {% endif %}
+
+    <!-- Sidebar : chargé directement, versionné, garanti même en cas de cache -->
+    <link rel="stylesheet" href="{% static 'css/wineadmin-sidebar.css' %}?v=17">
+
+    <!-- Design system WineAdmin : tokens (3 couleurs) + composants partagés -->
+    <link rel="stylesheet" href="{% static 'css/wineadmin-design.css' %}?v=13">
+    <link rel="stylesheet" href="{% static 'css/wineadmin-quickcreate.css' %}?v=8">
+    <!-- Fenêtres flottantes d'ajout lié : modale et formulaire popup (toutes les tables) -->
+    <link rel="stylesheet" href="{% static 'css/wineadmin-popup.css' %}?v=1">
+    <link rel="stylesheet" href="{% static 'css/wineadmin-notifications.css' %}?v=2">
+    <style>
+        {# Filet de sécurité : le sidebar reste sombre bordeaux quoi qu'il arrive. #}
+        #jazzy-sidebar {
+            background: linear-gradient(180deg, #2a0f1a 0%, #1a0810 100%) !important;
+        }
+    </style>
+
+    <!-- favicons -->
+    <link rel="shortcut icon" href="{% static jazzmin_settings.site_icon %}" type="image/png">
+    <link rel="icon" href="{% static jazzmin_settings.site_icon %}" sizes="32x32" type="image/png">
+
+    {% if jazzmin_settings.use_google_fonts_cdn %}
+    <!-- Google Font: Source Sans Pro -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    {% endif %}
+
+    {% block extrastyle %} {% endblock %}
+    {% block extrahead %} {% endblock %}
+</head>
+<body class="layout-fixed{% if jazzmin_settings.show_sidebar %} sidebar-expand-lg sidebar-open{% else %} no-sidebar{% endif %} bg-body-tertiary {% sidebar_status request %} {% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %} {{ jazzmin_ui.body_classes }}" data-admin-utc-offset="{% now "Z" %}">
+
+    {# Premier élément atteignable au clavier : on saute le menu pour aller au contenu (WCAG 2.4.1). #}
+    {% if not is_popup %}
+        <a class="lb-skip" href="#contenu">Aller au contenu</a>
+    {% endif %}
+
+    <div class="wine-account-backdrop" id="wine-account-backdrop" aria-hidden="true"></div>
+    <div class="app-wrapper">
+
+    {% if not is_popup %}
+        <nav class="app-header navbar navbar-expand bg-body {{ jazzmin_ui.navbar_classes }}" id="jazzy-navbar">
+        <div class="container-fluid">
+            <ul class="navbar-nav">
+
+                {% if jazzmin_settings.show_sidebar %}
+                    <li class="nav-item">
+                        <button class="nav-link btn wine-sidebar-toggle" data-lte-toggle="sidebar" type="button" aria-label="Ouvrir ou réduire le menu" title="Menu">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a href="{% url 'admin:index' %}" class="brand-link">
+                            <img src="{% static jazzmin_settings.site_logo %}" alt="{{ jazzmin_settings.site_header }} Logo" class="{{ jazzmin_settings.site_logo_classes }} brand-image" style="opacity: .8; margin: 0 0 0 5px;">
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% get_top_menu user request.current_app|default:"admin" as top_menu %}
+                {% for link in top_menu %}
+                    <li class="nav-item d-none d-sm-inline-block{% if link.children %} dropdown{% endif %}">
+                        {% if link.children %}
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {% if link.icon %}<i class="{{ link.icon }}" aria-hidden="true"></i>{% endif %}
+                                {{ link.name }}
+                            </a>
+                            <div class="dropdown-menu">
+                                {% for child in link.children %}
+                                    <a class="dropdown-item" href="{{ child.url }}" {% if link.new_window %}target="_blank"{% endif %}>
+                                        {% if child.icon %}<i class="{{ child.icon }}" aria-hidden="true"></i>{% endif %}{{ child.name }}
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <a href="{{ link.url }}" class="nav-link" {% if link.new_window %}target="_blank"{% endif %}>
+                                {% if link.icon %}<i class="{{ link.icon }}" aria-hidden="true"></i>{% endif %}{{ link.name }}
+                            </a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <!-- ===== Recherche globale — meilleur emplacement : centre de la navbar ===== -->
+            <div class="navbar-nav flex-fill d-none d-xl-flex justify-content-center px-2">
+                <div class="wine-gsearch" id="wine-global-search">
+                    <i class="fas fa-search wine-gsearch-ic" aria-hidden="true"></i>
+                    <input id="wine-gsearch-input" type="search" placeholder="Recherche globale…" autocomplete="off" aria-label="Recherche globale">
+                    <span class="wine-gsearch-kbd">Ctrl K</span>
+                    <div class="wine-gsearch-panel" id="wine-gsearch-panel" hidden></div>
+                </div>
+            </div>
+
+            {% if jazzmin_settings.search_model %}
+                {% for search_model in jazzmin_settings.search_models_parsed %}
+                    <form action="{{ search_model.search_url }}" method="GET" class="d-flex ms-2">
+                        <div class="input-group input-group-sm">
+                            <input class="form-control form-control-navbar" name="q" type="search" placeholder="{% trans 'Search' %} {{ search_model.search_name }}..." aria-label="{% trans 'Search' %} {{ search_model.search_name }}...">
+                            <button class="btn btn-navbar" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                {% endfor %}
+            {% endif %}
+
+            <ul class="navbar-nav ms-auto">
+
+                {% if request.user.is_authenticated %}
+                <li class="nav-item dropdown wine-notifications" id="wine-notifications">
+                    <button
+                        class="nav-link btn wine-notifications-trigger"
+                        id="wine-notifications-trigger"
+                        type="button"
+                        aria-expanded="false"
+                        aria-controls="wine-notifications-menu"
+                        aria-label="Notifications : {{ admin_notification_count }} non lue(s)"
+                        title="Notifications"
+                    >
+                        <i class="fas fa-bell" aria-hidden="true"></i>
+                        {% if admin_notification_count %}
+                        <span class="wine-notifications-count" id="wine-notifications-count" aria-hidden="true">
+                            {% if admin_notification_count > 99 %}99+{% else %}{{ admin_notification_count }}{% endif %}
+                        </span>
+                        {% endif %}
+                    </button>
+                    <section class="wine-notifications-menu" id="wine-notifications-menu" aria-labelledby="wine-notifications-trigger" data-action-url="{% url 'notifications-action' %}" hidden>
+                        <form class="wine-notifications-csrf" aria-hidden="true">{% csrf_token %}</form>
+                        <header class="wine-notifications-header">
+                            <div>
+                                <strong>Notifications</strong>
+                                <span class="wine-notifications-unread-label">{{ admin_notification_count }} non lue{{ admin_notification_count|pluralize }}</span>
+                            </div>
+                            {% if admin_notification_count %}
+                            <button class="wine-notification-mark-all" type="button" data-notification-action="read_all">Tout marquer comme lu</button>
+                            {% endif %}
+                        </header>
+                        <nav class="wine-notifications-filters" aria-label="Filtrer les notifications">
+                            <button type="button" data-notification-filter="all" aria-pressed="true">Toutes</button>
+                            <button type="button" data-notification-filter="unread" aria-pressed="false">Non lues</button>
+                            <button type="button" data-notification-filter="read" aria-pressed="false">Lues</button>
+                        </nav>
+                        {% if admin_notifications %}
+                            <ul class="wine-notifications-list" id="wine-notifications-list">
+                                {% for notification in admin_notifications %}
+                                    <li class="wine-notification-row{% if notification.non_lue %} is-unread{% endif %}" data-notification-key="{{ notification.key }}" data-notification-state="{% if notification.non_lue %}unread{% else %}read{% endif %}">
+                                        <div class="wine-notification-item is-{{ notification.level }}">
+                                            <span class="wine-notification-icon"><i class="fas {{ notification.icon }}" aria-hidden="true"></i></span>
+                                            <span class="wine-notification-copy">
+                                                <a href="{{ notification.url }}">{{ notification.title }}</a>
+                                                <span>{{ notification.summary }}</span>
+                                            </span>
+                                            <div class="wine-notification-actions">
+                                                <button type="button" data-notification-action="{% if notification.non_lue %}read{% else %}unread{% endif %}" title="{% if notification.non_lue %}Marquer comme lue{% else %}Marquer comme non lue{% endif %}" aria-label="{% if notification.non_lue %}Marquer comme lue{% else %}Marquer comme non lue{% endif %}">
+                                                    <i class="fas {% if notification.non_lue %}fa-check{% else %}fa-envelope{% endif %}" aria-hidden="true"></i>
+                                                </button>
+                                                <button type="button" data-notification-action="dismiss" title="Masquer cette notification" aria-label="Masquer cette notification">
+                                                    <i class="fas fa-trash-can" aria-hidden="true"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="wine-notifications-empty" id="wine-notifications-empty"><i class="fas fa-circle-check" aria-hidden="true"></i> Aucune notification pour le moment.</p>
+                        {% endif %}
+                        <p class="wine-notifications-error" role="alert" aria-live="polite" hidden></p>
+                    </section>
+                </li>
+                {% endif %}
+
+                {% if jazzmin_settings.show_ui_builder %}
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
+                        <i class="fas fa-th-large"></i>
+                    </a>
+                </li>
+                {% endif %}
+                {% if 'django.contrib.admindocs'|app_is_installed %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'django-admindocs-docroot' %}" role="button">
+                        <i class="fas fa-book"></i>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% if jazzmin_settings.show_theme_chooser %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link btn" data-bs-toggle="dropdown" href="#" title="Apparence" aria-label="Apparence" aria-haspopup="true" aria-expanded="false" aria-controls="jazzy-theme-chooser">
+                        <i class="fas fa-palette"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end" id="jazzy-theme-chooser">
+                        <span class="dropdown-header">Apparence</span>
+                        <div class="dropdown-divider"></div>
+                        <div class="px-3 pb-2">
+                            <select class="form-select form-select-sm" id="jazzmin-theme-select">
+                                {% for theme_name in jazzmin_ui.theme_list %}
+                                    <option value="{{ theme_name }}" {% if theme_name == jazzmin_ui.theme.name %}selected{% endif %}>
+                                        {{ theme_name|title }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <span class="dropdown-header">{% trans 'Color Scheme' %}</span>
+                        <div class="dropdown-divider"></div>
+                        <div class="px-3 pb-2">
+                            <select class="form-select form-select-sm" id="jazzmin-mode-select">
+                                <option value="light">{% trans 'Light' %}</option>
+                                <option value="dark">{% trans 'Dark' %}</option>
+                                <option value="auto">{% trans 'Auto' %}</option>
+                            </select>
+                        </div>
+                    </div>
+                </li>
+                {% endif %}
+
+                {% if jazzmin_settings.language_chooser %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% get_language_info_list for LANGUAGES as languages %}
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link btn" data-bs-toggle="dropdown" href="#" title="Choose language">
+                            <i class="fas fa-globe" aria-hidden="true"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end" id="jazzy-languagemenu">
+                            <form action="{% url 'set_language' %}" method="post">
+                                {% csrf_token %}
+                                <input name="next" type="hidden" value="{{ request.get_full_path|remove_lang:LANGUAGE_CODE }}" />
+                                {% for language in languages %}
+                                    <button
+                                        type="submit"
+                                        name="language"
+                                        value="{{ language.code }}"
+                                        class="dropdown-item {% if language.code == LANGUAGE_CODE %}active{% endif %}"
+                                        lang="{{ language.code }}"
+                                    >
+                                        {{ language.name_local|title }}
+                                    </button>
+                                {% endfor %}
+                            </form>
+                        </div>
+                    </li>
+                {% endif %}
+
+                {% if request.user.is_authenticated %}
+                {% google_configured as google_on %}
+                <li class="nav-item dropdown wine-account">
+                    <a id="wine-account-trigger" class="nav-link btn wine-account-trigger" data-bs-toggle="dropdown" href="#" role="button"
+                       aria-haspopup="true" aria-expanded="false" aria-controls="jazzy-usermenu" aria-label="Profil de {{ request.user.get_full_name|default:request.user.username }}" title="Profil">
+                        <span class="wine-account-chip">
+                            <span class="wine-account-avatar">
+                                {% if request.user.avatar_url %}
+                                    <img src="{{ request.user.avatar_url }}" alt="{{ request.user }}" referrerpolicy="no-referrer">
+                                {% elif jazzmin_settings|has_jazzmin_setting:"user_avatar" %}
+                                    <img src="{% get_user_avatar request.user %}" alt="{{ request.user }}" referrerpolicy="no-referrer">
+                                {% else %}
+                                    <i class="fas fa-user"></i>
+                                {% endif %}
+                            </span>
+                        </span>
+                    </a>
+
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end wine-account-menu" id="jazzy-usermenu" aria-labelledby="wine-account-trigger">
+                        <!-- Bannière d'identité -->
+                        <div class="wine-account-hero">
+                            <span class="wine-account-avatar wine-account-avatar-xl">
+                                {% if request.user.avatar_url %}
+                                    <img src="{{ request.user.avatar_url }}" alt="{{ request.user }}" referrerpolicy="no-referrer">
+                                {% elif jazzmin_settings|has_jazzmin_setting:"user_avatar" %}
+                                    <img src="{% get_user_avatar request.user %}" alt="{{ request.user }}" referrerpolicy="no-referrer">
+                                {% else %}
+                                    <i class="fas fa-user"></i>
+                                {% endif %}
+                            </span>
+                            <div class="wine-account-meta">
+                                <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                                <span class="wine-account-email">{{ request.user.email|default:"—" }}</span>
+                                <span class="wine-account-badges">
+                                    <span class="badge wine-badge-role"><i class="fas fa-user-shield"></i> {{ request.user.get_role_display|default:"Personnel" }}</span>
+                                    {% if request.user.is_superuser %}<span class="badge wine-badge-super"><i class="fas fa-crown"></i> Admin</span>{% endif %}
+                                    {% if google_on and request.user.google_uid %}<span class="badge wine-badge-google"><i class="fab fa-google"></i> Google</span>{% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Actions du compte -->
+                        <div class="wine-account-body">
+                            <span class="wine-account-section">Profil</span>
+                            {% if perms|can_view_self %}
+                            <a href="{% jazzy_admin_url request.user request.current_app|default:"admin" %}" class="dropdown-item">
+                                <span class="wine-nav-ic"><i class="fas fa-id-card"></i></span>
+                                Profil
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'auth-account' %}" class="dropdown-item">
+                                <span class="wine-nav-ic"><i class="fas fa-shield-alt"></i></span>
+                                Sécurité
+                            </a>
+                            {% if request.user.has_usable_password %}
+                            <a href="{% url 'admin:password_change' %}" class="dropdown-item">
+                                <span class="wine-nav-ic"><i class="fas fa-key"></i></span>
+                                Mot de passe
+                            </a>
+                            {% endif %}
+                            {% if request.user.totp_enabled %}
+                            <a href="{% url 'auth-2fa-disable' %}" class="dropdown-item">
+                                <span class="wine-nav-ic"><i class="fas fa-user-lock"></i></span>
+                                2FA
+                            </a>
+                            {% else %}
+                            <a href="{% url 'auth-2fa-enable' %}" class="dropdown-item">
+                                <span class="wine-nav-ic"><i class="fas fa-fingerprint"></i></span>
+                                2FA
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'auth-logout-others' %}" class="dropdown-item">
+                                <span class="wine-nav-ic"><i class="fas fa-sign-out-alt"></i></span>
+                                Sessions
+                            </a>
+                            {% if google_on %}
+                            <a href="/accounts/3rdparty/" class="dropdown-item">
+                                <span class="wine-nav-ic"><i class="fab fa-google"></i></span>
+                                Google
+                                {% if request.user.google_uid %}<span class="wine-account-linked"><i class="fas fa-check-circle"></i> lié</span>{% endif %}
+                            </a>
+                            {% endif %}
+
+                            <span class="wine-account-section">Raccourcis</span>
+                            <a href="{% url 'recherche-globale' %}" class="dropdown-item"><span class="wine-nav-ic"><i class="fas fa-search"></i></span> Recherche</a>
+                            <a href="{% url 'admin:index' %}" class="dropdown-item"><span class="wine-nav-ic"><i class="fas fa-th-large"></i></span> Accueil</a>
+
+                            {% get_user_menu user request.current_app|default:"admin" as user_menu %}
+                            {% if user_menu %}
+                            <span class="wine-account-section">Outils</span>
+                            {% for link in user_menu %}
+                            <a href="{{ link.url }}" class="dropdown-item" {% if link.new_window %}target="_blank"{% endif %}>
+                                <span class="wine-nav-ic"><i class="{{ link.icon }}"></i></span> {% trans link.name %}
+                            </a>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Déconnexion -->
+                        <div class="wine-account-foot">
+                            <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="wine-logout-btn">
+                                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+        </nav>
+        {% block sidebar %}
+        {% if jazzmin_settings.show_sidebar %}
+            {% get_side_menu as side_menu_list %}
+
+            <aside class="app-sidebar bg-body-secondary shadow {{ jazzmin_ui.sidebar_classes }}" id="jazzy-sidebar" data-bs-theme="dark">
+                <a href="{% url 'admin:index' %}" class="wine-brand {{ jazzmin_ui.brand_classes }}" id="jazzy-logo" title="Accueil — {{ jazzmin_settings.site_header|default:"LAZAN'I BETSILEO" }}">
+                    <img class="wine-brand-mark" src="{% static 'img/lazani-betsileo-mark.svg' %}" alt="" width="52" height="52" aria-hidden="true">
+                    <span class="wine-brand-text">
+                        <span class="wine-brand-title">{{ jazzmin_settings.site_header|default:"LAZAN'I BETSILEO" }}</span>
+                        <span class="wine-brand-subtitle">Cave &amp; Boutique</span>
+                    </span>
+                </a>
+
+                <div class="sidebar-wrapper">
+                    <div class="sb-user">
+                        <div class="sb-user-cover"><span class="sb-user-cover-shine"></span></div>
+                        <div class="sb-user-main">
+                            <span class="sb-avatar" aria-hidden="true">
+                                {% if request.user.avatar_url %}
+                                    <img src="{{ request.user.avatar_url }}" alt="" referrerpolicy="no-referrer">
+                                {% else %}
+                                    <i class="fas fa-user"></i>
+                                {% endif %}
+                                <span class="sb-online"></span>
+                            </span>
+                            <span class="sb-user-info">
+                                <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                                <small>{{ request.user.get_role_display|default:"Personnel" }}</small>
+                            </span>
+                            {% if perms|can_view_self %}
+                            <a class="sb-user-more" href="{% jazzy_admin_url request.user request.current_app|default:"admin" %}" aria-label="Ouvrir mon profil" title="Mon profil"><i class="fas fa-external-link-alt"></i></a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <label class="sb-find" for="wine-sidebar-search">
+                        <i class="fas fa-search sb-find-ic" aria-hidden="true"></i>
+                        <input id="wine-sidebar-search" type="search" placeholder="Rechercher dans le menu" autocomplete="off">
+                        <kbd class="sb-find-esc">ESC</kbd>
+                    </label>
+
+                    <nav class="mt-2">
+                        <ul class="nav sidebar-menu flex-column {{ jazzmin_ui.sidebar_list_classes }}" data-lte-toggle="treeview" role="navigation" aria-label="Main navigation" data-accordion="false" id="jazzy-navigation">
+                            <li class="nav-section"><span class="nav-section-icon"><i class="fas fa-bolt"></i></span><span class="nav-section-label">Essentiels</span></li>
+                            <li class="nav-item">
+                                <a href="{% url 'admin:index' %}" class="nav-link wine-quick-link" data-sidebar-label="Tableau de bord">
+                                    <span class="nav-icon-wrap nav-icon-dashboard"><img class="sb-png" src="{% sidebar_icon 'dashboard' %}" alt=""></span>
+                                    <span class="nav-label">Tableau de bord</span>
+                                </a>
+                            </li>
+                            <li class="nav-section wine-menu-section"><span class="nav-section-icon"><i class="fas fa-briefcase"></i></span><span class="nav-section-label">Gestion commerciale</span></li>
+                            {% for app in side_menu_list %}
+                                {% comment %} Mapping métier des apps vers sections visuelles {% endcomment %}
+                                {% with app_group=app.app_label|sidebar_label %}
+                                    <li class="nav-item has-treeview wine-app-item" data-sidebar-group="{{ app_group }}" data-sidebar-label="{{ app_group }} {% for model in app.models %}{{ model.name }} {% endfor %}">
+                                        <a href="#" class="nav-link">
+                                            <span class="nav-icon-wrap {{ app.app_label|sidebar_tint }}">
+                                                {% sidebar_icon app.app_label as icon_url %}
+                                                <img class="sb-png" src="{{ icon_url }}" alt="">
+                                            </span>
+                                            <span class="nav-label">{{ app_group }}</span><i class="nav-arrow fas fa-chevron-right" aria-hidden="true"></i>
+                                        </a>
+                                        <ul class="nav nav-treeview">
+                                            {% for model in app.models %}
+                                                <li class="nav-item">
+                                                    <a href="{% if model.url %}{{ model.url }}{% else %}#{% endif %}" class="nav-link{% if not model.url %} disabled{% endif %}" data-sidebar-label="{{ model.name }}">
+                                                        <i class="nav-icon {{ model.icon }}"></i><span class="nav-label">{{ model.name }}</span>
+                                                        {% if model.name == 'Stock' and model.pk and model.quantite <= model.seuil_alerte %}<span class="nav-badge-low" title="Stock bas"></span>{% endif %}
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                {% endwith %}
+                            {% endfor %}
+                            <li class="sb-find-empty" aria-live="polite">Aucun élément trouvé</li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="sidebar-footer">
+                    <a class="sf-item" href="{% url 'admin:password_change' %}"><span class="sf-icon"><img class="sb-png" src="{% sidebar_icon 'securite' %}" alt=""></span><span>Sécurité du compte</span></a>
+                    <div class="sf-divider"></div>
+                    <span class="sf-brand"><i class="fas fa-circle-check"></i><span>LAZAN' BETSILEO</span></span>
+                </div>
+            </aside>
+        {% endif %}
+        {% endblock %}
+    {% endif %}
+
+    <main class="app-main" id="contenu" {% if is_popup %}style="margin-left:0; padding-top: 20px;"{% endif %}>
+        {% block page_content %}
+            {% if not is_popup %}
+            <div class="app-content-header">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h3 class="mb-0">{% block content_title %}{% endblock %}</h3>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="float-sm-end">{% block breadcrumbs %}{% endblock %}</div>
+                            {% block page_actions %}{% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="app-content">
+                <div class="container-fluid">
+                    {% block messages %}
+                        {% for message in messages %}
+                            {% if message.tags == 'success' %}
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <i class="icon fa fa-check"></i> {{ message|capfirst }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% elif message.tags == 'error' %}
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="icon fa fa-ban"></i> {{ message|capfirst }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% elif message.tags == 'warning' %}
+                                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                    <i class="icon fa fa-exclamation-triangle"></i> {{ message|capfirst }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% elif message.tags == 'info' %}
+                                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                    <i class="icon fa fa-info"></i> {{ message|capfirst }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endblock messages %}
+                    <div class="row">
+                        {% block content %} {% endblock %}
+                    </div>
+                </div>
+            </div>
+
+
+        {% endblock %}
+    </main>
+
+{% block footer %}
+    {% if not is_popup %}
+        <footer class="app-footer {{ jazzmin_ui.footer_classes }}">
+            <div class="float-end d-none d-sm-inline">
+                <b>{% trans 'Jazzmin version' %}</b> {% get_jazzmin_version %}
+            </div>
+            {% autoescape off %}
+                <strong>{% trans 'Copyright' %} &copy; {% now 'Y' %} {{ jazzmin_settings.copyright }}.</strong> {% trans 'All rights reserved.' %}
+            {% endautoescape %}
+        </footer>
+        {% if jazzmin_settings.show_ui_builder %}
+            {% include 'jazzmin/includes/ui_builder_panel.html' %}
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+    </div>
+
+{% if not is_popup %}
+<div class="wine-quick-create" id="wine-quick-create" aria-hidden="true">
+    <button class="wine-quick-create-backdrop" type="button" data-quick-create-close tabindex="-1" aria-label="Fermer"></button>
+    <section class="wine-quick-create-dialog" role="dialog" aria-modal="true" aria-labelledby="wine-quick-create-title">
+        <header class="wine-quick-create-header">
+            <span class="wine-quick-create-icon" aria-hidden="true"><i class="fas fa-plus"></i></span>
+            <h2 id="wine-quick-create-title">Nouvelle fiche</h2>
+            <button class="wine-quick-create-close" type="button" data-quick-create-close aria-label="Fermer la fenêtre">
+                <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+        </header>
+        <div class="wine-quick-create-content" id="wine-quick-create-content" aria-live="polite"></div>
+    </section>
+</div>
+{% endif %}
+
+{% if jazzmin_settings.show_ui_builder %}
+<div id="codeBox" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{% trans 'UI Configuration' %}</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans 'Copy this info your settings file to persist these UI changes' %}</p>
+                <pre><code></code></pre>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn {{ jazzmin_ui.button_classes.danger }}" data-bs-dismiss="modal">{% trans 'Close' %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- jQuery -->
+<script src="{% static "admin/js/vendor/jquery/jquery.js" %}"></script>
+<!-- Bootstrap 5 -->
+<script src="{% static "vendor/bootstrap/js/bootstrap.bundle.min.js" %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static "vendor/adminlte/js/adminlte.min.js" %}"></script>
+<!-- Django customisations -->
+<script src="{% static "jazzmin/js/main.js" %}"></script>
+<script src="{% static 'js/wineadmin-quickcreate.js' %}?v=8"></script>
+<script src="{% static 'js/wineadmin-notifications.js' %}?v=2"></script>
+
+{% if jazzmin_settings.custom_js %}
+    {% for script in jazzmin_settings.custom_js|to_list %}
+    <script src="{% static script %}?v=12"></script>
+    {% endfor %}
+{% endif %}
+
+{% if jazzmin_settings.show_ui_builder %}
+<script>
+    window.ui_changes = {{ jazzmin_ui.raw|as_json|safe }};
+</script>
+<script src="{% static "jazzmin/js/ui-builder.js" %}"></script>
+{% endif %}
+
+{% block extrajs %}{% endblock %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const backdrop = document.getElementById('wine-account-backdrop');
+        const accountItem = document.querySelector('.wine-account');
+        if (!backdrop || !accountItem) return;
+
+        const trigger = accountItem.querySelector('.wine-account-trigger');
+
+        function syncBackdrop() {
+            const isOpen = accountItem.classList.contains('show');
+            backdrop.classList.toggle('is-visible', isOpen);
+            document.body.classList.toggle('wine-account-overlay-active', isOpen);
+        }
+
+        if (trigger && typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
+            const dropdown = bootstrap.Dropdown.getOrCreateInstance(trigger);
+            trigger.addEventListener('click', function () {
+                requestAnimationFrame(syncBackdrop);
+            });
+            accountItem.addEventListener('show.bs.dropdown', syncBackdrop);
+            accountItem.addEventListener('hide.bs.dropdown', syncBackdrop);
+            backdrop.addEventListener('click', function () {
+                dropdown.hide();
+            });
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && accountItem.classList.contains('show')) {
+                if (trigger && typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
+                    bootstrap.Dropdown.getOrCreateInstance(trigger).hide();
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

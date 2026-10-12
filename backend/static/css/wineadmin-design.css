@@ -1,0 +1,1267 @@
+/* ==========================================================================
+   WineAdmin — DESIGN SYSTEM UNIQUE
+   Source de vérité unique du rendu de toutes les pages admin.
+   Remplace les blocs <style> inline dupliqués dans les change_list.
+
+   PALETTE : 3 couleurs maximum (voir §1), plus une échelle neutre
+   1. GRENAT  #641b2c  (primaire, action, danger/dette)
+   2. OR      #c99b3b  (accent, attention, fidélité)
+   3. SAGE    #2f6b4f  (succès, disponible, vin de qualité)
+   + une échelle NEUTRE dérivée de l'encre (pas une 4e couleur).
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. TOKENS
+   -------------------------------------------------------------------------- */
+:root {
+    /* --- Les 3 seules teintes autorisées --- */
+    --lb-wine:        #641b2c;   /* GRENAT — primaire */
+    --lb-wine-600:    #741f35;
+    --lb-wine-800:    #34101c;
+    --lb-wine-100:    #f6ecee;
+    --lb-wine-200:    #e7d2d7;
+
+    --lb-gold:        #c99b3b;   /* OR — accent */
+    --lb-gold-600:    #a67c25;
+    --lb-gold-100:    #fbf3e2;
+    --lb-gold-200:    #ecd9a8;
+
+    --lb-sage:        #2f6b4f;   /* SAGE — succès */
+    --lb-sage-600:    #255540;
+    --lb-sage-100:    #e9f2ed;
+    --lb-sage-200:    #c6ded0;
+
+    /* --- Échelle neutre dérivée de l'encre (teinte, pas une couleur) --- */
+    --lb-ink:         #2b1b20;
+    --lb-ink-700:     #5a4a4e;
+    --lb-ink-500:     #8a7c7d;
+    --lb-ink-300:     #b9a39f;
+    --lb-line:        #ebe3de;
+    --lb-line-soft:   #f3ece8;
+    --lb-surface:     #ffffff;
+    --lb-canvas:      #faf7f5;
+    --lb-canvas-2:    #f5efeb;
+
+    /* --- Rôles sémantiques (mappés sur les 3 teintes) --- */
+    --lb-primary:     var(--lb-wine);
+    --lb-accent:      var(--lb-gold);
+    --lb-success:     var(--lb-sage);
+    --lb-danger:      var(--lb-wine);
+    --lb-warning:     var(--lb-gold);
+
+    /* --- Rythme --- */
+    --lb-radius-sm:   8px;
+    --lb-radius:      12px;
+    --lb-radius-lg:   16px;
+    --lb-gap:         .85rem;
+    --lb-shadow-sm:   0 4px 13px rgba(43, 27, 32, .05);
+    --lb-shadow:      0 6px 20px rgba(43, 27, 32, .07);
+    --lb-shadow-lg:   0 14px 34px rgba(43, 27, 32, .12);
+    --lb-hero-shadow: 0 12px 30px rgba(52, 16, 28, .22);
+}
+
+/* --------------------------------------------------------------------------
+   2. MODE SOMBRE — mêmes 3 teintes, valeurs assombries
+   -------------------------------------------------------------------------- */
+html[data-bs-theme="dark"] {
+    --lb-ink:         #f4e7ea;
+    --lb-ink-700:     #cdb8bd;
+    --lb-ink-500:     #a08f93;
+    --lb-ink-300:     #7c6a6e;
+    --lb-line:        rgba(201, 155, 59, .18);
+    --lb-line-soft:   rgba(201, 155, 59, .10);
+    --lb-surface:     #1a1016;
+    --lb-canvas:      #150a10;
+    --lb-canvas-2:    #20111a;
+    --lb-wine-100:    rgba(100, 27, 44, .34);
+    --lb-wine-200:    rgba(116, 31, 53, .55);
+    --lb-gold-100:    rgba(201, 155, 59, .16);
+    --lb-gold-200:    rgba(201, 155, 59, .34);
+    --lb-sage-100:    rgba(47, 107, 79, .28);
+    --lb-sage-200:    rgba(47, 107, 79, .5);
+    --lb-shadow-sm:   0 4px 14px rgba(0, 0, 0, .34);
+    --lb-shadow:      0 8px 24px rgba(0, 0, 0, .4);
+}
+
+/* --------------------------------------------------------------------------
+   3. ONGLETS DE L'ESPACE CAISSE
+   La caisse, les ventes et les réservations sont trois onglets d'une seule
+   page. La barre est toujours posée sur le grenat du bandeau : elle se lit
+   aussi bien sur une page claire que sur le fond sombre du poste de caisse,
+   et l'onglet actif se reconnaît à l'or.
+   -------------------------------------------------------------------------- */
+.lb-tabs {
+    background: linear-gradient(115deg, var(--lb-wine-800) 0%, var(--lb-wine-600) 100%);
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius);
+    box-shadow: var(--lb-shadow);
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem;
+    margin-bottom: 1rem;
+    padding: .3rem;
+}
+.lb-tab {
+    align-items: center;
+    border-radius: calc(var(--lb-radius) - 3px);
+    color: rgba(255, 255, 255, .72);
+    display: inline-flex;
+    font-size: .88rem;
+    font-weight: 650;
+    gap: .5rem;
+    padding: .6rem 1rem;
+    text-decoration: none;
+    transition: background .15s ease, color .15s ease;
+}
+.lb-tab:hover {
+    background: rgba(255, 255, 255, .09);
+    color: #fff;
+    text-decoration: none;
+}
+.lb-tab i { color: var(--lb-gold-200); font-size: .85rem; }
+.lb-tab.is-active {
+    background: var(--lb-gold);
+    color: var(--lb-wine-800);
+}
+.lb-tab.is-active:hover { background: var(--lb-gold-600); color: #fff; }
+.lb-tab.is-active i { color: inherit; }
+
+/* --------------------------------------------------------------------------
+   4. EN-TÊTE DE SECTION (remplace les *-hero dupliqués)
+   -------------------------------------------------------------------------- */
+.lb-hero {
+    align-items: center;
+    background: linear-gradient(115deg, var(--lb-wine-800) 0%, var(--lb-wine-600) 100%);
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius-lg);
+    box-shadow: var(--lb-hero-shadow);
+    color: #fff;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding: 1.35rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+.lb-hero::after {
+    background: radial-gradient(closest-side, rgba(201, 155, 59, .30), transparent);
+    content: "";
+    height: 260px;
+    pointer-events: none;
+    position: absolute;
+    right: -70px;
+    top: -110px;
+    width: 260px;
+}
+.lb-hero-body { position: relative; z-index: 1; }
+.lb-eyebrow {
+    color: var(--lb-gold-200);
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+.lb-hero h1 {
+    font-size: 1.4rem;
+    font-weight: 750;
+    letter-spacing: -.01em;
+    margin: .3rem 0 0;
+}
+.lb-hero h1 .lb-hero-icon { color: var(--lb-gold); margin-right: .5rem; }
+.lb-hero p {
+    color: rgba(255, 255, 255, .78);
+    font-size: .87rem;
+    margin: .3rem 0 0;
+    max-width: 62ch;
+}
+.lb-hero-actions { display: flex; flex-wrap: wrap; gap: .5rem; position: relative; z-index: 1; }
+
+/* Bouton principal (or) + secondaire (fantôme) */
+.lb-btn {
+    align-items: center;
+    background: var(--lb-gold);
+    border: 1px solid var(--lb-gold);
+    border-radius: var(--lb-radius-sm);
+    color: var(--lb-wine-800);
+    display: inline-flex;
+    font-size: .86rem;
+    font-weight: 800;
+    gap: .4rem;
+    padding: .62rem 1rem;
+    text-decoration: none;
+    transition: background .15s ease, transform .15s ease, box-shadow .15s ease;
+    white-space: nowrap;
+}
+.lb-btn:hover { background: var(--lb-gold-600); border-color: var(--lb-gold-600); color: #fff; transform: translateY(-1px); }
+.lb-btn-ghost { background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .3); color: #fff; }
+.lb-btn-ghost:hover { background: rgba(255, 255, 255, .2); color: #fff; }
+
+/* --------------------------------------------------------------------------
+   5. KPI
+   -------------------------------------------------------------------------- */
+.lb-kpis {
+    display: grid;
+    gap: var(--lb-gap);
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    margin-bottom: 1.15rem;
+}
+.lb-kpi {
+    background: var(--lb-surface);
+    border: 1px solid var(--lb-line);
+    border-left: 3px solid var(--lb-wine);
+    border-radius: var(--lb-radius);
+    box-shadow: var(--lb-shadow-sm);
+    display: block;
+    min-height: 92px;
+    padding: .9rem 1rem;
+    position: relative;
+    transition: box-shadow .15s ease, transform .15s ease;
+}
+.lb-kpi:hover { box-shadow: var(--lb-shadow); transform: translateY(-2px); }
+.lb-kpi .lb-kpi-icon {
+    background: var(--lb-wine-100);
+    border-radius: 9px;
+    color: var(--lb-wine);
+    display: inline-flex;
+    font-size: .95rem;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: .85rem;
+    top: .85rem;
+    width: 30px;
+}
+.lb-kpi small {
+    color: var(--lb-ink-500);
+    display: block;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+.lb-kpi strong {
+    color: var(--lb-ink);
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 750;
+    letter-spacing: -.02em;
+    line-height: 1.15;
+    margin-top: .45rem;
+}
+.lb-kpi .lb-kpi-sub { color: var(--lb-ink-500); display: block; font-size: .72rem; margin-top: .2rem; }
+.lb-kpi-ok     { border-left-color: var(--lb-sage); }
+.lb-kpi-ok     .lb-kpi-icon { background: var(--lb-sage-100); color: var(--lb-sage); }
+.lb-kpi-ok     strong { color: var(--lb-sage); }
+.lb-kpi-warn   { border-left-color: var(--lb-gold); }
+.lb-kpi-warn   .lb-kpi-icon { background: var(--lb-gold-100); color: var(--lb-gold-600); }
+.lb-kpi-warn   strong { color: var(--lb-gold-600); }
+.lb-kpi-danger { border-left-color: var(--lb-wine); }
+.lb-kpi-danger .lb-kpi-icon { background: var(--lb-wine-100); color: var(--lb-wine); }
+.lb-kpi-neutral { border-left-color: var(--lb-ink-300); }
+.lb-kpi-neutral .lb-kpi-icon { background: var(--lb-line-soft); color: var(--lb-ink-500); }
+.lb-kpi-neutral strong { color: var(--lb-ink); }
+
+.lb-kpi.is-clickable { cursor: pointer; }
+.lb-kpi.is-clickable:hover { border-color: var(--lb-gold); }
+.lb-kpi.is-active { box-shadow: 0 0 0 2px var(--lb-gold) inset, var(--lb-shadow); }
+
+/* --------------------------------------------------------------------------
+   6. PAPIER : liste, filtres, recherche
+   -------------------------------------------------------------------------- */
+.lb-panel {
+    background: var(--lb-surface);
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius-lg);
+    box-shadow: var(--lb-shadow-sm);
+    margin-bottom: 1.15rem;
+    overflow: hidden;
+}
+.lb-panel-head {
+    align-items: center;
+    background: var(--lb-canvas);
+    border-bottom: 1px solid var(--lb-line);
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+    justify-content: space-between;
+    padding: .8rem 1rem;
+}
+.lb-panel-head h2 {
+    color: var(--lb-ink);
+    font-size: .95rem;
+    font-weight: 750;
+    margin: 0;
+}
+.lb-panel-head h2 .lb-kpi-icon { position: static; }
+/* Bandeau workflow de la commande (admin/change_form des réservations) */
+.lb-workflow {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1rem;
+    justify-content: space-between;
+    list-style: none;
+    margin: .6rem 0 1rem;
+    padding: 0;
+}
+
+.lb-workflow__etape {
+    align-items: center;
+    display: flex;
+    flex: 1 1 140px;
+    gap: .5rem;
+    padding: .5rem .7rem;
+    border-radius: var(--lb-radius);
+    background: var(--lb-surface);
+    border: 1px solid var(--lb-line);
+    font-size: .78rem;
+    font-weight: 650;
+    position: relative;
+}
+
+.lb-workflow__etape--faite { background: var(--lb-sage-100); border-color: var(--lb-sage-200); color: var(--lb-sage); }
+.lb-workflow__etape--refusee { background: #fdf3f2; border-color: var(--lb-wine-200); color: var(--lb-wine); }
+.lb-workflow__etape--courante { background: var(--lb-gold-100); border-color: var(--lb-gold-200); color: var(--lb-gold-600); }
+.lb-workflow__etape--attente { background: var(--lb-canvas-2); border-color: var(--lb-line); color: var(--lb-ink-500); }
+
+.lb-workflow__num {
+    align-items: center;
+    background: var(--lb-line);
+    border-radius: 999px;
+    color: var(--lb-ink-500);
+    display: inline-flex;
+    font-size: .62rem;
+    font-weight: 800;
+    height: 1.1rem;
+    justify-content: center;
+    margin-right: .4rem;
+    min-width: 1.1rem;
+    padding: 0 .3rem;
+}
+
+.lb-workflow__etape--faite .lb-workflow__num { background: var(--lb-sage); color: #fff; }
+.lb-workflow__etape--courante .lb-workflow__num { background: var(--lb-gold); color: #fff; }
+.lb-workflow__etape--refusee .lb-workflow__num { background: var(--lb-wine); color: #fff; }
+
+.lb-workflow__label { text-align: center; }
+
+.lb-workflow__actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    justify-content: center;
+}
+
+.lb-workflow__aide {
+    align-items: center;
+    color: var(--lb-ink-500);
+    display: inline-flex;
+    font-size: .72rem;
+    gap: .3rem;
+    white-space: nowrap;
+}
+
+/* Palette de boutons pour le workflow */
+.lb-btn--gold { background: var(--lb-gold); border-color: var(--lb-gold); color: var(--lb-wine-800); }
+.lb-btn--gold:hover { background: var(--lb-gold-600); border-color: var(--lb-gold-600); color: #fff; }
+.lb-btn--sage { background: var(--lb-sage); border-color: var(--lb-sage); color: #fff; }
+.lb-btn--sage:hover { background: var(--lb-sage-600); border-color: var(--lb-sage-600); }
+/* Refus : le rouge de la marque reste le grenat (danger), cohérent avec le thème. */
+.lb-btn--danger { background: var(--lb-wine); border-color: var(--lb-wine); color: #fff; }
+.lb-btn--danger:hover { background: var(--lb-wine-800); border-color: var(--lb-wine-800); color: #fff; }
+.lb-btn--gold, .lb-btn--sage, .lb-btn--danger { font-weight: 800; }
+
+.lb-panel-body--flush { padding: 0; }
+/* Table ou grille qui doit toucher les bords du panneau, sans gouttière interne. */
+.lb-panel-body--flush { padding: 0; }
+/* Pied de panneau : bandeau d'action aligné à droite sous un tableau. */
+.lb-panel-foot {
+    align-items: center;
+    background: var(--lb-canvas);
+    border-top: 1px solid var(--lb-line);
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+    justify-content: flex-end;
+    padding: .7rem 1rem;
+}
+
+#changelist { padding: 0 !important; }
+#changelist .lb-panel { border: 0; box-shadow: none; margin: 0; }
+#changelist-form { padding: 0 1rem 1rem !important; }
+#changelist .results { overflow-x: auto; }
+
+#changelist-filter {
+    background: var(--lb-canvas);
+    border: 0;
+    border-bottom: 1px solid var(--lb-line);
+    border-radius: 0;
+    padding: .85rem 1rem;
+    width: 100%;
+}
+#changelist-filter h2 {
+    background: transparent;
+    border: 0;
+    color: var(--lb-ink-500);
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    margin: 0 0 .5rem;
+    padding: 0;
+    text-transform: uppercase;
+}
+#changelist-filter ul { margin: 0; }
+#changelist-filter li { line-height: 1.9; }
+#changelist-filter li a { color: var(--lb-ink-700); font-size: .85rem; }
+#changelist-filter li.selected a { color: var(--lb-wine); font-weight: 750; }
+#changelist-filter h3 {
+    background: transparent;
+    border: 0;
+    color: var(--lb-ink-500);
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    margin: .9rem 0 .3rem;
+    padding: 0;
+    text-transform: uppercase;
+}
+
+/* Barre d'actions (sélection multiple) */
+#actions { background: var(--lb-wine-100); border-radius: var(--lb-radius-sm); margin-bottom: .8rem; padding: .6rem .8rem; }
+#actions select { border: 1px solid var(--lb-wine-200); border-radius: var(--lb-radius-sm); padding: .35rem .5rem; }
+#actions input[type="submit"] { background: var(--lb-wine); border-radius: var(--lb-radius-sm); color: #fff; }
+
+/* En-tête + corps du tableau */
+#result_list thead th {
+    background: var(--lb-canvas);
+    border-bottom: 2px solid var(--lb-wine-200);
+    color: var(--lb-ink-500);
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    padding: .8rem .65rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+#result_list thead th a { color: inherit; }
+#result_list tbody td {
+    border-color: var(--lb-line-soft);
+    font-size: .87rem;
+    padding: .7rem .65rem;
+    vertical-align: middle;
+}
+#result_list tbody tr:nth-child(even) { background: var(--lb-canvas-2); }
+#result_list tbody tr:hover { background: var(--lb-gold-100); }
+#result_list tbody th.field-name a { color: var(--lb-wine); font-weight: 750; }
+
+#changelist-search { padding: 0; }
+#changelist-search .lb-searchbox { align-items: center; display: flex; gap: .4rem; }
+#changelist-search input[type="text"] {
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius-sm);
+    color: var(--lb-ink);
+    min-width: 210px;
+    padding: .5rem .7rem;
+}
+#changelist-search input[type="submit"] {
+    background: var(--lb-wine);
+    border: 1px solid var(--lb-wine);
+    border-radius: var(--lb-radius-sm);
+    color: #fff;
+    padding: .5rem .85rem;
+}
+.paginator { border-top: 1px solid var(--lb-line); margin-top: .6rem; padding-top: .7rem; }
+.paginator a, .paginator .this-page {
+    border-radius: 6px;
+    color: var(--lb-wine);
+    padding: .25rem .55rem;
+}
+.paginator .this-page { background: var(--lb-wine); color: #fff; font-weight: 800; }
+
+/* Boutons d'action de ligne */
+.lb-row-actions { display: inline-flex; gap: .25rem; }
+.lb-row-actions a, .lb-row-actions button {
+    align-items: center;
+    background: var(--lb-canvas);
+    border: 1px solid var(--lb-line);
+    border-radius: 7px;
+    color: var(--lb-wine);
+    display: inline-flex;
+    font-size: .8rem;
+    height: 27px;
+    justify-content: center;
+    padding: 0;
+    width: 27px;
+}
+.lb-row-actions a:hover, .lb-row-actions button:hover { background: var(--lb-wine); border-color: var(--lb-wine); color: #fff; }
+
+/* --------------------------------------------------------------------------
+   7. BADGES & PILULES  (remplace les <span style="..."> des admin.py)
+   -------------------------------------------------------------------------- */
+.lb-badge {
+    align-items: center;
+    background: var(--lb-canvas-2);
+    border: 1px solid var(--lb-line);
+    border-radius: 999px;
+    color: var(--lb-ink-700);
+    display: inline-flex;
+    font-size: .72rem;
+    font-weight: 800;
+    gap: .3rem;
+    padding: .22rem .6rem;
+    white-space: nowrap;
+}
+.lb-badge-wine  { background: var(--lb-wine-100); border-color: var(--lb-wine-200); color: var(--lb-wine); }
+.lb-badge-gold  { background: var(--lb-gold-100); border-color: var(--lb-gold-200); color: var(--lb-gold-600); }
+.lb-badge-sage  { background: var(--lb-sage-100); border-color: var(--lb-sage-200); color: var(--lb-sage); }
+.lb-badge-muted { background: var(--lb-canvas-2); color: var(--lb-ink-500); }
+.lb-badge-lg { font-size: .8rem; padding: .35rem .8rem; }
+
+.lb-val-ink   { color: var(--lb-ink); font-weight: 800; }
+.lb-val-wine  { color: var(--lb-wine); font-weight: 800; }
+.lb-val-gold  { color: var(--lb-gold-600); font-weight: 800; }
+.lb-val-sage  { color: var(--lb-sage); font-weight: 800; }
+.lb-val-muted { color: var(--lb-ink-500); font-weight: 700; }
+
+/* Barre de progression (crédit, points, couverture) */
+.lb-bar { background: var(--lb-line); border-radius: 999px; height: 7px; overflow: hidden; width: 100%; }
+.lb-bar > span { background: var(--lb-sage); border-radius: 999px; display: block; height: 100%; }
+.lb-bar.is-warn > span { background: var(--lb-gold); }
+.lb-bar.is-danger > span { background: var(--lb-wine); }
+.lb-bar-sm { height: 5px; }
+
+/* --------------------------------------------------------------------------
+   8. FICHE 360°
+   -------------------------------------------------------------------------- */
+.lb-grid { display: grid; gap: 1rem; grid-template-columns: repeat(12, 1fr); }
+.lb-col-12 { grid-column: span 12; }
+.lb-col-8  { grid-column: span 8; }
+.lb-col-6  { grid-column: span 6; }
+.lb-col-4  { grid-column: span 4; }
+.lb-col-3  { grid-column: span 3; }
+
+.lb-avatar {
+    align-items: center;
+    background: linear-gradient(140deg, var(--lb-wine) 0%, var(--lb-wine-600) 100%);
+    border: 2px solid var(--lb-gold-200);
+    border-radius: 50%;
+    color: #fff;
+    display: inline-flex;
+    flex: 0 0 auto;
+    font-size: 1.5rem;
+    font-weight: 800;
+    height: 74px;
+    justify-content: center;
+    letter-spacing: .02em;
+    width: 74px;
+}
+.lb-avatar-sm { border-width: 1px; font-size: .8rem; height: 34px; width: 34px; }
+
+.lb-identity { align-items: center; display: flex; gap: 1rem; }
+.lb-identity h2 { color: var(--lb-ink); font-size: 1.3rem; font-weight: 750; margin: 0; }
+.lb-identity .lb-sub { color: var(--lb-ink-500); font-size: .82rem; margin-top: .15rem; }
+.lb-identity .lb-tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .5rem; }
+
+.lb-facts { display: grid; gap: .1rem; }
+.lb-fact {
+    align-items: center;
+    border-bottom: 1px solid var(--lb-line-soft);
+    display: flex;
+    gap: .6rem;
+    justify-content: space-between;
+    padding: .55rem 0;
+}
+.lb-fact:last-child { border-bottom: 0; }
+.lb-fact dt { color: var(--lb-ink-500); font-size: .78rem; font-weight: 600; margin: 0; }
+.lb-fact dd { color: var(--lb-ink); font-size: .85rem; font-weight: 700; margin: 0; text-align: right; }
+.lb-fact a { color: var(--lb-wine); font-weight: 750; }
+.lb-facts-empty { color: var(--lb-ink-300); font-size: .85rem; font-style: italic; padding: 1rem 0; text-align: center; }
+
+/* Chronologie (historique) */
+.lb-timeline { list-style: none; margin: 0; padding: 0; }
+.lb-timeline > li { border-left: 2px solid var(--lb-line); padding: 0 0 1rem 1.1rem; position: relative; }
+.lb-timeline > li:last-child { border-left-color: transparent; padding-bottom: 0; }
+.lb-timeline > li::before {
+    background: var(--lb-wine);
+    border: 2px solid var(--lb-surface);
+    border-radius: 50%;
+    content: "";
+    height: 10px;
+    left: -6px;
+    position: absolute;
+    top: 4px;
+    width: 10px;
+}
+.lb-timeline > li.is-sage::before { background: var(--lb-sage); }
+.lb-timeline > li.is-gold::before { background: var(--lb-gold); }
+.lb-timeline .lb-tl-head { align-items: baseline; display: flex; flex-wrap: wrap; gap: .5rem; justify-content: space-between; }
+.lb-timeline .lb-tl-title { color: var(--lb-ink); font-size: .87rem; font-weight: 750; }
+.lb-timeline .lb-tl-meta { color: var(--lb-ink-500); font-size: .76rem; }
+.lb-timeline .lb-tl-amount { color: var(--lb-wine); font-size: .9rem; font-weight: 800; }
+/* Version resserrée : la chronologie suit un formulaire, pas une page. */
+.lb-timeline-compact { margin-top: 1rem; max-height: 22rem; overflow-y: auto; padding-right: .3rem; }
+.lb-timeline-compact > li { padding-bottom: .8rem; }
+
+/* Encaissement intégré à la fiche client */
+.lb-encaissement {
+    background: var(--lb-sage-100);
+    border: 1px solid var(--lb-sage-200);
+    border-radius: var(--lb-radius-sm);
+    margin-bottom: 1rem;
+    padding: .9rem 1rem 1rem;
+}
+.lb-encaissement-tete {
+    align-items: baseline;
+    color: var(--lb-ink);
+    display: flex;
+    flex-wrap: wrap;
+    font-size: .85rem;
+    font-weight: 750;
+    gap: .5rem;
+    margin-bottom: .8rem;
+}
+.lb-encaissement-tete i { color: var(--lb-sage-600); }
+.lb-encaissement-tete small { color: var(--lb-ink-500); font-size: .74rem; font-weight: 500; }
+.lb-encaissement-champs {
+    align-items: end;
+    display: grid;
+    gap: .55rem .7rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.lb-encaissement-champs > label {
+    color: var(--lb-ink-500);
+    font-size: .72rem;
+    font-weight: 650;
+    grid-row: 1;
+    margin: 0;
+    text-align: left;
+}
+.lb-encaissement-champs > input,
+.lb-encaissement-champs > select { grid-row: 2; }
+.lb-encaissement-champs > input.form-control,
+.lb-encaissement-champs > select.form-select { width: 100%; }
+.lb-encaissement-champs > button { grid-column: 1 / -1; justify-self: start; }
+.lb-input-money { font-weight: 800; }
+@media (max-width: 575.98px) {
+    .lb-encaissement-champs { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Variante « ligne » : onglets soulignés, pour un contenu secondaire.
+   Les onglets de l'espace caisse, eux, gardent la barre posée sur grenat
+   définie plus haut (§3). Ces sélecteurs portent donc un modificateur dédié
+   et ne doivent PAS redéfinir ``.lb-tabs`` nu, sous peine d'écraser §3. */
+.lb-tabs--line { border-bottom: 1px solid var(--lb-line); display: flex; flex-wrap: wrap; gap: .2rem; margin-bottom: 1rem; }
+.lb-tab--line {
+    border: 0;
+    border-bottom: 2px solid transparent;
+    color: var(--lb-ink-500);
+    font-size: .85rem;
+    font-weight: 700;
+    padding: .6rem .85rem;
+    text-decoration: none;
+}
+.lb-tab--line:hover { color: var(--lb-wine); }
+.lb-tab--line.is-active { border-bottom-color: var(--lb-wine); color: var(--lb-wine); font-weight: 800; }
+
+/* Boutons de filtre rapide (segment) */
+.lb-segments { display: flex; flex-wrap: wrap; gap: .4rem; }
+.lb-segment {
+    background: var(--lb-surface);
+    border: 1px solid var(--lb-line);
+    border-radius: 999px;
+    color: var(--lb-ink-700);
+    font-size: .8rem;
+    font-weight: 700;
+    padding: .42rem .85rem;
+    text-decoration: none;
+}
+.lb-segment:hover { border-color: var(--lb-wine); color: var(--lb-wine); }
+.lb-segment.is-active { background: var(--lb-wine); border-color: var(--lb-wine); color: #fff; }
+.lb-segment .lb-segment-count {
+    background: var(--lb-canvas-2);
+    border-radius: 999px;
+    color: var(--lb-ink-500);
+    font-size: .72rem;
+    margin-left: .35rem;
+    padding: .05rem .4rem;
+}
+.lb-segment.is-active .lb-segment-count { background: rgba(255, 255, 255, .22); color: #fff; }
+
+/* Ligne d'aide / alerte */
+.lb-hint {
+    background: var(--lb-gold-100);
+    border: 1px solid var(--lb-gold-200);
+    border-left: 3px solid var(--lb-gold);
+    border-radius: var(--lb-radius-sm);
+    color: var(--lb-ink-700);
+    font-size: .82rem;
+    padding: .65rem .85rem;
+}
+.lb-hint-wine { background: var(--lb-wine-100); border-color: var(--lb-wine-200); border-left-color: var(--lb-wine); }
+.lb-hint-sage { background: var(--lb-sage-100); border-color: var(--lb-sage-200); border-left-color: var(--lb-sage); }
+.lb-hint strong { color: var(--lb-ink); }
+
+/* --------------------------------------------------------------------------
+   9. FORMULAIRES
+   -------------------------------------------------------------------------- */
+.lb-form input[type="text"], .lb-form input[type="email"], .lb-form input[type="number"],
+.lb-form input[type="tel"], .lb-form input[type="password"], .lb-form input[type="date"],
+.lb-form select, .lb-form textarea, #changelist-form input[type="text"], #changelist-form select {
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius-sm);
+    color: var(--lb-ink);
+}
+.lb-form .helptext, .form-row .help, p.help { color: var(--lb-ink-500); font-size: .76rem; }
+
+input[type="submit"].default, .submit-row input[type="submit"], .object-tools a.addlink {
+    background: var(--lb-wine);
+    border: 1px solid var(--lb-wine);
+    border-radius: var(--lb-radius-sm);
+    color: #fff;
+    font-weight: 700;
+}
+input[type="submit"].default:hover, .object-tools a.addlink:hover { background: var(--lb-wine-600); color: #fff; }
+.object-tools a.addlink {
+    background: var(--lb-gold);
+    border-color: var(--lb-gold);
+    color: var(--lb-wine-800);
+}
+.object-tools a.addlink:hover { background: var(--lb-gold-600); color: #fff; }
+
+/* --------------------------------------------------------------------------
+   10. RESPONSIVE
+   -------------------------------------------------------------------------- */
+@media (max-width: 991px) {
+    .lb-col-8, .lb-col-6, .lb-col-4, .lb-col-3 { grid-column: span 12; }
+}
+@media (max-width: 767px) {
+    .lb-hero { align-items: flex-start; flex-direction: column; padding: 1.15rem; }
+    .lb-hero-actions { width: 100%; }
+    .lb-btn { flex: 1 1 auto; justify-content: center; }
+    .lb-kpis { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+    .lb-kpi { min-height: 80px; }
+    .lb-kpi strong { font-size: 1.25rem; }
+    .lb-identity { align-items: flex-start; flex-direction: column; }
+    #changelist-search .lb-searchbox { flex-wrap: wrap; }
+    #changelist-search input[type="text"] { min-width: 0; width: 100%; }
+}
+
+@media print {
+    .lb-hero { background: none !important; box-shadow: none; color: #000; }
+    .lb-hero p, .lb-eyebrow { color: #444; }
+    .lb-btn, .lb-hero-actions, #changelist-filter, .object-tools, .paginator { display: none !important; }
+}
+/* --------------------------------------------------------------------------
+   11. TABLEAUX & FICHES — ce que l'œil doit attraper en une seconde
+   Une seule règle pour toutes les listes (#result_list) et toutes les fiches
+   (changeform_format = horizontal_tabs) : aucun modèle n'est traité à part.
+   -------------------------------------------------------------------------- */
+
+/* --- Le tableau de liste : une carte, un en-tête qui ne défile plus --- */
+#changelist .results {
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius-lg);
+    box-shadow: var(--lb-shadow-sm);
+    /* Hauteur bornée : la zone se défile elle-même, donc l'en-tête peut rester
+       collé. Sans plafond, `overflow` fait grandir la boîte et l'en-tête
+       repartirait avec la page. */
+    max-height: 70vh;
+    overflow: auto;
+}
+/* Jazzmin enveloppe le tableau dans `.table-responsive`, qui devient un second
+   conteneur de défilement : l'en-tête collant s'accrocherait à lui et, comme il
+   ne défile pas, il repartirait avec la page. Un seul conteneur doit défiler. */
+#changelist .results .table-responsive { overflow: visible; }
+#result_list { border-collapse: separate; border-spacing: 0; margin: 0; }
+#result_list thead th {
+    background: var(--lb-canvas);
+    border-bottom: 1px solid var(--lb-wine-200);
+    position: sticky;
+    top: 0;
+    z-index: 3;
+}
+#result_list tbody tr:last-child td { border-bottom: 0; }
+#result_list tbody tr:hover td { background: var(--lb-gold-100); }
+#result_list tbody tr.selected td { background: var(--lb-wine-100); }
+#result_list tbody td { height: 48px; }
+
+/* Colonnes de nombres : à droite, chiffres à largeur fixe. Deux montants
+   voisins se comparent alors verticalement, sans que l'œil saute.
+   Django nomme les cellules `field-<champ>` et les en-têtes `column-<champ>` :
+   les deux doivent être visés, sinon l'en-tête d'un montant resterait à gauche
+   au-dessus d'une colonne alignée à droite. */
+#result_list :is(
+    td.field-prix_vente, th.column-prix_vente,
+    td.field-prix_revendeur, th.column-prix_revendeur,
+    td.field-cout_revenir, th.column-cout_revenir,
+    td.field-prix_achat, th.column-prix_achat,
+    td.field-prix_conditionnement, th.column-prix_conditionnement,
+    td.field-quantite, th.column-quantite,
+    td.field-quantite_display, th.column-quantite_display,
+    td.field-seuil_alerte, th.column-seuil_alerte,
+    td.field-total, th.column-total,
+    td.field-total_badge, th.column-total_badge,
+    td.field-montant, th.column-montant,
+    td.field-montant_badge, th.column-montant_badge,
+    td.field-montant_rembourse, th.column-montant_rembourse,
+    td.field-nb_tickets, th.column-nb_tickets,
+    td.field-nb_articles, th.column-nb_articles,
+    td.field-nb_utilisations, th.column-nb_utilisations,
+    td.field-points_fidelite, th.column-points_fidelite,
+    td.field-solde_du, th.column-solde_du,
+    td.field-solde_du_display, th.column-solde_du_display,
+    td.field-valeur_display, th.column-valeur_display,
+    td.field-ca_total_badge, th.column-ca_total_badge,
+    td.field-ca_stat_display, th.column-ca_stat_display,
+    td.field-ventes_stat_display, th.column-ventes_stat_display,
+    td.field-remise_stat_display, th.column-remise_stat_display,
+    td.field-ecart_badge, th.column-ecart_badge,
+    td.field-produits_count, th.column-produits_count
+) {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+/* Colonne d'actions : collée au bord droit, jamais coupée par le défilement. */
+#result_list th.column-_actions_col,
+#result_list td.field-_actions_col { text-align: right; white-space: nowrap; width: 1%; }
+#result_list th.column-_actions_col { color: var(--lb-ink-300); }
+
+/* Les boutons de ligne : discrets au repos, colorés seulement sous le curseur.
+   Vingt-cinq lignes d'or et de rouge saturés écrasaient le tableau : l'action
+   doit s'allumer quand on la vise, pas crier depuis chaque ligne. */
+#result_list .databtn {
+    background: var(--lb-surface);
+    border: 1px solid var(--lb-line);
+    box-shadow: none;
+    color: var(--lb-ink-700);
+    font-weight: 600;
+    padding: .3rem .55rem;
+}
+#result_list .databtn:hover { transform: none; }
+#result_list .databtn-edit:hover {
+    background: var(--lb-gold);
+    border-color: var(--lb-gold-600);
+    color: #221403;
+}
+#result_list .databtn-delete { color: var(--lb-wine); }
+#result_list .databtn-delete:hover {
+    background: var(--lb-wine);
+    border-color: var(--lb-wine-600);
+    color: #fff;
+}
+#result_list .databtn-view:hover {
+    background: var(--lb-ink-700);
+    border-color: var(--lb-ink-700);
+    color: #fff;
+}
+
+/* Liste vide : une phrase, pas un tableau fantôme. */
+#result_list tr.no-results td { color: var(--lb-ink-500); font-style: italic; text-align: center; }
+
+/* --- La fiche : onglets collants, champs respirants --- */
+#jazzy-tabs {
+    background: var(--lb-canvas);
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius-sm);
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: .3rem .4rem;
+    position: sticky;
+    top: 0;
+    z-index: 4;
+}
+#jazzy-tabs .nav-link { white-space: nowrap; }
+
+/* Corps d'un onglet : le `p-5` de Bootstrap (3rem) laissait un vide énorme
+   autour de quatre champs. */
+.change-form .tab-content > .tab-pane > .card > .card-body { padding: 1.1rem 1.25rem !important; }
+.change-form .tab-content > .tab-pane > .card { margin-bottom: 0; }
+
+/* En-tête d'onglet : le nom de la section, souligné d'or. */
+.change-form .tab-content .card-header { padding: .7rem 1.25rem; }
+.change-form .tab-content .card-header .card-title {
+    color: var(--lb-wine);
+    font-size: .95rem;
+    font-weight: 800;
+}
+.change-form .tab-content .card-header .card-title::before {
+    background: var(--lb-gold);
+    border-radius: 2px;
+    content: '';
+    display: inline-block;
+    height: .95em;
+    margin-right: .5rem;
+    vertical-align: -.12em;
+    width: 3px;
+}
+
+/* Champs : une hauteur, un contour, un anneau d'or à la prise de focus. */
+.change-form .form-group { margin-bottom: .85rem; }
+.change-form label { color: var(--lb-ink-700); font-size: .82rem; font-weight: 700; }
+.change-form .form-control,
+.change-form .form-select,
+.change-form textarea {
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius-sm);
+    color: var(--lb-ink);
+    font-size: .88rem;
+    min-height: 40px;
+    padding: .5rem .7rem;
+}
+.change-form textarea { min-height: 110px; }
+.change-form .form-control:focus,
+.change-form .form-select:focus,
+.change-form textarea:focus {
+    border-color: var(--lb-gold);
+    box-shadow: 0 0 0 .2rem rgba(201, 155, 59, .18);
+}
+/* Les nombres (prix, quantités, degrés) ne doivent pas « danser » d'un chiffre
+   à l'autre quand on les relit. */
+.change-form input[type="number"] { font-variant-numeric: tabular-nums; }
+
+@media (max-width: 767px) {
+    /* Sur un écran étroit, le tableau suit la page : pas de zone de défilement
+       imbriquée dans une page qui défile déjà. */
+    #changelist .results { max-height: none; }
+    /* Sur un écran étroit, le défilement horizontal du tableau reprend ses
+       droits : c'est le seul moyen de lire dix colonnes sur un téléphone. */
+    #changelist .results .table-responsive { overflow-x: auto; }
+    #jazzy-tabs { border-radius: 0; margin-left: -.25rem; margin-right: -.25rem; }
+    #result_list .databtn { padding: .3rem .45rem; }
+}
+
+/* --------------------------------------------------------------------------
+   12. LES TABLEAUX DES FICHES — mêmes règles que les listes
+   Un formulaire porte aussi des tableaux (encaissements, lignes de vente,
+   lignes de commande, retours). Ils obéissent au même dessin que #result_list :
+   sinon une fiche paraîtrait écrite par une autre main.
+   -------------------------------------------------------------------------- */
+.inline-group {
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius);
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+.inline-group h2 {
+    background: var(--lb-canvas);
+    border-bottom: 1px solid var(--lb-line);
+    color: var(--lb-wine);
+    font-size: .92rem;
+    font-weight: 800;
+    margin: 0;
+    padding: .7rem .9rem;
+}
+.inline-group table {
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 0;
+    width: 100%;
+}
+.inline-group thead th {
+    background: var(--lb-canvas-2);
+    border-bottom: 1px solid var(--lb-wine-200);
+    color: var(--lb-ink-500);
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    padding: .6rem .65rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.inline-group tbody td {
+    border-top: 1px solid var(--lb-line-soft);
+    font-size: .86rem;
+    padding: .55rem .65rem;
+    vertical-align: middle;
+}
+.inline-group tbody tr:hover td { background: var(--lb-gold-100); }
+/* Colonne technique : la case « supprimer » et les clés cachées. */
+.inline-group td.original, .inline-group th.original { text-align: center; width: 1%; }
+/* Les montants et les quantités s'alignent comme dans les listes. */
+.inline-group td.field-montant, .inline-group td.field-quantite,
+.inline-group td.field-prix_unitaire, .inline-group td.field-montant_rembourse,
+.inline-group td.field-contenance, .inline-group td.field-sous_total {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+.inline-group input[type="text"], .inline-group input[type="number"],
+.inline-group select, .inline-group textarea {
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius-sm);
+    color: var(--lb-ink);
+    font-size: .86rem;
+    max-width: 100%;
+    padding: .4rem .55rem;
+}
+.inline-group .add-row {
+    background: var(--lb-canvas);
+    border-top: 1px solid var(--lb-line);
+    padding: .55rem .9rem;
+    text-align: left;
+}
+.inline-group .add-row a {
+    color: var(--lb-wine);
+    font-size: .84rem;
+    font-weight: 750;
+    text-decoration: none;
+}
+.inline-group .add-row a:hover { text-decoration: underline; }
+
+/* --------------------------------------------------------------------------
+   13. LES FENÊTRES FLOTTANTES — une seule allure
+   Modales Bootstrap, fenêtre de saisie rapide, popups d'ajout lié (« + » à côté
+   d'un champ) et liste déroulante de recherche : mêmes coins, même contour,
+   même ombre, même titre. Une fenêtre qui s'ouvre par-dessus la page doit se
+   reconnaître comme la même application.
+   -------------------------------------------------------------------------- */
+.modal-content, body.popup .content, .related-modal-content {
+    background: var(--lb-surface);
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius-lg);
+    box-shadow: var(--lb-shadow-lg);
+    overflow: hidden;
+}
+.modal-header {
+    background: var(--lb-canvas);
+    border-bottom: 1px solid var(--lb-line);
+    padding: .8rem 1.1rem;
+}
+.modal-title { color: var(--lb-wine); font-size: 1rem; font-weight: 800; }
+.modal-body { padding: 1.1rem; }
+.modal-footer {
+    background: var(--lb-canvas);
+    border-top: 1px solid var(--lb-line);
+    gap: .5rem;
+    padding: .75rem 1.1rem;
+}
+.modal-backdrop.show { opacity: .55; }
+
+/* Le « + » d'ajout lié et les icônes d'un champ de relation : discrets, ils
+   s'allument sous le curseur au lieu de tirer l'œil sur chaque formulaire. */
+.related-widget-wrapper-link {
+    border-radius: 6px;
+    opacity: .65;
+    transition: opacity .15s ease, background .15s ease;
+}
+.related-widget-wrapper-link:hover { background: var(--lb-gold-100); opacity: 1; }
+
+/* Liste déroulante des champs de recherche (catégorie, client, produit). */
+.select2-container--admin-autocomplete .select2-selection,
+.select2-container--default .select2-selection--single {
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius-sm);
+    min-height: 40px;
+}
+.select2-container--admin-autocomplete .select2-results__option--highlighted,
+.select2-container--default .select2-results__option--highlighted {
+    background: var(--lb-wine);
+    color: #fff;
+}
+.select2-dropdown {
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius-sm);
+    box-shadow: var(--lb-shadow);
+}
+
+/* --------------------------------------------------------------------------
+   14. NORMES INTERNATIONALES (WCAG 2.1 AA)
+   Ce qui suit ne se voit pas sur une capture d'écran et change tout au
+   clavier, au lecteur d'écran ou sur un écran d'impression.
+   -------------------------------------------------------------------------- */
+
+/* 2.4.7 — le focus doit se voir. Au clavier uniquement : un anneau permanent
+   sur un champ à la souris serait du bruit. */
+a:focus-visible, button:focus-visible, input:focus-visible,
+select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--lb-gold);
+    outline-offset: 2px;
+}
+
+/* 2.5.8 — une cible tactile d'au moins 24 × 24 px : les boutons de ligne
+   étaient à 27 px, les onglets et les badges doivent suivre. */
+.lb-segment, .lb-tab, .paginator a, .paginator .this-page {
+    min-height: 26px;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* 1.4.3 — les champs natifs (calendriers, listes, barres de défilement) sont
+   dessinés par le navigateur : sans `color-scheme`, ils restent clairs sur un
+   fond sombre et deviennent illisibles. */
+html[data-bs-theme="dark"] { color-scheme: dark; }
+
+/* Lien d'évitement : invisible jusqu'à ce qu'on l'atteigne au clavier
+   (2.4.1, « contourner des blocs de contenu »). */
+.lb-skip {
+    background: var(--lb-wine);
+    border-radius: 0 0 var(--lb-radius-sm) 0;
+    color: #fff;
+    font-weight: 750;
+    left: 0;
+    padding: .7rem 1.1rem;
+    position: absolute;
+    text-decoration: none;
+    top: -100px;
+    transition: top .15s ease;
+    z-index: 3000;
+}
+.lb-skip:focus { color: #fff; top: 0; }
+
+/* 2.3.3 — qui a demandé à son système de réduire les animations ne doit pas
+   voir les fenêtres glisser ni les cartes sauter. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+    }
+    .lb-kpi:hover, .lb-btn:hover { transform: none; }
+}
+
+/* Impression : un tableau qui se coupe en deux reste lisible, et l'en-tête
+   collé n'a plus de sens sur du papier. */
+@media print {
+    .lb-skip { display: none !important; }
+    #changelist .results { max-height: none; overflow: visible; }
+    #result_list thead th, #jazzy-tabs { position: static; }
+    #result_list tbody tr:hover td, .inline-group tbody tr:hover td { background: transparent; }
+    #result_list thead { display: table-header-group; }
+    .lb-panel, .lb-kpi, .inline-group { box-shadow: none; }
+}
+
+/* --------------------------------------------------------------------------
+   15. CONTROLES PARTAGES — meme lecture sur chaque section de l'admin
+   -------------------------------------------------------------------------- */
+.btn {
+    align-items: center;
+    border-radius: var(--lb-radius-sm) !important;
+    box-shadow: none !important;
+    font-weight: 700;
+    letter-spacing: 0;
+    min-height: 38px;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+.btn:hover { filter: none !important; transform: none !important; }
+.btn:disabled, .btn.disabled { cursor: not-allowed; opacity: .55; }
+.btn > i:only-child { margin: 0; }
+.btn-sm { min-height: 32px; padding: .35rem .65rem; }
+.btn-lg { min-height: 44px; }
+
+.btn-primary, .btn-dark {
+    background: var(--lb-wine) !important;
+    border-color: var(--lb-wine) !important;
+    color: #fff !important;
+}
+.btn-primary:hover, .btn-dark:hover {
+    background: var(--lb-wine-600) !important;
+    border-color: var(--lb-wine-600) !important;
+    color: #fff !important;
+}
+.btn-warning {
+    background: var(--lb-gold) !important;
+    border-color: var(--lb-gold) !important;
+    color: var(--lb-wine-800) !important;
+}
+.btn-warning:hover {
+    background: var(--lb-gold-600) !important;
+    border-color: var(--lb-gold-600) !important;
+    color: #fff !important;
+}
+.btn-success {
+    background: var(--lb-sage) !important;
+    border-color: var(--lb-sage) !important;
+    color: #fff !important;
+}
+.btn-success:hover {
+    background: var(--lb-sage-600) !important;
+    border-color: var(--lb-sage-600) !important;
+    color: #fff !important;
+}
+.btn-danger {
+    background: var(--lb-wine) !important;
+    border-color: var(--lb-wine) !important;
+    color: #fff !important;
+}
+.btn-outline-primary, .btn-outline-dark {
+    background: transparent !important;
+    border: 1px solid var(--lb-wine) !important;
+    color: var(--lb-wine) !important;
+}
+.btn-outline-primary:hover, .btn-outline-dark:hover {
+    background: var(--lb-wine-100) !important;
+    color: var(--lb-wine) !important;
+}
+.btn-outline-danger {
+    background: transparent !important;
+    border: 1px solid var(--lb-wine-200) !important;
+    color: var(--lb-wine) !important;
+}
+.btn-outline-danger:hover {
+    background: var(--lb-wine) !important;
+    border-color: var(--lb-wine) !important;
+    color: #fff !important;
+}
+
+.form-control, .form-select,
+.change-form .form-control, .change-form .form-select,
+.change-form textarea {
+    border-color: var(--lb-line);
+    border-radius: var(--lb-radius-sm);
+    color: var(--lb-ink);
+    min-height: 40px;
+}
+.form-control:focus, .form-select:focus,
+.change-form .form-control:focus, .change-form .form-select:focus,
+.change-form textarea:focus {
+    border-color: var(--lb-gold) !important;
+    box-shadow: 0 0 0 .2rem rgba(201, 155, 59, .18) !important;
+}
+.help-block, .helptext, .form-text, p.help,
+.change-form .help-block, .change-form .helptext {
+    color: var(--lb-ink-500);
+    font-size: .78rem;
+    font-style: normal;
+}
+
+.card, .change-form .card {
+    border-color: var(--lb-line);
+    border-radius: var(--lb-radius);
+    box-shadow: var(--lb-shadow-sm);
+}
+.card > .card-header, .change-form .card .card-header {
+    background: var(--lb-canvas);
+    border-bottom-color: var(--lb-line);
+    color: var(--lb-ink);
+}
+.table > :not(caption) > * > * { border-bottom-color: var(--lb-line-soft); }
+.table thead th {
+    background: var(--lb-canvas);
+    color: var(--lb-ink-500);
+    font-size: .72rem;
+    font-weight: 750;
+}
+.table tbody tr:hover > * { background-color: var(--lb-gold-100); }
+
+html[data-bs-theme="dark"] .card > .card-header,
+html[data-bs-theme="dark"] .change-form .card .card-header,
+html[data-bs-theme="dark"] .table thead th {
+    background: var(--lb-canvas-2);
+    border-color: var(--lb-line);
+    color: var(--lb-ink);
+}
+html[data-bs-theme="dark"] .table tbody tr:hover > * { background-color: var(--lb-canvas-2); }
+html[data-bs-theme="dark"] .btn-outline-primary,
+html[data-bs-theme="dark"] .btn-outline-dark {
+    border-color: var(--lb-gold-200) !important;
+    color: var(--lb-gold-200) !important;
+}
+html[data-bs-theme="dark"] .btn-outline-primary:hover,
+html[data-bs-theme="dark"] .btn-outline-dark:hover {
+    background: rgba(201, 155, 59, .12) !important;
+}

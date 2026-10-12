@@ -1,0 +1,157 @@
+<main class="scanner lb-container">
+  <header class="scanner__header">
+    <span class="eyebrow">🍷 Lazan'i Betsileo</span>
+    <h1>{{ 'SCANNER.titre' | translate }}</h1>
+  </header>
+
+  <div class="scanner__grille">
+    <!-- ---------- Capture ---------- -->
+    <section class="scanner__capture lb-card">
+      <div class="scanner__vue" [class.scanner__vue--active]="etat() === 'actif' || etat() === 'demarrage'">
+        <video #video class="scanner__video" muted playsinline></video>
+
+        @if (etat() === 'repos') {
+          <div class="scanner__repos">
+            <mat-icon aria-hidden="true">qr_code_scanner</mat-icon>
+            <p>{{ 'SCANNER.flecheCamera' | translate }}</p>
+          </div>
+        } @else if (etat() === 'demarrage') {
+          <div class="scanner__repos">
+            <mat-spinner diameter="44" />
+          </div>
+        } @else if (etat() === 'analyse') {
+          <div class="scanner__repos">
+            <mat-spinner diameter="44" />
+            @if (codeLu(); as code) {
+              <p>{{ 'SCANNER.codeLu' | translate: { code: code } }}</p>
+            }
+          </div>
+        }
+
+        @if (etat() === 'actif') {
+          <span class="scanner__visée" aria-hidden="true"></span>
+        }
+      </div>
+
+      <div class="scanner__actions">
+        @if (etat() === 'actif') {
+          <button mat-flat-button color="primary" type="button" (click)="arreter()">
+            <mat-icon>stop</mat-icon>
+            {{ 'SCANNER.arreter' | translate }}
+          </button>
+        } @else {
+          <button mat-flat-button color="primary" type="button" [disabled]="etat() === 'demarrage'" (click)="demarrer()">
+            <mat-icon>photo_camera</mat-icon>
+            {{ 'SCANNER.demarrer' | translate }}
+          </button>
+        }
+
+        <button mat-stroked-button type="button" [disabled]="etat() === 'analyse'" (click)="importer()">
+          <mat-icon>upload</mat-icon>
+          {{ 'SCANNER.importer' | translate }}
+        </button>
+        <input #fichier class="lb-visually-hidden" type="file" accept="image/*" (change)="surFichier($event)" />
+      </div>
+
+      @if (erreur()) {
+        <p class="scanner__alerte" role="alert">
+          <mat-icon aria-hidden="true">videocam_off</mat-icon>
+          {{ 'SCANNER.erreurCamera' | translate }}
+        </p>
+      }
+    </section>
+
+    <!-- ---------- Résultat ---------- -->
+    <section class="scanner__resultat" aria-live="polite">
+      @if (vinDetecte(); as vin) {
+        <article class="scanner__fiche lb-card">
+          <span class="scanner__badge">
+            <mat-icon aria-hidden="true">check_circle</mat-icon>
+            {{ 'SCANNER.scanDetecte' | translate }}
+          </span>
+
+          <div class="scanner__fiche-corps">
+            <img [src]="vin.image" [alt]="vin.nom" />
+            <div>
+              <h2>{{ vin.nom }}</h2>
+              <p class="scanner__cuvee">{{ vin.cuvee }} — {{ vin.millesime }}</p>
+              <p class="scanner__meta">{{ vin.region }} · {{ vin.cepage }}</p>
+              <p class="scanner__meta">{{ vin.volume }} cl · {{ vin.alcool }} %</p>
+              <p class="scanner__code"><mat-icon aria-hidden="true">qr_code</mat-icon> {{ vin.codeBarres }}</p>
+            </div>
+          </div>
+
+          <div class="scanner__fiche-pied">
+            <div class="scanner__prix">
+              <strong>{{ vin.prix | number: '1.0-0' }} Ar</strong>
+              <span>{{ vin.stock }} {{ 'VIN.enStock' | translate }}</span>
+            </div>
+            <div class="scanner__boutons">
+              <a mat-stroked-button [routerLink]="['/vin', vin.id]">
+                <mat-icon>visibility</mat-icon>
+                {{ 'VIN.details' | translate }}
+              </a>
+              <button mat-flat-button color="primary" type="button" [disabled]="vin.stock <= 0" (click)="ajouterAuPanier(vin)">
+                <mat-icon>{{ vinAjoute() ? 'check' : 'add_shopping_cart' }}</mat-icon>
+                {{ 'VIN.ajouterPanier' | translate }}
+              </button>
+            </div>
+          </div>
+
+          <button class="scanner__reinit" mat-button type="button" (click)="reinitialiser()">
+            <mat-icon>restart_alt</mat-icon>
+            {{ 'SCANNER.nouveauScan' | translate }}
+          </button>
+        </article>
+      } @else if (introuvable()) {
+        <div class="scanner__vide lb-card" role="alert">
+          <mat-icon>search_off</mat-icon>
+          @if (codeLu(); as code) {
+            <p class="scanner__code">{{ 'SCANNER.codeLu' | translate: { code: code } }}</p>
+          }
+          <p>{{ 'SCANNER.introuvable' | translate }}</p>
+          <button mat-stroked-button type="button" (click)="reinitialiser()">{{ 'SCANNER.nouveauScan' | translate }}</button>
+        </div>
+      } @else {
+        <div class="scanner__vide lb-card">
+          <mat-icon>wine_bar</mat-icon>
+          <p>{{ 'SCANNER.nouveauScan' | translate }}</p>
+        </div>
+      }
+    </section>
+  </div>
+
+  <!-- ---------- Simulation ---------- -->
+  <section class="scanner__simulation lb-card">
+    <h2>
+      <mat-icon aria-hidden="true">science</mat-icon>
+      {{ 'SCANNER.simulation' | translate }}
+    </h2>
+    <p>{{ 'SCANNER.choisirVin' | translate }}</p>
+
+    @if (catalogue().length === 0) {
+      <div class="scanner__chargement" aria-busy="true">
+        @for (item of [0, 1, 2]; track item) {
+          <app-skeleton forme="texte" [lignes]="1" />
+        }
+      </div>
+    } @else {
+      <div class="scanner__simulation-pied">
+        <mat-form-field appearance="outline" class="scanner__champ">
+          <mat-label>{{ 'SCANNER.choisirVin' | translate }}</mat-label>
+          <mat-select [value]="simulationChoix()" (selectionChange)="simuler($event.value)">
+            @for (vin of catalogue(); track vin.id) {
+              <mat-option [value]="vin">{{ vin.nom }} — {{ vin.cuvee }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <ul class="scanner__codes">
+          @for (vin of catalogue(); track vin.id) {
+            <li class="lb-badge-promo">{{ vin.codeBarres }}</li>
+          }
+        </ul>
+      </div>
+    }
+  </section>
+</main>

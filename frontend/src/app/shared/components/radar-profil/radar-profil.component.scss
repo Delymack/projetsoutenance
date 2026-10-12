@@ -1,0 +1,63 @@
+:host {
+  display: block;
+}
+
+.radar {
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.radar__anneau {
+  fill: none;
+  stroke: var(--lb-border);
+  stroke-width: 1;
+}
+
+.radar__axe {
+  stroke: var(--lb-border);
+  stroke-width: 1;
+}
+
+.radar__libelle {
+  fill: var(--lb-text-muted);
+  font-family: var(--lb-font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  dominant-baseline: middle;
+}
+
+.radar__profil {
+  fill: color-mix(in srgb, var(--lb-primary) 22%, transparent);
+  stroke: var(--lb-primary);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  animation: radar-trace 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.radar__point {
+  fill: var(--lb-accent);
+  stroke: var(--lb-surface);
+  stroke-width: 1.5;
+}
+
+@keyframes radar-trace {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+    transform-origin: center;
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+    transform-origin: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .radar__profil {
+    animation: none;
+  }
+}

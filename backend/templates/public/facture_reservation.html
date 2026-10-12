@@ -1,0 +1,187 @@
+{% load static dashboard_tags %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Facture {{ reservation.reference }}</title>
+    <link rel="stylesheet" href="{% static 'vendor/fontawesome-free/css/all.min.css' %}">
+    <style>
+        :root { --wine:#641b2c; --gold:#c99b3b; --ink:#2b1b20; --line:#ece5df; --soft:#fbf8f2; }
+        * { box-sizing:border-box; }
+        body { background:#f3efe9; color:var(--ink); font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; margin:0; padding:32px 16px; }
+        .toolbar { display:flex; gap:8px; justify-content:center; margin-bottom:22px; }
+        .toolbar a, .toolbar button { align-items:center; background:var(--wine); border:0; border-radius:8px; color:#fff; cursor:pointer; display:inline-flex; font-size:.86rem; font-weight:700; gap:6px; padding:10px 16px; text-decoration:none; }
+        .toolbar .alt { background:#fff; border:1px solid #d9cfc9; color:#5f4e52; }
+
+        .invoice { background:#fff; border-radius:16px; box-shadow:0 16px 42px rgba(43,27,32,.13); margin:auto; max-width:820px; overflow:hidden; }
+        .inv-head { background:linear-gradient(120deg,#35111d,#641b2c 58%,#8e3447); color:#fff; display:flex; justify-content:space-between; padding:28px 34px; }
+        .inv-brand { align-items:center; display:flex; gap:12px; }
+        .inv-brand .logo { align-items:center; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); border-radius:12px; display:inline-flex; font-size:1.4rem; height:52px; justify-content:center; width:52px; }
+        .inv-brand h1 { font-size:1.35rem; letter-spacing:.02em; margin:0; }
+        .inv-brand p { color:rgba(255,255,255,.72); font-size:.78rem; margin:2px 0 0; }
+        .inv-meta { text-align:right; }
+        .inv-meta .ref { font-size:1.05rem; font-weight:800; letter-spacing:.03em; }
+        .inv-meta .date { color:rgba(255,255,255,.78); font-size:.78rem; }
+        .status-chip { border-radius:20px; display:inline-block; font-size:.68rem; font-weight:800; letter-spacing:.05em; margin-top:8px; padding:4px 12px; text-transform:uppercase; background:rgba(23,115,62,.9); color:#fff; }
+
+        .inv-body { padding:30px 34px; }
+        .parties { display:flex; justify-content:space-between; gap:24px; margin-bottom:26px; }
+        .party { flex:1; }
+        .party .label { color:#986200; font-size:.66rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+        .party .name { color:var(--ink); font-size:1rem; font-weight:800; margin:6px 0 2px; }
+        .party .line { color:#6f5f62; font-size:.82rem; line-height:1.5; }
+
+        table.items { border-collapse:collapse; margin-top:6px; width:100%; }
+        table.items thead th { background:var(--soft); border-bottom:2px solid var(--line); color:#7c6c6f; font-size:.68rem; letter-spacing:.06em; padding:11px 10px; text-align:left; text-transform:uppercase; }
+        table.items th.num, table.items td.num { text-align:right; }
+        table.items td { border-bottom:1px solid #f2ece8; font-size:.85rem; padding:12px 10px; vertical-align:top; }
+        table.items .prod { font-weight:800; }
+        table.items .sub { color:#9a8b8d; font-size:.72rem; }
+
+        .totaux { display:flex; gap:26px; justify-content:space-between; margin-top:20px; }
+        .totaux .box { flex:1; max-width:340px; }
+        .totaux .box.totale { margin-left:auto; width:320px; }
+        .totaux .row { color:#6f5f62; display:flex; font-size:.85rem; justify-content:space-between; padding:5px 0; }
+        .totaux .row.grand { border-top:2px solid var(--line); color:var(--wine); font-size:1.15rem; font-weight:850; margin-top:6px; padding-top:12px; }
+        .totaux .row.acompte { color:#8c1f33; font-weight:700; }
+        .totaux .row.solde { color:#17733e; font-weight:700; }
+
+        .retour { border:1px solid var(--line); border-radius:12px; font-size:.78rem; margin-top:18px; padding:11px 14px; }
+        .retour strong { color:#7c5315; display:block; font-size:.7rem; letter-spacing:.07em; margin-bottom:5px; text-transform:uppercase; }
+
+        .inv-foot { border-top:1px solid var(--line); display:flex; gap:24px; justify-content:space-between; padding:20px 34px 28px; }
+        .inv-foot .note { color:#8a7a7d; font-size:.76rem; line-height:1.55; max-width:60%; }
+        .inv-foot .pay { text-align:right; }
+        .inv-foot .pay .label { color:#9a8b8d; font-size:.66rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+        .inv-foot .pay .val { color:var(--ink); font-weight:800; }
+
+        @media print {
+            body { background:#fff; padding:0; }
+            .toolbar { display:none !important; }
+            .invoice { box-shadow:none; border-radius:0; max-width:100%; }
+        }
+        @media (max-width:620px) { .parties { flex-direction:column; } .totaux { flex-direction:column; } }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <button onclick="window.print()"><i class="fas fa-print"></i> Imprimer / PDF</button>
+        {% if url_base %}<a class="alt" href="{{ url_base }}"><i class="fas fa-arrow-left"></i> Retour au site</a>{% endif %}
+    </div>
+
+    <div class="invoice">
+        <header class="inv-head">
+            <div class="inv-brand">
+                <span class="logo"><i class="fas fa-wine-bottle"></i></span>
+                <div>
+                    <h1>{{ societe.nom|default:"LAZAN'I BETSILEO" }}</h1>
+                    <p>{{ societe.slogan }}</p>
+                </div>
+            </div>
+            <div class="inv-meta">
+                <div class="ref">Facture {{ reservation.reference }}</div>
+                <div class="date">Validée le {{ reservation.validation_le|date:"d/m/Y · H:i" }}<br>
+                    Commandée le {{ reservation.date_creation|date:"d/m/Y · H:i" }}</div>
+                <span class="status-chip">Commande validée</span>
+            </div>
+        </header>
+
+        <div class="inv-body">
+            <div class="parties">
+                <div class="party">
+                    <div class="label">Émetteur</div>
+                    <div class="name">{{ societe.nom|default:"LAZAN'I BETSILEO" }}</div>
+                    <div class="line">
+                        {{ societe.adresse }}<br>
+                        Tél. {{ societe.telephone }}<br>
+                        {{ societe.email }}{% if societe.siret %}<br>{{ societe.siret }}{% endif %}
+                    </div>
+                </div>
+                <div class="party">
+                    <div class="label">Client</div>
+                    <div class="name">{{ reservation.client.nom }} {{ reservation.client.prenom }}</div>
+                    <div class="line">
+                        {% if reservation.client.telephone %}Tél. {{ reservation.client.telephone }}<br>{% endif %}
+                        {% if reservation.client.email %}{{ reservation.client.email }}<br>{% endif %}
+                        {% if reservation.client.adresse %}{{ reservation.client.adresse }}{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <table class="items">
+                <thead>
+                    <tr>
+                        <th>Article</th>
+                        <th class="num">Prix U.</th>
+                        <th class="num">Qté</th>
+                        <th class="num">Sous-total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ligne in lignes %}
+                    <tr>
+                        <td>
+                            <span class="prod">{{ ligne.produit.nom }}</span>
+                            <div class="sub">
+                                {{ ligne.produit.marque }}{% if ligne.produit.millesime %} · {{ ligne.produit.millesime }}{% endif %}
+                                {% if ligne.unite != 'BOUTEILLE' %} · vendu au {{ ligne.get_unite_display|lower }}{% endif %}
+                                {% if ligne.contenance > 1 %} · {{ ligne.contenance }} bouteilles{% endif %}
+                            </div>
+                        </td>
+                        <td class="num">{{ ligne.prix_unitaire }} {{ societe.devise|default:"Ar" }}</td>
+                        <td class="num">{{ ligne.quantite }}</td>
+                        <td class="num">{{ ligne.sous_total }} {{ societe.devise|default:"Ar" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="totaux">
+                <div class="box">
+                    {% if detail_tva.active %}
+                    <div class="row"><span>Base HT</span><span>{{ detail_tva.ht }} {{ societe.devise|default:"Ar" }}</span></div>
+                    <div class="row"><span>{{ detail_tva.libelle }} incluse</span><span>{{ detail_tva.tva }} {{ societe.devise|default:"Ar" }}</span></div>
+                    {% endif %}
+                    <div class="row grand"><span>Total à payer</span><span>{{ reservation.montant_total }} {{ societe.devise|default:"Ar" }}</span></div>
+                    {% if reservation.montant_acompte %}
+                    <div class="row acompte"><span>Acompte déjà versé</span><span>{{ reservation.montant_acompte }} {{ societe.devise|default:"Ar" }}</span></div>
+                    {% endif %}
+                    <div class="row solde"><span>Reste à payer</span><span>{{ solde_a_payer }} {{ societe.devise|default:"Ar" }}</span></div>
+                </div>
+
+                <div class="box totale">
+                    <div class="row grand"><span>Acompte à verser au retrait / livraison</span><span>{{ solde_a_payer }} {{ societe.devise|default:"Ar" }}</span></div>
+                    <div class="row" style="padding-top:8px; justify-content:flex-start; font-size:.74rem; font-style:italic; line-height:1.45;">
+                        <span>Arrêtée la présente facture à la somme de :</span>
+                    </div>
+                    <div style="color:var(--wine); font-size:.78rem; font-weight:700; line-height:1.5;">{{ reservation.montant_total|en_lettres }}</div>
+                </div>
+            </div>
+
+            <div class="retour">
+                <strong>Réception de la commande</strong>
+                {% if reservation.mode_reception == 'LIVRAISON' %}
+                Livraison à l'adresse : {{ reservation.adresse_livraison }}
+                {% else %}
+                Retrait en boutique
+                {% endif %}
+                {% if reservation.date_expiration %} — commande retenue jusqu'au {{ reservation.date_expiration|date:"d/m/Y" }}{% endif %}
+                {% if reservation.note %} — Note : « {{ reservation.note }} »{% endif %}
+            </div>
+        </div>
+
+        <footer class="inv-foot">
+            <div class="note">
+                {% if reservation.validation_par %}Validée par : <strong>{{ reservation.validation_par.get_full_name|default:reservation.validation_par.username }}</strong>{% endif %}
+                <br>
+                Merci pour votre confiance — {{ societe.nom|default:"La Cave" }}. Facture générée automatiquement.
+            </div>
+            <div class="pay">
+                <div class="label">Réception</div>
+                <div class="val">{{ reservation.get_mode_reception_display }}</div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

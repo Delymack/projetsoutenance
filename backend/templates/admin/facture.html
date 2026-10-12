@@ -1,0 +1,362 @@
+{% load static dashboard_tags parametres_tags %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Facture {{ vente.reference }}</title>
+    <link rel="stylesheet" href="{% static 'vendor/fontawesome-free/css/all.min.css' %}">
+    <style>
+        :root { --wine:#641b2c; --gold:#c99b3b; --ink:#2b1b20; --line:#ece5df; --soft:#fbf8f2; }
+        * { box-sizing:border-box; }
+        body { background:#f3efe9; color:var(--ink); font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; margin:0; padding:32px 16px; }
+        .toolbar { display:flex; gap:8px; justify-content:center; margin-bottom:22px; }
+        .toolbar a, .toolbar button { align-items:center; background:var(--wine); border:0; border-radius:8px; color:#fff; cursor:pointer; display:inline-flex; font-size:.86rem; font-weight:700; gap:6px; padding:10px 16px; text-decoration:none; }
+        .toolbar .alt { background:#fff; border:1px solid #d9cfc9; color:#5f4e52; }
+        .toolbar .gold { background:var(--gold); color:#2b1c09; }
+
+        .invoice { background:#fff; border-radius:16px; box-shadow:0 16px 42px rgba(43,27,32,.13); margin:auto; max-width:820px; overflow:hidden; }
+        .inv-head { background:linear-gradient(120deg,#35111d,#641b2c 58%,#8e3447); color:#fff; display:flex; justify-content:space-between; padding:28px 34px; }
+        .inv-brand { align-items:center; display:flex; gap:12px; }
+        .inv-brand .logo { align-items:center; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); border-radius:12px; display:inline-flex; font-size:1.4rem; height:52px; justify-content:center; width:52px; }
+        .inv-brand h1 { font-size:1.35rem; letter-spacing:.02em; margin:0; }
+        .inv-brand p { color:rgba(255,255,255,.72); font-size:.78rem; margin:2px 0 0; }
+        .inv-meta { text-align:right; }
+        .inv-meta .ref { font-size:1.05rem; font-weight:800; letter-spacing:.03em; }
+        .inv-meta .date { color:rgba(255,255,255,.78); font-size:.78rem; }
+        .status-chip { border-radius:20px; display:inline-block; font-size:.68rem; font-weight:800; letter-spacing:.05em; margin-top:8px; padding:4px 12px; text-transform:uppercase; }
+        .status-chip.paid { background:rgba(23,115,62,.9); color:#fff; }
+        .status-chip.cancelled { background:rgba(180,35,24,.92); color:#fff; }
+
+        .inv-body { padding:30px 34px; }
+        .parties { display:flex; justify-content:space-between; gap:24px; margin-bottom:26px; }
+        .party { flex:1; }
+        .party .label { color:#986200; font-size:.66rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+        .party .name { color:var(--ink); font-size:1rem; font-weight:800; margin:6px 0 2px; }
+        .party .line { color:#6f5f62; font-size:.82rem; line-height:1.5; }
+        .qr-box { align-items:center; display:flex; flex-direction:column; gap:6px; }
+        .qr-box img { border:1px solid var(--line); border-radius:8px; height:104px; padding:6px; width:104px; }
+        .qr-box small { color:#9a8b8d; font-size:.62rem; text-align:center; width:120px; }
+
+        table.items { border-collapse:collapse; margin-top:6px; width:100%; }
+        table.items thead th { background:var(--soft); border-bottom:2px solid var(--line); color:#7c6c6f; font-size:.68rem; letter-spacing:.06em; padding:11px 10px; text-align:left; text-transform:uppercase; }
+        table.items th.num, table.items td.num { text-align:right; }
+        table.items td { border-bottom:1px solid #f2ece8; font-size:.85rem; padding:12px 10px; vertical-align:top; }
+        table.items .prod { font-weight:800; }
+        table.items .sub { color:#9a8b8d; font-size:.72rem; }
+        table.items .remise { color:#17733e; font-size:.72rem; font-weight:700; }
+        table.items .retour { color:#8c1f33; font-size:.72rem; font-weight:700; }
+        table.items tr.retournee td { opacity:.6; }
+
+        /* Encaissements : une ligne par mode, indispensable en paiement mixte. */
+        .reglement { border:1px solid var(--line); border-radius:12px; margin-top:20px; overflow:hidden; }
+        .reglement h3 { background:var(--soft); border-bottom:1px solid var(--line); color:var(--wine); font-size:.76rem; font-weight:800; letter-spacing:.08em; margin:0; padding:11px 14px; text-transform:uppercase; }
+        .reglement .ligne { align-items:center; border-bottom:1px solid #f4eeea; display:flex; font-size:.85rem; gap:10px; justify-content:space-between; padding:10px 14px; }
+        .reglement .ligne:last-child { border-bottom:0; }
+        .reglement .ligne .mode { align-items:center; display:flex; font-weight:700; gap:8px; }
+        .reglement .ligne .mode i { color:var(--wine); width:16px; }
+        .reglement .ligne .ref { color:#9a8b8d; font-size:.7rem; }
+        .reglement .total { background:#fdf6ee; color:var(--ink); font-weight:800; }
+
+        .totaux { display:flex; gap:26px; justify-content:space-between; margin-top:20px; }
+        .totaux .box { flex:1; max-width:340px; }
+        .totaux .box.totale { margin-left:auto; width:320px; }
+        .totaux .row { color:#6f5f62; display:flex; font-size:.85rem; justify-content:space-between; padding:5px 0; }
+        .totaux .row.neg span:last-child { color:#8c1f33; }
+        .totaux .row .hint { color:#a29395; font-size:.7rem; }
+        .totaux .row.grand { border-top:2px solid var(--line); color:var(--wine); font-size:1.3rem; font-weight:850; margin-top:6px; padding-top:12px; }
+        .totaux .row.encaisse { color:#17733e; font-weight:700; }
+
+        .motifs { background:#fffaf0; border:1px solid #f0e4c5; border-radius:12px; font-size:.78rem; margin-top:18px; padding:11px 14px; }
+        .motifs strong { color:#7c5315; display:block; font-size:.7rem; letter-spacing:.07em; margin-bottom:5px; text-transform:uppercase; }
+        .motifs .m { background:#fff; border:1px solid #efe2c2; border-radius:12px; display:inline-block; margin:0 .3rem .3rem 0; padding:.15rem .6rem; }
+        .motifs .m em { color:var(--wine); font-style:normal; font-weight:800; }
+
+        .inv-foot { border-top:1px solid var(--line); display:flex; gap:24px; justify-content:space-between; padding:20px 34px 28px; }
+        .inv-foot .note { color:#8a7a7d; font-size:.76rem; line-height:1.55; max-width:60%; }
+        .inv-foot .pay { text-align:right; }
+        .inv-foot .pay .label { color:#9a8b8d; font-size:.66rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+        .inv-foot .pay .val { color:var(--ink); font-weight:800; }
+
+        /* --- Reçu thermique 80 mm --- */
+        body.ticket80 { background:#fff; padding:0; }
+        body.ticket80 .toolbar { padding:10px; }
+        body.ticket80 .invoice { border-radius:0; box-shadow:none; max-width:80mm; }
+        body.ticket80 .inv-head { display:block; padding:12px 10px 10px; text-align:center; }
+        body.ticket80 .inv-brand { justify-content:center; }
+        body.ticket80 .inv-brand .logo { display:none; }
+        body.ticket80 .inv-brand h1 { font-size:.92rem; }
+        body.ticket80 .inv-brand p { font-size:.66rem; }
+        body.ticket80 .inv-meta { margin-top:7px; text-align:center; }
+        body.ticket80 .inv-meta .ref { font-size:.86rem; }
+        body.ticket80 .inv-meta .date { font-size:.68rem; }
+        body.ticket80 .status-chip { font-size:.6rem; margin-top:5px; padding:2px 9px; }
+        body.ticket80 .inv-body { padding:10px; }
+        body.ticket80 .parties { display:block; margin-bottom:9px; text-align:center; }
+        body.ticket80 .party .label { font-size:.58rem; }
+        body.ticket80 .party .name { font-size:.76rem; margin:3px 0 1px; }
+        body.ticket80 .party .line { font-size:.66rem; line-height:1.4; }
+        body.ticket80 .parties .party + .party { margin-top:7px; }
+        body.ticket80 .qr-box { display:none; }
+        body.ticket80 table.items thead { display:none; }
+        body.ticket80 table.items td { border:0; font-size:.72rem; padding:2px 0; }
+        body.ticket80 table.items .sub { font-size:.64rem; }
+        body.ticket80 table.items .remise, body.ticket80 table.items .retour { font-size:.64rem; }
+        body.ticket80 .reglement { border:0; border-top:1px dashed #cfc4bf; border-radius:0; margin-top:9px; }
+        body.ticket80 .reglement h3 { background:none; border:0; color:#6f5f62; font-size:.62rem; padding:6px 0 3px; }
+        body.ticket80 .reglement .ligne { border:0; font-size:.72rem; padding:2px 0; }
+        body.ticket80 .reglement .ligne .ref { font-size:.62rem; }
+        body.ticket80 .totaux { display:block; margin-top:9px; }
+        body.ticket80 .totaux .box { max-width:none; }
+        body.ticket80 .totaux .box.pieces { display:none; }
+        body.ticket80 .totaux .row { font-size:.72rem; padding:2px 0; }
+        body.ticket80 .totaux .row .hint { font-size:.6rem; }
+        body.ticket80 .totaux .row.grand { font-size:1rem; padding-top:7px; }
+        body.ticket80 .motifs { font-size:.66rem; margin-top:8px; padding:7px 9px; }
+        body.ticket80 .motifs strong { font-size:.6rem; }
+        body.ticket80 .inv-foot { border-top:1px dashed #cfc4bf; display:block; padding:9px 10px 16px; text-align:center; }
+        body.ticket80 .inv-foot .note { font-size:.64rem; line-height:1.5; max-width:100%; }
+        body.ticket80 .inv-foot .pay { display:none; }
+        body.ticket80 .filet { color:#9a8b8d; font-size:.62rem; letter-spacing:.2em; margin:9px 0 6px; }
+
+        /* --- Mode compact historique --- */
+        body.compact { padding:0; }
+        body.compact .toolbar { padding:10px; }
+        body.compact .invoice { border-radius:0; box-shadow:none; max-width:320px; }
+        body.compact .inv-head { display:block; padding:14px; text-align:center; }
+        body.compact .inv-brand { justify-content:center; }
+        body.compact .inv-brand h1 { font-size:1rem; }
+        body.compact .inv-meta { margin-top:8px; text-align:center; }
+        body.compact .inv-body { padding:12px 14px; }
+        body.compact .parties { display:block; margin-bottom:12px; }
+        body.compact .parties .party + .party { margin-top:8px; }
+        body.compact .qr-box { display:none; }
+        body.compact table.items thead { display:none; }
+        body.compact table.items td { border:0; padding:3px 0; font-size:.78rem; }
+        body.compact table.items td.num { text-align:right; }
+        body.compact .totaux { display:block; }
+        body.compact .totaux .box { width:100%; }
+        body.compact .totaux .box.pieces { display:none; }
+        body.compact .inv-foot { display:block; padding:10px 14px 18px; text-align:center; }
+        body.compact .inv-foot .note { max-width:100%; }
+        body.compact .inv-foot .pay { text-align:center; margin-top:8px; }
+
+        @media print {
+            body { background:#fff; padding:0; }
+            .toolbar { display:none !important; }
+            .invoice { box-shadow:none; border-radius:0; max-width:100%; }
+            /* @page pilote la largeur du papier : 80 mm en continu. */
+            body.ticket80 .invoice { margin:0; max-width:none; width:80mm; }
+        }
+        @page ticket80 { size:80mm auto; margin:4mm; }
+        @media print { body.ticket80 .invoice { page: ticket80; } }
+        @media (max-width:620px) { .parties { flex-direction:column; } .qr-box { align-items:flex-start; } .totaux { flex-direction:column; } }
+    </style>
+</head>
+<body class="{% if ticket_80mm %}ticket80{% elif compact %}compact{% endif %}">
+    <div class="toolbar">
+        <button onclick="window.print()"><i class="fas fa-print"></i> Imprimer / PDF</button>
+        {% if ticket_80mm %}
+            <a class="gold" href="?"><i class="fas fa-file-invoice"></i> Facture A4</a>
+        {% elif compact %}
+            <a class="alt" href="?"><i class="fas fa-file-invoice"></i> Facture complète</a>
+            <a class="gold" href="?format=ticket80"><i class="fas fa-receipt"></i> Ticket 80 mm</a>
+        {% else %}
+            <a class="alt" href="?format=ticket80"><i class="fas fa-receipt"></i> Ticket 80 mm</a>
+            <a class="alt" href="?format=compact"><i class="fas fa-receipt"></i> Reçu court</a>
+        {% endif %}
+        <a class="alt" href="{% url 'admin:ventes_vente_change' vente.id %}"><i class="fas fa-arrow-left"></i> Retour à la vente</a>
+    </div>
+
+    <div class="invoice">
+        <header class="inv-head">
+            <div class="inv-brand">
+                <span class="logo"><i class="fas fa-wine-bottle"></i></span>
+                <div>
+                    <h1>{{ societe.nom|default:"LAZAN'I BETSILEO" }}</h1>
+                    <p>{{ societe.slogan }}</p>
+                </div>
+            </div>
+            <div class="inv-meta">
+                <div class="ref">Facture {{ vente.reference }}</div>
+                <div class="date">{{ vente.date_vente|date:"d/m/Y · H:i" }}</div>
+                {% if vente.date_echeance %}
+                <div class="date">Échéance : {{ vente.date_echeance|date:"d/m/Y" }}</div>
+                {% endif %}
+                <span class="status-chip {% if vente.statut == 'PAYEE' %}paid{% else %}cancelled{% endif %}">{{ vente.get_statut_display }}</span>
+            </div>
+        </header>
+
+        <div class="inv-body">
+            <div class="parties">
+                <div class="party">
+                    <div class="label">Émetteur</div>
+                    <div class="name">{{ societe.nom|default:"LAZAN'I BETSILEO" }}</div>
+                    <div class="line">
+                        {{ societe.adresse }}<br>
+                        Tél. {{ societe.telephone }}<br>
+                        {{ societe.email }}{% if societe.siret %}<br>SIRET : {{ societe.siret }}{% endif %}
+                    </div>
+                </div>
+                <div class="party">
+                    <div class="label">Client</div>
+                    {% if vente.client_id %}
+                      <div class="name">{{ vente.client.nom }} {{ vente.client.prenom }}</div>
+                      <div class="line">
+                        {% if vente.client.telephone %}Tél. {{ vente.client.telephone }}<br>{% endif %}
+                        {% if vente.client.email %}{{ vente.client.email }}<br>{% endif %}
+                        {% if vente.client.adresse %}{{ vente.client.adresse }}{% endif %}
+                      </div>
+                    {% else %}
+                      {% comment %} Vente de comptoir : ni fiche ni suivi client, mais le nom
+                         donné au moment du paiement figure sur le ticket. {% endcomment %}
+                      <div class="name">{{ vente.client_libelle|default:"Client de passage" }}</div>
+                      <div class="line">Vente anonyme</div>
+                    {% endif %}
+                </div>
+                {% if qr_code and not ticket_80mm and not compact %}
+                <div class="qr-box">
+                    <img src="{{ qr_code }}" alt="QR code de vérification de la facture">
+                    <small>Scannez pour vérifier la facture</small>
+                </div>
+                {% endif %}
+            </div>
+
+            <table class="items">
+                <thead>
+                    <tr>
+                        <th>Article</th>
+                        <th class="num">Prix U.</th>
+                        <th class="num">Qté</th>
+                        <th class="num">Sous-total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ligne in vente.lignes.all %}
+                    <tr {% if ligne.quantite_retournee >= ligne.quantite %}class="retournee"{% endif %}>
+                        <td>
+                            <span class="prod">{{ ligne.produit.nom }}</span>
+                            <div class="sub">
+                                {{ ligne.produit.marque }}{% if ligne.produit.millesime %} · {{ ligne.produit.millesime }}{% endif %}
+                                {% if ligne.unite != 'BOUTEILLE' %} · vendu au {{ ligne.get_unite_display|lower }}{% endif %}
+                                {% if ligne.contenance > 1 %} · {{ ligne.contenance }} bouteilles{% endif %}
+                            </div>
+                            {% if ligne.remise > 0 %}<div class="remise">Promotion : −{{ ligne.remise }} {{ societe.devise|default:"Ar" }}</div>{% endif %}
+                            {% if ligne.remise_manuelle > 0 %}<div class="remise">Remise manuelle : −{{ ligne.remise_manuelle }} {{ societe.devise|default:"Ar" }}</div>{% endif %}
+                            {% if ligne.quantite_retournee > 0 %}<div class="retour">{{ ligne.quantite_retournee }}/{{ ligne.quantite }} retourné(s)</div>{% endif %}
+                        </td>
+                        <td class="num">{{ ligne.prix_unitaire }} {{ societe.devise|default:"Ar" }}</td>
+                        <td class="num">{{ ligne.quantite }}</td>
+                        <td class="num">{{ ligne.sous_total }} {{ societe.devise|default:"Ar" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if vente.a_des_retours or vente.acompte_anticipe > 0 or vente.remise_manuelle_totale > 0 %}
+            <div class="motifs">
+                {% if vente.remise_manuelle_totale > 0 %}
+                <strong>Remise manuelle — motif</strong>
+                <span class="m">« {{ vente.motif_remise|default:"non précisé" }} » <em>{{ vente.remise_manuelle_totale }} {{ societe.devise|default:"Ar" }}</em></span>
+                {% endif %}
+                {% if vente.a_des_retours %}
+                <strong>Motifs de retour</strong>
+                {% for retour in vente.retours.all %}
+                    <span class="m">{{ retour.produit_nom|default:retour.ligne.produit.nom }} — « {{ retour.motif }} » <em>−{{ retour.montant_rembourse }} {{ societe.devise|default:"Ar" }}</em></span>
+                {% endfor %}
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if vente.paiements.exists %}
+            <div class="reglement">
+                <h3>Encaissements{% if vente.est_paiement_mixte %} (paiement mixte){% endif %}</h3>
+                {% for paiement in vente.paiements.all %}
+                <div class="ligne">
+                    <span class="mode">
+                        <i class="fas {% if paiement.mode == 'ESPECES' %}fa-money-bill-wave{% elif paiement.mode == 'MOBILE_MONEY' %}fa-mobile-screen{% elif paiement.mode == 'CARTE' %}fa-credit-card{% else %}fa-hand-holding-usd{% endif %}"></i>
+                        {{ paiement.get_mode_display }}{% if paiement.reference %} <span class="ref">· {{ paiement.reference }}</span>{% endif %}
+                    </span>
+                    <span>{{ paiement.montant }} {{ societe.devise|default:"Ar" }}</span>
+                </div>
+                {% endfor %}
+                <div class="ligne total">
+                    <span class="mode">Total encaissé</span>
+                    <span>{{ vente.net_a_encaiser }} {{ societe.devise|default:"Ar" }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if vente.a_des_retours %}
+            <div class="reglement">
+                <h3>Retours partiels</h3>
+                {% for retour in vente.retours.all %}
+                <div class="ligne">
+                    <span class="mode">
+                        <i class="fas fa-rotate-left"></i>
+                        {{ retour.ligne.produit.nom }} — {{ retour.quantite }} × {{ retour.get_mode_remboursement_display }}
+                        <span class="ref">· {{ retour.motif }}</span>
+                    </span>
+                    <span>−{{ retour.montant_rembourse }} {{ societe.devise|default:"Ar" }}</span>
+                </div>
+                {% endfor %}
+                <div class="ligne total">
+                    <span class="mode">Total remboursé</span>
+                    <span>−{{ vente.montant_retourne }} {{ societe.devise|default:"Ar" }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="totaux">
+                <div class="box pieces">
+                    <div class="row"><span>Sous-total</span><span>{{ vente.total }} {{ societe.devise|default:"Ar" }}</span></div>
+                    {% if total_remise > 0 %}
+                    <div class="row neg"><span>Remises accordées <span class="hint">(promo + manuelle)</span></span><span>−{{ total_remise }} {{ societe.devise|default:"Ar" }}</span></div>
+                    {% endif %}
+                    {% if vente.montant_retourne > 0 %}
+                    <div class="row neg"><span>Retours remboursés <span class="hint">({{ vente.retours.count }} opération{{ vente.retours.count|pluralize }})</span></span><span>−{{ vente.montant_retourne }} {{ societe.devise|default:"Ar" }}</span></div>
+                    {% endif %}
+                    {% if vente.acompte_anticipe > 0 %}
+                    <div class="row neg"><span>Acompte déjà versé <span class="hint">(commande)</span></span><span>−{{ vente.acompte_anticipe }} {{ societe.devise|default:"Ar" }}</span></div>
+                    {% endif %}
+                    <div class="row grand"><span>Net encaissé</span><span>{{ vente.total_net }} {{ societe.devise|default:"Ar" }}</span></div>
+                    {% with detail=vente.details_tva %}
+                    {% if detail and detail.active %}
+                    <div class="row"><span>Base HT</span><span>{{ detail.ht }} {{ societe.devise|default:"Ar" }}</span></div>
+                    <div class="row"><span>{{ detail.libelle }} incluse</span><span>{{ detail.tva }} {{ societe.devise|default:"Ar" }}</span></div>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+
+                <div class="box totale">
+                    <div class="row grand"><span>Total à payer</span><span>{{ vente.total }} {{ societe.devise|default:"Ar" }}</span></div>
+                    <div class="row encaisse"><span>Encaissé ce jour</span><span>{{ vente.net_a_encaiser }} {{ societe.devise|default:"Ar" }}</span></div>
+                    <div class="row" style="padding-top:8px; justify-content:flex-start; font-size:.74rem; font-style:italic; line-height:1.45;">
+                        <span>Arrêtée la présente facture à la somme de :</span>
+                    </div>
+                    <div style="color:var(--wine); font-size:.78rem; font-weight:700; line-height:1.5;">{{ vente.total|en_lettres }}</div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="inv-foot">
+            <div class="note">
+                Vendeur : <strong>{{ vente.utilisateur.get_full_name|default:vente.utilisateur.username }}</strong>
+                {% if vente.session %}· Session du {{ vente.session.date_ouverture|date:"d/m/Y H:i" }}{% endif %}<br>
+                Merci pour votre achat — {{ societe.nom|default:"La Cave" }}. Facture générée automatiquement.
+            </div>
+            <div class="pay">
+                <div class="label">Mode de paiement</div>
+                <div class="val">
+                    {{ vente.get_mode_paiement_display }}
+                    {% if vente.est_paiement_mixte %}<span class="hint">(mixte)</span>{% endif %}
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    {% if ticket_80mm or compact %}
+    <script>window.addEventListener('load',function(){setTimeout(function(){window.print();},250);});</script>
+    {% endif %}
+</body>
+</html>

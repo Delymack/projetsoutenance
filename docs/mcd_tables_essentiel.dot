@@ -1,0 +1,222 @@
+digraph MCD_ESSENTIEL {
+  graph [
+    rankdir=LR,
+    splines=ortho,
+    nodesep=0.8,
+    ranksep=1.1,
+    bgcolor="white",
+    label="MCD essentiel : Client, Produit, Promotion, Commande, Caisse/Vente, User, Categorie, Stock",
+    labelloc=t,
+    fontsize=22,
+    fontname="Arial"
+  ];
+
+  node [shape=plain, fontname="Arial"];
+  edge [fontname="Arial", fontsize=10, color="#555555", arrowsize=0.7];
+
+  User [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#641b2c"><FONT COLOR="white"><B>USER</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">username</TD></TR>
+      <TR><TD ALIGN="LEFT">email</TD></TR>
+      <TR><TD ALIGN="LEFT">role</TD></TR>
+      <TR><TD ALIGN="LEFT">is_staff</TD></TR>
+    </TABLE>
+  >];
+
+  Client [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#986200"><FONT COLOR="white"><B>CLIENT</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">nom</TD></TR>
+      <TR><TD ALIGN="LEFT">prenom</TD></TR>
+      <TR><TD ALIGN="LEFT">telephone</TD></TR>
+      <TR><TD ALIGN="LEFT">email</TD></TR>
+      <TR><TD ALIGN="LEFT">type_client</TD></TR>
+      <TR><TD ALIGN="LEFT">niveau</TD></TR>
+      <TR><TD ALIGN="LEFT">points_fidelite</TD></TR>
+      <TR><TD ALIGN="LEFT">max_credit</TD></TR>
+      <TR><TD ALIGN="LEFT">solde_du</TD></TR>
+    </TABLE>
+  >];
+
+  Categorie [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#2b5cad"><FONT COLOR="white"><B>CATEGORIE</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">nom unique</TD></TR>
+      <TR><TD ALIGN="LEFT">description</TD></TR>
+      <TR><TD ALIGN="LEFT">statut</TD></TR>
+    </TABLE>
+  >];
+
+  Produit [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#17733e"><FONT COLOR="white"><B>PRODUIT</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK categorie_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">FK fournisseur_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">nom</TD></TR>
+      <TR><TD ALIGN="LEFT">type_vin</TD></TR>
+      <TR><TD ALIGN="LEFT">marque</TD></TR>
+      <TR><TD ALIGN="LEFT">millesime</TD></TR>
+      <TR><TD ALIGN="LEFT">volume</TD></TR>
+      <TR><TD ALIGN="LEFT">prix_achat</TD></TR>
+      <TR><TD ALIGN="LEFT">prix_vente</TD></TR>
+      <TR><TD ALIGN="LEFT">code_barre unique</TD></TR>
+      <TR><TD ALIGN="LEFT">unite_vente</TD></TR>
+      <TR><TD ALIGN="LEFT">contenance</TD></TR>
+    </TABLE>
+  >];
+
+  Stock [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#17733e"><FONT COLOR="white"><B>STOCK</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">OneToOne produit_id</TD></TR>
+      <TR><TD ALIGN="LEFT">quantite</TD></TR>
+      <TR><TD ALIGN="LEFT">seuil_alerte</TD></TR>
+      <TR><TD ALIGN="LEFT">date_mise_a_jour</TD></TR>
+    </TABLE>
+  >];
+
+  MouvementStock [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#17733e"><FONT COLOR="white"><B>MOUVEMENT STOCK</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK produit_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK utilisateur_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">quantite</TD></TR>
+      <TR><TD ALIGN="LEFT">type_mouvement</TD></TR>
+      <TR><TD ALIGN="LEFT">date_mouvement</TD></TR>
+    </TABLE>
+  >];
+
+  Promotion [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#6f42c1"><FONT COLOR="white"><B>PROMOTION</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">nom</TD></TR>
+      <TR><TD ALIGN="LEFT">type_promotion</TD></TR>
+      <TR><TD ALIGN="LEFT">valeur</TD></TR>
+      <TR><TD ALIGN="LEFT">type_cible</TD></TR>
+      <TR><TD ALIGN="LEFT">code unique nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">date_debut</TD></TR>
+      <TR><TD ALIGN="LEFT">date_fin</TD></TR>
+      <TR><TD ALIGN="LEFT">statut</TD></TR>
+    </TABLE>
+  >];
+
+  PromotionProduit [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#6f42c1"><FONT COLOR="white"><B>PROMOTION_PRODUIT</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK promotion_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK produit_id</TD></TR>
+      <TR><TD ALIGN="LEFT">unique(promotion, produit)</TD></TR>
+    </TABLE>
+  >];
+
+  Vente [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#b42318"><FONT COLOR="white"><B>VENTE / CAISSE</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK client_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">FK utilisateur_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK session_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">reference unique</TD></TR>
+      <TR><TD ALIGN="LEFT">date_vente</TD></TR>
+      <TR><TD ALIGN="LEFT">total</TD></TR>
+      <TR><TD ALIGN="LEFT">mode_paiement</TD></TR>
+      <TR><TD ALIGN="LEFT">statut</TD></TR>
+    </TABLE>
+  >];
+
+  LigneVente [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#b42318"><FONT COLOR="white"><B>LIGNE VENTE</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK vente_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK produit_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK promotion_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">quantite</TD></TR>
+      <TR><TD ALIGN="LEFT">prix_unitaire</TD></TR>
+      <TR><TD ALIGN="LEFT">remise</TD></TR>
+      <TR><TD ALIGN="LEFT">sous_total</TD></TR>
+    </TABLE>
+  >];
+
+  SessionCaisse [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#b42318"><FONT COLOR="white"><B>SESSION CAISSE</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK utilisateur_id</TD></TR>
+      <TR><TD ALIGN="LEFT">date_ventes</TD></TR>
+      <TR><TD ALIGN="LEFT">statut</TD></TR>
+      <TR><TD ALIGN="LEFT">ca_total</TD></TR>
+      <TR><TD ALIGN="LEFT">ca_net</TD></TR>
+      <TR><TD ALIGN="LEFT">nb_tickets</TD></TR>
+    </TABLE>
+  >];
+
+  Paiement [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#b42318"><FONT COLOR="white"><B>PAIEMENT</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK vente_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">mode</TD></TR>
+      <TR><TD ALIGN="LEFT">montant</TD></TR>
+      <TR><TD ALIGN="LEFT">reference</TD></TR>
+    </TABLE>
+  >];
+
+  BonCommande [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#606d7d"><FONT COLOR="white"><B>COMMANDE</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK fournisseur_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK cree_par_id nullable</TD></TR>
+      <TR><TD ALIGN="LEFT">numero unique</TD></TR>
+      <TR><TD ALIGN="LEFT">date_commande</TD></TR>
+      <TR><TD ALIGN="LEFT">date_reception</TD></TR>
+      <TR><TD ALIGN="LEFT">statut</TD></TR>
+      <TR><TD ALIGN="LEFT">total</TD></TR>
+      <TR><TD ALIGN="LEFT">total_recu</TD></TR>
+    </TABLE>
+  >];
+
+  LigneCommande [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#606d7d"><FONT COLOR="white"><B>LIGNE COMMANDE</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK bon_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK produit_id</TD></TR>
+      <TR><TD ALIGN="LEFT">prix_unitaire</TD></TR>
+      <TR><TD ALIGN="LEFT">quantite_commandee</TD></TR>
+      <TR><TD ALIGN="LEFT">quantite_recue</TD></TR>
+      <TR><TD ALIGN="LEFT">sous_total</TD></TR>
+    </TABLE>
+  >];
+
+  Categorie -> Produit [taillabel="1", headlabel="0,N", label="classer"];
+  Produit -> Stock [taillabel="1", headlabel="0,1", label="possede"];
+  Produit -> MouvementStock [taillabel="1", headlabel="0,N", label="historique"];
+  User -> MouvementStock [taillabel="1", headlabel="0,N", label="saisit"];
+
+  Promotion -> PromotionProduit [taillabel="1", headlabel="0,N", label="cible"];
+  Produit -> PromotionProduit [taillabel="1", headlabel="0,N", label="concerne"];
+  Promotion -> LigneVente [taillabel="1", headlabel="0,N", label="appliquee"];
+
+  Client -> Vente [taillabel="1", headlabel="0,N", label="effectue"];
+  User -> Vente [taillabel="1", headlabel="0,N", label="enregistre"];
+  User -> SessionCaisse [taillabel="1", headlabel="0,N", label="ouvre"];
+  SessionCaisse -> Vente [taillabel="1", headlabel="0,N", label="contient"];
+  Vente -> LigneVente [taillabel="1", headlabel="1,N", label="details"];
+  Produit -> LigneVente [taillabel="1", headlabel="0,N", label="vendu"];
+  Vente -> Paiement [taillabel="1", headlabel="0,N", label="regle"];
+
+  User -> BonCommande [taillabel="1", headlabel="0,N", label="cree"];
+  BonCommande -> LigneCommande [taillabel="1", headlabel="1,N", label="details"];
+  Produit -> LigneCommande [taillabel="1", headlabel="0,N", label="commande"];
+}

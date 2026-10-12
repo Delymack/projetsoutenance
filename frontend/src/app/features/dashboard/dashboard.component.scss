@@ -1,0 +1,155 @@
+:host {
+  display: block;
+}
+
+.dashboard {
+  padding-block: 2rem 3rem;
+}
+
+.dashboard__header {
+  margin-bottom: 1.25rem;
+}
+
+.dashboard__header h1 {
+  margin: 0.35rem 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.dashboard__header p,
+.dashboard__sale small {
+  margin: 0;
+  color: var(--lb-text-muted);
+}
+
+.eyebrow {
+  color: var(--lb-primary);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.dashboard__kpis,
+.dashboard__grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.dashboard__kpis {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.dashboard__kpis article {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1rem;
+}
+
+.dashboard__kpis mat-icon {
+  color: var(--lb-accent);
+}
+
+.dashboard__kpis span {
+  color: var(--lb-text-muted);
+}
+
+.dashboard__kpis strong {
+  color: var(--lb-primary);
+  font-size: 1.45rem;
+}
+
+.dashboard__grid {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.8fr);
+  margin-top: 1rem;
+}
+
+.dashboard__panel {
+  padding: 1rem;
+}
+
+.dashboard__sale {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px dashed var(--lb-divider);
+  padding: 0.75rem 0;
+}
+
+.dashboard__sale div {
+  display: grid;
+}
+
+.dashboard__sale span {
+  color: var(--lb-primary);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.dashboard__bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px 34px;
+  align-items: center;
+  gap: 0.6rem;
+  margin-block: 0.75rem;
+}
+
+.dashboard__bar div {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--lb-bg-alt);
+}
+
+.dashboard__bar i {
+  display: block;
+  height: 100%;
+  max-width: 100%;
+  border-radius: inherit;
+  background: var(--lb-primary);
+}
+
+.dashboard__notification {
+  position: fixed;
+  top: 5rem;
+  right: 1rem;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: min(420px, calc(100vw - 2rem));
+  padding: 0.8rem 1rem;
+  border-radius: var(--lb-radius);
+  background: var(--lb-success);
+  color: var(--lb-text-inverse);
+  box-shadow: var(--lb-shadow-3);
+  font-weight: 800;
+}
+
+@media (max-width: 820px) {
+  .dashboard__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Heatmap des ventes */
+.dashboard__heatmap {
+  display: grid;
+  gap: var(--lb-gap-sm);
+  margin-bottom: var(--lb-gap);
+}
+
+.dashboard__heatmap-picto {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--lb-text-muted);
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    color: var(--lb-accent);
+  }
+}
