@@ -15,22 +15,62 @@
   box-sizing: border-box;
 }
 
+/* --- Bandeau d'accueil : photo de cave fondue dans le grenat ----------
+   La photo occupe la droite du bandeau à sa taille native (elle reste
+   donc nette) et se fond dans le dégradé par un masque : aucune ligne
+   de coupe. Le titre et les actions restent posés sur le dégradé. */
 .wine-welcome {
   align-items: center;
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--home-border);
-  border-radius: 0;
+  background:
+    radial-gradient(circle at 86% 14%, rgba(201, 155, 59, .22), transparent 24rem),
+    linear-gradient(120deg, #34101c 0%, #641b2c 48%, #4b1220 100%);
+  border: 1px solid rgba(201, 155, 59, .26);
+  border-radius: var(--lb-radius-lg, 16px);
+  box-shadow: var(--lb-hero-shadow, 0 12px 30px rgba(52, 16, 28, .22));
+  color: #fdf7f0;
   display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
   justify-content: space-between;
-  margin-bottom: 1rem;
-  min-height: 0;
-  padding: .25rem 0 1rem;
+  margin-bottom: 1.1rem;
+  min-height: clamp(178px, 17vw, 232px);
+  overflow: hidden;
+  padding: clamp(1.25rem, 2.6vw, 2rem);
   position: relative;
 }
 
+.wine-welcome::before {
+  background: url('../img/dashboard-cave.jpg') center / cover no-repeat;
+  content: '';
+  inset: 0 0 0 auto;
+  opacity: .95;
+  pointer-events: none;
+  position: absolute;
+  width: min(58%, 680px);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 46%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 46%);
+  z-index: 0;
+}
+
+/* Voile grenat : unité de teinte avec la marque et contraste garanti
+   sous les boutons, à droite de la photo. */
 .wine-welcome::after {
-  display: none;
+  background: linear-gradient(90deg, rgba(52, 16, 28, .74) 0%, rgba(52, 16, 28, .14) 46%, rgba(52, 16, 28, .68) 100%);
+  content: '';
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+}
+
+.wine-welcome > * {
+  position: relative;
+  z-index: 1;
+}
+
+.wine-welcome .wine-eyebrow {
+  color: var(--wine-gold, #e9b949);
+  text-transform: uppercase;
 }
 
 .wine-eyebrow {
@@ -42,16 +82,17 @@
 }
 
 .wine-welcome h1 {
-  color: var(--home-ink);
-  font-size: 1.5rem;
+  color: #fff;
+  font-size: clamp(1.45rem, 2vw, 1.85rem);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.25;
+  line-height: 1.2;
   margin: 0;
+  text-shadow: 0 2px 14px rgba(20, 5, 10, .5);
 }
 
 .wine-date {
-  color: var(--home-muted);
+  color: rgba(253, 247, 240, .82);
   font-size: .88rem;
   margin: .5rem 0 0;
   text-transform: capitalize;
@@ -99,6 +140,32 @@
   background: #fff;
   border-color: var(--home-border);
   color: #554943 !important;
+}
+
+/* Actions posées sur le bandeau photo : or sur grenat (contraste fort). */
+.wine-welcome .wine-button-primary {
+  background: var(--wine-gold, #e9b949);
+  box-shadow: 0 8px 20px rgba(20, 5, 10, .34);
+  color: #34101c !important;
+}
+
+.wine-welcome .wine-button-primary:hover {
+  background: var(--wine-gold-soft, #f4d277);
+  box-shadow: 0 10px 24px rgba(20, 5, 10, .4);
+}
+
+/* Bouton secondaire : fond grenat translucide, pour que le texte blanc
+   reste lisible même posé sur la partie claire de la photo. */
+.wine-welcome .wine-button-light {
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  background: rgba(52, 16, 28, .42);
+  border-color: rgba(255, 255, 255, .38);
+  color: #fff !important;
+}
+
+.wine-welcome .wine-button-light:hover {
+  background: rgba(52, 16, 28, .58);
 }
 
 .wine-kpis {
@@ -604,7 +671,21 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 1rem;
-    padding: 1.25rem 1.15rem 1.25rem 1.4rem;
+    min-height: 0;
+    padding: 1.4rem 1.2rem;
+  }
+
+  /* Sur mobile, la photo passe en fond plein cadre et s'assombrit pour
+     que le titre et les boutons empilés restent lisibles. */
+  .wine-welcome::before {
+    opacity: .55;
+    width: 100%;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, .4) 62%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, .4) 62%, transparent 100%);
+  }
+
+  .wine-welcome::after {
+    background: linear-gradient(180deg, rgba(52, 16, 28, .72) 0%, rgba(52, 16, 28, .86) 100%);
   }
 
   .wine-welcome-actions {
@@ -662,4 +743,119 @@
     scroll-behavior: auto !important;
     transition-duration: .01ms !important;
   }
+}
+
+/* ==========================================================================
+   SURCOUCHE PREMIUM (v4) — raffinement visuel du tableau de bord
+   Profondeur, rythme, focus et micro-interactions. Uniquement des tokens
+   --lb-* et des rgba() : aucune couleur en dur (palette figée à 3 teintes,
+   gardée par tests/test_design_system.py).
+   ========================================================================== */
+
+/* Chiffres alignés (finance : les colonnes de nombres s'empilent net). */
+.wine-kpi > strong,
+.wine-sale-total,
+.wine-product-units,
+.wine-legend strong {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Entrée en cascade : KPI d'abord, puis les panneaux, pour guider l'œil. */
+@keyframes lb-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.wine-kpi,
+.wine-panel {
+  animation: lb-rise .5s cubic-bezier(.22, .61, .36, 1) both;
+}
+.wine-kpi:nth-child(1) { animation-delay: .02s; }
+.wine-kpi:nth-child(2) { animation-delay: .08s; }
+.wine-kpi:nth-child(3) { animation-delay: .14s; }
+.wine-kpi:nth-child(4) { animation-delay: .20s; }
+.wine-dashboard-primary .wine-panel:nth-child(1) { animation-delay: .26s; }
+.wine-dashboard-primary .wine-panel:nth-child(2) { animation-delay: .32s; }
+.wine-promotions-panel { animation-delay: .38s; }
+
+/* Cartes KPI : profondeur + liseré de marque en tête + lift au survol. */
+.wine-kpi {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--lb-radius);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.wine-kpi::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--lb-wine);
+}
+.wine-kpi-revenue::before { background: var(--lb-gold); }
+.wine-kpi-stock::before   { background: var(--lb-wine); }
+.wine-kpi:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--lb-shadow-lg);
+}
+
+/* Pastilles de tendance : lisibles d'un coup d'œil. */
+.wine-kpi-foot.is-up,
+.wine-kpi-foot.is-down {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  width: fit-content;
+  padding: .26rem .6rem;
+  border-radius: 999px;
+  font-weight: 700;
+}
+.wine-kpi-foot.is-up   { color: var(--lb-sage-600); background: var(--lb-sage-100); }
+.wine-kpi-foot.is-down { color: var(--lb-wine-700); background: var(--lb-wine-100); }
+
+/* Barres mensuelles : bout arrondi en haut, halo au survol. */
+.wine-month-bar {
+  border-radius: var(--lb-radius-sm) var(--lb-radius-sm) 4px 4px;
+  transition: height .45s ease, filter .2s ease;
+}
+.wine-month-column:hover .wine-month-bar { filter: brightness(1.08); }
+
+/* Listes : survol teinté pour suivre la ligne des yeux. */
+.wine-recent-table tbody tr,
+.wine-top-products li,
+.wine-promotion-card {
+  transition: background .18s ease, transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.wine-recent-table tbody tr:hover { background: var(--lb-canvas-2); }
+.wine-top-products li:hover { background: var(--lb-canvas-2); }
+.wine-promotion-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--lb-gold-200);
+  box-shadow: var(--lb-shadow);
+}
+
+/* Anneau de répartition : halo doux. */
+.wine-donut { box-shadow: 0 6px 22px rgba(43, 27, 32, .10); }
+
+/* Focus clavier visible (navigation accessible). */
+.wine-kpi:focus-visible,
+.wine-panel-link:focus-visible,
+.wine-button:focus-visible {
+  outline: 2px solid var(--lb-gold);
+  outline-offset: 2px;
+}
+
+/* Accessibilité : neutralise tout mouvement si l'utilisateur le demande. */
+@media (prefers-reduced-motion: reduce) {
+  .wine-kpi,
+  .wine-panel {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .wine-kpi:hover,
+  .wine-promotion-card:hover { transform: none; }
+  .wine-month-bar,
+  .wine-recent-table tbody tr,
+  .wine-top-products li,
+  .wine-promotion-card { transition: none; }
 }

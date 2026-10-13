@@ -11,12 +11,15 @@ from datetime import timedelta
 from decimal import Decimal
 
 from django.conf import settings
-from django.db.models import Avg, Count, F, Q, Sum
+from django.db.models import Avg, Count, F, Q, Sum, Max, Min
+from django.db.models.functions import TruncDate, TruncMonth
 
-from apps.ventes.models import LigneVente, Vente
-from apps.stocks.models import Stock
-from apps.clients.models import Client
+from apps.ventes.models import LigneVente, Vente, Paiement, SessionCaisse
+from apps.stocks.models import Stock, MouvementStock
+from apps.stocks.valorisation import valeur_ligne_expression
+from apps.clients.models import Client, ReglementClient
 from apps.promotions.models import Promotion
+from apps.produits.models import Produit
 
 # Fenêtre d'historique (jours) utilisée pour la vélocité des ventes.
 VELOCITE_JOURS = 30
@@ -291,6 +294,48 @@ def stats_completes():
         p['part'] = round(p['montant'] / total_paiements * 100, 1)
         p['mode'] = str(LIBELLES_PAIEMENT.get(p['code'], p['code']))
 
+    # --- Ventes par catégorie (mois) ---------------------------------------
+    ventes_par_categorie = list(
+        LigneVente.objects.filter(
+            vente__statut=Vente.Statut.PAYEE,
+            vente__date_vente__gte=debut_mois,
+            vente__date_vente__lt=fin_mois,
+        ).values('produit__categorie__nom')
+        .annotate(ca=Sum('sous_total'), quantite=Sum('quantite'))
+        .order_by('-ca')[:8]
+    )
+    for cat in ventes_par_categorie:
+        cat['label'] = cat['produit__categorie__nom'] or 'Sans catégorie'
+
+    # --- Ventes par vendeur (mois) -----------------------------------------
+    ventes_par_vendeur = list(
+        ventes_mois.exclude(utilisateur__isnull=True)
+        .values('utilisateur__username', 'utilisateur__first_name', 'utilisateur__last_name')
+        .annotate(ca=Sum('total'), nb=Count('id'))
+        .order_by('-ca')
+    )
+    for v in ventes_par_vendeur:
+        v['nom'] = f"{v['utilisateur__first_name']} {v['utilisateur__last_name']}".strip() or v['utilisateur__username']
+
+    # --- Vélocité stock global (valeur à réapprovisionner) ------------------
+    valeur_reappro = Stock.objects.filter(quantite__lt=F('seuil_alerte')).aggregate(
+        total=Sum(valeur_ligne_expression())
+    )['total'] or Decimal('0.00')
+
+    # --- Sessions caisse du jour -------------------------------------------
+    from django.utils import timezone
+    sessions_du_jour = SessionCaisse.objects.filter(date_ventes=aujourd_hui).select_related('utilisateur')
+    sessions_ouvertes = sessions_du_jour.filter(statut=SessionCaisse.Statut.OUVERTE)
+    sessions_fermees = sessions_du_jour.filter(statut=SessionCaisse.Statut.FERMEE)
+
+    # --- Taux de transformation réservations → ventes ----------------------
+    reservations_30j = Vente.objects.filter(statut=Vente.Statut.PAYEE, date_vente__gte=debut_30j).exclude(reservation__isnull=True).count()
+    total_reservations_30j = Reservation.objects.filter(date_creation__gte=debut_30j).count() if 'Reservation' in globals() else 0
+    # Import lazy
+    from apps.ventes.models import Reservation
+    total_reservations_30j = Reservation.objects.filter(date_creation__gte=debut_30j).count()
+    taux_transformation = round(reservations_30j / total_reservations_30j * 100, 1) if total_reservations_30j else 0
+
     return {
         'ca_du_jour': ca_du_jour,
         'ca_hier': ca_hier,
@@ -325,6 +370,15 @@ def stats_completes():
         'objectif_bar': objectif_bar,
         'objectif_atteint': objectif_atteint,
         'paiements_30j_json': json.dumps(paiements_30j, ensure_ascii=False),
+        # Nouveaux KPIs
+        'ventes_par_categorie': ventes_par_categorie,
+        'ventes_par_vendeur': ventes_par_vendeur,
+        'valeur_reappro': valeur_reappro,
+        'sessions_ouvertes': sessions_ouvertes.count(),
+        'sessions_fermees': sessions_fermees.count(),
+        'taux_transformation': taux_transformation,
+        'total_reservations_30j': total_reservations_30j,
+        'reservations_vendues_30j': reservations_30j,
     }
 
 
