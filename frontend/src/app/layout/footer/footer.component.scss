@@ -1,0 +1,232 @@
+:host {
+  display: block;
+}
+
+.pied {
+  margin-top: clamp(2.5rem, 6vw, 4rem);
+  border-top: 1px solid var(--lb-border);
+  background:
+    radial-gradient(ellipse 36rem 18rem at 8% 0%, color-mix(in srgb, var(--lb-or) 9%, transparent), transparent 75%),
+    linear-gradient(180deg, var(--lb-surface-2), var(--lb-bg));
+  color: var(--lb-text);
+}
+
+.pied__contenu {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(170px, 0.75fr) minmax(260px, 1.15fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  padding-block: clamp(2rem, 5vw, 3.5rem);
+}
+
+.pied__marque,
+.pied__col {
+  min-width: 0;
+}
+
+.pied__marque {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.4rem;
+}
+
+.pied__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--lb-text);
+  font-family: var(--lb-font-display);
+  font-size: clamp(1.2rem, 2.5vw, 1.55rem);
+  font-weight: 700;
+  text-decoration: none;
+
+  img {
+    flex: 0 0 auto;
+    width: 48px;
+    height: 48px;
+    border: 1px solid color-mix(in srgb, var(--lb-primary) 44%, transparent);
+    border-radius: 50%;
+    object-fit: contain;
+  }
+
+  &:hover {
+    color: var(--lb-primary);
+  }
+}
+
+.pied__reseaux {
+  display: flex;
+  gap: 0.55rem;
+
+  a {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border: 1px solid var(--lb-border);
+    border-radius: 50%;
+    background: var(--lb-surface);
+    color: var(--lb-text-muted);
+    transition:
+      border-color var(--lb-transition),
+      background-color var(--lb-transition),
+      color var(--lb-transition),
+      transform var(--lb-transition);
+
+    &:hover {
+      transform: translateY(-2px);
+      border-color: var(--lb-primary);
+      background: var(--lb-bg-hover);
+      color: var(--lb-primary);
+    }
+  }
+
+  mat-icon {
+    width: 19px;
+    height: 19px;
+    font-size: 19px;
+  }
+}
+
+.pied__col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+
+.pied__titre {
+  margin: 0 0 0.35rem;
+  color: var(--lb-primary);
+  font-family: var(--lb-font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.pied__liens {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  a,
+  a:visited {
+    color: var(--lb-text-muted);
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: color var(--lb-transition);
+  }
+
+  a:hover {
+    color: var(--lb-primary);
+  }
+}
+
+.pied__coordonnees {
+  display: grid;
+  gap: 0.8rem;
+  width: 100%;
+  margin: 0;
+  color: var(--lb-text-muted);
+  font-size: 0.88rem;
+  font-style: normal;
+  line-height: 1.55;
+}
+
+.pied__contact-ligne {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  align-items: start;
+  gap: 0.6rem;
+  margin: 0;
+
+  > mat-icon {
+    width: 18px;
+    height: 18px;
+    margin-top: 0.1rem;
+    color: var(--lb-primary);
+    font-size: 18px;
+  }
+
+  a {
+    width: fit-content;
+    color: inherit;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+
+    &:hover {
+      color: var(--lb-primary);
+    }
+  }
+}
+
+.pied__liens-contact {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.pied__bas {
+  border-top: 1px solid var(--lb-divider);
+  background: color-mix(in srgb, var(--lb-bg) 70%, transparent);
+}
+
+.pied__bas-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding-block: 1rem;
+}
+
+.pied__alcool,
+.pied__copy {
+  margin: 0;
+  color: var(--lb-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.pied__alcool {
+  max-width: 68ch;
+}
+
+.pied__copy {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 900px) {
+  .pied__contenu {
+    grid-template-columns: minmax(0, 1fr) minmax(170px, 0.8fr);
+  }
+
+  .pied__contact {
+    grid-column: 1 / -1;
+  }
+
+  .pied__coordonnees {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+@media (max-width: 560px) {
+  .pied__contenu {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.75rem;
+  }
+
+  .pied__contact {
+    grid-column: auto;
+  }
+
+  .pied__coordonnees {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pied__bas-inner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

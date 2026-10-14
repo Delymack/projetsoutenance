@@ -16,18 +16,6 @@
     </div>
 
     <div class="profil__resume">
-      <div class="profil__stat">
-        <strong>{{ nbCommandes() }}</strong>
-        <small>{{ 'PROFIL.commandes' | translate }}</small>
-      </div>
-      <div class="profil__stat">
-        <strong>{{ fidelite.points() | number }}</strong>
-        <small>{{ 'PROFIL.points' | translate }}</small>
-      </div>
-      <div class="profil__stat">
-        <strong>{{ fidelite.niveau().cle }}</strong>
-        <small>{{ 'PROFIL.niveau' | translate }}</small>
-      </div>
       <div class="profil__actions">
         <a mat-flat-button color="primary" routerLink="/commande" class="lb-btn-ripple">
           <mat-icon>shopping_bag</mat-icon>
@@ -51,34 +39,22 @@
   </header>
 
   <!-- Navigation des sections -->
-  <nav class="profil__onglets lb-container" [attr.aria-label]="'PROFIL.menu' | translate">
+  <nav class="profil__onglets" [attr.aria-label]="'PROFIL.menu' | translate">
     @for (onglet of onglets; track onglet.cle) {
       <button
         type="button"
         class="profil__onglet lb-btn-ripple"
         [class.is-actif]="section() === onglet.cle"
+        [attr.aria-pressed]="section() === onglet.cle"
         (click)="ouvrir(onglet.cle)"
       >
-        <mat-icon>{{ onglet.icone }}</mat-icon>
+        <mat-icon aria-hidden="true">{{ onglet.icone }}</mat-icon>
         <span>{{ onglet.libelle | translate }}</span>
-        @switch (onglet.cle) {
-          @case ('commandes') {
-            @if (nbCommandes() > 0) {
-              <em class="profil__badge">{{ nbCommandes() }}</em>
-            }
-          }
-          @case ('adresses') {
-            @if (profil.adresses().length > 0) {
-              <em class="profil__badge">{{ profil.adresses().length }}</em>
-            }
-          }
-          @case ('fidelite') {
-            @if (fidelite.points() > 0) {
-              <em class="profil__badge">{{ fidelite.points() }}</em>
-            }
-          }
-          @case ('securite') {
-          }
+        @if (onglet.cle === 'commandes' && nbCommandes() > 0) {
+          <em class="profil__badge">{{ nbCommandes() }}</em>
+        }
+        @if (onglet.cle === 'adresses' && profil.adresses().length > 0) {
+          <em class="profil__badge">{{ profil.adresses().length }}</em>
         }
       </button>
     }
@@ -99,7 +75,6 @@
         <section class="profil__section">
           <header class="profil__section-tete">
             <h2>{{ 'PROFIL.commandesTitre' | translate }}</h2>
-            <a routerLink="/catalogue">{{ 'PROFIL.continuer' | translate }}</a>
           </header>
 
           @if (commandes.commandes().length === 0) {
@@ -112,16 +87,21 @@
             <ul class="commande-liste lb-stagger">
               @for (commande of commandes.commandes(); track commande.reference; let i = $index) {
                 <li class="commande lb-card" [style.--i]="i" [class.is-ouverte]="commandeOuverte() === commande.reference">
-                  <button type="button" class="commande__tete lb-btn-ripple" (click)="commandeOuverte.set(commandeOuverte() === commande.reference ? null : commande.reference)">
+                  <button
+                    type="button"
+                    class="commande__tete lb-btn-ripple"
+                    [attr.aria-expanded]="commandeOuverte() === commande.reference"
+                    (click)="commandeOuverte.set(commandeOuverte() === commande.reference ? null : commande.reference)"
+                  >
                     <span class="commande__reference">
                       <strong>{{ commande.reference }}</strong>
                       <small>{{ commande.date | date: 'dd/MM/yyyy' }}</small>
                     </span>
                     <span class="commande__statut" [attr.data-statut]="commande.statut">
-                      {{ 'HISTORIQUE.statut.' + commande.statut | translate }}
+                      {{ 'HISTORIQUE.statuts.' + commande.statut | translate }}
                     </span>
                     <span class="commande__montant">{{ commandes.total(commande) | number }} Ar</span>
-                    <mat-icon>{{ commandeOuverte() === commande.reference ? 'expand_less' : 'expand_more' }}</mat-icon>
+                    <mat-icon aria-hidden="true">{{ commandeOuverte() === commande.reference ? 'expand_less' : 'expand_more' }}</mat-icon>
                   </button>
 
                   @if (commandeOuverte() === commande.reference) {
@@ -142,61 +122,12 @@
                         <span>{{ 'PANIER.total' | translate }}</span>
                         <span>{{ commandes.total(commande) | number }} Ar</span>
                       </div>
-                      <p class="commande__points">
-                        <mat-icon>workspace_premium</mat-icon>
-                        {{ 'PROFIL.pointsGagnes' | translate: { points: commande.points } }}
-                      </p>
                     </div>
                   }
                 </li>
               }
             </ul>
           }
-        </section>
-      }
-
-      <!-- ============ Fidélité ============ -->
-      @case ('fidelite') {
-        <section class="profil__section">
-          <header class="profil__section-tete">
-            <h2>{{ 'PROFIL.fideliteTitre' | translate }}</h2>
-          </header>
-
-          <div class="carte-points lb-card">
-            <div class="carte-points__total">
-              <strong>{{ fidelite.points() | number }}</strong>
-              <small>{{ 'PROFIL.points' | translate }}</small>
-            </div>
-            <div class="carte-points__progression">
-              <div class="carte-points__niveau">
-                <mat-icon>{{ fidelite.niveau().icone }}</mat-icon>
-                <span>{{ fidelite.niveau().cle }}</span>
-              </div>
-              @if (fidelite.niveauSuivant(); as suivant) {
-                <mat-progress-bar mode="determinate" [value]="fidelite.progression()" />
-                <small>{{ 'PROFIL.pointsRestants' | translate: { points: fidelite.pointsRestants() } }}</small>
-              }
-            </div>
-          </div>
-
-          <h3 class="profil__sous-titre">{{ 'PROFIL.recompenses' | translate }}</h3>
-          <ul class="grille-recompenses lb-stagger">
-            @for (recompense of fidelite.recompenses; track recompense.id; let i = $index) {
-              <li class="recompense lb-card" [style.--i]="i">
-                <mat-icon>{{ recompense.icone }}</mat-icon>
-                <strong>{{ 'FIDELITE.recompenses.' + recompense.cle | translate }}</strong>
-                <small>{{ recompense.cout | number }} {{ 'PROFIL.points' | translate }}</small>
-                <button
-                  mat-stroked-button
-                  type="button"
-                  [disabled]="!fidelite.estDisponible(recompense)"
-                  (click)="fidelite.utiliser(recompense)"
-                >
-                  {{ fidelite.estDisponible(recompense) ? ('PROFIL.utiliser' | translate) : ('PROFIL.insufficient' | translate) }}
-                </button>
-              </li>
-            }
-          </ul>
         </section>
       }
 
@@ -210,11 +141,8 @@
 
           @if (profil.adresses().length === 0 && adresseEnEdition() === null) {
             <div class="profil__vide">
-              <mat-icon>home</mat-icon>
+              <mat-icon aria-hidden="true">home</mat-icon>
               <p>{{ 'PROFIL.aucuneAdresse' | translate }}</p>
-              <button mat-flat-button color="primary" type="button" (click)="nouvelleAdresse()">
-                {{ 'PROFIL.nouvelleAdresse' | translate }}
-              </button>
             </div>
           }
 

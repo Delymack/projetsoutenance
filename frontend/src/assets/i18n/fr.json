@@ -2,12 +2,13 @@
   "ACCUEIL": {
     "titre": "Lazan'i Betsileo",
     "ctaCatalogue": "Voir le catalogue",
+    "toutVoir": "Tout voir",
     "vinsDuJour": "Sélection du jour",
     "ctaPromos": "Promotions",
     "eyebrow": "Fianarantsoa · Routes des Vins",
     "eyebrowSelection": "Sélection du moment",
     "voirCatalogue": "Tout le catalogue",
-    "kicker": "Vin de qualité",
+    "kicker": "Isaha · Fianarantsoa",
     "surtitreProduits": "La cave vous propose",
     "titreProduits": "Nos coups de cœur",
     "engagementsLabel": "Nos engagements",
@@ -31,6 +32,19 @@
     "preuve3": {
       "titre": "Paiement sécurisé"
     }
+  },
+  "FOOTER": {
+    "navigation": "Navigation",
+    "reseaux": "Réseaux sociaux",
+    "contact": "Contact",
+    "adresse": "Rue Alphonse Rakotozafy, Isaha, Fianarantsoa 301 — BP 1496",
+    "reserves": "L'abus d'alcool est dangereux pour la santé. À consommer avec modération.",
+    "tousDroits": "Tous droits réservés."
+  },
+  "BANDEAU": {
+    "livraison": "Livraison offerte à Fianarantsoa dès 100 000 Ar",
+    "promo": "−15 % sur la sélection du mois avec le code CAVE15",
+    "suivi": "Suivre ma commande"
   },
   "APP": {
     "nom": "Lazan'i Betsileo",
@@ -120,11 +134,12 @@
     "paiementReussi": "Paiement accepté",
     "raccourcis": "Raccourcis clavier",
     "raccourci": {
-      "F1": "F1 : ouvrir le paiement",
-      "F2": "F2 : appliquer une remise",
+      "F1": "F1 : ouvrir le paiement (Encaisser & valider)",
+      "F2": "F2 : changer le mode de paiement",
       "F3": "F3 : rechercher un produit",
-      "Escape": "Échap : vider le panier",
-      "Echap": "Échap : vider le panier"
+      "Escape": "Échap : vider le panier / fermer",
+      "Echap": "Échap : vider le panier",
+      "F4": "F4 : suspendre / reprendre le ticket"
     },
     "ticketPied": "Merci de votre visite — Lazan'i Betsileo, Fianarantsoa",
     "merci": "Merci pour votre achat !",
@@ -231,7 +246,7 @@
       "horaires": "Nous sommes ouverts du lundi au samedi, de 8h à 18h, et le dimanche de 9h à 13h.",
       "livraison": "Livraison gratuite à Fianarantsoa dès 100 000 Ar d'achat, sous 24h.",
       "millesime": "Nous recommandons les millésimes 2020 à 2022 pour une consommation immédiate.",
-      "paiement": "Nous acceptons les espèces, Orange Money, MVola et les cartes bancaires.",
+      "paiement": "Nous acceptons les espèces, carte bancaire et chèque.",
       "marge": "Voici quelques suggestions de vins selon votre profil :",
       "defaut": "Je n'ai pas bien compris. Essayez de nous demander sur nos horaires, la livraison ou le paiement.",
       "accueil": "Bonjour ! Je suis l'assistant de Lazan'i Betsileo. Comment puis-je vous aider ?"
@@ -340,7 +355,8 @@
     "403": "Vous n'avez pas les droits nécessaires.",
     "404": "Page introuvable.",
     "500": "Erreur serveur, réessayez plus tard.",
-    "reseau": "Problème de connexion. Vérifiez votre réseau."
+    "reseau": "Problème de connexion. Vérifiez votre réseau.",
+    "retourAccueil": "Retour à l'accueil"
   },
   "FAVORIS": {
     "titre": "Mes favoris",
@@ -573,7 +589,6 @@
     "messageVin": "Découvrez {{nom}} chez Lazan'i Betsileo",
     "facebook": "Facebook",
     "whatsapp": "WhatsApp",
-    "telegram": "Telegram",
     "email": "E-mail",
     "lien": "Copier le lien",
     "copie": "Lien copié !",
@@ -661,6 +676,7 @@
     "active": "Active",
     "bienfin": "Jusqu'au {{date}}",
     "vinsConcernes": "Vins concernés",
+    "aucunVin": "Aucun vin rattaché à cette offre pour l'instant.",
     "aucunePromo": "Aucune promotion active pour le moment.",
     "jeux": "Jeux du jour",
     "jouerRoue": "Tourner la roue",
@@ -742,7 +758,6 @@
     "avis": "Avis",
     "promotions": "Promotions",
     "cepage": "Cépage",
-    "region": "Région",
     "alcool": "Alcool",
     "volume": "Volume",
     "producteur": "Producteur",
@@ -790,5 +805,75 @@
     "son": "Sons de l'interface",
     "completude": "Profil complété",
     "confirmerDeconnexion": "Se déconnecter de ce compte ?"
+  },
+  "ADMIN": {
+    "titre": "Administration",
+    "sidebar": "Panneau d'administration",
+    "etendre": "Étendre",
+    "reduire": "Réduire",
+    "menu": "Menu",
+    "notifications": "Notifications",
+    "dashboard": "Tableau de bord",
+    "dashboardDescription": "Vue d'ensemble en temps réel de l'activité de la cave.",
+    "commandes": "Commandes",
+    "commandesDescription": "Pipeline de validation des commandes.",
+    "clients": "Clients",
+    "clientsDescription": "Gestion des comptes clients et de la fidélité.",
+    "accueil": "Accueil",
+    "clientsComingSoon": "La gestion des clients est en cours de développement. Revenez plus tard !",
+    "clientsTotal": "Clients",
+    "catalogue": "Catalogue",
+    "catalogueDescription": "Gestion du catalogue de vins.",
+    "catalogueComingSoon": "La gestion du catalogue est en cours de développement. Revenez plus tard !",
+    "fidelite": "Fidélité",
+    "fideliteDescription": "Programme de fidélité et récompenses.",
+    "fideliteComingSoon": "La gestion de la fidélité est en cours de développement. Revenez plus tard !",
+    "parametres": "Paramètres",
+    "parametresDescription": "Configuration générale de l'application.",
+    "parametresComingSoon": "Les paramètres sont en cours de développement. Revenez plus tard !",
+    "rapports": "Rapports",
+    "rapportsDescription": "Statistiques et analyses détaillées.",
+    "rapportsComingSoon": "Les rapports sont en cours de développement. Revenez plus tard !",
+    "reference": "Référence",
+    "client": "Client",
+    "date": "Date",
+    "montant": "Montant",
+    "statut": {
+      "A_VALIDER": "À valider",
+      "VALIDEE": "Validée",
+      "ENCAISSEE": "Encaissée",
+      "EXPEDIEE": "Expédiée",
+      "LIVREE": "Livrée",
+      "ANNULEE": "Annulée",
+      "REFUSEE": "Refusée"
+    },
+    "actions": "Actions",
+    "valider": "Valider",
+    "refuser": "Refuser",
+    "encaisser": "Encaisser",
+    "expedier": "Expédier",
+    "livrer": "Livrer",
+    "annuler": "Annuler",
+    "voir": "Voir",
+    "voirDetails": "Voir les détails",
+    "voirTout": "Tout voir",
+    "rechercher": "Rechercher",
+    "rechercherPlaceholder": "Rechercher une commande…",
+    "filtreStatut": "Filtrer par statut",
+    "tous": "Tous",
+    "aucuneCommande": "Aucune commande",
+    "commandesEnAttente": "Commandes en attente",
+    "commandesTotal": "Commandes totales",
+    "commandesRecentes": "Commandes récentes",
+    "chiffreAffaires": "Chiffre d'affaires",
+    "sourceReservation": "Réservation",
+    "sourceVente": "Vente",
+    "commandeValidee": "Commande validée avec succès",
+    "commandeRefusee": "Commande refusée",
+    "commandeEncaisssee": "Commande encaissée avec succès",
+    "colonneStatut": "Statut"
+  },
+  "POS": {
+    "encaisserAuComptoir": "Encaisser au comptoir (Caisse)"
   }
 }

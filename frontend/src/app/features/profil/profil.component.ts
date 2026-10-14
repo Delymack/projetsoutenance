@@ -5,26 +5,20 @@ import { DestroyRef } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
-import { catchError, of } from 'rxjs';
 
 import { AuthService } from '../../core/services/auth.service';
 import { CommandesService } from '../../core/services/commandes.service';
-import { FideliteService } from '../../core/services/fidelite.service';
-import { LangueService } from '../../core/services/langue.service';
-import { PanierService } from '../../core/services/panier.service';
 import { AvatarService } from '../../core/services/avatar.service';
 import { AdresseProfil, ProfilService } from '../../core/services/profil.service';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 
 /** onglets du profil client (simplifiés à 4 essentiels). */
-type SectionProfil = 'commandes' | 'adresses' | 'fidelite' | 'securite';
+type SectionProfil = 'commandes' | 'adresses' | 'securite';
 
 /** espace client. */
 @Component({
@@ -37,12 +31,10 @@ type SectionProfil = 'commandes' | 'adresses' | 'fidelite' | 'securite';
     RouterLink,
     TranslateModule,
     MatButtonModule,
-    MatButtonToggleModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
     MatProgressBarModule,
-    MatTooltipModule,
     AvatarComponent,
   ],
   templateUrl: './profil.component.html',
@@ -54,13 +46,10 @@ export class ProfilComponent {
 
   readonly auth = inject(AuthService);
   readonly commandes = inject(CommandesService);
-  readonly fidelite = inject(FideliteService);
-  readonly panier = inject(PanierService);
   readonly profil = inject(ProfilService);
   readonly avatar = inject(AvatarService);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly langue = inject(LangueService);
 
   readonly section = signal<SectionProfil>('commandes');
   readonly commandeOuverte = signal<string | null>(null);
@@ -72,7 +61,6 @@ export class ProfilComponent {
   readonly onglets: { cle: SectionProfil; icone: string; libelle: string }[] = [
     { cle: 'commandes', icone: 'receipt_long', libelle: 'PROFIL.commandes' },
     { cle: 'adresses', icone: 'home', libelle: 'PROFIL.adresses' },
-    { cle: 'fidelite', icone: 'workspace_premium', libelle: 'PROFIL.fidelite' },
     { cle: 'securite', icone: 'shield', libelle: 'PROFIL.securite' },
   ];
 

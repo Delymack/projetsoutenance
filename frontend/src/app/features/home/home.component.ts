@@ -8,8 +8,9 @@ import { timer } from 'rxjs';
 
 import { FavorisService } from '../../core/services/favoris.service';
 import { PanierService } from '../../core/services/panier.service';
+import { ConfettiService } from '../../core/services/confetti.service';
 import { VinService } from '../../core/services/vin.service';
-import { Vin } from '../../core/models/product.model';
+import { Vin, WineCategory } from '../../core/models/product.model';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 
 /**
@@ -33,6 +34,9 @@ export class HomeComponent {
 
   readonly panier = inject(PanierService);
 
+  /** Confettis dorés à l'ajout au panier. */
+  private readonly confetti = inject(ConfettiService);
+
   /** Favoris persistés en local (bouton cœur des cartes). */
   readonly favoris = inject(FavorisService);
 
@@ -54,13 +58,20 @@ export class HomeComponent {
   /** Texte de recherche de la vitrine. */
   readonly recherche = signal('');
 
+  /** Raccourcis premium : uniquement les 3 grandes familles (design épuré). */
+  readonly raccourcis: readonly { valeur: WineCategory; cle: string }[] = [
+    { valeur: 'rouge', cle: 'CATALOGUE.categories.rouge' },
+    { valeur: 'blanc', cle: 'CATALOGUE.categories.blanc' },
+    { valeur: 'rose', cle: 'CATALOGUE.categories.rose' },
+  ];
+
   /** Produits de la sélection, triés par note décroissante. */
   readonly selection = computed<Vin[]>(() => {
     const terme = this.normaliser(this.recherche().trim());
     const vins = this.vins().filter((vin) => {
       if (!terme) return true;
       const contenu = this.normaliser(
-        [vin.nom, vin.cuvee, vin.cepage, vin.categorie, vin.region, vin.producteur, vin.description].join(' '),
+        [vin.nom, vin.cuvee, vin.cepage, vin.categorie, vin.producteur, vin.description].join(' '),
       );
       return contenu.includes(terme);
     });
@@ -93,6 +104,7 @@ export class HomeComponent {
     if (vin.stock < 1) return;
     if (!this.panier.ajouter(vin)) return;
     this.ajoutConfirme.set(vin.id);
+    this.confetti.ajoutPanier();
     timer(1800)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
@@ -102,6 +114,18 @@ export class HomeComponent {
 
   basculerDetails(vinId: string): void {
     this.detailsOuverts.update((ouvert) => (ouvert === vinId ? null : vinId));
+  }
+
+  /**
+   * Effet « spotlight » : positionne la lueur dorée de la carte sous le
+   * curseur via deux variables CSS (--mx / --my), sans déclencher de
+   * re-rendu Angular (OnPush) ni de changement de signal.
+   */
+  suivreCurseur(event: MouseEvent): void {
+    const carte = event.currentTarget as HTMLElement;
+    const rect = carte.getBoundingClientRect();
+    carte.style.setProperty('--mx', `${((event.clientX - rect.left) / rect.width) * 100}%`);
+    carte.style.setProperty('--my', `${((event.clientY - rect.top) / rect.height) * 100}%`);
   }
 
   reessayer(): void {

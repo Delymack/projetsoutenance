@@ -2,12 +2,13 @@
   "ACCUEIL": {
     "titre": "Lazan'i Betsileo",
     "ctaCatalogue": "Browse the catalogue",
+    "toutVoir": "See all",
     "vinsDuJour": "Selection of the day",
     "ctaPromos": "Promotions",
     "eyebrow": "Fianarantsoa · Wine Route",
     "eyebrowSelection": "Current selection",
     "voirCatalogue": "Full catalogue",
-    "kicker": "Quality wine",
+    "kicker": "Isaha · Fianarantsoa",
     "surtitreProduits": "The cellar recommends",
     "titreProduits": "Our favourites",
     "engagementsLabel": "Our commitments",
@@ -31,6 +32,19 @@
     "preuve3": {
       "titre": "Secure payment"
     }
+  },
+  "FOOTER": {
+    "navigation": "Navigation",
+    "reseaux": "Social media",
+    "contact": "Contact",
+    "adresse": "Rue Alphonse Rakotozafy, Isaha, Fianarantsoa 301 — BP 1496",
+    "reserves": "Alcohol abuse is dangerous for your health. Please drink responsibly.",
+    "tousDroits": "All rights reserved."
+  },
+  "BANDEAU": {
+    "livraison": "Free delivery in Fianarantsoa from 100,000 Ar",
+    "promo": "−15% off this month's selection with code CAVE15",
+    "suivi": "Track my order"
   },
   "APP": {
     "nom": "Lazan'i Betsileo",
@@ -120,11 +134,12 @@
     "paiementReussi": "Payment accepted",
     "raccourcis": "Keyboard shortcuts",
     "raccourci": {
-      "F1": "F1 : open payment",
-      "F2": "F2 : apply a discount",
-      "F3": "F3 : search a product",
-      "Escape": "Esc : clear the cart",
-      "Echap": "Esc : clear the cart"
+      "F1": "F1 : open payment (Collect & validate)",
+      "F2": "F2 : change payment method",
+      "F3": "F3 : search for a product",
+      "Escape": "Esc : clear cart / close",
+      "Echap": "Esc : clear the cart",
+      "F4": "F4 : suspend / resume ticket"
     },
     "ticketPied": "Thank you for visiting — Lazan'i Betsileo, Fianarantsoa",
     "merci": "Thank you for your purchase!",
@@ -231,7 +246,7 @@
       "horaires": "We are open Monday to Saturday, 8am to 6pm, and Sunday 9am to 1pm.",
       "livraison": "Free delivery in Fianarantsoa from 100,000 Ar, within 24h.",
       "millesime": "We recommend the 2020 to 2022 vintages for immediate drinking.",
-      "paiement": "We accept cash, Orange Money, MVola and credit cards.",
+      "paiement": "We accept cash, credit card and cheque.",
       "marge": "Here are some wine suggestions for your profile:",
       "defaut": "I did not quite get that. Ask me about our opening hours, delivery or payment.",
       "accueil": "Hello! I am the Lazan'i Betsileo assistant. How can I help you?"
@@ -340,7 +355,8 @@
     "403": "You do not have the required permissions.",
     "404": "Page not found.",
     "500": "Server error, try again later.",
-    "reseau": "Connection problem. Check your network."
+    "reseau": "Connection problem. Check your network.",
+    "retourAccueil": "Back to home"
   },
   "FAVORIS": {
     "titre": "My favourites",
@@ -573,7 +589,6 @@
     "messageVin": "Discover {{nom}} at Lazan'i Betsileo",
     "facebook": "Facebook",
     "whatsapp": "WhatsApp",
-    "telegram": "Telegram",
     "email": "Email",
     "lien": "Copy link",
     "copie": "Link copied!",
@@ -661,6 +676,7 @@
     "active": "Active",
     "bienfin": "Until {{date}}",
     "vinsConcernes": "Wines included",
+    "aucunVin": "No wine attached to this offer yet.",
     "aucunePromo": "No active promotion right now.",
     "jeux": "Today's games",
     "jouerRoue": "Spin the wheel",
@@ -742,7 +758,6 @@
     "avis": "Reviews",
     "promotions": "Promotions",
     "cepage": "Grape variety",
-    "region": "Region",
     "alcool": "Alcohol",
     "volume": "Volume",
     "producteur": "Producer",
@@ -790,5 +805,75 @@
     "son": "Interface sounds",
     "completude": "Profile completed",
     "confirmerDeconnexion": "Sign out of this account?"
+  },
+  "ADMIN": {
+    "titre": "Administration",
+    "sidebar": "Admin panel",
+    "etendre": "Expand",
+    "reduire": "Collapse",
+    "menu": "Menu",
+    "notifications": "Notifications",
+    "dashboard": "Dashboard",
+    "dashboardDescription": "Real-time overview of the cellar's activity.",
+    "commandes": "Orders",
+    "commandesDescription": "Order validation pipeline.",
+    "clients": "Customers",
+    "clientsDescription": "Customer accounts and loyalty management.",
+    "accueil": "Home",
+    "clientsComingSoon": "Customer management is under development. Come back later!",
+    "clientsTotal": "Customers",
+    "catalogue": "Catalogue",
+    "catalogueDescription": "Wine catalogue management.",
+    "catalogueComingSoon": "Catalogue management is under development. Come back later!",
+    "fidelite": "Loyalty",
+    "fideliteDescription": "Loyalty program and rewards.",
+    "fideliteComingSoon": "Loyalty management is under development. Come back later!",
+    "parametres": "Settings",
+    "parametresDescription": "General application settings.",
+    "parametresComingSoon": "Settings are under development. Come back later!",
+    "rapports": "Reports",
+    "rapportsDescription": "Detailed statistics and analytics.",
+    "rapportsComingSoon": "Reports are under development. Come back later!",
+    "reference": "Reference",
+    "client": "Customer",
+    "date": "Date",
+    "montant": "Amount",
+    "statut": {
+      "A_VALIDER": "Pending",
+      "VALIDEE": "Validated",
+      "ENCAISSEE": "Paid",
+      "EXPEDIEE": "Shipped",
+      "LIVREE": "Delivered",
+      "ANNULEE": "Cancelled",
+      "REFUSEE": "Refused"
+    },
+    "actions": "Actions",
+    "valider": "Validate",
+    "refuser": "Refuse",
+    "encaisser": "Collect",
+    "expedier": "Ship",
+    "livrer": "Deliver",
+    "annuler": "Cancel",
+    "voir": "View",
+    "voirDetails": "View details",
+    "voirTout": "View all",
+    "rechercher": "Search",
+    "rechercherPlaceholder": "Search for an order…",
+    "filtreStatut": "Filter by status",
+    "tous": "All",
+    "aucuneCommande": "No orders",
+    "commandesEnAttente": "Pending orders",
+    "commandesTotal": "Total orders",
+    "commandesRecentes": "Recent orders",
+    "chiffreAffaires": "Revenue",
+    "sourceReservation": "Reservation",
+    "sourceVente": "Sale",
+    "commandeValidee": "Order validated successfully",
+    "commandeRefusee": "Order refused",
+    "commandeEncaisssee": "Order paid successfully",
+    "colonneStatut": "Status"
+  },
+  "POS": {
+    "encaisserAuComptoir": "Collect at counter (POS)"
   }
 }

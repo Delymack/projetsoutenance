@@ -1,0 +1,82 @@
+<footer class="pied">
+  <div class="lb-container pied__contenu">
+    <div class="pied__marque">
+      <a class="pied__logo" routerLink="/" [attr.aria-label]="'APP.nom' | translate">
+        <img
+          src="assets/images/logo-betsileo-rond.svg"
+          alt=""
+          width="48"
+          height="48"
+          aria-hidden="true"
+        />
+        <span>{{ 'APP.nom' | translate }}</span>
+      </a>
+
+      <nav class="pied__reseaux" [attr.aria-label]="'FOOTER.reseaux' | translate">
+        <a
+          href="https://www.facebook.com/lazani.betsileo.54/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Facebook"
+        >
+          <mat-icon aria-hidden="true">public</mat-icon>
+        </a>
+        <a
+          href="https://wa.me/261320529229"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="WhatsApp"
+        >
+          <mat-icon aria-hidden="true">chat</mat-icon>
+        </a>
+      </nav>
+    </div>
+
+    <nav class="pied__col" [attr.aria-label]="'FOOTER.navigation' | translate">
+      <h2 class="pied__titre">{{ 'FOOTER.navigation' | translate }}</h2>
+      <ul class="pied__liens">
+        <li><a routerLink="/">{{ 'NAV.accueil' | translate }}</a></li>
+        <li><a routerLink="/catalogue">{{ 'NAV.catalogue' | translate }}</a></li>
+        <li><a routerLink="/promotions">{{ 'NAV.promos' | translate }}</a></li>
+        <li><a routerLink="/favoris">{{ 'NAV.favoris' | translate }}</a></li>
+        <li><a routerLink="/panier">{{ 'NAV.panier' | translate }}</a></li>
+        <li><a routerLink="/historique">{{ 'NAV.historique' | translate }}</a></li>
+        <li><a routerLink="/profil">{{ 'NAV.profil' | translate }}</a></li>
+      </ul>
+    </nav>
+
+    <section class="pied__col pied__contact" [attr.aria-label]="'FOOTER.contact' | translate">
+      <h2 class="pied__titre">{{ 'FOOTER.contact' | translate }}</h2>
+      <address class="pied__coordonnees">
+        <p class="pied__contact-ligne">
+          <mat-icon aria-hidden="true">location_on</mat-icon>
+          <span>{{ 'FOOTER.adresse' | translate }}</span>
+        </p>
+        <div class="pied__contact-ligne">
+          <mat-icon aria-hidden="true">call</mat-icon>
+          <span class="pied__liens-contact">
+            <a href="tel:+261207590127">020 75 901 27</a>
+            <a href="tel:+261320529229">032 05 292 29</a>
+            <a href="tel:+261331712309">033 17 123 09</a>
+          </span>
+        </div>
+        <div class="pied__contact-ligne">
+          <mat-icon aria-hidden="true">mail</mat-icon>
+          <span class="pied__liens-contact">
+            <a href="mailto:lazatana@yahoo.fr">lazatana&#64;yahoo.fr</a>
+            <a href="mailto:lazan-i-betsileo@yahoo.fr">lazan-i-betsileo&#64;yahoo.fr</a>
+          </span>
+        </div>
+      </address>
+    </section>
+  </div>
+
+  <div class="pied__bas">
+    <div class="lb-container pied__bas-inner">
+      <p class="pied__alcool">{{ 'FOOTER.reserves' | translate }}</p>
+      <small class="pied__copy">
+        © {{ annee }} {{ 'APP.nom' | translate }} · {{ 'FOOTER.tousDroits' | translate }}
+      </small>
+    </div>
+  </div>
+</footer>

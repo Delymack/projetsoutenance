@@ -12,10 +12,14 @@
   position: relative;
   padding: clamp(20px, 3vw, 32px);
   border-radius: var(--lb-radius-lg);
-  color: var(--lb-text-inverse);
+  /* Surface foncée dans les DEUX thèmes : encre ivoire dédiée, héritée par
+     tous les enfants. On ne peut s'appuyer sur --lb-text-inverse qui vaut
+     noir (#0a0a0b) en thème sombre → texte illisible sur le vin. */
+  --lb-bandeau-encre: var(--lb-or-100);
+  color: var(--lb-bandeau-encre);
   background:
     radial-gradient(110% 120% at 100% 0%, color-mix(in srgb, var(--lb-accent) 30%, transparent), transparent 55%),
-    linear-gradient(140deg, var(--lb-bordeaux) 0%, #40121c 100%);
+    linear-gradient(140deg, var(--lb-vert-foret) 0%, var(--lb-vert) 100%);
   box-shadow: var(--lb-shadow-3);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -30,13 +34,6 @@
   gap: 18px;
 }
 
-/* Pastille d'identité du bandeau : la photo du compte (cf. `AvatarComponent`),
-   cerclée d'or pour reprendre le bandeau de la boutique. */
-.profil__avatar {
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--lb-or) 45%, transparent);
-}
-
 .profil__nom {
   margin: 0;
   font-size: clamp(1.25rem, 2.4vw, 1.75rem);
@@ -46,7 +43,7 @@
 .profil__email {
   margin: 2px 0 8px;
   font-size: 0.88rem;
-  color: color-mix(in srgb, var(--lb-text-inverse) 78%, transparent);
+  color: color-mix(in srgb, var(--lb-bandeau-encre) 78%, transparent);
 }
 
 .profil__pastille {
@@ -69,26 +66,8 @@
 .profil__resume {
   display: flex;
   align-items: center;
-  gap: clamp(14px, 2vw, 28px);
+  justify-content: flex-end;
   flex-wrap: wrap;
-}
-
-.profil__stat {
-  text-align: center;
-  min-width: 72px;
-}
-
-.profil__stat strong {
-  display: block;
-  font-size: 1.5rem;
-  line-height: 1.1;
-}
-
-.profil__stat small {
-  font-size: 0.74rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: color-mix(in srgb, var(--lb-text-inverse) 72%, transparent);
 }
 
 .profil__actions {
@@ -97,9 +76,9 @@
   flex-wrap: wrap;
 }
 
-.profil__actions a {
-  background: color-mix(in srgb, var(--lb-surface) 92%, transparent);
-  color: var(--lb-bordeaux);
+.profil__actions a[mat-stroked-button] {
+  border-color: color-mix(in srgb, var(--lb-bandeau-encre) 55%, transparent);
+  color: var(--lb-bandeau-encre);
 }
 
 .profil__completude {
@@ -112,13 +91,13 @@
   display: flex;
   justify-content: space-between;
   font-size: 0.8rem;
-  color: color-mix(in srgb, var(--lb-text-inverse) 82%, transparent);
+  color: color-mix(in srgb, var(--lb-bandeau-encre) 82%, transparent);
 }
 
 /* Barre de complétude : remplissage dégradé bordeaux→or */
 .profil__completude ::ng-deep .mat-mdc-progress-bar {
   --mdc-linear-progress-active-indicator-color: var(--lb-or-clair);
-  --mdc-linear-progress-track-color: color-mix(in srgb, var(--lb-text-inverse) 18%, transparent);
+  --mdc-linear-progress-track-color: color-mix(in srgb, var(--lb-bandeau-encre) 18%, transparent);
 }
 .profil__completude ::ng-deep .mdc-linear-progress__bar-inner {
   border-color: var(--lb-or-clair);
@@ -222,7 +201,6 @@
   font-size: 1.3rem;
 }
 
-.profil__section-tete a,
 .profil__lien {
   background: none;
   border: 0;
@@ -263,10 +241,6 @@
 
 .profil__vide p {
   margin: 0;
-}
-
-.profil__vide--court {
-  padding: 26px;
 }
 
 /* --- Commandes --- */
@@ -361,299 +335,6 @@
   margin-top: 4px;
 }
 
-.commande__points {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 8px 0 12px;
-  font-size: 0.85rem;
-  color: var(--lb-accent);
-}
-
-.commande__points mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-/* --- Fil de discussion --- */
-
-.fil {
-  border: 1px solid var(--lb-border);
-  border-radius: var(--lb-radius-lg);
-  background: var(--lb-surface);
-  box-shadow: var(--lb-shadow-1);
-  overflow: hidden;
-  display: grid;
-  grid-template-rows: auto 1fr auto auto;
-}
-
-.fil__entete {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--lb-divider);
-  background: var(--lb-surface-2);
-}
-
-.fil__avatar {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--lb-primary);
-  color: var(--lb-primary-contrast);
-  font-weight: 700;
-}
-
-.fil__entete strong {
-  display: block;
-  font-size: 0.92rem;
-}
-
-.fil__entete small {
-  color: var(--lb-text-muted);
-  font-size: 0.78rem;
-}
-
-.fil__statut {
-  margin-left: auto;
-  font-size: 0.75rem;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--lb-divider);
-  color: var(--lb-text-muted);
-}
-
-.fil__statut.is-en-ligne {
-  background: color-mix(in srgb, var(--lb-success) 14%, transparent);
-  color: var(--lb-success);
-}
-
-.fil__messages {
-  display: grid;
-  gap: 10px;
-  align-content: start;
-  padding: 18px;
-  max-height: 420px;
-  overflow-y: auto;
-  background:
-    radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--lb-accent) 7%, transparent), transparent 55%),
-    var(--lb-surface);
-}
-
-.fil__depart {
-  margin: 0;
-  text-align: center;
-  color: var(--lb-text-muted);
-  font-size: 0.88rem;
-}
-
-.bulle {
-  max-width: 74%;
-  padding: 10px 14px;
-  border-radius: 16px 16px 16px 4px;
-  background: var(--lb-surface-2);
-  border: 1px solid var(--lb-border);
-  animation: lb-fade-in-up 280ms ease forwards;
-}
-
-.bulle p {
-  margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.45;
-}
-
-.bulle time {
-  display: block;
-  margin-top: 4px;
-  font-size: 0.68rem;
-  color: var(--lb-text-muted);
-  text-align: right;
-}
-
-.bulle--client {
-  margin-left: auto;
-  background: var(--lb-primary);
-  border-color: var(--lb-primary);
-  color: var(--lb-primary-contrast);
-  border-radius: 16px 16px 4px 16px;
-}
-
-.bulle--client time {
-  color: color-mix(in srgb, var(--lb-primary-contrast) 72%, transparent);
-}
-
-.bulle--non-lue {
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--lb-accent) 55%, transparent);
-}
-
-.fil__saisie {
-  display: flex;
-  align-items: center;
-  gap: var(--lb-gap-sm);
-  padding: 12px 18px;
-  border-top: 1px solid var(--lb-divider);
-}
-
-.fil__champ {
-  flex: 1;
-}
-
-.fil__suggestions {
-  list-style: none;
-  display: flex;
-  gap: 8px;
-  padding: 0 18px 16px;
-  margin: 0;
-  flex-wrap: wrap;
-}
-
-.fil__suggestion {
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px dashed var(--lb-border);
-  background: transparent;
-  font: inherit;
-  font-size: 0.8rem;
-  color: var(--lb-text-muted);
-  cursor: pointer;
-  transition: all var(--lb-transition);
-}
-
-.fil__suggestion:hover {
-  border-style: solid;
-  border-color: var(--lb-primary);
-  color: var(--lb-primary);
-}
-
-/* --- Grille vins (favoris) --- */
-
-.grille-vins {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: var(--lb-gap);
-}
-
-.vin-carte {
-  overflow: hidden;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-}
-
-.vin-carte__lien {
-  display: grid;
-  gap: 4px;
-  padding: 14px 16px 8px;
-  color: inherit;
-  text-decoration: none;
-}
-
-.vin-carte__lien img {
-  width: 100%;
-  height: 150px;
-  object-fit: contain;
-  border-radius: var(--lb-radius-sm);
-  background: var(--lb-surface-2);
-}
-
-.vin-carte__lien h3 {
-  margin: 6px 0 0;
-  font-size: 1rem;
-}
-
-.vin-carte__lien p {
-  margin: 0;
-  font-size: 0.8rem;
-  color: var(--lb-text-muted);
-}
-
-.vin-carte__actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 10px 12px;
-}
-
-/* --- Fidélité --- */
-
-.carte-points {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: var(--lb-gap-lg);
-  align-items: center;
-  padding: var(--lb-gap-lg);
-  border-radius: var(--lb-radius-lg);
-  background:
-    radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--lb-accent) 16%, transparent), transparent 60%),
-    var(--lb-surface);
-}
-
-.carte-points__total strong {
-  display: block;
-  font-size: 2.6rem;
-  line-height: 1;
-  color: var(--lb-accent);
-}
-
-.carte-points__total small {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--lb-text-muted);
-}
-
-.carte-points__progression {
-  display: grid;
-  gap: 8px;
-}
-
-.carte-points__niveau {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
-}
-
-.carte-points__progression small {
-  font-size: 0.8rem;
-  color: var(--lb-text-muted);
-}
-
-.grille-recompenses {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: var(--lb-gap);
-}
-
-.recompense {
-  display: grid;
-  gap: 6px;
-  justify-items: center;
-  text-align: center;
-  padding: var(--lb-gap);
-  border-radius: var(--lb-radius);
-}
-
-.recompense mat-icon {
-  color: var(--lb-accent);
-  font-size: 30px;
-  width: 30px;
-  height: 30px;
-}
-
-.recompense small {
-  color: var(--lb-text-muted);
-}
-
 /* --- Adresses --- */
 
 .grille-adresses {
@@ -743,87 +424,12 @@
   justify-content: flex-end;
 }
 
-/* --- Préférences et alertes --- */
-
-.prefs {
-  list-style: none;
-  margin: 0;
-  padding: 8px var(--lb-gap);
-  border-radius: var(--lb-radius);
-}
-
-.prefs__ligne {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--lb-divider);
-  font-size: 0.9rem;
-}
-
-.prefs__ligne:last-child {
-  border-bottom: 0;
-}
-
-.prefs__ligne mat-icon {
-  color: var(--lb-primary);
-}
-
-.prefs__ligne span {
-  flex: 1;
-}
-
-.alertes {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: var(--lb-gap-sm);
-}
-
-.alerte {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 12px;
-  align-items: start;
-  padding: 14px 16px;
-  border-radius: var(--lb-radius);
-}
-
-.alerte.est-lue {
-  opacity: 0.62;
-}
-
-.alerte > mat-icon {
-  color: var(--lb-primary);
-}
-
-.alerte strong {
-  font-size: 0.92rem;
-}
-
-.alerte p {
-  margin: 2px 0 4px;
-  font-size: 0.86rem;
-  color: var(--lb-text-muted);
-}
-
-.alerte small {
-  font-size: 0.74rem;
-  color: var(--lb-text-muted);
-}
-
 /* --- Thème sombre --- */
 
 :host-context([data-theme='sombre']) .profil__bandeau {
   background:
-    radial-gradient(110% 120% at 100% 0%, color-mix(in srgb, var(--lb-bordeaux-clair) 34%, transparent), transparent 55%),
+    radial-gradient(110% 120% at 100% 0%, color-mix(in srgb, var(--lb-vert-clair) 34%, transparent), transparent 55%),
     linear-gradient(140deg, #2c1017 0%, #170a0d 100%);
-}
-
-:host-context([data-theme='sombre']) .profil__actions a {
-  background: color-mix(in srgb, var(--lb-surface) 90%, transparent);
-  color: var(--lb-or);
 }
 
 /* --- Mobile --- */
@@ -834,7 +440,7 @@
   }
 
   .profil__resume {
-    justify-content: space-between;
+    justify-content: flex-start;
   }
 
   .adresse-form__ligne {
@@ -842,12 +448,18 @@
     gap: 0;
   }
 
-  .carte-points {
-    grid-template-columns: 1fr;
-  }
-
   .commande__tete {
     grid-template-columns: 1fr auto;
     row-gap: 6px;
+  }
+}
+
+@media (max-width: 520px) {
+  .profil__actions {
+    width: 100%;
+  }
+
+  .profil__actions a {
+    flex: 1 1 auto;
   }
 }

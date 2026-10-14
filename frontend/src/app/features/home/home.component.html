@@ -1,34 +1,11 @@
-<!-- Page d'accueil — titre de marque puis liste des produits -->
-<section class="vitrine">
-  <div class="vitrine__halo vitrine__halo--or" aria-hidden="true"></div>
-  <div class="vitrine__halo vitrine__halo--rouge" aria-hidden="true"></div>
-  <span class="vitrine__etincelle vitrine__etincelle--1" aria-hidden="true"></span>
-  <span class="vitrine__etincelle vitrine__etincelle--2" aria-hidden="true"></span>
-  <span class="vitrine__etincelle vitrine__etincelle--3" aria-hidden="true"></span>
-  <div class="lb-container vitrine__contenu">
+<!-- Hero de marque et accès rapide au catalogue -->
+<section class="vitrine vitrine--image-haut">
+  <div class="lb-container vitrine__contenu vitrine__contenu--image-haut">
     <div class="vitrine__intro">
-      <div class="vitrine__ornement" aria-hidden="true"><i></i><mat-icon>wine_bar</mat-icon><i></i></div>
-      <span class="vitrine__kicker lb-fade-in">{{ 'ACCUEIL.kicker' | translate }}</span>
-      <h1 class="vitrine__titre lb-fade-in">{{ 'ACCUEIL.titre' | translate }}</h1>
-      <p class="vitrine__texte lb-fade-in">{{ 'APP.baseline' | translate }}</p>
-      <button
-        type="button"
-        class="vitrine__suite lb-fade-in"
-        (click)="defilerVersProduits()"
-        [attr.aria-label]="'ACCUEIL.voirCatalogue' | translate"
-      >
-        <span>{{ 'ACCUEIL.voirCatalogue' | translate }}</span>
-        <mat-icon aria-hidden="true">arrow_forward</mat-icon>
-      </button>
-    </div>
-
-    <div class="vitrine__outils">
-      <form
-        class="vitrine__recherche"
-        role="search"
-        (submit)="lancerRecherche($event)"
-      >
-        <mat-icon class="vitrine__recherche-icone" aria-hidden="true">search</mat-icon>
+      <h1 class="vitrine__titre lb-titre-plein lb-fade-in">{{ 'ACCUEIL.titre' | translate }}</h1>
+      <p class="vitrine__soustitre lb-fade-in">{{ 'APP.baseline' | translate }}</p>
+      <form class="vitrine__search lb-fade-in" role="search" (submit)="lancerRecherche($event)">
+        <mat-icon class="vitrine__search-icone" aria-hidden="true">search</mat-icon>
         <input
           type="search"
           [value]="recherche()"
@@ -40,7 +17,7 @@
         @if (recherche()) {
           <button
             type="button"
-            class="vitrine__recherche-effacer"
+            class="vitrine__search-effacer"
             (click)="effacerRecherche()"
             [attr.aria-label]="'COMMUN.effacer' | translate"
           >
@@ -49,55 +26,41 @@
         }
         <button
           type="submit"
-          class="vitrine__recherche-submit"
+          class="vitrine__search-submit"
           [attr.aria-label]="'CATALOGUE.rechercher' | translate"
         >
           <mat-icon aria-hidden="true">arrow_forward</mat-icon>
         </button>
       </form>
-      <div class="vitrine__visuel" aria-hidden="true">
-        <span class="vitrine__visuel-halo"></span>
-        <img src="assets/images/hero-vin-verre.avif" alt="" />
+      <nav class="vitrine__chips lb-fade-in" [attr.aria-label]="'CATALOGUE.categorie' | translate">
+        @for (r of raccourcis; track r.valeur) {
+          <a class="vitrine__chip" [routerLink]="['/catalogue']" [queryParams]="{ categorie: r.valeur }">
+            <span class="vitrine__chip-puce" [attr.data-cat]="r.valeur"></span>
+            {{ r.cle | translate }}
+          </a>
+        }
+      </nav>
+      <div class="vitrine__cta lb-fade-in">
+        <a routerLink="/catalogue" class="vitrine__lien">
+          <span>{{ 'ACCUEIL.ctaCatalogue' | translate }}</span>
+          <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+        </a>
       </div>
     </div>
-  </div>
-  <div class="vitrine__fondu" aria-hidden="true"></div>
-</section>
-
-<!-- Engagements — bandeau de réassurance -->
-<section class="service-strip" [attr.aria-label]="'ACCUEIL.engagementsLabel' | translate">
-  <div class="lb-container">
-    <div class="service-strip__grid">
-      <span>
-        <mat-icon aria-hidden="true">local_shipping</mat-icon>
-        <b>{{ 'ACCUEIL.eng1Titre' | translate }}</b>
-        <small>{{ 'ACCUEIL.eng1Texte' | translate }}</small>
-      </span>
-      <span>
-        <mat-icon aria-hidden="true">payments</mat-icon>
-        <b>{{ 'ACCUEIL.eng2Titre' | translate }}</b>
-        <small>{{ 'ACCUEIL.eng2Texte' | translate }}</small>
-      </span>
-      <span>
-        <mat-icon aria-hidden="true">verified</mat-icon>
-        <b>{{ 'ACCUEIL.eng3Titre' | translate }}</b>
-        <small>{{ 'ACCUEIL.eng3Texte' | translate }}</small>
-      </span>
-      <span>
-        <mat-icon aria-hidden="true">support_agent</mat-icon>
-        <b>{{ 'ACCUEIL.eng4Titre' | translate }}</b>
-        <small>{{ 'ACCUEIL.eng4Texte' | translate }}</small>
-      </span>
+    <div class="vitrine__visuel lb-fade-in">
+      <figure class="vitrine__arche vitrine__arche--sans-cadre">
+        <picture>
+          <img src="/assets/images/hero-bouteille-verre.jpg" alt="Bouteille de vin, verre et grappes de raisin — Lazan'i Betsileo" fetchpriority="high" decoding="async" />
+        </picture>
+      </figure>
     </div>
   </div>
 </section>
 
-<!-- Liste des produits -->
-<section class="produits" id="produits">
-  <div class="lb-container">
+<!-- Liste des produits PLEIN ÉCRAN -->
+<section class="produits produits--plein-ecran" id="produits">
     <header class="produits__entete">
       <div>
-        <span class="produits__surtitre">{{ 'ACCUEIL.surtitreProduits' | translate }}</span>
         <h2>{{ 'ACCUEIL.titreProduits' | translate }}</h2>
       </div>
       <a class="produits__catalogue" routerLink="/catalogue">
@@ -128,7 +91,11 @@
     } @else {
       <div class="grille lb-stagger">
         @for (vin of selection(); track vin.id; let i = $index) {
-          <article class="produit lb-card lb-card--hover" [style.--i]="i">
+          <article
+            class="produit lb-card lb-card--hover"
+            [style.--i]="i"
+            (mousemove)="suivreCurseur($event)"
+          >
             <a class="produit__media" [routerLink]="['/vin', vin.id]" [attr.aria-label]="vin.nom">
               <img [src]="vin.image" [alt]="vin.nom" loading="lazy" />
               <span class="produit__cat">{{ ('CATALOGUE.categories.' + vin.categorie) | translate }}</span>
@@ -231,5 +198,4 @@
         }
       </div>
     }
-  </div>
 </section>

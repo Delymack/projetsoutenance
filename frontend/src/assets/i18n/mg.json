@@ -2,12 +2,13 @@
   "ACCUEIL": {
     "titre": "Lazan'i Betsileo",
     "ctaCatalogue": "Hijery ny katalaogy",
+    "toutVoir": "Hijery rehetra",
     "vinsDuJour": "Safidy ny androany",
     "ctaPromos": "Fihenam-bidy",
     "eyebrow": "Fianarantsoa · Lalàn'ny vin",
     "eyebrowSelection": "Safidy ankehitriny",
     "voirCatalogue": "Kataolozy rehetra",
-    "kicker": "Vino tsara kalité",
+    "kicker": "Isaha · Fianarantsoa",
     "surtitreProduits": "Avy amin'ny orinasa",
     "titreProduits": "Safidy tsara antsika",
     "engagementsLabel": "Ny fampanantenana antsika",
@@ -31,6 +32,19 @@
     "preuve3": {
       "titre": "Fandoavana azo antoka"
     }
+  },
+  "FOOTER": {
+    "navigation": "Fandehanana",
+    "reseaux": "Tambajotra sosialy",
+    "contact": "Hifandray aminay",
+    "adresse": "Rue Alphonse Rakotozafy, Isaha, Fianarantsoa 301 — BP 1496",
+    "reserves": "Tsy tokony ho ampiasaina be loatra ny lanonana. Aza misotro be.",
+    "tousDroits": "Zo rehetra voatohy."
+  },
+  "BANDEAU": {
+    "livraison": "Fandefasana viaoka ao amin'i Fianarantsoa hatramin'ny 100 000 Ar",
+    "promo": "−15 % amin'ny safidy amin'ny volana amin'ny kaody CAVE15",
+    "suivi": "Mari-koatra ny baiko aiko"
   },
   "APP": {
     "nom": "Lazan'i Betsileo",
@@ -120,11 +134,12 @@
     "paiementReussi": "Nohazoana ny karama",
     "raccourcis": "Tambajotra",
     "raccourci": {
-      "F1": "F1 : sokatra ny fandoavana",
-      "F2": "F2 : amboary ny tombontsoa",
-      "F3": "F3 : hikaroka ny entana",
-      "Escape": "Esc : foanana ny panier",
-      "Echap": "Esc : foanana ny panier"
+      "F1": "F1 : mamaritra ny fandàna (Mandàn’ny bureau & mamaritra)",
+      "F2": "F2 : badino ny safidy fandàna",
+      "F3": "F3 : tamin’ny viny iray",
+      "Escape": "Échap : ovina ny panier / feno",
+      "Echap": "Esc : foanana ny panier",
+      "F4": "F4 : suspendre / reprendre ny ticket"
     },
     "ticketPied": "Misaotra tomany anao — Lazan'i Betsileo, Fianarantsoa",
     "merci": "Misaotra anao ny fividiananao !",
@@ -231,7 +246,7 @@
       "horaires": "Misokatra ny alatsinainy ka hatramin'ny sabata, 8h-18h, alatsinay 9h-13h.",
       "livraison": "Fandefasana free ao Fianarantsoa manomboka 100 000 Ar, ao anatin'ora 24.",
       "millesime": "Ny 2020 ka hatramin'ny 2022 no atolotray ho an'ny fisotroana avy hatrany.",
-      "paiement": "Ekena ny vola, Orange Money, MVola ary karatra banky.",
+      "paiement": "Ekena ny vola, karatra banky ary baiko.",
       "marge": "Ireto ny divano tolotra ho anao:",
       "defaut": "Tsy dia tonga. Anontanio momba ny ora fiasana, ny fandefasana na ny fandoavam-bola.",
       "accueil": "Misaotra! Mpanampy ny Lazan'i Betsileo aho. Inona no azoko atao ho anao?"
@@ -340,7 +355,8 @@
     "403": "Tsy manana alalana ianao.",
     "404": "Tsy hita ny pejy.",
     "500": "Olana ao amin'ny mpizara.",
-    "reseau": "Olana amin'ny tambajotra."
+    "reseau": "Olana amin'ny tambajotra.",
+    "retourAccueil": "Hiverena amin'ny tranga fohy"
   },
   "FAVORIS": {
     "titre": "Ny tiana",
@@ -573,7 +589,6 @@
     "messageVin": "Mahita anao i {{nom}} any amin'ny Lazan'i Betsileo",
     "facebook": "Facebook",
     "whatsapp": "WhatsApp",
-    "telegram": "Telegram",
     "email": "Mailaka",
     "lien": "Handikisa ny lien",
     "copie": "Voakopina ny lien!",
@@ -661,6 +676,7 @@
     "active": "Mihoatra",
     "bienfin": "Hatramin'ny {{date}}",
     "vinsConcernes": "Ny divano voakasik'izany",
+    "aucunVin": "Tsy misy divay mifandray amin'ity tolotra ity ankehitriny.",
     "aucunePromo": "Tsy misy fihenam-vidy amin'izao fotoana izao.",
     "jeux": "Lalao an'andro",
     "jouerRoue": "Hetsaka ny kodiarana",
@@ -742,7 +758,6 @@
     "avis": "Fanamarihana",
     "promotions": "Fihenam-bidy",
     "cepage": "Karazana divano",
-    "region": "Faritra",
     "alcool": "Lànatin'ny alkoly",
     "volume": "Vesatry",
     "producteur": "Mpanoratra",
@@ -790,5 +805,75 @@
     "son": "Feo amin'ny rindrankajy",
     "completude": "Vita ny mombamomba",
     "confirmerDeconnexion": "Hivoaka amin'ity kaonty ity?"
+  },
+  "ADMIN": {
+    "titre": "Administration",
+    "sidebar": "Panneau d'administration",
+    "etendre": "Étendre",
+    "reduire": "Réduire",
+    "menu": "Menu",
+    "notifications": "Notifications",
+    "dashboard": "Tableau de bord",
+    "dashboardDescription": "Voly masin'ny aktiviterao.",
+    "commandes": "Commandes",
+    "commandesDescription": "Androsoana ny commandes.",
+    "clients": "Clients",
+    "clientsDescription": "Fandaminana ny compto client akory ny fidélité.",
+    "accueil": "Fandraisana",
+    "clientsComingSoon": "Ny fandaminana ny clients dia nanova. Hiverena amin'io!",
+    "clientsTotal": "Clients",
+    "catalogue": "Catalogue",
+    "catalogueDescription": "Fandaminana ny catalogue ny vina.",
+    "catalogueComingSoon": "Ny fandaminana ny catalogue dia nanova. Hiverena amin'io!",
+    "fidelite": "Fidélité",
+    "fideliteDescription": "Programme fidélité akory ny récompenses.",
+    "fideliteComingSoon": "Ny fandaminana ny fidélité dia nanova. Hiverena amin'io!",
+    "parametres": "Paramètres",
+    "parametresDescription": "Paramètres ankapobeny ny application.",
+    "parametresComingSoon": "Ny paramètres dia nanova. Hiverena amin'io!",
+    "rapports": "Rapports",
+    "rapportsDescription": "Statistiques akory analyses detaille.",
+    "rapportsComingSoon": "Ny rapports dia nanova. Hiverena amin'io!",
+    "reference": "Référence",
+    "client": "Client",
+    "date": "Date",
+    "montant": "Montant",
+    "statut": {
+      "A_VALIDER": "À valider",
+      "VALIDEE": "Valide",
+      "ENCAISSEE": "Encaissé",
+      "EXPEDIEE": "Expédié",
+      "LIVREE": "Livré",
+      "ANNULEE": "Annulé",
+      "REFUSEE": "Refusé"
+    },
+    "actions": "Actions",
+    "valider": "Valider",
+    "refuser": "Refuser",
+    "encaisser": "Encaisser",
+    "expedier": "Expédier",
+    "livrer": "Livrer",
+    "annuler": "Annuler",
+    "voir": "Voir",
+    "voirDetails": "Voir les détails",
+    "voirTout": "Voir tout",
+    "rechercher": "Rechercher",
+    "rechercherPlaceholder": "Rechercher une commande…",
+    "filtreStatut": "Filtrer par statut",
+    "tous": "Tous",
+    "aucuneCommande": "Tena-commande",
+    "commandesEnAttente": "Commandes en attente",
+    "commandesTotal": "Commandes totales",
+    "commandesRecentes": "Commandes récentes",
+    "chiffreAffaires": "Chiffre d'affaires",
+    "sourceReservation": "Réservation",
+    "sourceVente": "Vente",
+    "commandeValidee": "Commande validée avec succès",
+    "commandeRefusee": "Commande refusée",
+    "commandeEncaisssee": "Commande encaissée avec succès",
+    "colonneStatut": "Statut"
+  },
+  "POS": {
+    "encaisserAuComptoir": "Mandàn’ny bureau (Caisse)"
   }
 }
