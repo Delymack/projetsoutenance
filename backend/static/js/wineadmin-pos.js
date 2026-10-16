@@ -26,6 +26,7 @@
   // Les moyens de paiement viennent du gabarit (Vente.ModePaiement.MODES_CAISSE) :
   // une seule source de vérité, le modèle.
   const MODES = [...document.querySelectorAll('#payment-pills button[data-mode]')].map((b) => b.dataset.mode);
+  const CATEGORIES_SANS_FILTRE = new Set(['liqueurs & apéritifs', 'mousseux']);
   const ICONES_MODE = { ESPECES: 'fa-money-bill-wave', MVOLA: 'fa-mobile-screen', ORANGE_MONEY: 'fa-mobile-screen',
                         AIRTEL_MONEY: 'fa-mobile-screen', MOBILE_MONEY: 'fa-mobile-screen', CHEQUE: 'fa-file-signature',
                         CARTE: 'fa-credit-card', CREDIT: 'fa-book' };
@@ -41,7 +42,7 @@
   let categories = [];
   let panier = {};
   let categorieActive = null;
-  let modePaiement = 'ESPECES';
+  let modePaiement = MODES[0] || 'ESPECES';
   let contexte = {};
   let devisTmp = 'Ar';
   let sonActif = false;
@@ -188,7 +189,6 @@
       contexte = await api(API.caisseEtat);
       devisTmp = contexte.devise || 'Ar';
       majSession();
-      majDroitsRemise();
 
       [produits, clients, categories] = await Promise.all([
         fetchAll(API.produits), fetchAll(API.clients), fetchAll(API.categories),
@@ -289,17 +289,6 @@
     majEtatEncaissement();
   }
 
-  function majDroitsRemise() {
-    const pill = $('pill-remise');
-    if (contexte.peut_remettre) {
-      pill.style.display = '';
-      const pct = contexte.remise_max_pct;
-      pill.querySelector('span').textContent = pct ? `Remise ${pct} % max` : 'Remise libre';
-    } else {
-      pill.style.display = 'none';
-    }
-  }
-
   function sessionBloquee() {
     return !!(contexte.session_requise && !contexte.session);
   }
@@ -307,7 +296,7 @@
   function majEtatEncaissement() {
     const bloquant = sessionBloquee() || simulationEnCours || simulationErreur
       || (Object.keys(panier).length > 0 && !simulationPromo);
-    $('checkout-btn').disabled = bloquant || !Object.keys(panier).length;
+    $('checkout-btn').disabled = bloquant || !MODES.length || !Object.keys(panier).length;
   }
 
   $('session-open').addEventListener('click', async () => {
@@ -336,7 +325,9 @@
 
   /* -------------------------------------------------------------- catégories */
   function rendreCategories() {
-    const visibles = categories.filter((c) => c.statut);
+    const visibles = categories.filter((c) => (
+      c.statut && !CATEGORIES_SANS_FILTRE.has(String(c.nom || '').trim().toLocaleLowerCase('fr-FR'))
+    ));
     const html = ['<button type="button" class="category active" data-cat="">Tout le catalogue</button>']
       .concat(visibles.map((c) => `<button type="button" class="category" data-cat="${c.id}">${esc(c.nom)}</button>`))
       .join('');
@@ -354,15 +345,14 @@
   /* --------------------------------------------------------------- produits */
   function produitsVisibles() {
     const q = $('search-input').value.trim().toLowerCase();
-    const cacherRuptures = $('hide-rupture').classList.contains('active');
     const quePromos = $('promo-only').classList.contains('active');
     return produits.filter((p) => {
       if (!p.statut) return false;
-      if (cacherRuptures && stockDe(p) <= 0) return false;
       if (quePromos && !meta.get(p.id)?.promo) return false;
       if (categorieActive && p.categorie !== categorieActive) return false;
       if (!q) return true;
-      const cible = [p.nom, p.marque, p.millesime, p.code_barre, p.reference, p.conditionnement_libelle]
+      const nomCategorie = categories.find((c) => String(c.id) === String(p.categorie))?.nom;
+      const cible = [p.nom, p.marque, p.millesime, p.code_barre, p.reference, p.conditionnement_libelle, nomCategorie]
         .filter(Boolean).join(' ').toLowerCase();
       return cible.includes(q);
     });
@@ -424,7 +414,7 @@
     rendreProduits();
     $('search-input').focus();
   });
-  ['hide-rupture', 'promo-only'].forEach((id) => {
+  ['promo-only'].forEach((id) => {
     $(id).addEventListener('click', () => {
       $(id).classList.toggle('active');
       rendreProduits();
@@ -505,8 +495,6 @@
     badge.textContent = lignes.length;
     badge.classList.add('pop');
     setTimeout(() => badge.classList.remove('pop'), 350);
-
-    $('hstat-items').textContent = `${lignes.length} article${lignes.length > 1 ? 's' : ''}`;
 
     if (!lignes.length) {
       $('cart-items').innerHTML = '<div class="empty"><i class="fas fa-shopping-basket d-block mb-2" style="font-size:1.4rem"></i>Votre panier est vide.</div>';
@@ -706,7 +694,6 @@
     // vente, et ni fidélité ni encours ne s'appliquent.
     $('client-libelle-row').style.display = c ? 'none' : '';
     if (c) { $('client-libelle').value = ''; clientLibelle = ''; }
-    $('client-niveau').textContent = c ? c.niveau_label : 'Vente anonyme';
     const pts = $('pts-row');
     if (c && Number(c.points_fidelite) > 0) {
       pts.style.display = '';
@@ -794,6 +781,10 @@
 
   /* --------------------------------------------------------------- encaissement */
   function ouvrirPaiement() {
+    if (!MODES.length) {
+      notice('Aucun moyen de paiement disponible. Contactez un administrateur.');
+      return;
+    }
     if (sessionBloquee()) { notice('Ouvrez la caisse avant d\'encaisser.'); bip(false); return; }
     if (!Object.keys(panier).length) { notice('Le panier est vide.'); return; }
     effacerNotice();
@@ -1056,6 +1047,10 @@
   let repartition = [];
 
   function ouvrirMixte() {
+    if (!MODES.length) {
+      notice('Aucun moyen de paiement disponible. Contactez un administrateur.');
+      return;
+    }
     const total = totalPanier();
     $('mixte-total').textContent = fmt(total);
     $('split-motif').value = '';

@@ -65,8 +65,8 @@ export class ThemeService {
   suivreSysteme(): void {
     this.choixManuel.set(false);
     localStorage.removeItem(CLE_STOCKAGE);
-    const sombre = typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches;
-    this.theme.set(sombre ? 'sombre' : 'clair');
+    const clair = typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: light)').matches;
+    this.theme.set(clair ? 'clair' : 'sombre');
   }
 
   /** Écrit l'attribut `data-theme` sur la racine du document. */
@@ -78,16 +78,14 @@ export class ThemeService {
     // Le meta theme-color suit également le thème (barre mobile / PWA).
     this.document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', theme === 'sombre' ? '#0b0705' : '#faf6ef');
+      ?.setAttribute('content', theme === 'sombre' ? '#0a0a0b' : '#f8f5ef');
   }
 
   private reprendreThemeInitial(): Theme {
     const stocke = localStorage.getItem(CLE_STOCKAGE);
     if (stocke === 'clair' || stocke === 'sombre') return stocke;
-    if (typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'sombre';
-    }
-    return 'clair';
+    // Identité « Nuit & Or » : le thème sombre est le choix par défaut.
+    return 'sombre';
   }
 
   private ecrireCle(theme: Theme): void {

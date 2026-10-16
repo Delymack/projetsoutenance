@@ -15,8 +15,17 @@
     </div>
   } @else {
     @let bouteille = vin()!;
+    <a class="vin-detail__retour" routerLink="/catalogue">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      <span>{{ 'CATALOGUE.titre' | translate }}</span>
+    </a>
+
     <div class="vin-detail__hero">
       <div class="vin-detail__visual lb-card">
+        <span class="vin-detail__cat">{{ ('CATALOGUE.categories.' + bouteille.categorie) | translate }}</span>
+        @if (remisePct(bouteille); as remise) {
+          <span class="vin-detail__promo-etiquette">-{{ remise }} %</span>
+        }
         <div class="vin-detail__bottle" aria-hidden="true">
           <img [src]="bouteille.image" [alt]="bouteille.nom" [class.vin-detail__bottle--spin]="rotationActive()" />
           <button
@@ -36,22 +45,29 @@
         <h1>{{ bouteille.nom }}</h1>
         <p class="vin-detail__description">{{ bouteille.description }}</p>
 
-        <div class="vin-detail__meta">
-          @if (remisePct(bouteille); as remise) {
-            <span class="vin-detail__prix">
-              <small class="vin-detail__prix-barre">{{ bouteille.prixBarre | number:'1.0-0' }} Ar</small>
-              <strong>{{ bouteille.prix | number:'1.0-0' }} Ar</strong>
-              <span class="lb-badge-promo">-{{ remise }} %</span>
-            </span>
-          } @else {
-            <span><strong>{{ bouteille.prix | number:'1.0-0' }} Ar</strong></span>
+        <!-- Bloc prix : le prix est l'élément le plus affirmé de la fiche. -->
+        <div class="vin-detail__prix-bloc">
+          @if (remisePct(bouteille); as remiseCourante) {
+            <span class="lb-badge-promo">-{{ remiseCourante }} %</span>
+            <small class="vin-detail__prix-barre">{{ bouteille.prixBarre | number:'1.0-0' }} Ar</small>
           }
+          <strong class="vin-detail__prix-fort">{{ bouteille.prix | number:'1.0-0' }} Ar</strong>
+          <span
+            class="vin-detail__dispo"
+            [class.vin-detail__dispo--rupture]="bouteille.stock < 1"
+          >
+            <mat-icon aria-hidden="true">{{ bouteille.stock < 1 ? 'remove_shopping_cart' : 'check_circle' }}</mat-icon>
+            {{ (bouteille.stock < 1 ? 'VIN.rupture' : 'VIN.enStock') | translate }}
+          </span>
+        </div>
+
+        <div class="vin-detail__meta">
           <!-- Aucun avis n'est exposé par l'API produits : la note n'apparaît
                qu'une fois qu'un client en a réellement laissé un. -->
           @if (bouteille.nombreAvis + nbAvisSupplementaires() > 0) {
-            <span><mat-icon>star</mat-icon>{{ bouteille.noteMoyenne }} · {{ 'VIN.notes' | translate: { count: bouteille.nombreAvis + nbAvisSupplementaires() } }}</span>
+            <span class="vin-detail__meta-pill"><mat-icon>star</mat-icon>{{ bouteille.noteMoyenne }} · {{ 'VIN.notes' | translate: { count: bouteille.nombreAvis + nbAvisSupplementaires() } }}</span>
           }
-          <span><mat-icon>inventory_2</mat-icon>{{ bouteille.stock }} {{ 'VIN.stock' | translate }}</span>
+          <span class="vin-detail__meta-pill"><mat-icon>inventory_2</mat-icon>{{ bouteille.stock }} {{ 'VIN.stock' | translate }}</span>
         </div>
 
         <div class="vin-detail__attributs">

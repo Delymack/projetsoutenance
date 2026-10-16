@@ -9,7 +9,7 @@ import { LangueService } from '../../../core/services/langue.service';
 /** Réseau de partage proposé, avec son libellé et son icône. */
 export interface ReseauPartage {
   /** Identifiant technique du réseau. */
-  id: 'facebook' | 'whatsapp' | 'telegram' | 'email';
+  id: 'facebook' | 'whatsapp' | 'email';
   /** Icône Material. */
   icone: string;
   /** Clé i18n du libellé accessible. */
@@ -20,7 +20,6 @@ export interface ReseauPartage {
 export const RESEAUX: ReseauPartage[] = [
   { id: 'facebook', icone: 'facebook', cle: 'PARTAGE.facebook' },
   { id: 'whatsapp', icone: 'chat', cle: 'PARTAGE.whatsapp' },
-  { id: 'telegram', icone: 'send', cle: 'PARTAGE.telegram' },
   { id: 'email', icone: 'mail', cle: 'PARTAGE.email' },
 ];
 
@@ -80,8 +79,6 @@ export class ShareComponent {
         return `https://www.facebook.com/sharer/sharer.php?u=${lien}&quote=${texte}`;
       case 'whatsapp':
         return `https://wa.me/?text=${texte}%20${lien}`;
-      case 'telegram':
-        return `https://t.me/share/url?url=${lien}&text=${texte}`;
       case 'email':
         return `mailto:?subject=${titre}&body=${texte}%20${lien}`;
     }

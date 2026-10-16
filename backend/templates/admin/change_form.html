@@ -5,6 +5,8 @@
 {% block extrastyle %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'vendor/select2/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/wineadmin-forms-unified.css' %}">
+    <link rel="stylesheet" href="{% static 'css/wineadmin-forms-overrides.css' %}">
 {% endblock %}
 
 {% block extrahead %}
@@ -54,6 +56,7 @@
     <div id="content-main" class="col-12">
         <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}action="{{ form_url }}" method="post" id="{{ opts.model_name }}_form" novalidate>
             {% csrf_token %}
+
             {% block form_top %}{% endblock %}
 
             {% if errors %}
@@ -94,31 +97,28 @@
 
                 {% block after_related_objects %}{% endblock %}
 
-                <div class="col-12 col-lg-3">
-                    <div id="jazzy-actions" class="{{ jazzmin_ui.actions_classes }}">
-                        <div class="card action-card">
-                            <div class="action-card-head">
-                                <i class="fas fa-save"></i> {% if add %}{% trans 'Enregistrer' %}{% else %}{% trans 'Actions' %}{% endif %}
-                            </div>
-                            <div class="card-body">
-                                {% block submit_buttons_bottom %}
-                                    {% submit_row %}
-                                    {% block object-tools %}
-                                        {% if change %}
-                                            {% if not is_popup %}
-                                                <div class="object-tools d-flex flex-wrap gap-2">
-                                                    {% block object-tools-items %}
-                                                        {% change_form_object_tools %}
-                                                        {% block extra_actions %}{% endblock %}
-                                                    {% endblock %}
-                                                </div>
-                                            {% endif %}
-                                        {% endif %}
-                                    {% endblock %}
-                                {% endblock %}
-                            </div>
+                <div class="col-12">
+                    <section id="jazzy-actions" class="wa-action-bar" aria-label="{% trans 'Form actions' %}">
+                        <div class="wa-action-bar__title">
+                            <i class="fas fa-sliders" aria-hidden="true"></i>
+                            {% if add %}{% trans 'Create record' %}{% else %}{% trans 'Manage record' %}{% endif %}
                         </div>
-                    </div>
+                        <div class="wa-action-bar__content">
+                            {% block submit_buttons_bottom %}
+                                {% submit_row %}
+                                {% block object-tools %}
+                                    {% if change and not is_popup %}
+                                        <div class="wa-action-bar__tools object-tools">
+                                            {% block object-tools-items %}
+                                                {% change_form_object_tools %}
+                                                {% block extra_actions %}{% endblock %}
+                                            {% endblock %}
+                                        </div>
+                                    {% endif %}
+                                {% endblock %}
+                            {% endblock %}
+                        </div>
+                    </section>
                 </div>
 
                 {% block admin_change_form_document_ready %}
@@ -139,6 +139,7 @@
     {{  block.super }}
     <script type="text/javascript" src="{% static 'vendor/select2/js/select2.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'jazzmin/js/change_form.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/wineadmin-forms-unified.js' %}"></script>
     {% if jazzmin_settings.related_modal_active %}
     <script type="text/javascript" src="{% static 'jazzmin/plugins/bootstrap-show-modal/bootstrap-show-modal.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'jazzmin/js/related-modal.js' %}"></script>

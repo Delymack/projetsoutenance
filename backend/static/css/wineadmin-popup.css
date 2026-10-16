@@ -317,6 +317,64 @@ body.popup .fields-card .form-group:has(ul.errorlist) textarea {
     border-color: #a1263a;
 }
 
+/* Force un contraste prévisible, indépendamment du thème Jazzmin de
+   l'iframe, pour les valeurs déjà saisies et les widgets Select2. */
+body.popup .fields-card input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+body.popup .fields-card select,
+body.popup .fields-card textarea,
+body.popup .fields-card .select2-selection,
+body.popup .fields-card .select2-search__field {
+    background-color: #fff !important;
+    color: #2b1b20 !important;
+    color-scheme: light;
+    -webkit-text-fill-color: #2b1b20;
+}
+
+body.popup .fields-card input::placeholder,
+body.popup .fields-card textarea::placeholder,
+body.popup .fields-card .select2-selection__placeholder {
+    color: #786b6e !important;
+    opacity: 1;
+    -webkit-text-fill-color: #786b6e;
+}
+
+body.popup .fields-card .select2-selection__rendered,
+body.popup .fields-card .select2-results__option,
+body.wine-quick-create-open .select2-dropdown .select2-results__option {
+    color: #2b1b20 !important;
+}
+
+body.popup .select2-dropdown {
+    background: #fff;
+    color: #2b1b20;
+}
+
+body.popup .select2-search__field,
+body.wine-quick-create-open .select2-search__field {
+    background: #fff !important;
+    color: #2b1b20 !important;
+    -webkit-text-fill-color: #2b1b20;
+}
+
+body.popup .select2-results__option,
+body.wine-quick-create-open .select2-results__option {
+    color: #2b1b20 !important;
+}
+
+body.popup .select2-results__option--highlighted,
+body.wine-quick-create-open .select2-results__option--highlighted {
+    color: #fff !important;
+}
+
+body.wine-quick-create-open .select2-container--open {
+    z-index: 1300 !important;
+}
+
+body.wine-quick-create-open .select2-dropdown {
+    background: #fff;
+    color: #2b1b20;
+}
+
 /* ------------------------------------------------------------------
    3. BARRE D'ACTION — les boutons de la fenêtre
    Collée au bas du cadre, elle reste visible pendant le défilement et

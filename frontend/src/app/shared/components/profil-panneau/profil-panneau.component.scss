@@ -36,8 +36,8 @@
   padding: var(--lb-gap) var(--lb-gap) var(--lb-gap-sm);
   color: #fff;
   background:
-    radial-gradient(120% 90% at 100% 0%, rgba(227, 196, 106, 0.34), transparent 58%),
-    linear-gradient(135deg, #76001f 0%, #9b1235 58%, #4d0014 100%);
+    radial-gradient(120% 90% at 100% 0%, rgba(224, 188, 90, 0.28), transparent 58%),
+    linear-gradient(135deg, #2a1020 0%, #16080f 58%, #0d0b0e 100%);
 
   /* Filet doré : la carte se détache du panneau sans trait lourd. */
   &::after {
@@ -93,7 +93,7 @@
   width: 22px;
   height: 22px;
   padding: 0;
-  color: #2a1c16;
+  color: var(--lb-primary-contrast);
   cursor: pointer;
   background: linear-gradient(140deg, var(--lb-or-clair), var(--lb-or));
   border: 1px solid rgba(255, 255, 255, 0.72);
@@ -184,7 +184,7 @@
   }
 
   &--palier {
-    color: #2a1c16;
+    color: var(--lb-primary-contrast);
     background: linear-gradient(140deg, var(--lb-or-clair), var(--lb-or));
     border-color: transparent;
   }

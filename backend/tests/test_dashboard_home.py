@@ -25,23 +25,32 @@ class DashboardHomeTests(TestCase):
         response = self.client.get(reverse('admin:index'))
 
         self.assertEqual(response.status_code, 200)
+        # Les cinq indicateurs du bandeau flottant.
         for label in (
-            'Chiffre d’affaires du mois',
-            'Unités vendues du mois',
-            'Produits en rupture',
+            'CA du jour',
+            'Ventes du jour',
+            'Ruptures de stock',
             'Promotions actives',
-            'Chiffre d’affaires · 6 derniers mois',
-            'Ventes par appellation',
+            'Clients',
+        ):
+            self.assertContains(response, label)
+        # Les panneaux métier.
+        for label in (
+            'Chiffre d’affaires · 14 derniers jours',
+            'CA par appellation',
             'Meilleures ventes',
+            'Stocks à surveiller',
             'Ventes récentes',
+            'Meilleurs clients (30 j)',
         ):
             self.assertContains(response, label)
         self.assertContains(response, reverse('admin:stocks_stock_changelist'))
-        self.assertNotContains(response, 'Bonjour,')
+        self.assertContains(response, 'Bonjour,')
+        self.assertContains(response, 'class="wine-brand-mark"')
+        self.assertContains(response, '/static/img/logo.webp')
 
         for removed_section in (
             'Moyens de paiement',
-            'Meilleurs clients',
             'Créances clients',
             'Cuvées à surveiller',
         ):
@@ -82,6 +91,8 @@ class DashboardHomeTests(TestCase):
         self.assertContains(response, 'Cuvée de démonstration')
         self.assertContains(response, 'Haute Matsiatra')
         self.assertContains(response, 'Offre de démonstration')
+        # Avec des données, le donut d'appellation est bien monté.
+        self.assertContains(response, 'id="dash-region-chart"')
         stats = stats_completes()
         self.assertEqual(stats['produits_vendus_mois'], 2)
         self.assertEqual(stats['meilleures_ventes'][0]['produit__nom'], product.nom)

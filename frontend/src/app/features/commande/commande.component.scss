@@ -1,16 +1,39 @@
 /* tunnel de commande */
 
 .commande-page {
-  padding-block: var(--lb-gap-lg) calc(var(--lb-gap-lg) * 1.5);
+  padding-block: clamp(1.5rem, 4vw, 2.5rem) calc(var(--lb-gap-lg) * 1.5);
+}
+
+.commande-page__tete {
+  margin-bottom: var(--lb-gap-lg);
+  padding: 1.2rem 1.4rem;
+  border: 1px solid var(--lb-border);
+  border-radius: var(--lb-radius-lg);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--lb-primary) 6%, var(--lb-surface)),
+    var(--lb-surface)
+  );
+  box-shadow: var(--lb-shadow-1);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, var(--lb-primary), var(--lb-accent));
+  }
 }
 
 .commande-page__tete h1 {
   margin: 0 0 4px;
-  font-size: clamp(1.4rem, 2.6vw, 2rem);
+  font-size: clamp(1.5rem, 2.8vw, 2.2rem);
 }
 
 .commande-page__tete p {
-  margin: 0 0 var(--lb-gap-lg);
+  margin: 0;
   color: var(--lb-text-muted);
 }
 

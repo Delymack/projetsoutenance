@@ -44,6 +44,18 @@ Thumbs.db
 *.swp
 *.swo
 
+# ---------- Sauvegardes de base de données ----------
+backend/db.sqlite3.bak-*
+db.sqlite3.bak-*
+
+# ---------- Outils IA / doublons / fichiers perso (non versionnés) ----------
+.harn/
+session-*.md
+speech.docx
+projetsoutenance/
+livre_soutenance_memoire/
+frontend/outils/captures/
+
 # ---------- Divers ----------
 *.local
 .oxcode-memory/

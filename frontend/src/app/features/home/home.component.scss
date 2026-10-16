@@ -1,55 +1,111 @@
 :host {
   display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: clip;
   background: var(--lb-bg);
+}
+
+/* Meilleure solution saturation : l'accueil sort du conteneur global 1280px
+   centré (source du vide à gauche) et passe bord à bord sur toute la page. */
+/* Hero premium : le contenu reste centré (1240px) sur fond plein écran */
+:host ::ng-deep .lb-container.vitrine__contenu,
+:host .vitrine__contenu {
+  width: min(1240px, 100% - 2rem) !important;
+  max-width: 1240px !important;
+  margin-inline: auto !important;
 }
 
 .vitrine {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  color: var(--lb-hero-text);
+  /* Hero premium plein écran : vraie photo en fond, texte toujours lisible */
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding-top: 0;
+  color: #fffdf6;
   background:
-    radial-gradient(ellipse 30rem 24rem at 82% 10%, color-mix(in srgb, var(--lb-or) 18%, transparent), transparent 72%),
-    radial-gradient(ellipse 24rem 18rem at 8% 100%, color-mix(in srgb, var(--lb-rouge-vin) 18%, transparent), transparent 72%),
+    linear-gradient(to right, rgba(12, 9, 5, 0.92) 0%, rgba(12, 9, 5, 0.62) 45%, rgba(12, 9, 5, 0.08) 72%),
+    url('/assets/images/hero-bouteille-verre.jpg') center 65% / cover no-repeat,
     var(--lb-hero-background);
 }
 
+/* Voile doré + vignettage pour une lecture parfaite du titre sur l'image */
+.vitrine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(10, 8, 5, 0.55) 0%, transparent 32%),
+    radial-gradient(ellipse 30rem 22rem at 85% 15%, color-mix(in srgb, var(--lb-or) 20%, transparent), transparent 70%);
+}
+
+.vitrine__contenu--image-haut,
 .vitrine__contenu {
   position: relative;
   z-index: 1;
+  width: min(1240px, 100% - 2rem);
+  max-width: 1240px;
+  margin-inline: auto;
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  gap: clamp(2rem, 6vw, 5rem);
-  min-height: clamp(420px, 48vw, 610px);
-  padding-block: clamp(3rem, 7vw, 5.5rem);
+  justify-content: start;
+  gap: 0;
+  min-height: clamp(340px, 42vw, 460px);
+  height: auto;
+  max-height: none;
+  padding-block: clamp(2rem, 4vw, 3.5rem);
+  padding-left: 0;
+  padding-right: 0;
+  overflow: visible;
 }
 
 .vitrine__intro {
   display: grid;
+  align-content: center;
   justify-items: start;
-  gap: clamp(1rem, 2vw, 1.5rem);
-  max-width: 42rem;
+  justify-self: start;
+  gap: clamp(0.7rem, 1.5vw, 1rem);
+  max-width: 36rem;
+  width: 100%;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+  padding-right: 0;
+  text-align: left;
+  /* Au-dessus du voile image pour rester lisible */
+  position: relative;
+  z-index: 2;
 }
 
 .vitrine__titre {
-  max-width: 10ch;
+  max-width: none;
   margin: 0;
-  color: var(--lb-hero-text);
+  color: #fffdf6;
   font-family: var(--lb-font-display);
-  font-size: clamp(3rem, 6.5vw, 6rem);
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
   font-weight: 700;
-  letter-spacing: -0.045em;
-  line-height: 0.98;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
   text-wrap: balance;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
 }
 
 .vitrine__soustitre {
   max-width: 34rem;
   margin: 0;
-  color: var(--lb-hero-subtext);
-  font-size: clamp(1rem, 1.6vw, 1.2rem);
-  line-height: 1.6;
+  color: rgba(255, 253, 246, 0.88);
+  font-size: clamp(1.05rem, 1.8vw, 1.3rem);
+  line-height: 1.55;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5);
 }
 
 .vitrine__search {
@@ -134,6 +190,8 @@
     background: var(--lb-primary-hover);
   }
 }
+
+/* Sans liseret en bas : aucune coupure nette, image ouverte en bas et a gauche */
 
 .vitrine__chips {
   display: flex;
@@ -222,25 +280,48 @@
   }
 }
 
+.vitrine .lb-container.vitrine__contenu {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.vitrine__arche::after { display: none; }
+
 .vitrine__visuel {
-  justify-self: end;
-  width: min(540px, 100%);
+  display: none !important;
+}
+
+.vitrine__arche {
+  display: none !important;
 }
 
 .vitrine__arche {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 1.48;
-  margin: 0;
-  border: 1px solid color-mix(in srgb, var(--lb-or-clair) 34%, transparent);
-  border-radius: 50% 50% var(--lb-radius-lg) var(--lb-radius-lg);
-  background: var(--lb-surface-2);
-  box-shadow: var(--lb-shadow-3);
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: clamp(120px, 14vw, 140px);
+  aspect-ratio: auto;
+  margin: 0 0 0 auto;
+  border: 0;
+  border-left: 0;
+  border-bottom: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  /* Design ameliore : image nette, sans bordure cote gauche ni cote bas */
+  -webkit-mask-image: none;
+  mask-image: none;
 
   picture {
     display: block;
     width: 100%;
     height: 100%;
+    /* Sans fondu bas : image franche jusqu'en bas, zero bordure */
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 
   img {
@@ -248,23 +329,43 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
+    object-position: center right;
     transition: transform var(--lb-transition-slow);
   }
 }
 
 .vitrine__arche--sans-cadre {
   border: 0;
+  /* Sans bordure cote bas : image fondue dans le fond, zero trait */
+  border-bottom: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  border-image: none;
 }
 
 .vitrine__arche:hover img {
   transform: scale(1.025);
 }
 
+/* Sans bordure cote gauche : fondu qui efface la ligne verticale marque en rouge */
+.vitrine__arche::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(to right, var(--lb-bg) 0%, color-mix(in srgb, var(--lb-bg) 72%, transparent) 8%, transparent 26%);
+}
+
 .produits {
-  width: min(1440px, 100% - 2rem);
-  margin-inline: auto;
-  padding-block: clamp(2.5rem, 6vw, 5rem);
+  /* Saturation : grille colle aux bords gauche et droit, zero vide */
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding-block: clamp(2rem, 5vw, 3.5rem);
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .produits__entete {
@@ -272,7 +373,8 @@
   align-items: end;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: clamp(1.25rem, 3vw, 2rem);
+  margin: 0 0 clamp(1.25rem, 3vw, 2rem);
+  padding-inline: 0;
 
   h2 {
     margin: 0;
@@ -316,8 +418,10 @@
 
 .grille {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr));
-  gap: clamp(1rem, 2vw, 1.5rem);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  margin: 0;
+  padding: 0;
 }
 
 .produit {
@@ -457,6 +561,7 @@
 }
 
 .produit__domaine {
+  display: none !important;
   overflow: hidden;
   color: var(--lb-text-muted);
   font-size: 0.78rem;
@@ -715,26 +820,51 @@
 }
 
 @media (max-width: 900px) {
+  .vitrine .lb-container.vitrine__contenu {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  .vitrine__contenu--image-haut,
   .vitrine__contenu {
     grid-template-columns: minmax(0, 1fr);
     min-height: 0;
-    padding-block: clamp(2.75rem, 8vw, 4rem);
+    padding-block: 0;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .vitrine__intro {
+    justify-self: start;
     max-width: 44rem;
+    margin: 0;
+    padding-inline: 0.75rem;
+    padding-top: clamp(1.5rem, 6vw, 2.5rem);
+    padding-bottom: 1rem;
+    padding-right: 0.75rem;
+    text-align: left;
   }
 
   .vitrine__visuel {
-    justify-self: center;
-    width: min(560px, 100%);
+    justify-self: stretch;
+    width: 100%;
+  }
+
+  .vitrine__arche {
+    height: clamp(220px, 56vw, 340px);
+    min-height: 220px;
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 }
 
 @media (max-width: 600px) {
-  .vitrine__contenu {
-    width: min(100% - 1.5rem, 1240px);
-    gap: 1.75rem;
+  .vitrine .lb-container.vitrine__contenu {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    gap: 0;
   }
 
   .vitrine__intro {
@@ -761,8 +891,12 @@
   }
 
   .produits {
-    width: min(100% - 1.5rem, 1440px);
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
     padding-block: 2.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
   .produits__entete {
@@ -782,5 +916,119 @@
 
   .produit__voir {
     padding-inline: 0.1rem;
+  }
+}
+
+/* ===== Belle fenetre Voir plus : carte premium ===== */
+.produit__fenetre {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--lb-or) 35%, var(--lb-border));
+  border-radius: var(--lb-radius-lg);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--lb-or) 10%, var(--lb-surface)), var(--lb-surface));
+  box-shadow: var(--lb-shadow-2);
+  animation: fenetreApparition 220ms ease-out;
+}
+
+.produit__fenetre-fermer {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--lb-border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--lb-text-muted);
+  cursor: pointer;
+  transition: color var(--lb-transition), border-color var(--lb-transition), transform var(--lb-transition);
+
+  &:hover {
+    transform: rotate(90deg);
+    border-color: var(--lb-or);
+    color: var(--lb-or-clair);
+  }
+
+  mat-icon {
+    width: 1rem;
+    height: 1rem;
+    font-size: 1rem;
+  }
+}
+
+.produit__fenetre-desc {
+  margin: 0;
+  color: var(--lb-text-muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.produit__fenetre-liste {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+
+  div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.4rem 0.65rem;
+    border-radius: var(--lb-radius-sm);
+    background: color-mix(in srgb, var(--lb-bg) 55%, transparent);
+  }
+
+  dt {
+    color: var(--lb-text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--lb-text);
+    font-weight: 700;
+  }
+}
+
+.produit__fenetre-lien {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 40px;
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--lb-radius-full);
+  background: linear-gradient(135deg, var(--lb-or), var(--lb-or-clair));
+  color: #1a1408;
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: transform var(--lb-transition), filter var(--lb-transition);
+
+  &:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.06);
+  }
+
+  mat-icon {
+    width: 1rem;
+    height: 1rem;
+    font-size: 1rem;
+  }
+}
+
+@keyframes fenetreApparition {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }

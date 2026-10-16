@@ -15,7 +15,8 @@ from apps.accounts.models import User
 from apps.ventes.models import Vente, LigneVente, Paiement, RetourVente, Reservation, SessionCaisse
 from apps.ventes.serializers import (
     VenteSerializer, VenteDetailSerializer, ReservationSerializer,
-    ReservationDetailSerializer, ReservationSiteSerializer,
+    ReservationDetailSerializer, ReservationSuiviSerializer,
+    ReservationSiteSerializer,
     SessionCaisseSerializer, ContexteCaisseSerializer,
 )
 from apps.accounts.permissions import CanManageVentes, IsAdmin
@@ -392,13 +393,15 @@ class ReservationViewSet(viewsets.ModelViewSet):
         url_path='suivi/(?P<reference>[^/.]+)',
         permission_classes=[AllowAny],
         authentication_classes=[],
+        throttle_classes=[ReservationSiteThrottle],
     )
     def suivi(self, request, reference):
         """Suivi public d'une commande passée sur le site, par sa référence.
 
         Le client du site n'a pas de compte : la référence sert de clé. Elle
         permet de retrouver l'état d'une commande (en attente, annulée,
-        vendue) sans exiger de jeton, sans exposer la liste des réservations.
+        vendue) sans exiger de jeton, sans exposer la liste des réservations
+        ni les données personnelles du client.
         """
         reservation = self.get_queryset().filter(reference__iexact=reference).first()
         if reservation is None:
@@ -409,7 +412,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_404_NOT_FOUND)
         return Response({
             'success': True,
-            'data': ReservationDetailSerializer(
+            'data': ReservationSuiviSerializer(
                 reservation, context=self.get_serializer_context()
             ).data,
         })

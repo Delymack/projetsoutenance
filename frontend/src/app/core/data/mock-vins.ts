@@ -21,7 +21,6 @@ export const MOCK_VINS: Vin[] = [
     stock: 42,
     volume: 75,
     alcool: 13.5,
-    region: 'Fianarantsoa, Betsileo',
     description:
       "Rouge profond des hautes terres betsileo, issu de syrah vieilli en fûts de chêne local. Tanins soyeux, finale longue.",
     notesDegustation: [
@@ -49,7 +48,6 @@ export const MOCK_VINS: Vin[] = [
     stock: 65,
     volume: 75,
     alcool: 12.5,
-    region: 'Fianarantsoa, Betsileo',
     description:
       'Blanc sec et minéral, nez d’agrumes confits et de fleurs blanches. Idéal pour les entrées et les poissons.',
     notesDegustation: [
@@ -77,7 +75,6 @@ export const MOCK_VINS: Vin[] = [
     stock: 30,
     volume: 75,
     alcool: 12,
-    region: 'Fianarantsoa, Betsileo',
     description:
       'Rosé primeur clair et frais, bouche juteuse, idéal pour les soirées d’été et les entrées légères.',
     notesDegustation: ['Nez : framboise, pamplemousse', 'Bouche : souple, désaltérante', 'Finale : fraîche'],
@@ -101,7 +98,6 @@ export const MOCK_VINS: Vin[] = [
     stock: 18,
     volume: 75,
     alcool: 11.5,
-    region: 'Fianarantsoa, Betsileo',
     description:
       'Pétillant frais méthode traditionnelle, bulles fines, festif. Parfait pour les fêtes et les cadeaux.',
     notesDegustation: ['Nez : fleurs, agrumes', 'Bouche : effervescence fine', 'Finale : fraîche et légère'],
@@ -125,7 +121,6 @@ export const MOCK_VINS: Vin[] = [
     stock: 55,
     volume: 75,
     alcool: 14,
-    region: 'Fianarantsoa, Betsileo',
     description:
       'Malbec profond, structuré, élevé en barriques. Vin de garde, idéal avec les viandes rouges et les fromages affinés.',
     notesDegustation: ['Nez : cassis, cuir, épices', 'Bouche : structurée, tanins fermes', 'Finale : longue, boisée'],
@@ -149,7 +144,6 @@ export const MOCK_VINS: Vin[] = [
     stock: 38,
     volume: 75,
     alcool: 13,
-    region: 'Fianarantsoa, Betsileo',
     description:
       'Blanc bio croquant, tension citriconnée, culture sans intrants chimiques. Une valeur sûre du terroir.',
     notesDegustation: ['Nez : citron vert, pomme', 'Bouche : tendue, fraîche', 'Finale : nette'],
@@ -173,7 +167,6 @@ export const MOCK_VINS: Vin[] = [
     stock: 26,
     volume: 75,
     alcool: 11,
-    region: 'Fianarantsoa, Betsileo',
     description:
       'Rosé légèrement sucré, profil doux, parfait avec les desserts et les soirées décontractées.',
     notesDegustation: ['Nez : fraise, pétale', 'Bouche : douce, ronde', 'Finale : légère'],
@@ -197,7 +190,6 @@ export const MOCK_VINS: Vin[] = [
     stock: 12,
     volume: 75,
     alcool: 13.5,
-    region: 'Fianarantsoa, Betsileo',
     description:
       'Pinot noir délicat et fin, nuances complexes, vin de garde élégant aux arômes de fruits rouges.',
     notesDegustation: ['Nez : cerise, sous-bois', 'Bouche : élégante, légère', 'Finale : subtile et longue'],
@@ -221,7 +213,6 @@ export const MOCK_VINS: Vin[] = [
     stock: 20,
     volume: 75,
     alcool: 20,
-    region: 'Fianarantsoa, Betsileo',
     description: 'Liqueur de cépages, chaude et ronde, servie en digestif ou en apéritif.',
     notesDegustation: ['Nez : fruits confits, épices', 'Bouche : ample, chaude', 'Finale : longue'],
     profil: { fruite: 0.8, tanin: 0.1, sucre: 0.8, acide: 0.2, bois: 0.5 },
@@ -244,7 +235,6 @@ export const MOCK_VINS: Vin[] = [
     stock: 72,
     volume: 75,
     alcool: 12,
-    region: 'Fianarantsoa, Betsileo',
     description: 'Sauvignon vif et aromatique, notes herbacées classiques, convivial à table.',
     notesDegustation: ['Nez : citron, herbe fraîche', 'Bouche : vive, nette', 'Finale : herbacée'],
     profil: { fruite: 0.45, tanin: 0.05, sucre: 0.05, acide: 0.9, bois: 0 },
@@ -267,7 +257,6 @@ export const MOCK_VINS: Vin[] = [
     stock: 48,
     volume: 75,
     alcool: 13.5,
-    region: 'Fianarantsoa, Betsileo',
     description: 'Cabernet structuré, tannique, actuellement en pleine maturité, à garder ou à boire.',
     notesDegustation: ['Nez : groseille, menthe', 'Bouche : tanique, charpentée', 'Finale : boisée'],
     profil: { fruite: 0.45, tanin: 0.8, sucre: 0.2, acide: 0.6, bois: 0.7 },
@@ -290,7 +279,6 @@ export const MOCK_VINS: Vin[] = [
     stock: 8,
     volume: 75,
     alcool: 12.5,
-    region: 'Fianarantsoa, Betsileo',
     description: 'Mousseux prestige millésimé, dosage fin, parfait pour les grands moments.',
     notesDegustation: ['Nez : brioche, agrumes', 'Bouche : fine, complexe', 'Finale : persistante'],
     profil: { fruite: 0.55, tanin: 0, sucre: 0.25, acide: 0.75, bois: 0.3 },

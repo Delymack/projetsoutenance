@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from apps.stocks.models import Stock, MouvementStock
 from apps.produits.serializers import ProduitSerializer
-from apps.accounts.serializers import UserSerializer # Supposant qu'il existe
 
 class StockSerializer(serializers.ModelSerializer):
     etat_stock = serializers.ReadOnlyField()

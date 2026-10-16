@@ -6,6 +6,7 @@ modules : c'est le même travail de comptoir. Ces tests verrouillent la fusion
 entrée « Caisse » dans la sidebar.
 """
 import re
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -56,6 +57,34 @@ class EspaceCaisseOngletsTests(TestCase):
     def test_le_journal_reste_atteignable_par_son_url(self):
         """Repliée dans l'onglet, la liste des ventes reste une vraie page."""
         self.assertEqual(self.client.get(reverse('admin:ventes_vente_changelist')).status_code, 200)
+
+    def test_la_caisse_n_affiche_pas_carte_ni_compte_client(self):
+        modes = [
+            ('ESPECES', 'Espèces'),
+            ('CHEQUE', 'Chèque'),
+            ('CARTE', 'Carte bancaire'),
+            ('CREDIT', 'Compte client'),
+        ]
+        with patch('apps.ventes.views_pos.modes_actifs', return_value=modes):
+            response = self.client.get(reverse('caisse-enregistreuse'))
+
+        self.assertEqual(response.status_code, 200)
+        modes_affiches = re.findall(
+            r'<button type="button" data-mode="([^"]+)"',
+            response.content.decode('utf-8'),
+        )
+        self.assertIn('ESPECES', modes_affiches)
+        self.assertIn('CHEQUE', modes_affiches)
+        self.assertNotIn('CARTE', modes_affiches)
+        self.assertNotIn('CREDIT', modes_affiches)
+
+    def test_la_caisse_signale_si_aucun_moyen_de_paiement_ne_reste(self):
+        modes = [('CARTE', 'Carte bancaire'), ('CREDIT', 'Compte client')]
+        with patch('apps.ventes.views_pos.modes_actifs', return_value=modes):
+            response = self.client.get(reverse('caisse-enregistreuse'))
+
+        self.assertContains(response, 'Aucun moyen de paiement disponible')
+        self.assertContains(response, 'id="payment-pills"')
 
     def test_la_caisse_calcule_les_offres_sans_code_promo(self):
         """Plus d'entrée de code : la caisse recalcule les offres toute seule."""

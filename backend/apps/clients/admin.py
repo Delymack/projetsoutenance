@@ -194,45 +194,34 @@ class ClientAdmin(ActionsColonneMixin, admin.ModelAdmin):
     list_select_related = False
     actions = ['actions_export_csv', 'actions_telephone_appel', 'actions_telephone_whatsapp', 'actions_liberer_credit']
 
-    # Fiche complète, pour la modification. La création utilise une version
-    # réduite (voir `get_fieldsets`) : on saisit un client, on ne négocie pas
-    # son encours au moment de l'enregistrer.
+    # Un formulaire unique : la création et la modification demandent
+    # exactement les mêmes champs (identité, adresse, plafond de crédit). La
+    # fenêtre flottante « nouveau client » et l'action « Modifier » affichent
+    # donc la même fiche — seule la section 360° (historique) apparaît après
+    # le premier enregistrement.
     fieldsets = (
         ('Identité', {'fields': ('nom', 'prenom', 'telephone', 'email')}),
         ('Adresse', {'fields': ('adresse',)}),
-        ('Encours', {'fields': ('max_credit', 'points_fidelite', 'niveau', 'solde_du')}),
-        ('Historique', {'fields': ('historique',), 'classes': ('lb-full-width',)}),
+        ('Crédit', {'fields': ('max_credit',)}),
+        ('Fiche client', {'fields': ('historique',), 'classes': ('lb-full-width',)}),
         ('Dates', {'fields': ('date_creation', 'updated_at'), 'classes': ('collapse',)}),
     )
 
     def get_fieldsets(self, request, obj=None):
         """
-        Création : uniquement l'identification, en un seul écran.
+        Mêmes champs à la création et à la modification.
 
-        Sont écartés à la création :
-        - les compteurs et la dette (`points_fidelite`, `niveau`, `solde_du`) :
-          ils sont calculés par les ventes et les règlements, les saisir serait
-          fausser le suivi dès le premier jour ;
-        - le plafond de crédit : décision commerciale, à poser quand le compte
-          est ouvert (action de masse « Libérer le plafond de crédit ») ;
-        - l'historique, vide tant que le client n'a pas d'id ;
-        - le type de client : quasi tous les comptes sont des particuliers,
-          le segment revendeur reste porté par le modèle, le filtre et les
-          KPI sans alourdir la saisie ;
-        - les dates, gérées automatiquement.
+        Les compteurs et la dette (`points_fidelite`, `niveau`, `solde_du`) et
+        les dates restent hors saisie : ils sont calculés par les ventes, les
+        règlements et le temps. Le type de client reste porté par le modèle,
+        le filtre et les KPI sans alourdir la fiche. La fiche 360° (historique,
+        encaissement) n'apparaît qu'une fois le client enregistré : un compte
+        sans identifiant n'a pas d'historique à montrer.
         """
         if obj is None:
-            # Un seul bloc : jazzmin transforme chaque fieldset en onglet, une
-            # adresse seule dans son onglet ferait perdre un clic pour rien.
-            return (
-                (
-                    'Identité',
-                    {
-                        'fields': (
-                            'nom', 'prenom', 'telephone', 'email', 'adresse',
-                        ),
-                    },
-                ),
+            return tuple(
+                fieldset for fieldset in self.fieldsets
+                if fieldset[0] not in ('Fiche client', 'Dates')
             )
         return self.fieldsets
 

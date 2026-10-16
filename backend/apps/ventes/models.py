@@ -38,6 +38,15 @@ class Unite(models.TextChoices):
 class Vente(models.Model):
     ModePaiement = Mode
 
+    # Agrégation de caisse : Mvola, Orange Money, Airtel Money et le mode
+    # fourre-tout « Mobile Money » alimentent tous la même colonne
+    # `ca_mobile_money` du poste de caisse. Sans ce regroupement, un
+    # remboursement ou un acompte saisi par opérateur échappait au total et la
+    # réconciliation espèces + mobile + carte + crédit ne retombait plus sur le CA.
+    MODES_MOBILE_MONEY = (
+        Mode.MVOLA, Mode.ORANGE_MONEY, Mode.AIRTEL_MONEY, Mode.MOBILE_MONEY,
+    )
+
     # Un opérateur identifié ou un chèque se rapproche ligne à ligne avec son
     # justificatif : sans référence, la clôture ne peut pas justifier
     # l'encaissement. La carte se rapproche via le terminal, et le mode

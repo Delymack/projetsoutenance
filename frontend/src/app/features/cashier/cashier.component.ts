@@ -147,9 +147,6 @@ export class CashierComponent {
 
   readonly modesPaiement: OptionModePaiement[] = [
     { code: 'ESPECES', libelle: 'Espèces', icone: 'payments' },
-    { code: 'MVOLA', libelle: 'MVola', icone: 'phone_android', badge: 'Telma' },
-    { code: 'ORANGE_MONEY', libelle: 'Orange Money', icone: 'contactless', badge: 'Orange' },
-    { code: 'AIRTEL_MONEY', libelle: 'Airtel Money', icone: 'smartphone', badge: 'Airtel' },
     { code: 'CARTE', libelle: 'Carte bancaire', icone: 'credit_card' },
   ];
 
@@ -438,11 +435,12 @@ export class CashierComponent {
   }
 
   cycleModePaiement(): void {
-    const modes: ModePaiementApi[] = ['ESPECES', 'MVOLA', 'ORANGE_MONEY', 'AIRTEL_MONEY', 'CARTE'];
+    const modes = this.modesPaiement.map((m) => m.code);
     const idx = modes.indexOf(this.modePaiement());
-    const suivant = modes[(idx + 1) % modes.length];
-    this.changerModePaiement(suivant);
-    this.flash(`Mode sélectionné : ${suivant}`);
+    const code = modes[(idx + 1) % modes.length];
+    const libelle = this.modesPaiement.find((m) => m.code === code)?.libelle ?? code;
+    this.changerModePaiement(code);
+    this.flash(`Mode sélectionné : ${libelle}`);
   }
 
   ajouterCoupure(montant: number): void {

@@ -342,8 +342,11 @@ REST_FRAMEWORK = {
 
 from datetime import timedelta
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    # Session longue : le client reste connecté très longtemps sans se
+    # reconnecter. Le front renouvelle l'access token via /auth/refresh/ dès
+    # qu'il expire, la déconnexion n'a lieu qu'à la demande de l'utilisateur.
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=365),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
@@ -362,9 +365,9 @@ SPECTACULAR_SETTINGS = {
 SOCIETE = {
     'nom': env('SOCIETE_NOM', default="LAZAN'I BETSILEO"),
     'slogan': env('SOCIETE_SLOGAN', default="Vins des hautes terres de Madagascar"),
-    'adresse': env('SOCIETE_ADRESSE', default='Isaha, Fianarantsoa, Madagascar'),
-    'telephone': env('SOCIETE_TELEPHONE', default='+261 34 00 000 00'),
-    'email': env('SOCIETE_EMAIL', default='contact@lazani-betsileo.mg'),
+    'adresse': env('SOCIETE_ADRESSE', default='Rue Alphonse Rakotozafy, Isaha, Fianarantsoa 301 — BP 1496, Madagascar'),
+    'telephone': env('SOCIETE_TELEPHONE', default='+261 20 75 901 27'),
+    'email': env('SOCIETE_EMAIL', default='lazatana@yahoo.fr'),
     'siret': env('SOCIETE_SIRET', default='NIF 4001234567'),
     'devise': env('SOCIETE_DEVISE', default='Ar'),
     'fonds_caisse': env.float('SOCIETE_FONDS_CAISSE', default=0),
@@ -435,7 +438,7 @@ USE_TZ = True
 # Static & Media files
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 # Ensure the static directory exists before adding it to STATICFILES_DIRS
 static_dir = BASE_DIR / 'static'
 if not static_dir.exists():
@@ -447,7 +450,10 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-MEDIA_URL = 'media/'
+# Le « / » initial est obligatoire : sans lui, `produit.image.url` vaut
+# `media/…` (relatif) et la boutique le colle après `/catalogue/…`, ce qui
+# casse l'affichage des photos.
+MEDIA_URL = '/media/'
 media_dir = BASE_DIR / 'media'
 if not media_dir.exists():
     os.makedirs(media_dir, exist_ok=True)
@@ -455,12 +461,12 @@ MEDIA_ROOT = media_dir
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# JAZZMIN CONFIGURATION
+# JAZZMIN CONFIGURATION (VERSION AMÉLIORÉE)
 JAZZMIN_SETTINGS = {
     "site_title": "LAZAN'I BETSILEO",
     "site_header": "LAZAN'I BETSILEO",
     "site_brand": "\U0001F377 LAZAN'I BETSILEO",
-    "welcome_sign": "Connexion",
+    "welcome_sign": "Bienvenue",
     "copyright": "LAZAN'I BETSILEO — Isaha, Fianarantsoa",
     "user_avatar": "avatar_url",
     "search_model": [],

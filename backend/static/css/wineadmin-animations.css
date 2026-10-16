@@ -1,0 +1,291 @@
+/* ============================================================
+   WineAdmin — Animations et Transitions Modernes
+   Améliore l'expérience utilisateur avec des animations fluides
+   ============================================================ */
+
+/* Animation d'entrée des éléments */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Animation des cartes de formulaire */
+.change-form .card {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+.change-form .card:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.change-form .card:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+/* Animation des KPIs */
+.lb-kpi {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.lb-kpi:nth-child(1) { animation-delay: 0s; }
+.lb-kpi:nth-child(2) { animation-delay: 0.1s; }
+.lb-kpi:nth-child(3) { animation-delay: 0.2s; }
+.lb-kpi:nth-child(4) { animation-delay: 0.3s; }
+
+/* Animation des panels */
+.lb-panel {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+/* Animation des badges */
+.lb-badge {
+    animation: scaleIn 0.3s ease-out;
+}
+
+/* Animation des boutons d'action */
+.action-card .btn {
+    animation: fadeInRight 0.3s ease-out;
+}
+
+.action-card .btn:nth-child(1) { animation-delay: 0s; }
+.action-card .btn:nth-child(2) { animation-delay: 0.1s; }
+.action-card .btn:nth-child(3) { animation-delay: 0.2s; }
+
+/* Animation des lignes de tableau */
+#result_list tbody tr {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+#result_list tbody tr:nth-child(1) { animation-delay: 0s; }
+#result_list tbody tr:nth-child(2) { animation-delay: 0.05s; }
+#result_list tbody tr:nth-child(3) { animation-delay: 0.1s; }
+#result_list tbody tr:nth-child(4) { animation-delay: 0.15s; }
+#result_list tbody tr:nth-child(5) { animation-delay: 0.2s; }
+
+/* Animation de chargement */
+.loading {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Animation de succès pour les actions */
+@keyframes successPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(47, 107, 79, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(47, 107, 79, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(47, 107, 79, 0);
+    }
+}
+
+.btn-success:active {
+    animation: successPulse 0.5s ease-out;
+}
+
+/* Animation de danger pour les actions destructives */
+@keyframes dangerPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(100, 27, 44, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(100, 27, 44, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(100, 27, 44, 0);
+    }
+}
+
+.btn-danger:active {
+    animation: dangerPulse 0.5s ease-out;
+}
+
+/* Animation des modales */
+.modal.fade .modal-dialog {
+    animation: scaleIn 0.3s ease-out;
+}
+
+/* Animation des dropdowns */
+.dropdown-menu {
+    animation: fadeInDown 0.2s ease-out;
+}
+
+/* Animation des tabs */
+#jazzy-tabs .nav-link {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animation des inputs au focus */
+.form-control:focus,
+.form-select:focus {
+    animation: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animation des lignes inline */
+.inline-group .tabular tr {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+/* Smooth scroll pour les pages longues */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Animation de la navbar */
+#jazzy-navbar {
+    animation: fadeInDown 0.5s ease-out;
+}
+
+/* Animation du sidebar */
+.main-sidebar {
+    animation: slideIn 0.4s ease-out;
+}
+
+/* Animation des messages de notification */
+.message {
+    animation: fadeInDown 0.4s ease-out;
+}
+
+/* Animation des tooltips */
+[data-bs-toggle="tooltip"] {
+    transition: opacity 0.2s ease;
+}
+
+/* Animation des progress bars */
+.lb-bar > span {
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animation des badges de statut */
+.badge {
+    animation: scaleIn 0.2s ease-out;
+}
+
+/* Animation des icônes hover */
+.fa:hover {
+    transition: transform 0.2s ease;
+}
+
+.btn .fa:hover {
+    transform: scale(1.1);
+}
+
+/* Animation des boutons de pagination */
+.pagination .page-link {
+    transition: all 0.2s ease;
+}
+
+/* Animation des filtres */
+#changelist-filter li {
+    animation: fadeInLeft 0.3s ease-out;
+}
+
+#changelist-filter li:nth-child(1) { animation-delay: 0s; }
+#changelist-filter li:nth-child(2) { animation-delay: 0.05s; }
+#changelist-filter li:nth-child(3) { animation-delay: 0.1s; }
+#changelist-filter li:nth-child(4) { animation-delay: 0.15s; }
+#changelist-filter li:nth-child(5) { animation-delay: 0.2s; }
+
+/* Animation de la recherche */
+#changelist-search {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+/* Responsive animations */
+@media (max-width: 768px) {
+    .lb-kpi,
+    .lb-panel,
+    .change-form .card {
+        animation: fadeInUp 0.3s ease-out;
+    }
+}
+
+/* Préférences utilisateur - réduire les animations */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

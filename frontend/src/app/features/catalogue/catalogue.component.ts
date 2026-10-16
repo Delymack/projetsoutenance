@@ -13,7 +13,9 @@ import { TranslateModule } from '@ngx-translate/core';
 import { catchError, debounceTime, map, Observable, of, startWith, switchMap, timer } from 'rxjs';
 
 import { Vin, WineCategory } from '../../core/models/product.model';
+import { FavorisService } from '../../core/services/favoris.service';
 import { PanierService } from '../../core/services/panier.service';
+import { ConfettiService } from '../../core/services/confetti.service';
 import { ParrainageService } from '../../core/services/parrainage.service';
 import { VinService } from '../../core/services/vin.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
@@ -50,8 +52,13 @@ export class CatalogueComponent {
   private readonly vinsService = inject(VinService);
   private readonly destroyRef = inject(DestroyRef);
   readonly panier = inject(PanierService);
+  /** Favoris persistés en local (bouton cœur des cartes). */
+  readonly favoris = inject(FavorisService);
   private readonly parrainage = inject(ParrainageService);
   private readonly router = inject(Router);
+
+  /** Confettis dorés à l'ajout au panier. */
+  private readonly confetti = inject(ConfettiService);
 
   readonly chargement = signal(true);
   readonly erreur = signal(false);
@@ -92,11 +99,23 @@ export class CatalogueComponent {
     if (vin.stock < 1) return;
     if (!this.panier.ajouter(vin)) return;
     this.ajoutConfirme.set(vin.id);
+    this.confetti.ajoutPanier();
     timer(1800)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         if (this.ajoutConfirme() === vin.id) this.ajoutConfirme.set(null);
       });
+  }
+
+  /**
+   * Effet « spotlight » : positionne la lueur dorée de la carte sous le
+   * curseur via deux variables CSS (--mx / --my), sans re-rendu (OnPush).
+   */
+  suivreCurseur(event: MouseEvent): void {
+    const carte = event.currentTarget as HTMLElement;
+    const rect = carte.getBoundingClientRect();
+    carte.style.setProperty('--mx', `${((event.clientX - rect.left) / rect.width) * 100}%`);
+    carte.style.setProperty('--my', `${((event.clientY - rect.top) / rect.height) * 100}%`);
   }
 
   basculerDetails(vinId: string): void {

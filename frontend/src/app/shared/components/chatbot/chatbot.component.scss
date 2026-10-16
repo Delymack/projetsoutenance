@@ -28,7 +28,7 @@
   height: 56px;
   color: var(--lb-primary-contrast);
   cursor: pointer;
-  background: linear-gradient(135deg, var(--lb-primary), var(--lb-bordeaux));
+  background: linear-gradient(135deg, var(--lb-primary), var(--lb-vert-foret));
   border: 2px solid var(--lb-accent);
   border-radius: 50%;
   box-shadow: var(--lb-shadow-3);
@@ -87,7 +87,7 @@
   gap: var(--lb-gap-sm);
   padding: var(--lb-gap-sm) var(--lb-gap);
   color: var(--lb-primary-contrast);
-  background: linear-gradient(135deg, var(--lb-primary), var(--lb-bordeaux));
+  background: linear-gradient(135deg, var(--lb-primary), var(--lb-vert-foret));
 }
 
 .chatbot__avatar {
@@ -115,7 +115,7 @@
 .chatbot__statut {
   width: 8px;
   height: 8px;
-  background: #7ee2a8;
+  background: var(--lb-success);
   border-radius: 50%;
 }
 

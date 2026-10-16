@@ -38,6 +38,11 @@ DATABASES = {
 # pendant la suite. En test, les codes vont uniquement en console.
 TESTING = True
 
+# Mots de passe MD5 en test : PBKDF2 (~1 s/hash) rend la suite de 483 tests
+# inutilisable (~15-20 min). MD5 divise le temps par ~20, sans impact sur la
+# couverture (le hachage lui-même n'est pas ce qui est testé).
+PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+
 # L'ouverture de caisse est une contrainte du poste de caisse, pas du
 # domaine : les tests de vente doivent pouvoir créer des ventes sans ouvrir
 # de session. Le comportement est couvert à part (tests/test_caisse_pos.py).

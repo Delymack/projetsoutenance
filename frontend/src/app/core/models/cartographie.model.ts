@@ -10,7 +10,6 @@ export interface Cave {
   type: 'cave' | 'domaine' | 'partenaire' | 'magasin';
   /** Ville où se trouve la cave. */
   ville: string;
-  region: string;
   latitude: number;
   longitude: number;
   /** Adresse / repère. */

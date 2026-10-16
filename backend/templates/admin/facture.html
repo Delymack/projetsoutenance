@@ -241,7 +241,7 @@
                                 {% if ligne.unite != 'BOUTEILLE' %} · vendu au {{ ligne.get_unite_display|lower }}{% endif %}
                                 {% if ligne.contenance > 1 %} · {{ ligne.contenance }} bouteilles{% endif %}
                             </div>
-                            {% if ligne.remise > 0 %}<div class="remise">Promotion : −{{ ligne.remise }} {{ societe.devise|default:"Ar" }}</div>{% endif %}
+                            {% if ligne.remise_promotion > 0 %}<div class="remise">Promotion : −{{ ligne.remise_promotion }} {{ societe.devise|default:"Ar" }}</div>{% endif %}
                             {% if ligne.remise_manuelle > 0 %}<div class="remise">Remise manuelle : −{{ ligne.remise_manuelle }} {{ societe.devise|default:"Ar" }}</div>{% endif %}
                             {% if ligne.quantite_retournee > 0 %}<div class="retour">{{ ligne.quantite_retournee }}/{{ ligne.quantite }} retourné(s)</div>{% endif %}
                         </td>

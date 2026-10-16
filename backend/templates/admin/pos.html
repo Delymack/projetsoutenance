@@ -46,9 +46,6 @@
   .pos .pos-status-pill.bad { background:#f6ecee; border-color:#e7d2d7; color:#8c1f33; }
   .pos .pos-status-pill.bad i { color:var(--red); }
   .pos .pos-status-pill button { background:currentColor; border:0; border-radius:7px; color:#fff; cursor:pointer; font-size:.71rem; font-weight:800; padding:.2rem .5rem; }
-  .pos .scan-hint { color:#7c6b6e; font-size:.71rem; margin-left:auto; }
-  .pos .scan-hint kbd { background:#f3ede8; border:1px solid #ded2cd; border-bottom-width:2px; border-radius:5px; font-family:inherit; font-size:.67rem; font-weight:800; padding:.05rem .3rem; }
-
   /* ---------- Toolbar catalogue ---------- */
   .pos .catalogue { background:linear-gradient(180deg,#fff,var(--cream)); border:1px solid var(--line); border-radius:16px; box-shadow:0 8px 26px rgba(43,27,32,.06); padding:.85rem; }
   .pos .toolbar-row { align-items:center; display:flex; flex-wrap:wrap; gap:.4rem; }
@@ -309,8 +306,50 @@
   @media (max-width:991px) { .pos .cart { position:static; } }
   @media (max-width:575px) {
     .pos .product-list, .pos.dense .product-list { grid-template-columns:repeat(2,minmax(0,1fr)); }
-    .pos .scan-hint { display:none; }
     .pos .tool-row { grid-template-columns:1fr; }
+  }
+
+  /* ---------- Finition du poste de vente ---------- */
+  .pos .pos-head::after { pointer-events:none; }
+  .pos .catalogue { padding:1rem; }
+  .pos .catalogue-intro { align-items:flex-end; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; gap:.5rem; margin-bottom:.8rem; padding:0 0 .7rem; }
+  .pos .catalogue-intro h2 { align-items:center; color:var(--ink); display:flex; font-size:1rem; font-weight:850; gap:.45rem; margin:0; }
+  .pos .catalogue-intro h2 i { color:var(--gold); }
+  .pos .catalogue-kicker { color:var(--wine-2); display:block; font-size:.64rem; font-weight:850; letter-spacing:.12em; margin-bottom:.15rem; text-transform:uppercase; }
+  .pos .catalogue-intro p { color:#7c6b6e; font-size:.74rem; margin:0; }
+  .pos .toolbar-row { gap:.55rem; }
+  .pos .search-wrap { flex-basis:320px; }
+  .pos #search-input, .pos .tool-toggle { min-height:46px; }
+  .pos .category-list { margin:.65rem 0 .55rem; }
+  .pos .product-count { border-bottom:1px solid var(--line); margin:.15rem 0 .6rem; padding:0 0 .55rem; }
+  .pos .product-list { gap:.65rem; }
+  .pos .product { box-shadow:0 2px 8px rgba(43,27,32,.045); }
+  .pos .cart { display:flex; flex-direction:column; max-height:calc(100vh - 2rem); }
+  .pos .cart-body { min-height:0; overflow-y:auto; }
+  .pos .cart-items { max-height:clamp(130px,28vh,280px); }
+  .pos #payment-pills { display:grid; gap:.35rem; grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .pos #payment-pills button { border:1px solid var(--line); border-radius:10px; flex:initial; min-height:42px; padding:.35rem .25rem; }
+  .pos #payment-pills button.active { background:#f7f0e4; border-color:var(--gold); box-shadow:0 0 0 1px rgba(201,155,59,.12); color:var(--wine); }
+  .pos .payment-unavailable { background:#fff6e4; border:1px solid #ecdcbc; border-radius:10px; color:#7c5315; font-size:.77rem; font-weight:700; line-height:1.45; margin:.45rem 0; padding:.6rem .7rem; }
+  .pos button:focus-visible, .pos input:focus-visible, .pos select:focus-visible { outline:3px solid rgba(201,155,59,.55); outline-offset:2px; }
+  @media (max-width:1199px) {
+    .pos #payment-pills { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  }
+  @media (max-width:991px) {
+    .pos .cart { max-height:none; }
+    .pos .cart-body { overflow:visible; }
+  }
+  @media (max-width:575px) {
+    .pos .catalogue { padding:.75rem; }
+    .pos .catalogue-intro { align-items:flex-start; flex-direction:column; }
+    .pos .catalogue-intro p { font-size:.72rem; }
+    .pos .toolbar-row .tool-toggle { flex:1 1 calc(50% - .3rem); justify-content:center; }
+    .pos #payment-pills { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .pos .head-stats { flex:1 1 100%; }
+    .pos .head-right { margin-left:auto; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pos .pos-head::after { animation:none; }
   }
 </style>
 
@@ -321,7 +360,6 @@
     <h1><i class="fas fa-cash-register"></i> Nouvelle vente</h1>
     <div class="head-stats">
       <span class="cashier-chip" id="cashier-chip"><i class="fas fa-user-tie"></i> <span id="cashier-name">{{ request.user.get_full_name|default:request.user.username }}</span></span>
-      <span class="hstat"><i class="fas fa-shopping-basket"></i><span id="hstat-items">0 article</span></span>
       <span class="hstat gold" id="hstat-savings" style="display:none"><i class="fas fa-tag"></i><span id="hstat-savings-txt">-0,00</span></span>
       <span class="hstat"><i class="fas fa-bolt"></i><span id="hstat-promos">0 promo</span></span>
     </div>
@@ -348,22 +386,25 @@
   <!-- ================= BANDEAU D'ÉTAT ================= -->
   <div class="pos-status-strip">
     <span class="pos-status-pill" id="pill-session"><i class="fas fa-circle"></i> <span>Session…</span></span>
-    <span class="pos-status-pill" id="pill-remise" style="display:none"><i class="fas fa-tag"></i> <span>Remise autorisée</span></span>
-    <span class="pos-status-pill"><i class="fas fa-shield-alt"></i> Stock contrôlé à la validation</span>
-    <span class="scan-hint">Douchette active — <kbd>F2</kbd> scanner, <kbd>Entrée</kbd> ajoute au panier</span>
   </div>
 
   <div class="row">
     <!-- ================= CATALOGUE ================= -->
     <section class="col-lg-8 mb-3">
       <div class="catalogue">
+        <div class="catalogue-intro">
+          <div>
+            <span class="catalogue-kicker">Point de vente</span>
+            <h2><i class="fas fa-wine-bottle" aria-hidden="true"></i>Catalogue des produits</h2>
+          </div>
+          <p>Choisissez une référence ou scannez son code-barres.</p>
+        </div>
         <div class="toolbar-row">
           <div class="search-wrap">
             <i class="fas fa-barcode"></i>
             <input id="search-input" class="form-control" type="search" autocomplete="off" placeholder="Scanner ou rechercher : nom, marque, millésime…" aria-label="Scanner ou rechercher un produit">
             <button class="search-clear" id="search-clear" type="button" title="Effacer (Échap)"><i class="fas fa-times-circle"></i></button>
           </div>
-          <button class="tool-toggle" id="hide-rupture" type="button"><i class="fas fa-boxes"></i> Masquer ruptures</button>
           <button class="tool-toggle" id="promo-only" type="button"><i class="fas fa-tag"></i> En promo</button>
         </div>
         <div class="category-list" id="category-list" aria-label="Filtrer par catégorie"></div>
@@ -386,11 +427,10 @@
 
           <div class="client-label-row">
             <label for="client-select">Client</label>
-            <span style="font-size:.73rem;font-weight:700;color:#a39294"><i class="fas fa-gem mr-1"></i><span id="client-niveau">Fidélité</span></span>
           </div>
           <div class="client-row">
             <select id="client-select" class="form-control"><option value="">Client de passage</option></select>
-            <button class="add-client" id="express-client" type="button" title="Créer un client rapidement"><i class="fas fa-user-plus"></i></button>
+            <button class="add-client" id="express-client" type="button" title="Créer un client rapidement" aria-label="Créer un client rapidement"><i class="fas fa-user-plus"></i></button>
           </div>
           {# Saisie libre du nom quand aucune fiche client n'est sélectionnée. #}
           <div class="client-row" id="client-libelle-row" style="display:none;margin-top:.35rem">
@@ -417,6 +457,9 @@
               <button type="button" data-mode="{{ code }}" {% if forloop.first %}class="active"{% endif %}><i class="fas {{ icone_paiement|call:code }}"></i>{{ libelle }}</button>
             {% endfor %}
           </div>
+          {% if paiement_indisponible %}
+            <p class="payment-unavailable" role="alert">Aucun moyen de paiement disponible. Contactez un administrateur pour vérifier la configuration.</p>
+          {% endif %}
           <span class="pts-row" id="pts-row" style="display:none"><span><i class="fas fa-star mr-1" style="color:#c99b3b"></i>Fidélité estimée</span><span id="pts-amount">0 pts</span></span>
           <div class="savings-row" id="savings-row" style="display:none"><span><i class="fas fa-tag mr-1"></i>Économies</span><span id="savings-amount">- 0,00</span></div>
           <div class="total-row"><small>Total à encaisser</small><span class="total" id="cart-total">0,00</span></div>

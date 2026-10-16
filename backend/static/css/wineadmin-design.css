@@ -1,5 +1,5 @@
 /* ==========================================================================
-   WineAdmin — DESIGN SYSTEM UNIQUE
+   WineAdmin — DESIGN SYSTEM UNIQUE (VERSION AMÉLIORÉE)
    Source de vérité unique du rendu de toutes les pages admin.
    Remplace les blocs <style> inline dupliqués dans les change_list.
 
@@ -11,31 +11,42 @@
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. TOKENS
+   1. TOKENS avec nuances améliorées
    -------------------------------------------------------------------------- */
 :root {
     /* --- Les 3 seules teintes autorisées --- */
     --lb-wine:        #641b2c;   /* GRENAT — primaire */
+    --lb-wine-700:    #7a2838;
     --lb-wine-600:    #741f35;
-    --lb-wine-800:    #34101c;
+    --lb-wine-800:    #4a1520;
+    --lb-wine-900:    #2a0d16;
     --lb-wine-100:    #f6ecee;
     --lb-wine-200:    #e7d2d7;
+    --lb-wine-300:    #d4b8be;
 
     --lb-gold:        #c99b3b;   /* OR — accent */
+    --lb-gold-700:    #d9a84b;
     --lb-gold-600:    #a67c25;
+    --lb-gold-800:    #865c15;
     --lb-gold-100:    #fbf3e2;
     --lb-gold-200:    #ecd9a8;
+    --lb-gold-300:    #dec090;
 
     --lb-sage:        #2f6b4f;   /* SAGE — succès */
+    --lb-sage-700:    #3f7b5f;
     --lb-sage-600:    #255540;
+    --lb-sage-800:    #1a3f2f;
     --lb-sage-100:    #e9f2ed;
     --lb-sage-200:    #c6ded0;
+    --lb-sage-300:    #a3c8b3;
 
     /* --- Échelle neutre dérivée de l'encre (teinte, pas une couleur) --- */
     --lb-ink:         #2b1b20;
+    --lb-ink-800:     #3d2a30;
     --lb-ink-700:     #5a4a4e;
     --lb-ink-500:     #8a7c7d;
     --lb-ink-300:     #b9a39f;
+    --lb-ink-100:     #e8e0dc;
     --lb-line:        #ebe3de;
     --lb-line-soft:   #f3ece8;
     --lb-surface:     #ffffff;
@@ -50,14 +61,14 @@
     --lb-warning:     var(--lb-gold);
 
     /* --- Rythme --- */
-    --lb-radius-sm:   8px;
-    --lb-radius:      12px;
-    --lb-radius-lg:   16px;
-    --lb-gap:         .85rem;
-    --lb-shadow-sm:   0 4px 13px rgba(43, 27, 32, .05);
-    --lb-shadow:      0 6px 20px rgba(43, 27, 32, .07);
-    --lb-shadow-lg:   0 14px 34px rgba(43, 27, 32, .12);
-    --lb-hero-shadow: 0 12px 30px rgba(52, 16, 28, .22);
+    --lb-radius-sm:   10px;
+    --lb-radius:      14px;
+    --lb-radius-lg:   18px;
+    --lb-gap:         .9rem;
+    --lb-shadow-sm:   0 4px 16px rgba(43, 27, 32, .06);
+    --lb-shadow:      0 6px 24px rgba(43, 27, 32, .08);
+    --lb-shadow-lg:   0 14px 40px rgba(43, 27, 32, .12);
+    --lb-hero-shadow: 0 12px 36px rgba(52, 16, 28, .24);
 }
 
 /* --------------------------------------------------------------------------
@@ -199,101 +210,170 @@ html[data-bs-theme="dark"] {
 .lb-btn-ghost:hover { background: rgba(255, 255, 255, .2); color: #fff; }
 
 /* --------------------------------------------------------------------------
-   5. KPI
+   5. KPI - VERSION AMÉLIORÉE avec effets modernes
    -------------------------------------------------------------------------- */
 .lb-kpis {
     display: grid;
     gap: var(--lb-gap);
-    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-    margin-bottom: 1.15rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    margin-bottom: 1.25rem;
 }
 .lb-kpi {
-    background: var(--lb-surface);
-    border: 1px solid var(--lb-line);
-    border-left: 3px solid var(--lb-wine);
+    background: linear-gradient(135deg, var(--lb-surface) 0%, var(--lb-canvas) 100%);
+    border: 1.5px solid var(--lb-line);
+    border-left: 4px solid var(--lb-wine);
     border-radius: var(--lb-radius);
     box-shadow: var(--lb-shadow-sm);
     display: block;
-    min-height: 92px;
-    padding: .9rem 1rem;
+    min-height: 100px;
+    padding: 1rem 1.15rem;
     position: relative;
-    transition: box-shadow .15s ease, transform .15s ease;
+    transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
 }
-.lb-kpi:hover { box-shadow: var(--lb-shadow); transform: translateY(-2px); }
+.lb-kpi::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle at top right, var(--lb-wine-100) 0%, transparent 70%);
+    opacity: .5;
+    transition: opacity .25s ease;
+}
+.lb-kpi:hover { 
+    box-shadow: var(--lb-shadow); 
+    transform: translateY(-3px);
+    border-color: var(--lb-gold-200);
+}
+.lb-kpi:hover::before {
+    opacity: .7;
+}
 .lb-kpi .lb-kpi-icon {
-    background: var(--lb-wine-100);
-    border-radius: 9px;
+    background: linear-gradient(135deg, var(--lb-wine-100) 0%, var(--lb-wine-200) 100%);
+    border-radius: 12px;
     color: var(--lb-wine);
     display: inline-flex;
-    font-size: .95rem;
-    height: 30px;
+    font-size: 1rem;
+    height: 36px;
     align-items: center;
     justify-content: center;
     position: absolute;
-    right: .85rem;
-    top: .85rem;
-    width: 30px;
+    right: 1rem;
+    top: 1rem;
+    width: 36px;
+    box-shadow: 0 2px 8px rgba(100, 27, 44, .15);
+    transition: all .25s ease;
+}
+.lb-kpi:hover .lb-kpi-icon {
+    transform: scale(1.1) rotate(5deg);
 }
 .lb-kpi small {
     color: var(--lb-ink-500);
     display: block;
-    font-size: .68rem;
+    font-size: .7rem;
     font-weight: 800;
-    letter-spacing: .07em;
+    letter-spacing: .08em;
     text-transform: uppercase;
+    position: relative;
+    z-index: 1;
 }
 .lb-kpi strong {
     color: var(--lb-ink);
     display: block;
-    font-size: 1.5rem;
+    font-size: 1.7rem;
     font-weight: 750;
     letter-spacing: -.02em;
     line-height: 1.15;
-    margin-top: .45rem;
+    margin-top: .5rem;
+    position: relative;
+    z-index: 1;
 }
-.lb-kpi .lb-kpi-sub { color: var(--lb-ink-500); display: block; font-size: .72rem; margin-top: .2rem; }
+.lb-kpi .lb-kpi-sub { 
+    color: var(--lb-ink-500); 
+    display: block; 
+    font-size: .75rem; 
+    margin-top: .25rem;
+    position: relative;
+    z-index: 1;
+}
 .lb-kpi-ok     { border-left-color: var(--lb-sage); }
-.lb-kpi-ok     .lb-kpi-icon { background: var(--lb-sage-100); color: var(--lb-sage); }
+.lb-kpi-ok     .lb-kpi-icon { 
+    background: linear-gradient(135deg, var(--lb-sage-100) 0%, var(--lb-sage-200) 100%); 
+    color: var(--lb-sage); 
+}
 .lb-kpi-ok     strong { color: var(--lb-sage); }
 .lb-kpi-warn   { border-left-color: var(--lb-gold); }
-.lb-kpi-warn   .lb-kpi-icon { background: var(--lb-gold-100); color: var(--lb-gold-600); }
+.lb-kpi-warn   .lb-kpi-icon { 
+    background: linear-gradient(135deg, var(--lb-gold-100) 0%, var(--lb-gold-200) 100%); 
+    color: var(--lb-gold-600); 
+}
 .lb-kpi-warn   strong { color: var(--lb-gold-600); }
 .lb-kpi-danger { border-left-color: var(--lb-wine); }
-.lb-kpi-danger .lb-kpi-icon { background: var(--lb-wine-100); color: var(--lb-wine); }
+.lb-kpi-danger .lb-kpi-icon { 
+    background: linear-gradient(135deg, var(--lb-wine-100) 0%, var(--lb-wine-200) 100%); 
+    color: var(--lb-wine); 
+}
 .lb-kpi-neutral { border-left-color: var(--lb-ink-300); }
-.lb-kpi-neutral .lb-kpi-icon { background: var(--lb-line-soft); color: var(--lb-ink-500); }
+.lb-kpi-neutral .lb-kpi-icon { 
+    background: linear-gradient(135deg, var(--lb-line-soft) 0%, var(--lb-line) 100%); 
+    color: var(--lb-ink-500); 
+}
 .lb-kpi-neutral strong { color: var(--lb-ink); }
 
 .lb-kpi.is-clickable { cursor: pointer; }
-.lb-kpi.is-clickable:hover { border-color: var(--lb-gold); }
-.lb-kpi.is-active { box-shadow: 0 0 0 2px var(--lb-gold) inset, var(--lb-shadow); }
+.lb-kpi.is-clickable:hover { 
+    border-color: var(--lb-gold);
+    border-left-color: var(--lb-gold);
+}
+.lb-kpi.is-active { 
+    box-shadow: 0 0 0 3px var(--lb-gold) inset, var(--lb-shadow-lg); 
+    border-color: var(--lb-gold);
+}
 
 /* --------------------------------------------------------------------------
-   6. PAPIER : liste, filtres, recherche
+   6. PAPIER : liste, filtres, recherche - VERSION AMÉLIORÉE
    -------------------------------------------------------------------------- */
 .lb-panel {
-    background: var(--lb-surface);
-    border: 1px solid var(--lb-line);
+    background: linear-gradient(135deg, var(--lb-surface) 0%, var(--lb-canvas) 100%);
+    border: 1.5px solid var(--lb-line);
     border-radius: var(--lb-radius-lg);
     box-shadow: var(--lb-shadow-sm);
-    margin-bottom: 1.15rem;
+    margin-bottom: 1.25rem;
     overflow: hidden;
+    transition: all .25s ease;
+}
+.lb-panel:hover {
+    box-shadow: var(--lb-shadow);
 }
 .lb-panel-head {
     align-items: center;
-    background: var(--lb-canvas);
-    border-bottom: 1px solid var(--lb-line);
+    background: linear-gradient(135deg, var(--lb-canvas) 0%, var(--lb-canvas-2) 100%);
+    border-bottom: 1.5px solid var(--lb-line);
     display: flex;
     flex-wrap: wrap;
-    gap: .6rem;
+    gap: .7rem;
     justify-content: space-between;
-    padding: .8rem 1rem;
+    padding: .9rem 1.15rem;
+    position: relative;
+}
+.lb-panel-head::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--lb-gold-200), transparent);
+    opacity: .4;
 }
 .lb-panel-head h2 {
     color: var(--lb-ink);
-    font-size: .95rem;
+    font-size: 1rem;
     font-weight: 750;
     margin: 0;
+    letter-spacing: .01em;
 }
 .lb-panel-head h2 .lb-kpi-icon { position: static; }
 /* Bandeau workflow de la commande (admin/change_form des réservations) */
@@ -831,22 +911,31 @@ input[type="submit"].default:hover, .object-tools a.addlink:hover { background: 
 #result_list td.field-_actions_col { text-align: right; white-space: nowrap; width: 1%; }
 #result_list th.column-_actions_col { color: var(--lb-ink-300); }
 
-/* Les boutons de ligne : discrets au repos, colorés seulement sous le curseur.
-   Vingt-cinq lignes d'or et de rouge saturés écrasaient le tableau : l'action
-   doit s'allumer quand on la vise, pas crier depuis chaque ligne. */
+/* Les boutons de ligne : une icône carrée par action, discrète au repos.
+   Vingt-cinq lignes de libellés et de dégradés saturés écrasaient le tableau :
+   l'action s'allume sous le curseur, et son nom apparaît en infobulle. */
 #result_list .databtn {
-    background: var(--lb-surface);
+    align-items: center;
+    background: var(--lb-canvas);
     border: 1px solid var(--lb-line);
+    border-radius: 7px;
     box-shadow: none;
     color: var(--lb-ink-700);
-    font-weight: 600;
-    padding: .3rem .55rem;
+    display: inline-flex;
+    height: 28px;
+    justify-content: center;
+    padding: 0;
+    position: relative;
+    width: 28px;
 }
+#result_list .databtn .databtn-label { display: none; }
+#result_list .databtn i { font-size: .82rem; }
 #result_list .databtn:hover { transform: none; }
+#result_list .databtn-edit { color: var(--lb-wine); }
 #result_list .databtn-edit:hover {
     background: var(--lb-gold);
     border-color: var(--lb-gold-600);
-    color: #221403;
+    color: var(--lb-wine-900);
 }
 #result_list .databtn-delete { color: var(--lb-wine); }
 #result_list .databtn-delete:hover {
@@ -854,10 +943,35 @@ input[type="submit"].default:hover, .object-tools a.addlink:hover { background: 
     border-color: var(--lb-wine-600);
     color: #fff;
 }
+#result_list .databtn-view { color: var(--lb-ink-700); }
 #result_list .databtn-view:hover {
     background: var(--lb-ink-700);
     border-color: var(--lb-ink-700);
     color: #fff;
+}
+/* Infobulle au survol : le nom de l'action, au-dessus du bouton. */
+#result_list .databtn::after {
+    background: var(--lb-ink-800);
+    border-radius: 6px;
+    bottom: calc(100% + 6px);
+    color: #fff;
+    content: attr(aria-label);
+    font-size: .7rem;
+    font-weight: 600;
+    opacity: 0;
+    padding: .25rem .5rem;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+    transform: translateY(2px);
+    transition: opacity .12s ease, transform .12s ease;
+    white-space: nowrap;
+    z-index: 5;
+}
+#result_list .databtn:hover::after,
+#result_list .databtn:focus-visible::after {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* Liste vide : une phrase, pas un tableau fantôme. */
@@ -932,7 +1046,7 @@ input[type="submit"].default:hover, .object-tools a.addlink:hover { background: 
        droits : c'est le seul moyen de lire dix colonnes sur un téléphone. */
     #changelist .results .table-responsive { overflow-x: auto; }
     #jazzy-tabs { border-radius: 0; margin-left: -.25rem; margin-right: -.25rem; }
-    #result_list .databtn { padding: .3rem .45rem; }
+    #result_list .databtn { height: 26px; width: 26px; }
 }
 
 /* --------------------------------------------------------------------------
@@ -1265,3 +1379,107 @@ html[data-bs-theme="dark"] .btn-outline-primary:hover,
 html[data-bs-theme="dark"] .btn-outline-dark:hover {
     background: rgba(201, 155, 59, .12) !important;
 }
+
+/* --------------------------------------------------------------------------
+   13. FENÊTRE DE CONFIRMATION — avant toute suppression
+   Une petite fenêtre centrée, ouverte par le bouton « Supprimer » de
+   n'importe quelle table. Même langage visuel que la fenêtre de saisie rapide.
+   -------------------------------------------------------------------------- */
+.wine-confirm[aria-hidden="true"] { display: none; }
+
+.wine-confirm {
+    align-items: center;
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: clamp(.75rem, 4vw, 2rem);
+    position: fixed;
+    z-index: 1300;
+}
+.wine-confirm-backdrop {
+    backdrop-filter: blur(3px);
+    background: rgba(15, 8, 11, .68);
+    border: 0;
+    cursor: default;
+    inset: 0;
+    position: absolute;
+    width: 100%;
+}
+.wine-confirm-dialog {
+    animation: wine-confirm-entree .18s cubic-bezier(.2, .8, .3, 1) both;
+    background: var(--lb-surface);
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .4);
+    max-width: 420px;
+    padding: 1.5rem 1.5rem 1.25rem;
+    position: relative;
+    text-align: center;
+    width: min(100%, 420px);
+}
+@keyframes wine-confirm-entree {
+    from { opacity: 0; transform: translateY(10px) scale(.98); }
+    to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .wine-confirm-dialog { animation: none; }
+}
+.wine-confirm-icon {
+    align-items: center;
+    background: var(--lb-wine-100);
+    border-radius: 50%;
+    color: var(--lb-wine);
+    display: inline-flex;
+    font-size: 1.35rem;
+    height: 54px;
+    justify-content: center;
+    margin: 0 auto .85rem;
+    width: 54px;
+}
+.wine-confirm-title {
+    color: var(--lb-ink);
+    font-size: 1.12rem;
+    font-weight: 800;
+    margin: 0 0 .35rem;
+}
+.wine-confirm-message {
+    color: var(--lb-ink-500);
+    font-size: .9rem;
+    line-height: 1.5;
+    margin: 0 0 1.25rem;
+}
+.wine-confirm-message strong { color: var(--lb-ink-700); font-weight: 700; }
+.wine-confirm-actions {
+    display: flex;
+    gap: .6rem;
+    justify-content: center;
+    margin: 0;
+}
+.wine-confirm-cancel,
+.wine-confirm-ok {
+    align-items: center;
+    border-radius: var(--lb-radius-sm);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: .88rem;
+    font-weight: 700;
+    gap: .4rem;
+    justify-content: center;
+    min-height: 42px;
+    min-width: 128px;
+    padding: .55rem 1.1rem;
+    transition: filter .15s ease, background .15s ease;
+}
+.wine-confirm-cancel {
+    background: var(--lb-canvas);
+    border: 1px solid var(--lb-line);
+    color: var(--lb-ink-700);
+}
+.wine-confirm-cancel:hover { background: var(--lb-canvas-2); }
+.wine-confirm-ok {
+    background: var(--lb-wine);
+    border: 1px solid var(--lb-wine);
+    color: #fff;
+}
+.wine-confirm-ok:hover { filter: brightness(1.08); }
+body.wine-confirm-open { overflow: hidden; }

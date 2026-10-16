@@ -11,8 +11,6 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import VerificationCode
 from .services import (
     clear_totp_attempts,
-    find_user,
-    obfuscate_totp_secret,
     record_totp_failed,
     totp_locked,
     unobfuscate_totp_secret,
@@ -144,6 +142,8 @@ class LoginSendCodeSerializer(serializers.Serializer):
 class LoginVerifySerializer(serializers.Serializer):
     contact = serializers.CharField(max_length=150)
     code = serializers.CharField(max_length=6)
+    # Second facteur exigé uniquement si le compte a activé la 2FA.
+    totp = serializers.CharField(max_length=6, required=False, allow_blank=True)
 
     def validate_contact(self, value):
         return normaliser_contact(value)
@@ -234,22 +234,26 @@ class WineTokenObtainPairSerializer(TokenObtainPairSerializer):
     totp = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     def validate(self, attrs):
-        attempt = find_user(attrs.get(User.USERNAME_FIELD, ''))
-        if attempt is not None and getattr(attempt, 'totp_enabled', False):
-            username = attempt.username
+        # Le mot de passe est authentifié D'ABORD : le contrôle TOTP ne doit
+        # porter que sur l'utilisateur réellement authentifié. Sinon un
+        # identifiant (notamment numérique) pourrait désigner un autre compte
+        # et court-circuiter l'exigence de double authentification.
+        data = super().validate(attrs)
+        user = self.user
+        if getattr(user, 'totp_enabled', False):
+            username = user.username
             if totp_locked(username):
                 raise serializers.ValidationError({
                     'totp': 'Trop de tentatives de code de double authentification. Compte temporairement verrouillé.',
                 })
             provided = attrs.get('totp', '')
             if not provided or not verify_totp(
-                unobfuscate_totp_secret(getattr(attempt, 'totp_secret', '')), provided
+                unobfuscate_totp_secret(getattr(user, 'totp_secret', '')), provided
             ):
                 record_totp_failed(username)
                 raise serializers.ValidationError({
                     'totp': 'Code de double authentification invalide ou manquant.',
                 })
             clear_totp_attempts(username)
-        data = super().validate(attrs)
-        data['user'] = UserSerializer(self.user).data
+        data['user'] = UserSerializer(user).data
         return data

@@ -3,18 +3,6 @@
   Mobile first : sur petit écran seuls le logo, le panier et le menu sont visibles.
 -->
 <header class="navbar">
-  <!-- Accès au suivi des commandes, masqué lorsque le bandeau hors ligne prend la place. -->
-  @if (!horsLigne()) {
-    <div class="navbar__annonce">
-      <div class="lb-container navbar__annonce-inner">
-        <a routerLink="/historique" class="navbar__annonce-lien">
-          <span>{{ 'BANDEAU.suivi' | translate }}</span>
-          <mat-icon aria-hidden="true">arrow_forward</mat-icon>
-        </a>
-      </div>
-    </div>
-  }
-
   <div class="navbar__inner lb-container">
 
     <!-- Logo / marque -->

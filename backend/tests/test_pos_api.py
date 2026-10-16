@@ -171,9 +171,9 @@ class VenteApiTests(BasePosApi):
             self.assertIn(champ, data, f'champ absent de la vente : {champ}')
         self.assertIn('format=ticket80', data['ticket_url'])
         # Le client a un téléphone : le lien WhatsApp doit être exploitable.
-        # « 0340000000 » devient 228 + 340000000, jamais un numéro avec le 0 national.
+        # « 0340000000 » devient 261 + 340000000, jamais un numéro avec le 0 national.
         self.assertTrue(
-            data['whatsapp_url'].startswith('https://wa.me/228340000000?text='),
+            data['whatsapp_url'].startswith('https://wa.me/261340000000?text='),
             f"lien WhatsApp inattendu : {data['whatsapp_url'][:80]}",
         )
 

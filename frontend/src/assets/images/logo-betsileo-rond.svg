@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Lazan'i Betsileo — Vins de Fianarantsoa">
+  <title>Lazan'i Betsileo</title>
+  <defs>
+    <radialGradient id="lbFondR" cx="42%" cy="28%" r="82%">
+      <stop offset="0%" stop-color="#FCF6E6"/>
+      <stop offset="52%" stop-color="#F1E5C9"/>
+      <stop offset="100%" stop-color="#E0CFA7"/>
+    </radialGradient>
+    <linearGradient id="lbVertR" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#3B6630"/>
+      <stop offset="100%" stop-color="#74A552"/>
+    </linearGradient>
+    <linearGradient id="lbPailleR" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E8D4A0"/>
+      <stop offset="100%" stop-color="#CDB478"/>
+    </linearGradient>
+    <!-- Arcs circulaires pour le texte courbé -->
+    <path id="lbArcHautR" d="M 26,100 A 74,74 0 0 1 174,100" fill="none"/>
+    <path id="lbArcBasR" d="M 36,100 A 64,64 0 0 0 164,100" fill="none"/>
+  </defs>
+
+  <!-- ===== Sceau circulaire ===== -->
+  <circle cx="100" cy="100" r="92" fill="url(#lbFondR)"/>
+  <circle cx="100" cy="100" r="92" fill="none" stroke="#2A2114" stroke-width="5"/>
+  <circle cx="100" cy="100" r="84" fill="none" stroke="#2A2114" stroke-width="1.8"/>
+
+  <!-- ===== Texte courbé ===== -->
+  <text font-family="Georgia, 'Times New Roman', serif" font-size="15" font-weight="700" fill="#33281A" letter-spacing="1.8">
+    <textPath href="#lbArcHautR" startOffset="50%" text-anchor="middle">LAZAN' I BETSILEO</textPath>
+  </text>
+  <text font-family="Georgia, 'Times New Roman', serif" font-size="10.5" font-weight="700" fill="#4A3A26" letter-spacing="2.6">
+    <textPath href="#lbArcBasR" startOffset="50%" text-anchor="middle">FIANARANTSOA</textPath>
+  </text>
+
+  <!-- Séparateurs losanges à 9h et 3h -->
+  <g fill="#33281A">
+    <path d="M16,100 l5,-5 5,5 -5,5 Z"/>
+    <path d="M184,100 l5,-5 5,5 -5,5 Z"/>
+  </g>
+
+  <!-- ===== Plants de riz (verts, à gauche) ===== -->
+  <g fill="none" stroke="url(#lbVertR)" stroke-width="2.6" stroke-linecap="round">
+    <path d="M66,136 C62,120 60,104 64,86"/>
+    <path d="M78,136 C76,122 78,106 84,92"/>
+    <path d="M55,136 C51,124 53,112 57,100"/>
+  </g>
+  <g fill="#5C8C44">
+    <path d="M64,86 c-5,-3 -6,-9 -3,-14 2,4 5,7 9,8 -1,3 -3,5 -6,6 Z"/>
+    <path d="M84,92 c-6,-2 -8,-8 -6,-13 2,4 6,7 11,7 -1,3 -3,5 -5,6 Z"/>
+    <path d="M57,100 c-5,-2 -7,-8 -5,-13 2,4 6,6 10,6 -1,3 -2,5 -5,7 Z"/>
+  </g>
+  <g fill="none" stroke="#4F7C3B" stroke-width="1.8" stroke-linecap="round">
+    <path d="M60,108 C54,104 50,98 49,90"/>
+    <path d="M74,114 C70,108 68,102 68,94"/>
+  </g>
+
+  <!-- ===== Portrait du Betsileo (gravure, profil à droite) ===== -->
+  <g stroke="#241C10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Épaules / lamba -->
+    <path d="M104,114 C100,124 93,132 85,144 L146,144 C138,131 130,121 123,114 C118,117 109,117 104,114 Z" fill="#D9C6A0"/>
+    <!-- Motifs du lamba -->
+    <path d="M96,130 L135,130 M92,137 L139,137" stroke-width="1.4" opacity="0.55"/>
+    <!-- Cou -->
+    <path d="M108,104 L112,116" stroke-width="6"/>
+    <!-- Visage de profil 3/4 vers la droite -->
+    <path d="M108,70 C119,70 125,78 125,89 C125,97 120,105 113,109 C107,112 99,109 97,102 C95,95 99,87 103,79 C105,75 106,70 108,70 Z" fill="#F0DFBC"/>
+    <!-- Nez -->
+    <path d="M125,88 L130,93 L125,95" fill="#E6D2AC"/>
+    <!-- Bouche -->
+    <path d="M117,103 C119,104 121,104 122,103" stroke-width="1.5"/>
+    <!-- Moustache / bouc -->
+    <path d="M105,106 C111,110 117,108 121,104" stroke-width="1.6"/>
+    <!-- Sourcil + oeil -->
+    <path d="M114,84 L119,83" stroke-width="1.6"/>
+    <path d="M114,89 L119,88" stroke-width="1.8"/>
+    <!-- Oreille -->
+    <path d="M102,90 C100,88 100,86 102,84" stroke-width="1.5"/>
+    <!-- Chapeau de paille betsileo : dôme -->
+    <path d="M90,72 C92,52 128,52 130,72 Z" fill="url(#lbPailleR)"/>
+    <!-- Bord large du chapeau -->
+    <path d="M80,74 C96,64 124,64 140,74 C136,81 118,77 110,77 C96,77 84,81 80,74 Z" fill="#E4CE97"/>
+    <!-- Bandeau du chapeau -->
+    <path d="M92,70 C104,66 120,66 130,70" stroke-width="1.4" opacity="0.6"/>
+  </g>
+</svg>

@@ -5,7 +5,6 @@ import { firstValueFrom } from 'rxjs';
 import { Commande, LigneCommande, StatutCommande } from '../models/commande.model';
 import { VenteApi, VenteApiList } from '../models/vente-api.model';
 import { environment } from '../../../environments/environment';
-import { ARIARY_PAR_POINT } from './fidelite.service';
 import { ReservationSite, ReservationsService } from './reservations.service';
 
 const CLE_COMMANDES = 'lb.commandes';
@@ -50,7 +49,6 @@ function versCommande(vente: VenteApi): Commande {
     // celui qu'il a calculé (`totalBackend`), affiché en priorité.
     fraisLivraison: 0,
     statut: vente.statut === 'ANNULEE' ? 'annulee' : 'enPreparation',
-    points: Math.floor(nombre(vente.total) / ARIARY_PAR_POINT),
     totalBackend: nombre(vente.total),
   };
 }
@@ -97,7 +95,6 @@ function versReservation(reservation: ReservationSite): Commande {
     validationStatut: reservation.validation_statut ?? undefined,
     motifRefus: reservation.motif_refus,
     factureUrl: reservation.facture_url,
-    points: Math.floor(total / ARIARY_PAR_POINT),
     totalBackend: total,
   };
 }
@@ -310,7 +307,6 @@ export class CommandesService {
         ],
         fraisLivraison: 0,
         statut: 'livree',
-        points: 122,
       },
       {
         reference: 'CMD-4764',
@@ -318,7 +314,6 @@ export class CommandesService {
         lignes: [{ vinId: 'v-004', quantite: 1, prixUnitaire: 51000, remisePct: 0 }],
         fraisLivraison: 15000,
         statut: 'livree',
-        points: 66,
       },
       {
         reference: 'CMD-4702',
@@ -329,7 +324,6 @@ export class CommandesService {
         ],
         fraisLivraison: 0,
         statut: 'annulee',
-        points: 0,
       },
       {
         reference: 'CMD-4655',
@@ -337,7 +331,6 @@ export class CommandesService {
         lignes: [{ vinId: 'v-012', quantite: 2, prixUnitaire: 56000, remisePct: 0 }],
         fraisLivraison: 0,
         statut: 'enPreparation',
-        points: 112,
       },
     ];
 

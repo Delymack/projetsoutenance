@@ -39,8 +39,6 @@ export interface Commande {
   motifRefus?: string;
   /** Lien public signé vers la facture, présent dès que la commande est validée. */
   factureUrl?: string;
-  /** Points de fidélité générés par la commande. */
-  points: number;
   /** Total calculé par le backend pour les ventes API. */
   totalBackend?: number;
 }

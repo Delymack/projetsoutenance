@@ -110,6 +110,12 @@ class FormulairesAdminTests(TestCase):
                 reponse = self.client.get(url)
                 self.assertEqual(reponse.status_code, 200)
                 self.assertContains(reponse, '<form')
+                self.assertEqual(reponse.content.count(b'id="jazzy-actions"'), 1)
+                self.assertEqual(
+                    reponse.content.count(b'class="btn wa-action wa-action--primary"'),
+                    1,
+                    f'{opts.label} doit afficher une seule action principale',
+                )
 
     def test_formulaire_client_signale_les_champs_obligatoires(self):
         reponse = self.client.get(reverse('admin:clients_client_add'))
@@ -121,10 +127,10 @@ class FormulairesAdminTests(TestCase):
         # Le type de client n'est plus saisi : segments et KPI s'en passent.
         self.assertNotIn('name="type_client"', html)
 
-    def test_plafond_de_credit_reserve_a_la_modification(self):
-        """L'ajout reste minimal ; le crédit se règle sur la fiche existante."""
+    def test_le_plafond_de_credit_figure_sur_le_formulaire_unique(self):
+        """Un seul formulaire client : le crédit se saisit dès la création."""
         ajout = self.client.get(reverse('admin:clients_client_add')).content.decode('utf-8')
-        self.assertNotIn('name="max_credit"', ajout)
+        self.assertIn('name="max_credit"', ajout)
 
         client = Client.objects.create(
             nom='Rakoto', prenom='Fetra', telephone='0340000001',
@@ -184,6 +190,48 @@ class FormulairesAdminTests(TestCase):
             form.initial['date_fin'] - form.initial['date_debut'],
             timedelta(days=30),
         )
+
+    def test_le_bandeau_promotion_est_le_meme_a_l_ajout_et_a_la_modification(self):
+        """Création et modification portent le même en-tête (habillage unifié)."""
+        debut = timezone.localtime().replace(second=0, microsecond=0)
+        promo = Promotion.objects.create(
+            nom='Promo Isaha', type_promotion=Promotion.TypePromotion.POURCENTAGE,
+            valeur=Decimal('10.00'), date_debut=debut, date_fin=debut + timedelta(days=10),
+        )
+
+        ajout = self.client.get(reverse('admin:promotions_promotion_add')).content.decode()
+        fiche = self.client.get(
+            reverse('admin:promotions_promotion_change', args=[promo.pk]),
+        ).content.decode()
+
+        for html in (ajout, fiche):
+            self.assertIn('<section class="pr-create-hero"', html)
+            self.assertIn('pr-create-pill', html)
+        # Le bandeau nomme la promotion en modification, l'action en création.
+        self.assertIn('Nouvelle promotion', ajout)
+        self.assertIn('Promo Isaha', fiche)
+
+    def test_le_bandeau_stock_est_le_meme_a_l_ajout_et_a_la_modification(self):
+        """Création et modification portent le même en-tête (habillage unifié)."""
+        produit = Produit.objects.create(
+            nom='Vin Rouge Isaha', volume='75 cl', cout_revenir=8000, prix_vente=15000,
+        )
+        # Un stock est créé automatiquement à la naissance du produit (signal).
+        stock = produit.stock
+        stock.quantite = 42
+        stock.save(update_fields=['quantite'])
+
+        ajout = self.client.get(reverse('admin:stocks_stock_add')).content.decode()
+        fiche = self.client.get(
+            reverse('admin:stocks_stock_change', args=[stock.pk]),
+        ).content.decode()
+
+        for html in (ajout, fiche):
+            self.assertIn('<section class="st-hero"', html)
+            self.assertIn('st-hero-pill', html)
+        # Le bandeau nomme le vin en modification, l'action en création.
+        self.assertIn('Nouveau stock', ajout)
+        self.assertIn('Vin Rouge Isaha', fiche)
 
     def test_ajout_promotion_enregistre_les_champs_essentiels(self):
         debut = timezone.localtime().replace(second=0, microsecond=0)
@@ -353,6 +401,24 @@ class FormulairesAdminTests(TestCase):
             self.assertIn(attendu, html, f'{attendu} absent de la fiche')
         for label in ('Produit', 'Tarification', 'Code-barres', 'Cave'):
             self.assertIn(label, html)
+
+    def test_le_bandeau_produit_est_le_meme_a_l_ajout_et_a_la_modification(self):
+        """Création et modification portent le même en-tête (habillage unifié)."""
+        produit = Produit.objects.create(
+            nom='Vin Rouge Isaha', volume='75 cl', cout_revenir=8000, prix_vente=15000,
+        )
+
+        ajout = self.client.get(reverse('admin:produits_produit_add')).content.decode()
+        fiche = self.client.get(
+            reverse('admin:produits_produit_change', args=[produit.pk]),
+        ).content.decode()
+
+        for html in (ajout, fiche):
+            self.assertIn('pd-create-hero', html)
+            self.assertIn('pd-create-pill', html)
+        # Le bandeau nomme le produit en modification, l'action en création.
+        self.assertIn('Nouveau produit', ajout)
+        self.assertIn('Vin Rouge Isaha', fiche)
 
     def test_ajout_produit_enregistre_avec_les_champs_de_vente(self):
         with tempfile.TemporaryDirectory() as dossier:

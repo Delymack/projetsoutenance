@@ -1,5 +1,5 @@
 from django.urls import reverse
-from django.utils.html import format_html
+from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 
 
@@ -32,22 +32,26 @@ class ActionsColonneMixin:
         if self.has_change_permission(request, obj):
             url = reverse(f"admin:{opts.app_label}_{opts.model_name}_change", args=[obj.pk])
             boutons.append(
-                f'<a class="databtn databtn-edit" href="{url}" title="Modifier">'
-                '<i class="fas fa-pen-nib"></i> Modifier</a>'
+                f'<a class="databtn databtn-edit" href="{url}" aria-label="Modifier" data-quick-create="on" data-quick-create-title="Modifier: {escape(str(obj))}">'
+                '<i class="fas fa-pen-nib"></i>'
+                '<span class="databtn-label">Modifier</span></a>'
             )
 
         if self.has_delete_permission(request, obj):
             url = reverse(f"admin:{opts.app_label}_{opts.model_name}_delete", args=[obj.pk])
+            nom = escape(str(obj))
             boutons.append(
-                f'<a class="databtn databtn-delete" href="{url}" title="Supprimer">'
-                '<i class="fas fa-trash"></i> Supprimer</a>'
+                f'<a class="databtn databtn-delete" href="{url}" aria-label="Supprimer" data-confirm-name="{nom}">'
+                '<i class="fas fa-trash"></i>'
+                '<span class="databtn-label">Supprimer</span></a>'
             )
 
         if not boutons and self.has_view_permission(request, obj):
             url = reverse(f"admin:{opts.app_label}_{opts.model_name}_change", args=[obj.pk])
             boutons.append(
-                f'<a class="databtn databtn-view" href="{url}" title="Voir">'
-                '<i class="fas fa-eye"></i> Voir</a>'
+                f'<a class="databtn databtn-view" href="{url}" aria-label="Voir">'
+                '<i class="fas fa-eye"></i>'
+                '<span class="databtn-label">Voir</span></a>'
             )
 
         if not boutons:

@@ -473,12 +473,19 @@ def lockout_info(identifier):
 # ---------------------------------------------------------------------------
 
 def find_user(identifier):
+    """Retrouve un compte par identifiant de connexion (nom d'utilisateur ou e-mail).
+
+    Ne résout JAMAIS un identifiant purement numérique comme une clé primaire :
+    sinon un identifiant comme « 42 » pourrait désigner un autre compte et
+    court-circuiter les contrôles associés (verrouillage, double authentification).
+    """
     if not identifier:
         return None
     value = identifier.strip()
+    if not value:
+        return None
     return (
-        User.objects.filter(pk=value).first() if value.lstrip('-').isdigit() and not any(c.isalpha() for c in value)
-        else User.objects.filter(username__iexact=value).first()
+        User.objects.filter(username__iexact=value).first()
         or User.objects.filter(email__iexact=value).first()
     )
 

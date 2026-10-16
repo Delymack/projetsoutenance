@@ -21,18 +21,24 @@ User = get_user_model()
 RACINE = Path(__file__).resolve().parent.parent
 FICHIER_TOKENS = RACINE / 'static' / 'css' / 'wineadmin-design.css'
 
-# Palette autorisée : 3 teintes de marque + leurs déclinaisons +-1.
+# Palette autorisée : 3 teintes de marque + leurs déclinaisons documentées
+# (design system v2 — nuances -300/-700/-800/-900 ajoutées pour les états
+# hover, focus et les fonds sombres).
 TEINTES_AUTORISEES = {
-    '641b2c', '741f35', '34101c', 'f6ecee', 'e7d2d7',   # grenat
-    'c99b3b', 'a67c25', 'fbf3e2', 'ecd9a8',              # or
-    '2f6b4f', '255540', 'e9f2ed', 'c6ded0',              # sage
+    '641b2c', '741f35', '34101c', '7a2838', '4a1520', '2a0d16',
+    'f6ecee', 'e7d2d7', 'd4b8be',                          # grenat
+    'c99b3b', 'a67c25', 'd9a84b', '865c15',
+    'fbf3e2', 'ecd9a8', 'dec090',                          # or
+    '2f6b4f', '255540', '3f7b5f', '1a3f2f',
+    'e9f2ed', 'c6ded0', 'a3c8b3',                          # sage
 }
 
 # Échelle neutre dérivée de l'encre (thème clair + thème sombre).
 # Ce ne sont pas des « couleurs de marque » : ce sont les valeurs de surface.
 NEUTRES = {
     # clair
-    '2b1b20', '5a4a4e', '8a7c7d', 'b9a39f', 'ebe3de', 'f3ece8',
+    '2b1b20', '3d2a30', '5a4a4e', '8a7c7d', 'b9a39f', 'e8e0dc',
+    'ebe3de', 'f3ece8',
     'ffffff', 'faf7f5', 'f5efeb',
     # sombre
     'f4e7ea', 'cdb8bd', 'a08f93', '7c6a6e', '1a1016', '150a10', '20111a',
@@ -316,30 +322,37 @@ class PageClientTests(TestCase):
         html = reponse.content.decode('utf-8')
         self.assertIn('<input type="hidden" name="solde_due" value="1">', html)
 
-    def test_ajout_client_ne_demande_que_les_champs_essentiels(self):
-        """Créer un client = l'identifier. Ni dette, ni points, ni crédit saisis."""
-        reponse = self.client.get(reverse('admin:clients_client_add'))
-        self.assertEqual(reponse.status_code, 200)
-        html = reponse.content.decode('utf-8')
-        for attendu in ('nom', 'prenom', 'telephone', 'email', 'adresse'):
-            self.assertIn(f'name="{attendu}"', html, f'champ « {attendu} » manquant')
-        for exclu in ('max_credit', 'solde_du', 'points_fidelite', 'niveau',
+    def test_ajout_et_modification_partagent_le_meme_formulaire(self):
+        """Un seul formulaire client, pour la création comme pour la modification.
+
+        Le plafond de crédit fait partie de la fiche ; seuls les compteurs
+        calculés (points, niveau, encours) et les dates automatiques restent
+        hors saisie.
+        """
+        ajout = self.client.get(reverse('admin:clients_client_add'))
+        self.assertEqual(ajout.status_code, 200)
+        html = ajout.content.decode('utf-8')
+        for attendu in ('nom', 'prenom', 'telephone', 'email', 'adresse', 'max_credit'):
+            self.assertIn(f'name="{attendu}"', html, f'champ « {attendu} » manquant à la création')
+        for exclu in ('solde_du', 'points_fidelite', 'niveau',
                       'date_creation', 'updated_at', 'type_client'):
             self.assertNotIn(f'name="{exclu}"', html, f'champ « {exclu} » à retirer')
-        # Le panneau d'historique n'a pas de sens avant le premier enregistrement.
+        # La fiche 360° n'a pas de sens avant le premier enregistrement.
         self.assertNotIn('Dernières ventes', html)
-        self.assertNotIn('Cinq champs d&#x27;identification suffisent', html)
-        # Jazzmin fait un onglet par fieldset : un seul onglet, donc un seul écran.
-        self.assertEqual(html.count('data-bs-toggle="pill"'), 1)
+        # Jazzmin fait un onglet par fieldset : Identité, Adresse, Crédit.
+        self.assertEqual(html.count('data-bs-toggle="pill"'), 3)
 
     def test_la_fiche_client_conserve_tous_les_champs(self):
         reponse = self.client.get(
             reverse('admin:clients_client_change', args=[self.fiche.pk])
         )
         html = reponse.content.decode('utf-8')
-        # Libellés volontairement réduits à des mots-clés.
-        for libelle in ('Plafond crédit', 'Points', 'Niveau', 'Encours'):
-            self.assertIn(libelle, html, f'« {libelle} » absent de la fiche')
+        # Les champs éditables du formulaire unique restent présents.
+        for champ in ('nom', 'prenom', 'telephone', 'email', 'adresse', 'max_credit'):
+            self.assertIn(f'name="{champ}"', html, f'« {champ} » absent de la fiche')
+        # La fiche 360° (lecture seule) complète la modification.
+        self.assertIn('Plafond crédit', html)
+        self.assertIn('Crédit disponible', html)
         self.assertIn('Dernières ventes', html)
         self.assertIn('Règlements', html)
 
@@ -455,9 +468,10 @@ class PageClientTests(TestCase):
 
 
     def test_un_client_cree_par_le_formulaire_simple_est_complet(self):
-        """Les champs masqués doivent quand même être initialisés proprement."""
+        """Les champs non saisis doivent quand même être initialisés proprement."""
         reponse = self.client.post(reverse('admin:clients_client_add'), {
             'nom': 'Rasoanaivo', 'prenom': 'Naina', 'telephone': '0349988776',
+            'max_credit': '0',
             '_save': 'Enregistrer',
         }, follow=True)
         self.assertEqual(reponse.status_code, 200)
@@ -563,12 +577,26 @@ class PageClientTests(TestCase):
 
 
 class TableauDeBordTests(TestCase):
-    """Le tableau de bord reste centré sur quatre indicateurs et cinq panneaux.
+    """Le tableau de bord « Command Center » : héros, 5 KPI et panneaux métier.
 
-    Le tout est rendu côté serveur et se lit d'un coup d'œil : le compte n'a
-    plus à fouiller une grille de onze blocs pour suivre les ventes, les stocks
-    et les promotions. Ces tests vérifient les informations métier affichées.
+    L'accueil est une page unique qui synthétise la journée (CA, ventes,
+    ruptures, promotions, clients), l'activité des 14 derniers jours, la
+    répartition par appellation, les meilleures ventes, les stocks à
+    surveiller, les ventes récentes et les meilleurs clients. Les chiffres
+    sont rendus côté serveur ; les tracés sont seulement habillés en
+    JavaScript à partir de données « json_script » déjà présentes.
     """
+
+    #: Les cinq indicateurs du bandeau flottant.
+    KPI = ('CA du jour', 'Ventes du jour', 'Ruptures de stock',
+           'Promotions actives', 'Clients')
+
+    #: Les panneaux métier, tels qu'affichés.
+    PANNEAUX = (
+        'Chiffre d’affaires · 14 derniers jours', 'CA par appellation',
+        'Meilleures ventes', 'Stocks à surveiller', 'Ventes récentes',
+        'Meilleurs clients (30 j)', 'Promotions actives',
+    )
 
     def setUp(self):
         self.admin = User.objects.create_superuser(
@@ -578,54 +606,47 @@ class TableauDeBordTests(TestCase):
         self.html = self.client.get(reverse('admin:index')).content.decode('utf-8')
 
     def test_les_panneaux_metier_sont_conserves(self):
-        for panneau in (
-            'Chiffre d’affaires du mois', 'Unités vendues du mois', 'Produits en rupture',
-            'Promotions actives', 'Chiffre d’affaires · 6 derniers mois',
-            'Ventes par appellation', 'Meilleures ventes', 'Ventes récentes',
-        ):
+        for panneau in self.PANNEAUX:
             with self.subTest(panneau=panneau):
                 self.assertIn(panneau, self.html)
 
     def test_chaque_indicateur_ouvre_la_page_qui_l_explique(self):
         """Un chiffre sans porte de sortie oblige à revenir en arrière."""
         for cible in ('admin:ventes_vente_changelist', 'admin:stocks_stock_changelist',
-                      'admin:promotions_promotion_changelist', 'caisse-enregistreuse',
-                      'rapports'):
+                      'admin:promotions_promotion_changelist', 'admin:clients_client_changelist',
+                      'caisse-enregistreuse', 'rapports'):
             with self.subTest(cible=cible):
                 self.assertIn(reverse(cible), self.html)
 
     def test_les_panneaux_retires_ne_reviennent_pas(self):
-        """Le menu, le Z-Report et les anciens blocs restent hors de l'accueil."""
+        """Les anciens blocs qui surchargeaient l'accueil restent hors de la page."""
         for absent in (
-            'Objectif du mois', 'Moyens de paiement', 'Meilleurs clients',
-            'Créances clients', 'Cuvées à surveiller', 'Ventes des 14 derniers jours',
+            'Objectif du mois', 'Moyens de paiement', 'Créances clients',
+            'Cuvées à surveiller', 'Ventes des 14 derniers jours',
         ):
             with self.subTest(absent=absent):
                 self.assertNotIn(absent, self.html)
 
-    def test_les_fonctions_secondaires_ont_disparu(self):
-        """Ni temps réel, ni export, ni impression, ni habillage décoratif."""
-        for residue in (
-            'clock-time', 'live-status', 'dash-toast', 'export-csv', 'print-dash',
-            'refresh-live', 'dt-btn', 'class="spark', 'countup', 'loadPeriod',
-            'setInterval', '@media print',
+    def test_les_graphiques_sont_alimentes_par_des_donnees_serveur(self):
+        """Les tracés interactifs lisent des données « json_script » déjà rendues."""
+        for ancre in (
+            'id="dash-clock"', 'id="dash-area-chart"',
+            'id="dash-days-data"', 'id="dash-region-data"',
         ):
-            with self.subTest(residue=residue):
-                self.assertNotIn(residue, self.html)
+            with self.subTest(ancre=ancre):
+                self.assertIn(ancre, self.html)
 
     def test_les_valeurs_sont_rendues_cote_serveur(self):
-        """Sans JavaScript, les chiffres du mois restent lisibles."""
-        # Quatre indicateurs, et rien de plus à éplucher.
-        self.assertEqual(self.html.count('class="wine-kpi-label"'), 4)
-        for libelle in ('Chiffre d’affaires du mois', 'Unités vendues du mois', 'Produits en rupture',
-                        'Promotions actives'):
+        """Sans JavaScript, les chiffres du jour restent lisibles."""
+        # Cinq indicateurs, chacun une carte entière : libellé, valeur, précision.
+        self.assertEqual(self.html.count('dash-kpi__label'), 5)
+        self.assertEqual(self.html.count('dash-kpi__label'),
+                         self.html.count('dash-kpi__foot'))
+        for libelle in self.KPI:
             with self.subTest(libelle=libelle):
-                self.assertIn(f'class="wine-kpi-label">{libelle}<', self.html)
-        # Chacun est une carte entière : libellé, valeur, précision.
-        self.assertEqual(self.html.count('class="wine-kpi-label"'),
-                         self.html.count('class="wine-kpi-foot"'))
-        self.assertNotIn('<span class="countup"', self.html)
-        self.assertNotIn('—</span></div>', self.html, 'aucun compteur ne doit rester vide')
+                self.assertIn(f'class="dash-kpi__label">{libelle}<', self.html)
+        # Aucun compteur ne doit rester vide avant l'animation JavaScript.
+        self.assertNotIn('—</span></div>', self.html)
 
 
 class MenuLateralTests(TestCase):

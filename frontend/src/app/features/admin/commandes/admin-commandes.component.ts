@@ -243,12 +243,7 @@ export class AdminCommandesComponent {
         event.currentIndex,
       );
       const cmd = event.container.data[event.currentIndex];
-      this.changerStatut(cmd, nouveauStatut as CommandeAdmin['statut']);
     }
-  }
-
-  private changerStatut(cmd: CommandeAdmin, nouveauStatut: CommandeAdmin['statut']): void {
-    console.log('Changement de statut:', cmd.reference, '->', nouveauStatut);
   }
 
   onRechercheChange(event: Event): void {

@@ -1,8 +1,112 @@
 {% extends "admin/change_form.html" %}
 {% load i18n %}
 
-{% block extrastyle %}{{ block.super }}<style>
-  .lb-full-width { grid-column: 1 / -1; }
-  .model-client.change-form .lb-panel { border-radius: var(--lb-radius-lg); }
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  /* ------------------------------------------------------------------
+     Fiche client — la création et la modification partagent le même
+     formulaire. Un bandeau rappelle où l'on est et pour qui : les
+     sections (Identité, Adresse, Crédit, Fiche client) sont habillées
+     par le design system et la fenêtre flottante.
+     ------------------------------------------------------------------ */
+  .model-client .lb-full-width { grid-column: 1 / -1; }
+
+  .model-client .cl-hero {
+    align-items: center;
+    background:
+      radial-gradient(130% 170% at 90% -35%, rgba(201, 155, 59, .30) 0%, rgba(201, 155, 59, 0) 62%),
+      linear-gradient(118deg, var(--lb-wine-800) 0%, var(--lb-wine-600) 100%);
+    border: 1px solid rgba(201, 155, 59, .32);
+    border-radius: var(--lb-radius-lg);
+    box-shadow: var(--lb-hero-shadow);
+    color: #fff;
+    display: flex;
+    gap: 1rem;
+    margin: 0 0 1rem;
+    overflow: hidden;
+    padding: 1.15rem 1.35rem;
+    position: relative;
+  }
+  /* Filet or sur le bord supérieur : la couleur d'accent de la charte. */
+  .model-client .cl-hero::before {
+    background: linear-gradient(90deg, var(--lb-gold), rgba(240, 217, 154, 0) 85%);
+    content: "";
+    height: 2px;
+    inset: 0 0 auto;
+    position: absolute;
+  }
+  .model-client .cl-hero-avatar {
+    align-items: center;
+    background: rgba(201, 155, 59, .16);
+    border: 1px solid rgba(240, 217, 154, .45);
+    border-radius: 50%;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14);
+    color: #f0d99a;
+    display: flex;
+    flex: 0 0 52px;
+    font-size: 1rem;
+    font-weight: 800;
+    height: 52px;
+    justify-content: center;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+  .model-client .cl-hero-txt { min-width: 0; }
+  .model-client .cl-hero-txt h1 {
+    color: #fff;
+    font-size: 1.22rem;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    margin: 0 0 .2rem;
+  }
+  .model-client .cl-hero-txt p { color: rgba(255, 255, 255, .8); font-size: .84rem; margin: 0; }
+  .model-client .cl-hero-pill {
+    background: rgba(0, 0, 0, .3);
+    border: 1px solid rgba(240, 217, 154, .5);
+    border-radius: 999px;
+    color: #f0d99a;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    margin-left: auto;
+    padding: .42rem .85rem;
+    white-space: nowrap;
+  }
+
+  /* Le plafond de crédit est un montant : on le met en avant. */
+  .model-client.change-form .form-group.field-max_credit input {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+
+  @media (max-width: 640px) {
+    .model-client .cl-hero { align-items: flex-start; padding: 1rem; }
+    .model-client .cl-hero-pill { display: none; }
+  }
 </style>
+{% endblock %}
+
+{% block form_top %}
+<section class="cl-hero" aria-labelledby="cl-hero-title">
+  <span class="cl-hero-avatar" aria-hidden="true">
+    {% if original %}{{ original.nom|slice:":1" }}{{ original.prenom|slice:":1" }}{% else %}<i class="fas fa-user-plus"></i>{% endif %}
+  </span>
+  <div class="cl-hero-txt">
+    <h1 id="cl-hero-title">
+      {% if original %}{{ original.nom }} {{ original.prenom }}{% else %}Nouveau client{% endif %}
+    </h1>
+    <p>
+      {% if original %}
+        Identité, coordonnées et plafond de crédit — l'historique et les encaissements restent en bas de fiche.
+      {% else %}
+        L'essentiel pour ouvrir un compte : identité, coordonnées et plafond de crédit. Les points et l'encours se calculent tout seuls.
+      {% endif %}
+    </p>
+  </div>
+  <span class="cl-hero-pill">
+    {% if original %}<i class="fas fa-pen"></i> {{ original.get_niveau_display }}{% else %}<i class="fas fa-star"></i> Nouveau{% endif %}
+  </span>
+</section>
+{{ block.super }}
 {% endblock %}

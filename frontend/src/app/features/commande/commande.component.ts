@@ -52,9 +52,6 @@ export class CommandeComponent {
   readonly enCours = signal(false);
   readonly reference = signal<string | null>(null);
   readonly enAttenteValidation = signal(false);
- /** points figés avant vidage du panier. */
-  readonly pointsGagnes = signal(0);
-
   readonly form = this.fb.group({
     notes: ['', Validators.maxLength(240)],
     telephone: [
@@ -112,7 +109,6 @@ export class CommandeComponent {
       const commande = this.commandes.enregistrerReservation(reservation);
       this.panier.vider();
       this.enAttenteValidation.set(true);
-      this.pointsGagnes.set(commande.points);
       this.reference.set(reservation.reference);
 
       this.notifications.notifier(

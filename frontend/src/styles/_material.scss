@@ -1,62 +1,42 @@
 @use '@angular/material' as mat;
 
 /* ==========================================================================
-   Thème Angular Material — Lazan'i Betsileo
-
-   Material 18 expose une API M3 fondée sur les variables CSS (`--mat-sys-*`), ce qui
-   change tout pour notre besoin « un seul fichier de style, deux thèmes ».
-
-   Stratégie retenue (pattern recommandé par l'équipe Angular) :
-
-     1. on émet UN SEUL thème complet (Material 3, clair) dans `:root` ;
-        il produit à la fois la structure, la typographie et les variables
-        de couleur système `--mat-sys-*` ;
-     2. le thème sombre ne réémet QUE les variables système
-        (`mat.system-level-colors`) dans le sélecteur `[data-theme='sombre']`.
-
-   Conséquence : la typographie et la densité ne sont générées qu'une fois
-   (pas d'avertissement « duplicate theming styles »), et les composants
-   Material suivent automatiquement notre thème, puisque le ThemeService
-   bascule l'attribut `data-theme` sur <html> : aucune classe supplémentaire
-   n'est nécessaire côté Material.
+   Thème Angular Material — Lazan'i Betsileo (« Nuit & Or »)
+   --------------------------------------------------------------------------
+   Or = marque primaire, rouge vin = accent tertiaire. Le thème clair (ivoire)
+   est émis dans `:root`, le thème sombre (nuit) uniquement en variables système
+   dans `[data-theme='sombre']` afin de ne pas dupliquer typographie/densité.
    ========================================================================== */
 
-/* ---------- Typographie ----------
-   Titres serif (esprit « carte de cave »), corps sans-serif pour la
-   lisibilité en caisse tactile. */
 $typo: (
-  plain-family: "'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
-  brand-family: "'Playfair Display', Georgia, 'Times New Roman', serif",
+  plain-family: "'Figtree', 'Segoe UI', sans-serif",
+  brand-family: "'Cormorant Garamond', Georgia, serif",
   bold-weight: 700,
   medium-weight: 600,
   regular-weight: 400,
 );
 
-/* ---------- Densité : -2, la caisse doit afficher beaucoup d'informations ---------- */
 $densite: (scale: -2);
 
-/* ---------- Thème clair (émis une seule fois) ----------
-   Le bordeaux est notre couleur de marque, l'or l'accent. */
+/* Or = primaire, vin/rose = accent tertiaire */
 $theme-clair: mat.define-theme(
   (
     color: (
       theme-type: light,
-      primary: mat.$red-palette,
-      tertiary: mat.$yellow-palette,
+      primary: mat.$yellow-palette,
+      tertiary: mat.$rose-palette,
     ),
     typography: $typo,
     density: $densite,
   )
 );
 
-/* ---------- Thème sombre : uniquement les couleurs système ----------
-   Noir profond + or : les accents deviennent dorés. */
 $theme-sombre: mat.define-theme(
   (
     color: (
       theme-type: dark,
       primary: mat.$yellow-palette,
-      tertiary: mat.$red-palette,
+      tertiary: mat.$rose-palette,
     ),
     typography: $typo,
     density: $densite,
@@ -65,12 +45,18 @@ $theme-sombre: mat.define-theme(
 
 @include mat.core();
 
-/* 1. Thème complet */
 :root {
   @include mat.all-component-themes($theme-clair);
 }
 
-/* 2. Thème sombre : on ne remplace que les variables de couleur système */
 [data-theme='sombre'] {
   @include mat.system-level-colors($theme-sombre);
+  // Tokens de couleur de TOUS les composants en sombre. Sans cet include,
+  // seules les couleurs système étaient surchargées : les tokens composés
+  // émis dans `:root` (thème clair) restaient actifs en mode sombre —
+  // libellés de champs, valeurs de select, cases à cocher et onglets
+  // conservaient une encre quasi noire sur fond sombre (illisible).
+  // Seules les couleurs changent ici : typographie et densité sont émises une
+  // seule fois par le thème clair global.
+  @include mat.all-component-colors($theme-sombre);
 }

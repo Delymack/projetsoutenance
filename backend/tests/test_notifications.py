@@ -54,15 +54,24 @@ class NotificationsPersistantesTests(TestCase):
 
     def test_masquer_supprime_de_la_liste_et_ne_reapparait_pas(self):
         self.client.force_login(self.user)
-        key = f'stock:rupture:{Stock.objects.get(produit=self.produits[0]).pk}'
+        masquee = f'stock:rupture:{Stock.objects.get(produit=self.produits[0]).pk}'
+        restante = f'stock:rupture:{Stock.objects.get(produit=self.produits[1]).pk}'
 
-        response = self.action('dismiss', key)
+        response = self.action('dismiss', masquee)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['unread_count'], 1)
-        self.assertEqual(UserNotification.objects.get(user=self.user, key=key).etat, UserNotification.Etat.MASQUEE)
+        self.assertEqual(
+            UserNotification.objects.get(user=self.user, key=masquee).etat,
+            UserNotification.Etat.MASQUEE,
+        )
         page = self.client.get('/admin/')
-        self.assertNotContains(page, 'Vin alerte 1')
+        html = page.content.decode('utf-8')
+        # La notification masquée a quitté la cloche : sa clé n'apparaît plus,
+        # l'autre reste. (Le nom du produit peut, lui, être affiché ailleurs sur
+        # le tableau de bord — d'où le contrôle par clé, et non par nom.)
+        self.assertNotIn(f'data-notification-key="{masquee}"', html)
+        self.assertIn(f'data-notification-key="{restante}"', html)
         self.assertEqual(page.context['admin_notification_count'], 1)
 
     def test_tout_marquer_comme_lu_met_le_compteur_a_zero(self):

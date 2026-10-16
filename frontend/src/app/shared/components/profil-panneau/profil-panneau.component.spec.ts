@@ -9,7 +9,6 @@ import { provideRouter } from '@angular/router';
 import { TranslateLoader, provideTranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommandesService } from '../../../core/services/commandes.service';
-import { FideliteService } from '../../../core/services/fidelite.service';
 import { ProfilPanneauComponent } from './profil-panneau.component';
 
 /** Chargeur vide : les libellés ne sont pas l'objet de ces tests, les données le sont. */
@@ -30,7 +29,6 @@ describe('ProfilPanneauComponent', () => {
   let composant: ProfilPanneauComponent;
   let fixture: ComponentFixture<ProfilPanneauComponent>;
   let auth: AuthService;
-  let fidelite: FideliteService;
 
   /** Historique minimal : une commande livrée, la plus récente. */
   const COMMANDES = [
@@ -40,7 +38,6 @@ describe('ProfilPanneauComponent', () => {
       lignes: [{ vinId: 'v-001', quantite: 2, prixUnitaire: 42000, remisePct: 0 }],
       fraisLivraison: 0,
       statut: 'livree',
-      points: 84,
     },
   ];
 
@@ -64,7 +61,6 @@ describe('ProfilPanneauComponent', () => {
     }).compileComponents();
 
     auth = TestBed.inject(AuthService);
-    fidelite = TestBed.inject(FideliteService);
     auth.connexionDemo('client');
 
     fixture = TestBed.createComponent(ProfilPanneauComponent);
@@ -79,14 +75,6 @@ describe('ProfilPanneauComponent', () => {
     expect(texte).toContain('client@lazani.betsileo');
     expect(texte).toContain('CD');
     expect(composant.role()).toBe('client');
-  });
-
-  it('affiche le solde de fidélité et le palier atteint', () => {
-    const solde = fixture.nativeElement.querySelector('.compte__points strong');
-    const palier = fixture.nativeElement.querySelector('.compte__etiquette--palier');
-
-    expect(solde?.textContent?.replace(/\s/g, '')).toBe(String(fidelite.points()));
-    expect(palier?.textContent).toContain(fidelite.niveau().cle);
   });
 
   it('affiche la dernière commande enregistrée', () => {
@@ -107,7 +95,6 @@ describe('ProfilPanneauComponent', () => {
     expect(adresses).toContain('/historique');
     expect(adresses).toContain('/profil?section=messages');
     expect(adresses).toContain('/profil?section=adresses');
-    expect(adresses).toContain('/profil?section=fidelite');
   });
 
   it('ne déconnecte pas sans confirmation', () => {

@@ -1,0 +1,385 @@
+/* ============================================================
+   WineAdmin — Override pour Templates Spécifiques
+   Permet à certains modèles de conserver leur design personnalisé
+   tout en bénéficiant des améliorations générales
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Produit : conserver son design personnalisé pour la création
+   mais appliquer le design unifié pour la modification
+   ------------------------------------------------------------ */
+.model-produit.change-form:not(:has(.pd-create-hero)) .tab-content .card-body {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 1.25rem !important;
+}
+
+.model-produit.change-form:not(:has(.pd-create-hero)) .tab-content .form-group {
+    background: linear-gradient(135deg, var(--lb-surface) 0%, var(--lb-canvas) 100%);
+    border: 1.5px solid var(--lb-line);
+    border-radius: var(--lb-radius);
+    box-shadow: var(--lb-shadow-sm);
+    margin: 0;
+    min-width: 0;
+    padding: .95rem 1.1rem;
+    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.model-produit.change-form:not(:has(.pd-create-hero)) .tab-content .form-group:focus-within {
+    border-color: var(--lb-gold);
+    box-shadow: var(--lb-shadow), 0 0 0 3px rgba(201, 155, 59, .18);
+    transform: translateY(-2px);
+}
+
+.model-produit.change-form:not(:has(.pd-create-hero)) .tab-content .form-group label {
+    color: var(--lb-wine);
+    display: block;
+    float: none;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    margin: 0 0 .45rem;
+    text-transform: uppercase;
+    width: auto;
+}
+
+.model-produit.change-form:not(:has(.pd-create-hero)) .tab-content .form-group .row {
+    display: block;
+}
+
+.model-produit.change-form:not(:has(.pd-create-hero)) .tab-content .form-group .row > * {
+    float: none;
+    padding: 0;
+    width: 100%;
+}
+
+/* ------------------------------------------------------------
+   Vente : conserver son design personnalisé mais améliorer les boutons
+   ------------------------------------------------------------ */
+.model-vente.change-form #jazzy-actions .btn,
+.model-vente.change-form #jazzy-actions input[type="submit"] {
+    align-items: center;
+    border-radius: 10px;
+    display: inline-flex;
+    font-size: .9rem;
+    font-weight: 700;
+    gap: .5rem;
+    justify-content: center;
+    letter-spacing: .01em;
+    min-height: 40px;
+    min-width: 0;
+    padding: .6rem .9rem;
+    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+    width: auto;
+    margin: 0;
+}
+
+.model-vente.change-form #jazzy-actions [name="_save"] {
+    background: linear-gradient(115deg, var(--lb-wine) 0%, var(--lb-wine-600) 100%);
+    border: 1.5px solid var(--lb-wine);
+    box-shadow: 0 6px 18px rgba(100, 27, 44, .28);
+    color: #fff;
+}
+
+.model-vente.change-form #jazzy-actions [name="_save"]:hover {
+    background: linear-gradient(115deg, var(--lb-wine-700) 0%, var(--lb-wine-800) 100%);
+    border-color: var(--lb-wine-800);
+    box-shadow: 0 9px 24px rgba(100, 27, 44, .35);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* ------------------------------------------------------------
+   Réservation : appliquer le design unifié
+   ------------------------------------------------------------ */
+.model-reservation.change-form .tab-content .card-body {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 1.25rem !important;
+}
+
+.model-reservation.change-form .tab-content .form-group {
+    background: linear-gradient(135deg, var(--lb-surface) 0%, var(--lb-canvas) 100%);
+    border: 1.5px solid var(--lb-line);
+    border-radius: var(--lb-radius);
+    box-shadow: var(--lb-shadow-sm);
+    margin: 0;
+    min-width: 0;
+    padding: .95rem 1.1rem;
+    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.model-reservation.change-form .tab-content .form-group:focus-within {
+    border-color: var(--lb-gold);
+    box-shadow: var(--lb-shadow), 0 0 0 3px rgba(201, 155, 59, .18);
+    transform: translateY(-2px);
+}
+
+.model-reservation.change-form .tab-content .form-group label {
+    color: var(--lb-wine);
+    display: block;
+    float: none;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    margin: 0 0 .45rem;
+    text-transform: uppercase;
+    width: auto;
+}
+
+.model-reservation.change-form .tab-content .form-group .row {
+    display: block;
+}
+
+.model-reservation.change-form .tab-content .form-group .row > * {
+    float: none;
+    padding: 0;
+    width: 100%;
+}
+
+/* ------------------------------------------------------------
+   Client : appliquer le design unifié
+   ------------------------------------------------------------ */
+.model-client.change-form .tab-content .card-body {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 1.25rem !important;
+}
+
+.model-client.change-form .tab-content .form-group {
+    background: linear-gradient(135deg, var(--lb-surface) 0%, var(--lb-canvas) 100%);
+    border: 1.5px solid var(--lb-line);
+    border-radius: var(--lb-radius);
+    box-shadow: var(--lb-shadow-sm);
+    margin: 0;
+    min-width: 0;
+    padding: .95rem 1.1rem;
+    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.model-client.change-form .tab-content .form-group:focus-within {
+    border-color: var(--lb-gold);
+    box-shadow: var(--lb-shadow), 0 0 0 3px rgba(201, 155, 59, .18);
+    transform: translateY(-2px);
+}
+
+.model-client.change-form .tab-content .form-group label {
+    color: var(--lb-wine);
+    display: block;
+    float: none;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    margin: 0 0 .45rem;
+    text-transform: uppercase;
+    width: auto;
+}
+
+.model-client.change-form .tab-content .form-group .row {
+    display: block;
+}
+
+.model-client.change-form .tab-content .form-group .row > * {
+    float: none;
+    padding: 0;
+    width: 100%;
+}
+
+/* ------------------------------------------------------------
+   Catégorie : appliquer le design unifié
+   ------------------------------------------------------------ */
+.model-categorie.change-form .tab-content .card-body {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 1.25rem !important;
+}
+
+.model-categorie.change-form .tab-content .form-group {
+    background: linear-gradient(135deg, var(--lb-surface) 0%, var(--lb-canvas) 100%);
+    border: 1.5px solid var(--lb-line);
+    border-radius: var(--lb-radius);
+    box-shadow: var(--lb-shadow-sm);
+    margin: 0;
+    min-width: 0;
+    padding: .95rem 1.1rem;
+    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.model-categorie.change-form .tab-content .form-group:focus-within {
+    border-color: var(--lb-gold);
+    box-shadow: var(--lb-shadow), 0 0 0 3px rgba(201, 155, 59, .18);
+    transform: translateY(-2px);
+}
+
+.model-categorie.change-form .tab-content .form-group label {
+    color: var(--lb-wine);
+    display: block;
+    float: none;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    margin: 0 0 .45rem;
+    text-transform: uppercase;
+    width: auto;
+}
+
+.model-categorie.change-form .tab-content .form-group .row {
+    display: block;
+}
+
+.model-categorie.change-form .tab-content .form-group .row > * {
+    float: none;
+    padding: 0;
+    width: 100%;
+}
+
+/* ------------------------------------------------------------
+   Promotion : appliquer le design unifié
+   ------------------------------------------------------------ */
+.model-promotion.change-form .tab-content .card-body {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 1.25rem !important;
+}
+
+.model-promotion.change-form .tab-content .form-group {
+    background: linear-gradient(135deg, var(--lb-surface) 0%, var(--lb-canvas) 100%);
+    border: 1.5px solid var(--lb-line);
+    border-radius: var(--lb-radius);
+    box-shadow: var(--lb-shadow-sm);
+    margin: 0;
+    min-width: 0;
+    padding: .95rem 1.1rem;
+    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.model-promotion.change-form .tab-content .form-group:focus-within {
+    border-color: var(--lb-gold);
+    box-shadow: var(--lb-shadow), 0 0 0 3px rgba(201, 155, 59, .18);
+    transform: translateY(-2px);
+}
+
+.model-promotion.change-form .tab-content .form-group label {
+    color: var(--lb-wine);
+    display: block;
+    float: none;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    margin: 0 0 .45rem;
+    text-transform: uppercase;
+    width: auto;
+}
+
+.model-promotion.change-form .tab-content .form-group .row {
+    display: block;
+}
+
+.model-promotion.change-form .tab-content .form-group .row > * {
+    float: none;
+    padding: 0;
+    width: 100%;
+}
+
+/* ------------------------------------------------------------
+   Stock : appliquer le design unifié
+   ------------------------------------------------------------ */
+.model-stock.change-form .tab-content .card-body {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 1.25rem !important;
+}
+
+.model-stock.change-form .tab-content .form-group {
+    background: linear-gradient(135deg, var(--lb-surface) 0%, var(--lb-canvas) 100%);
+    border: 1.5px solid var(--lb-line);
+    border-radius: var(--lb-radius);
+    box-shadow: var(--lb-shadow-sm);
+    margin: 0;
+    min-width: 0;
+    padding: .95rem 1.1rem;
+    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.model-stock.change-form .tab-content .form-group:focus-within {
+    border-color: var(--lb-gold);
+    box-shadow: var(--lb-shadow), 0 0 0 3px rgba(201, 155, 59, .18);
+    transform: translateY(-2px);
+}
+
+.model-stock.change-form .tab-content .form-group label {
+    color: var(--lb-wine);
+    display: block;
+    float: none;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    margin: 0 0 .45rem;
+    text-transform: uppercase;
+    width: auto;
+}
+
+.model-stock.change-form .tab-content .form-group .row {
+    display: block;
+}
+
+.model-stock.change-form .tab-content .form-group .row > * {
+    float: none;
+    padding: 0;
+    width: 100%;
+}
+
+/* ------------------------------------------------------------
+   User (Accounts) : appliquer le design unifié
+   ------------------------------------------------------------ */
+.model-user.change-form .tab-content .card-body {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 1.25rem !important;
+}
+
+.model-user.change-form .tab-content .form-group {
+    background: linear-gradient(135deg, var(--lb-surface) 0%, var(--lb-canvas) 100%);
+    border: 1.5px solid var(--lb-line);
+    border-radius: var(--lb-radius);
+    box-shadow: var(--lb-shadow-sm);
+    margin: 0;
+    min-width: 0;
+    padding: .95rem 1.1rem;
+    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.model-user.change-form .tab-content .form-group:focus-within {
+    border-color: var(--lb-gold);
+    box-shadow: var(--lb-shadow), 0 0 0 3px rgba(201, 155, 59, .18);
+    transform: translateY(-2px);
+}
+
+.model-user.change-form .tab-content .form-group label {
+    color: var(--lb-wine);
+    display: block;
+    float: none;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    margin: 0 0 .45rem;
+    text-transform: uppercase;
+    width: auto;
+}
+
+.model-user.change-form .tab-content .form-group .row {
+    display: block;
+}
+
+.model-user.change-form .tab-content .form-group .row > * {
+    float: none;
+    padding: 0;
+    width: 100%;
+}

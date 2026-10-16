@@ -6,6 +6,7 @@ from django.template.response import TemplateResponse
 from django.urls import path
 from django.shortcuts import redirect
 
+from config.admin_mixins import ActionsColonneMixin
 from .models import User, VerificationCode
 from .services import generate_otp
 from .services.sms_service import send_verification_sms
@@ -26,7 +27,7 @@ class TestSMSForm(forms.Form):
 
 
 @admin.register(VerificationCode)
-class VerificationCodeAdmin(admin.ModelAdmin):
+class VerificationCodeAdmin(ActionsColonneMixin, admin.ModelAdmin):
     # Codes de vérification : le contact, l'usage, s'il a servi, quand il expire.
     # Le canal, les tentatives et la date de création restent sur la fiche.
     list_display = ('contact', 'purpose', 'is_used', 'expires_at')
@@ -98,7 +99,7 @@ class VerificationCodeAdmin(admin.ModelAdmin):
 
 
 @admin.register(User)
-class UserAdmin(DjangoUserAdmin):
+class UserAdmin(ActionsColonneMixin, DjangoUserAdmin):
     # Comptes : l'identifiant, l'email, le rôle et les deux droits qui décident de
     # l'accès. Le nom civil reste sur la fiche.
     list_display = ('username', 'email', 'role', 'is_active', 'is_staff')
@@ -135,3 +136,26 @@ class UserAdmin(DjangoUserAdmin):
         from django.urls import reverse
         url = reverse('admin:test-envoi-sms')
         return redirect(f'{url}?telephone={telephone}')
+
+
+# ---- Adresses e-mail des comptes (modèle fourni par allauth) ----
+# « Adresses e-mail » est visible dans la console, mais allauth y enregistre son
+# propre ModelAdmin, sans la colonne « Actions » : c'est la dernière table où le
+# bouton Supprimer manquait. On le remplace par une variante qui l'obtient, en
+# gardant tout le comportement d'origine (vérification en masse incluse).
+# L'import est protégé : une évolution d'allauth ne doit pas empêcher la
+# console de démarrer.
+try:
+    from allauth.account.admin import EmailAddressAdmin as AllauthEmailAddressAdmin
+    from allauth.account.models import EmailAddress
+except ImportError:  # pragma: no cover — allauth absent ou renommé
+    AllauthEmailAddressAdmin = None
+    EmailAddress = None
+
+if EmailAddress is not None:
+    if admin.site.is_registered(EmailAddress):
+        admin.site.unregister(EmailAddress)
+
+    @admin.register(EmailAddress)
+    class EmailAddressAdmin(ActionsColonneMixin, AllauthEmailAddressAdmin):
+        pass

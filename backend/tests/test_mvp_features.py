@@ -143,7 +143,7 @@ class GestionnaireEtRapportsTests(APITestCase):
         self.client.force_login(self.gestionnaire)
         response = self.client.get(reverse('rapports'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertContains(response, 'Efficacité des promotions')
+        self.assertContains(response, 'id="promotions-title"')
         self.assertContains(response, 'report-print')
         self.assertContains(response, 'statistiques-256.png')
         self.assertNotContains(response, '/admin/zreport/')

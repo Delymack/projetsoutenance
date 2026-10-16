@@ -1,7 +1,7 @@
 <section class="historique lb-container">
-  <header class="historique__header">
+  <header class="historique__header lb-page-header">
     <div>
-      <span class="eyebrow">Lazan'i Betsileo</span>
+      <span class="lb-eyebrow">Lazan'i Betsileo</span>
       <h1>{{ 'HISTORIQUE.titre' | translate }}</h1>
       <p>
         {{ commandesService.commandes().length }} commande(s) ·
@@ -116,12 +116,6 @@
                   <dt>{{ 'PANIER.fraisLivraison' | translate }}</dt>
                   <dd>{{ commande.fraisLivraison | number: '1.0-0' }} Ar</dd>
                 </div>
-                @if (commande.points > 0) {
-                  <div>
-                    <dt>{{ 'FIDELITE.vosPoints' | translate }}</dt>
-                    <dd>+{{ commande.points }}</dd>
-                  </div>
-                }
                 <div class="commande__total">
                   <dt>{{ 'HISTORIQUE.montant' | translate }}</dt>
                   <dd>{{ commandesService.total(commande) | number: '1.0-0' }} Ar</dd>

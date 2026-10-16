@@ -23,31 +23,32 @@ const BASE = process.argv[2] ?? 'http://localhost:4200';
 const DOSSIER = resolve(ICI, 'captures');
 mkdirSync(DOSSIER, { recursive: true });
 
-/** Routes à auditer. `acces` = il faut se connecter avant (rôle requis). */
+/** Routes à auditer. `connexion` = il faut se connecter avant (rôle admin).
+ *  `anonyme` = on purge le stockage pour vérifier le rendu déconnecté. */
 const ROUTES = [
   { chemin: '/', nom: 'accueil' },
   { chemin: '/catalogue', nom: 'catalogue' },
-  { chemin: '/sommelier', nom: 'sommelier' },
-  { chemin: '/quiz-gustatif', nom: 'quiz' },
-  { chemin: '/accords', nom: 'accords' },
   { chemin: '/scanner', nom: 'scanner' },
   { chemin: '/promotions', nom: 'promotions' },
   { chemin: '/promotions/roue', nom: 'roue' },
   { chemin: '/promotions/carte-a-gratter', nom: 'carte-gratter' },
-  { chemin: '/fidelite', nom: 'fidelite' },
   { chemin: '/panier', nom: 'panier' },
   { chemin: '/favoris', nom: 'favoris' },
-  { chemin: '/carte', nom: 'carte' },
-  { chemin: '/comparateur', nom: 'comparateur' },
   { chemin: '/vin/v-001', nom: 'fiche-vin' },
+  { chemin: '/commande', nom: 'commande', connexion: true },
   { chemin: '/historique', nom: 'historique', connexion: true },
-  { chemin: '/parrainage', nom: 'parrainage' },
-  { chemin: '/connexion', nom: 'connexion' },
+  { chemin: '/profil', nom: 'profil', connexion: true },
   { chemin: '/caisse', nom: 'caisse', connexion: true },
+  { chemin: '/ecran-client', nom: 'ecran-client', connexion: true },
   { chemin: '/dashboard', nom: 'dashboard', connexion: true },
+  { chemin: '/commandes', nom: 'commandes-recues', connexion: true },
   { chemin: '/rapports', nom: 'rapports', connexion: true },
-  { chemin: '/ecran-client', nom: 'ecran-client' },
-  { chemin: '/route-inexistante', nom: '404' },
+  { chemin: '/admin', nom: 'admin', connexion: true },
+  { chemin: '/admin/commandes', nom: 'admin-commandes', connexion: true },
+  { chemin: '/admin/clients', nom: 'admin-clients', connexion: true },
+  { chemin: '/connexion', nom: 'connexion', anonyme: true },
+  { chemin: '/inscription', nom: 'inscription', anonyme: true },
+  { chemin: '/route-inexistante', nom: '404', anonyme: true },
 ];
 
 /** Localise le Chrome téléchargé par `npx puppeteer browsers install chrome`. */
@@ -112,15 +113,78 @@ async function nouvelOnglet() {
   return { page, problemes };
 }
 
-/** Se connecte avec un rôle donné (via la page de connexion). */
-async function connecter(page, role = 'admin') {
-  await page.goto(`${BASE}/connexion`, { waitUntil: 'networkidle2' });
-  await page.evaluate((r) => {
-    const boutons = [...document.querySelectorAll('button')];
-    const cible = boutons.find((b) => b.textContent?.trim().toLowerCase() === r);
-    cible?.click();
-  }, role);
-  await new Promise((r) => setTimeout(r, 1200));
+/** Base API utilisée par l'application (doit correspondre à environment.ts). */
+const API = process.env.API_BASE ?? 'http://127.0.0.1:8000/api';
+
+/** Jeton d'audit : une seule connexion réutilisée pour toutes les routes. */
+let jetonsAudit = null;
+
+async function obtenirJetons() {
+  if (jetonsAudit) return jetonsAudit;
+  const reponse = await fetch(`${API}/auth/login/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      username: process.env.AUDIT_USER ?? 'audit_bot',
+      password: process.env.AUDIT_PASS ?? 'AuditFront2026',
+    }),
+  });
+  if (!reponse.ok) throw new Error(`Connexion audit échouée (HTTP ${reponse.status})`);
+  jetonsAudit = await reponse.json();
+  return jetonsAudit;
+}
+
+/**
+ * Prépare la session du prochain onglet : injecte les clés JWT exactes lues
+ * par `AuthService` (`lb.token`, `lb.refresh`, `lb.utilisateur`), ou les
+ * purge pour auditer une page anonymement.
+ *
+ * On doit d'abord charger l'origine du dev-server : localStorage n'est
+ * accessible que pour l'origine courante.
+ */
+async function preparerSession(page, connecte) {
+  await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 });
+
+  if (!connecte) {
+    await page.evaluate(() => {
+      localStorage.removeItem('lb.token');
+      localStorage.removeItem('lb.refresh');
+      localStorage.removeItem('lb.utilisateur');
+    });
+    return;
+  }
+
+  const jetons = await obtenirJetons();
+  await page.evaluate((jetons) => {
+    const VERS_ROLE = {
+      ADMIN: 'admin',
+      GESTIONNAIRE: 'gestionnaire',
+      VENDEUR: 'vendeur',
+      CLIENT: 'client',
+    };
+    const api = jetons.user;
+    const nom =
+      [api.first_name, api.last_name].filter(Boolean).join(' ').trim() || api.username;
+    const initiales = nom
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((m) => m[0]?.toUpperCase() ?? '')
+      .join('');
+    const utilisateur = {
+      id: String(api.id),
+      nom,
+      email: api.email ?? '',
+      telephone: api.telephone ?? '',
+      avatarUrl: api.avatar_url ?? '',
+      role: VERS_ROLE[api.role] ?? 'client',
+      initiales,
+      token: jetons.access,
+    };
+    localStorage.setItem('lb.token', jetons.access);
+    localStorage.setItem('lb.refresh', jetons.refresh);
+    localStorage.setItem('lb.utilisateur', JSON.stringify(utilisateur));
+  }, jetons);
 }
 
 /**
@@ -147,7 +211,7 @@ ROUTES.find((r) => r.nom === 'fiche-vin').chemin = await urlPremiereFiche();
 for (const route of ROUTES) {
   const { page, problemes } = await nouvelOnglet();
 
-  if (route.connexion) await connecter(page, 'admin');
+  if (route.connexion || route.anonyme) await preparerSession(page, !!route.connexion);
 
   try {
     await page.goto(`${BASE}${route.chemin}`, { waitUntil: 'networkidle2', timeout: 45000 });

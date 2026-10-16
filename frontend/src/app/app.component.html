@@ -14,11 +14,7 @@
   </main>
 
   @if (chromeVisible()) {
-    <footer class="app__footer">
-      <div class="lb-container">
-        <p>© {{ annee }} {{ 'APP.nom' | translate }} — {{ 'APP.baseline' | translate }}</p>
-      </div>
-    </footer>
+    <app-footer />
   }
 
  <!-- bandeau hors ligne + file d'attente de synchronisation -->

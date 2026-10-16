@@ -1,7 +1,7 @@
 <section class="recues lb-container">
-  <header class="recues__header">
+  <header class="recues__header lb-page-header">
     <div>
-      <span class="eyebrow">Lazan'i Betsileo</span>
+      <span class="lb-eyebrow">Lazan'i Betsileo</span>
       <h1>{{ 'COMMANDES.titre' | translate }}</h1>
       <p>
         {{ liste().length }} {{ 'COMMANDES.nombre' | translate }} ·
@@ -76,7 +76,7 @@
               <strong>{{ client(reservation) }}</strong>
               <small>{{ reservation.client?.telephone || reservation.client?.email || '' }}</small>
             </span>
-            <span class="recue__statut">{{ 'COMMANDES.statuts.' + reservation.statut | translate }}</span>
+            <span class="lb-statut" [attr.data-statut]="reservation.statut.toLowerCase()">{{ 'COMMANDES.statuts.' + reservation.statut | translate }}</span>
             <span class="recue__montant">{{ reservation.montant_total | number: '1.0-0' }} Ar</span>
             <mat-icon class="recue__chevron">
               {{ referenceOuverte() === reservation.reference ? 'expand_less' : 'expand_more' }}
@@ -204,7 +204,7 @@
                       (click)="encaisserEnCaisse(reservation)"
                     >
                       <mat-icon>point_of_sale</mat-icon>
-                      Encaisser au comptoir (Caisse)
+                      {{ 'POS.encaisserAuComptoir' | translate }}
                     </button>
                   }
                 </div>

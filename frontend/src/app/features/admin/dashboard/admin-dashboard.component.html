@@ -83,7 +83,7 @@
                 <th>{{ 'ADMIN.client' | translate }}</th>
                 <th>{{ 'ADMIN.date' | translate }}</th>
                 <th>{{ 'ADMIN.montant' | translate }}</th>
-                <th>{{ 'ADMIN.statut' | translate }}</th>
+                <th>{{ 'ADMIN.colonneStatut' | translate }}</th>
                 <th></th>
               </tr>
             </thead>
@@ -95,8 +95,8 @@
                   <td>{{ cmd.date | date: 'dd/MM/yyyy HH:mm' }}</td>
                   <td>{{ total(cmd) | number }} Ar</td>
                   <td>
-                    <span class="badge" [attr.data-statut]="cmd.statut">
-                      {{ 'HISTORIQUE.statut.' + cmd.statut | translate }}
+                    <span class="lb-statut" [attr.data-statut]="cmd.statut.toLowerCase()">
+                      {{ 'HISTORIQUE.statuts.' + cmd.statut | translate }}
                     </span>
                   </td>
                   <td>

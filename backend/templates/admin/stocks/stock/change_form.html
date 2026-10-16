@@ -1,0 +1,108 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  /* ------------------------------------------------------------------
+     Fiche stock — la création et la modification partagent le même
+     formulaire. Un bandeau rappelle le vin concerné et où en est le
+     stock : la quantité et le seuil d'alerte suffisent, l'état se
+     déduit tout seul à l'enregistrement.
+     ------------------------------------------------------------------ */
+  .model-stock .st-hero {
+    align-items: center;
+    background:
+      radial-gradient(130% 170% at 90% -35%, rgba(201, 155, 59, .30) 0%, rgba(201, 155, 59, 0) 62%),
+      linear-gradient(118deg, var(--lb-wine-800) 0%, var(--lb-wine-600) 100%);
+    border: 1px solid rgba(201, 155, 59, .32);
+    border-radius: var(--lb-radius-lg);
+    box-shadow: var(--lb-hero-shadow);
+    color: #fff;
+    display: flex;
+    gap: 1rem;
+    margin: 0 0 1rem;
+    overflow: hidden;
+    padding: 1.15rem 1.35rem;
+    position: relative;
+  }
+  /* Filet or sur le bord supérieur : rappelle la couleur d'accent de la charte. */
+  .model-stock .st-hero::before {
+    background: linear-gradient(90deg, var(--lb-gold), rgba(240, 217, 154, 0) 85%);
+    content: "";
+    height: 2px;
+    inset: 0 0 auto;
+    position: absolute;
+  }
+  .model-stock .st-hero-icon {
+    align-items: center;
+    background: rgba(201, 155, 59, .16);
+    border: 1px solid rgba(240, 217, 154, .45);
+    border-radius: 14px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14);
+    color: #f0d99a;
+    display: flex;
+    flex: 0 0 52px;
+    font-size: 1.15rem;
+    height: 52px;
+    justify-content: center;
+  }
+  .model-stock .st-hero-txt { min-width: 0; }
+  .model-stock .st-hero-txt h1 {
+    color: #fff;
+    font-size: 1.22rem;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    margin: 0 0 .2rem;
+  }
+  .model-stock .st-hero-txt p { color: rgba(255, 255, 255, .8); font-size: .84rem; margin: 0; }
+  .model-stock .st-hero-pill {
+    background: rgba(0, 0, 0, .3);
+    border: 1px solid rgba(240, 217, 154, .5);
+    border-radius: 999px;
+    color: #f0d99a;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    margin-left: auto;
+    padding: .42rem .85rem;
+    white-space: nowrap;
+  }
+
+  /* La quantité et le seuil sont des nombres qui comptent : on les met en avant. */
+  .model-stock.change-form .form-group.field-quantite input,
+  .model-stock.change-form .form-group.field-seuil_alerte input {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+
+  @media (max-width: 640px) {
+    .model-stock .st-hero { align-items: flex-start; padding: 1rem; }
+    .model-stock .st-hero-pill { display: none; }
+  }
+</style>
+{% endblock %}
+
+{% block form_top %}
+<section class="st-hero" aria-labelledby="st-hero-title">
+  <span class="st-hero-icon" aria-hidden="true">
+    {% if original %}<i class="fas fa-boxes-stacked"></i>{% else %}<i class="fas fa-warehouse"></i>{% endif %}
+  </span>
+  <div class="st-hero-txt">
+    <h1 id="st-hero-title">
+      {% if original %}{{ original.produit.nom }}{% else %}Nouveau stock{% endif %}
+    </h1>
+    <p>
+      {% if original %}
+        Quantité disponible et seuil d'alerte — l'état du stock se recalcule à l'enregistrement.
+      {% else %}
+        Choisissez le vin, sa quantité disponible et son seuil d'alerte. L'état se calcule tout seul.
+      {% endif %}
+    </p>
+  </div>
+  <span class="st-hero-pill">
+    {% if original %}<i class="fas fa-box"></i> {{ original.quantite }} en stock{% else %}<i class="fas fa-star"></i> Nouveau{% endif %}
+  </span>
+</section>
+{{ block.super }}
+{% endblock %}

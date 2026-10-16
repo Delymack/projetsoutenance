@@ -86,7 +86,8 @@
   .model-promotion .pr-hist .remise-cell { color: var(--cr-red); font-weight: 800; }
 
   .model-promotion.change-form:has(.pr-create-hero) #content { max-width: 1180px; margin: 0 auto; }
-  .model-promotion.change-form:has(.pr-create-hero) #content-main { max-width: 760px; margin: 0 auto; }
+
+  /* Bandeau d'en-tête : il coiffe la création ET la modification. */
   .model-promotion.change-form:has(.pr-create-hero) .pr-create-hero {
     align-items: center; background: linear-gradient(115deg, rgba(214,170,77,.16), rgba(100,27,44,.24));
     border: 1px solid var(--cr-line); border-radius: 18px; display: flex; gap: 1rem;
@@ -104,33 +105,47 @@
     color: var(--cr-gold-soft); font-size: .72rem; font-weight: 700; margin-left: auto;
     padding: .4rem .7rem; white-space: nowrap;
   }
-  .model-promotion.change-form:has(.pr-create-hero) fieldset.module {
-    display: grid; gap: .25rem 1rem; grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding: 1rem;
+
+  /* Un seul onglet pour un seul bloc : on le masque, il n'a rien à cacher. */
+  .model-promotion.change-form:has(.pr-create-hero) #jazzy-tabs:has(> li:only-child) { display: none; }
+
+  /* Grille commune aux deux formulaires : chaque champ devient une carte sur
+     deux colonnes. La cible est le DOM réel de Jazzmin (`.tab-content
+     .card-body` + `.form-group.field-*`), pas le gabarit Django vanilla
+     (`fieldset.module` / `.form-row`) qui n'est jamais rendu ici. */
+  .model-promotion.change-form:has(.pr-create-hero) .tab-content > .tab-pane > .card {
+    background: transparent; border: 0; box-shadow: none;
   }
-  .model-promotion.change-form:has(.pr-create-hero) fieldset.module > h2,
-  .model-promotion.change-form:has(.pr-create-hero) fieldset.module > .form-row.field-nom,
-  .model-promotion.change-form:has(.pr-create-hero) fieldset.module > .form-row.field-produits_cibles,
-  .model-promotion.change-form:has(.pr-create-hero) fieldset.module > .form-row.field-categories {
-    grid-column: 1 / -1;
+  .model-promotion.change-form:has(.pr-create-hero) .tab-content .card-body {
+    display: grid; gap: .85rem; grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 1rem !important;
   }
-  .model-promotion.change-form:has(.pr-create-hero) fieldset.module > h2 { border-radius: 10px; padding: .75rem .9rem; }
-  .model-promotion.change-form:has(.pr-create-hero) fieldset.module > .form-row {
-    align-content: start; background: rgba(255,255,255,.025); border: 1px solid rgba(214,170,77,.1) !important;
+  .model-promotion.change-form:has(.pr-create-hero) .tab-content .form-group {
+    align-content: start; background: var(--cr-card); border: 1px solid var(--cr-line) !important;
     border-radius: 12px; margin: 0; min-width: 0; padding: .8rem .9rem;
   }
-  .model-promotion.change-form:has(.pr-create-hero) fieldset.module .form-row label {
-    color: var(--cr-gold-soft); display: block; font-size: .78rem; font-weight: 800;
-    letter-spacing: .025em; margin-bottom: .4rem;
+  .model-promotion.change-form:has(.pr-create-hero) .tab-content .form-group.field-nom,
+  .model-promotion.change-form:has(.pr-create-hero) .tab-content .form-group.field-produits_cibles,
+  .model-promotion.change-form:has(.pr-create-hero) .tab-content .form-group.field-categories {
+    grid-column: 1 / -1;
   }
-  .model-promotion.change-form:has(.pr-create-hero) fieldset.module .form-row input:not([type=checkbox]),
-  .model-promotion.change-form:has(.pr-create-hero) fieldset.module .form-row select,
-  .model-promotion.change-form:has(.pr-create-hero) fieldset.module .form-row textarea {
-    background: rgba(10,6,8,.5); border: 1px solid rgba(214,170,77,.25); border-radius: 9px;
+  /* Bootstrap aligne libellé et champ côte à côte : on remet la colonne. */
+  .model-promotion.change-form:has(.pr-create-hero) .tab-content .form-group .row { display: block; }
+  .model-promotion.change-form:has(.pr-create-hero) .tab-content .form-group .row > * {
+    float: none; padding: 0; width: 100%;
+  }
+  .model-promotion.change-form:has(.pr-create-hero) .tab-content .form-group label {
+    color: var(--cr-gold-soft); display: block; float: none; font-size: .78rem; font-weight: 800;
+    letter-spacing: .025em; margin: 0 0 .4rem; width: auto;
+  }
+  .model-promotion.change-form:has(.pr-create-hero) .tab-content .form-group input:not([type=checkbox]):not([type=file]),
+  .model-promotion.change-form:has(.pr-create-hero) .tab-content .form-group select,
+  .model-promotion.change-form:has(.pr-create-hero) .tab-content .form-group textarea {
+    background: var(--cr-card2); border: 1px solid var(--cr-line); border-radius: 9px;
     box-sizing: border-box; color: var(--cr-text); max-width: none; min-height: 42px; width: 100%;
   }
-  .model-promotion.change-form:has(.pr-create-hero) fieldset.module .form-row input:focus,
-  .model-promotion.change-form:has(.pr-create-hero) fieldset.module .form-row select:focus {
+  .model-promotion.change-form:has(.pr-create-hero) .tab-content .form-group input:focus,
+  .model-promotion.change-form:has(.pr-create-hero) .tab-content .form-group select:focus {
     border-color: var(--cr-gold); box-shadow: 0 0 0 3px rgba(214,170,77,.13); outline: none;
   }
   .model-promotion.change-form:has(.pr-create-hero) .field-type_promotion select { cursor: pointer; }
@@ -187,7 +202,7 @@
   @media (max-width: 700px) {
     .model-promotion.change-form:has(.pr-create-hero) .pr-create-hero { align-items: flex-start; }
     .model-promotion.change-form:has(.pr-create-hero) .pr-create-pill { display: none; }
-    .model-promotion.change-form:has(.pr-create-hero) fieldset.module { grid-template-columns: minmax(0, 1fr); padding: .7rem; }
+    .model-promotion.change-form:has(.pr-create-hero) .tab-content .card-body { grid-template-columns: minmax(0, 1fr); padding: .7rem !important; }
     .model-promotion.change-form:has(.pr-create-hero) .field-produits_cibles .selector,
     .model-promotion.change-form:has(.pr-create-hero) .field-categories .selector { grid-template-columns: 1fr; }
     .model-promotion.change-form:has(.pr-create-hero) .field-produits_cibles .selector .selector-chooser,
@@ -199,16 +214,24 @@
 {% endblock %}
 
 {% block form_top %}
-{% if add %}
-<section class="pr-create-hero" aria-labelledby="promotion-create-title">
+<section class="pr-create-hero" aria-labelledby="promotion-hero-title">
   <div class="pr-create-icon" aria-hidden="true"><i class="fas fa-wine-bottle"></i></div>
   <div>
-    <h1 id="promotion-create-title">Nouvelle promotion</h1>
-    <p>Remise en pourcentage</p>
+    <h1 id="promotion-hero-title">
+      {% if original %}{{ original.nom }}{% else %}Nouvelle promotion{% endif %}
+    </h1>
+    <p>
+      {% if original %}
+        Règle : {{ original.regle_texte }} — ajustez la remise, la cible et la période.
+      {% else %}
+        Remise en pourcentage
+      {% endif %}
+    </p>
   </div>
-  <span class="pr-create-pill">0,01–100 %</span>
+  <span class="pr-create-pill">
+    {% if original %}{{ original.get_type_promotion_display }}{% else %}0,01–100 %{% endif %}
+  </span>
 </section>
-{% endif %}
 {{ block.super }}
 {% endblock %}
 

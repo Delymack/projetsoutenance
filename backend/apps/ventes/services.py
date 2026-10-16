@@ -1357,8 +1357,20 @@ class CaisseService:
                 + Decimal(acomptes_par_mode.get(mode, 0) or 0)
             )
 
+        def _brut_groupes(modes):
+            return sum((_brut(mode) for mode in modes), Decimal('0'))
+
+        def _rembourse(modes):
+            return sum(
+                (Decimal(par_mode_rembourse.get(mode, 0) or 0) for mode in modes),
+                Decimal('0'),
+            )
+
         def _caisse(mode):
             return _money(_brut(mode))
+
+        def _caisse_groupes(modes):
+            return _money(_brut_groupes(modes))
 
         top_produits = (
             lignes.values('produit__nom', 'produit__millesime')
@@ -1382,22 +1394,22 @@ class CaisseService:
             'jour': jour,
             'ca_total': _money(Decimal(ca_total or 0)),
             'ca_especes': _caisse(Vente.ModePaiement.ESPECES),
-            'ca_mobile_money': _caisse(Vente.ModePaiement.MOBILE_MONEY),
+            'ca_mobile_money': _caisse_groupes(Vente.MODES_MOBILE_MONEY),
             'ca_carte': _caisse(Vente.ModePaiement.CARTE),
             'ca_credit': _caisse(Vente.ModePaiement.CREDIT),
             'acompte_caisses': _money(acomptes_total),
             'ca_rembourse': _money(Decimal(montant_rembourse or 0)),
             'ca_net': _money(Decimal(ca_total or 0) - Decimal(montant_rembourse or 0)),
             'rembourse_especes': _money(Decimal(par_mode_rembourse.get(Vente.ModePaiement.ESPECES, 0) or 0)),
-            'rembourse_mobile_money': _money(Decimal(par_mode_rembourse.get(Vente.ModePaiement.MOBILE_MONEY, 0) or 0)),
+            'rembourse_mobile_money': _money(_rembourse(Vente.MODES_MOBILE_MONEY)),
             'rembourse_carte': _money(Decimal(par_mode_rembourse.get(Vente.ModePaiement.CARTE, 0) or 0)),
             'rembourse_credit': _money(Decimal(par_mode_rembourse.get(Vente.ModePaiement.CREDIT, 0) or 0)),
             # Net par moyen : ce que le poste a réellement gardé après les
             # remboursements. Un template ne doit pas recalculer de l'argent.
             'net_especes': _money(_brut(Vente.ModePaiement.ESPECES)
                                   - Decimal(par_mode_rembourse.get(Vente.ModePaiement.ESPECES, 0) or 0)),
-            'net_mobile_money': _money(_brut(Vente.ModePaiement.MOBILE_MONEY)
-                                      - Decimal(par_mode_rembourse.get(Vente.ModePaiement.MOBILE_MONEY, 0) or 0)),
+            'net_mobile_money': _money(_brut_groupes(Vente.MODES_MOBILE_MONEY)
+                                       - _rembourse(Vente.MODES_MOBILE_MONEY)),
             'net_carte': _money(_brut(Vente.ModePaiement.CARTE)
                                 - Decimal(par_mode_rembourse.get(Vente.ModePaiement.CARTE, 0) or 0)),
             'net_credit': _money(_brut(Vente.ModePaiement.CREDIT)
@@ -1430,7 +1442,12 @@ class CaisseService:
             'nb_tickets': ventes.count(),
             'ca_total': _money(ventes.aggregate(t=Coalesce(Sum('total'), 0, output_field=DecimalField(max_digits=12, decimal_places=2)))['t'] or 0),
             'ca_especes': _money(Decimal(par_mode.get(Vente.ModePaiement.ESPECES, 0) or 0)),
-            'ca_mobile_money': _money(Decimal(par_mode.get(Vente.ModePaiement.MOBILE_MONEY, 0) or 0)),
+            # Même regroupement que le rapport du jour : tous les opérateurs
+            # d'argent mobile alimentent une seule colonne.
+            'ca_mobile_money': _money(sum(
+                (Decimal(par_mode.get(mode, 0) or 0) for mode in Vente.MODES_MOBILE_MONEY),
+                Decimal('0'),
+            )),
             'ca_carte': _money(Decimal(par_mode.get(Vente.ModePaiement.CARTE, 0) or 0)),
             'ca_credit': _money(Decimal(par_mode.get(Vente.ModePaiement.CREDIT, 0) or 0)),
             'ca_rembourse': _money(retours.aggregate(t=Coalesce(Sum('montant_rembourse'), 0, output_field=DecimalField(max_digits=12, decimal_places=2)))['t'] or 0),

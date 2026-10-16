@@ -56,7 +56,7 @@
 }
 
 /* ============================================================
-   Conteneur — fond dégradé bordeaux profond + halo or
+   Conteneur — fond dégradé bordeaux profond + halo or + bordure gauche renforcée
    ============================================================ */
 #jazzy-sidebar {
     background:
@@ -65,12 +65,18 @@
         radial-gradient(100% 70% at 82% 115%, rgba(22, 39, 77, 0.6), transparent 66%),
         linear-gradient(178deg, #1a0810 0%, #0e0509 48%, #070d1d 100%) !important;
     border-right: 1px solid var(--wine-border);
-    box-shadow: 12px 0 40px rgba(0, 0, 0, 0.35);
+    border-left: 4px solid var(--wine-gold);
+    box-shadow: 16px 0 50px rgba(0, 0, 0, 0.4), inset -4px 0 20px rgba(0, 0, 0, 0.1);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    position: relative;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    z-index: 20;
+    left: 0;
 }
 
 /* Liseré lumineux gauche (effet verre) */
@@ -450,12 +456,11 @@
 #jazzy-sidebar .nav-section:hover,
 #jazzy-sidebar .nav-section:focus-within {
     background:
-        linear-gradient(180deg, rgba(244, 210, 119, 0.1), rgba(244, 210, 119, 0.03) 70%, rgba(0, 0, 0, 0.12));
-    box-shadow:
-        0 10px 22px -12px rgba(0, 0, 0, 0.6),
-        inset 0 1px 0 rgba(255, 255, 255, 0.06),
-        0 0 24px -12px rgba(233, 185, 73, 0.95);
+        linear-gradient(180deg, rgba(255, 255, 255, .06) 0%, rgba(0, 0, 0, .03) 100%);
+    box-shadow: none;
+    border-color: var(--wine-gold);
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 #jazzy-sidebar .nav-section:hover .nav-section-icon,
 #jazzy-sidebar .nav-section:focus-within .nav-section-icon {
@@ -665,7 +670,7 @@
 /* Categories */
 #jazzy-sidebar .nav-icon-categories { color: var(--c-cat); background: transparent; border-color: rgba(255,255,255,0.08); box-shadow: 0 0 10px -6px var(--c-cat); }
 /* Fournisseurs et bons de commande partagent la teinte des approvisionnements :
-   c'est la même démarche, vue depuis deux écrans. */
+    c'est la même démarche, vue depuis deux écrans. */
 #jazzy-sidebar .nav-icon-commandes { color: var(--c-four); background: transparent; border-color: rgba(255,255,255,0.08); box-shadow: 0 0 10px -6px var(--c-four); }
 /* Paramètres */
 #jazzy-sidebar .nav-icon-parametres { color: var(--c-param); background: transparent; border-color: rgba(255,255,255,0.08); box-shadow: 0 0 10px -6px var(--c-param); }
@@ -678,6 +683,28 @@
     background: transparent !important;
     box-shadow: 0 0 14px -3px currentColor;
 }
+#jazzy-sidebar .nav-link.active .nav-icon-wrap {
+    filter: saturate(1.35) brightness(1.4);
+    background: transparent !important;
+    border-color: rgba(255,255,255,0.12);
+    box-shadow: 0 0 16px -2px var(--wine-gold-bright);
+    transform: scale(1.06);
+}
+
+/* Active section highlight */
+#jazzy-sidebar .nav-section.active,
+#jazzy-sidebar .nav-section[data-sb-color="dashboard"].active { --nc: var(--c-tdb); }
+#jazzy-sidebar .nav-section[data-sb-color="caisse"].active { --nc: var(--c-caisse); }
+#jazzy-sidebar .nav-section[data-sb-color="rapports"].active { --nc: var(--c-report); }
+#jazzy-sidebar .nav-section[data-sb-color="ventes"].active { --nc: var(--c-ventes); }
+#jazzy-sidebar .nav-section[data-sb-color="clients"].active { --nc: var(--c-clients); }
+#jazzy-sidebar .nav-section[data-sb-color="produits"].active { --nc: var(--c-produits); }
+#jazzy-sidebar .nav-section[data-sb-color="stocks"].active { --nc: var(--c-stocks); }
+#jazzy-sidebar .nav-section[data-sb-color="promotions"].active { --nc: var(--c-promos); }
+#jazzy-sidebar .nav-section[data-sb-color="categories"].active { --nc: var(--c-cat); }
+#jazzy-sidebar .nav-section[data-sb-color="commandes"].active { --nc: var(--c-four); }
+#jazzy-sidebar .nav-section[data-sb-color="parametres"].active { --nc: var(--c-param); }
+#jazzy-sidebar .nav-section[data-sb-color="journal"].active { --nc: var(--c-journal); }
 #jazzy-sidebar .nav-link.active .nav-icon-wrap {
     filter: saturate(1.35) brightness(1.4);
     background: transparent !important;
@@ -702,10 +729,14 @@
     text-overflow: ellipsis;
     letter-spacing: 0.01em;
     line-height: 1.15;
+    color: var(--wine-text) !important;
+    font-weight: 600 !important;
+    transition: color 0.2s ease;
 }
 
 #jazzy-sidebar .nav-item .nav-icon-wrap {
     margin-right: 0;
+    flex-shrink: 0;
 }
 
 #jazzy-sidebar .nav-arrow {
@@ -717,6 +748,13 @@
 #jazzy-sidebar .has-treeview.menu-open > .nav-link .nav-arrow {
     transform: rotate(90deg);
     color: var(--wine-gold-soft);
+}
+
+/* Enhanced nav-link styling */
+#jazzy-sidebar .nav-item .nav-link,
+#jazzy-sidebar .nav-item .nav-icon-wrap,
+#jazzy-sidebar .nav-item .nav-label {
+    font-size: inherit !important;
 }
 
 /* ============================================================
@@ -1490,37 +1528,29 @@
    portée par la variable --nc posée via data-sb-color.
    ============================================================ */
 #jazzy-sidebar .nav-section {
+    position: relative;
+    display: flex !important;
     align-items: center;
-    background: rgba(255, 255, 255, .035);
-    border: 1px solid rgba(255, 255, 255, .1);
+    justify-content: flex-start !important;
+    gap: 0.6rem;
+    margin: 0.72rem 0.7rem 0.3rem !important;
+    padding: .3rem .55rem .3rem .5rem !important;
+    list-style: none;
     border-radius: 8px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .035) 0%, rgba(0, 0, 0, .02) 100%);
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-left: 3px solid var(--nc, var(--c-gold));
     box-shadow: none;
     cursor: default;
-    display: flex !important;
-    gap: .55rem;
-    height: auto !important;
-    justify-content: flex-start !important;
-    margin: .72rem .7rem .3rem !important;
-    min-height: 32px !important;
-    overflow: visible !important;
-    padding: .3rem .55rem .3rem .5rem !important;
-    position: relative;
     text-align: left;
     user-select: none;
+    transition: background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 /* Liseré vertical vif à gauche de l'en-tête, dans la teinte du groupe. */
 #jazzy-sidebar .nav-section::before {
-    background: linear-gradient(180deg, var(--nc, var(--c-gold)) 0%, rgba(0, 0, 0, .35) 100%);
-    border-radius: 3px;
-    bottom: .34rem;
-    display: block;
-    left: 0;
-    opacity: 1;
-    position: absolute;
-    right: auto;
-    top: .34rem;
-    width: 3px;
+    display: none !important;
 }
 
 /* Affectation des teintes « standard » (palette design system). */
@@ -1638,12 +1668,29 @@
 }
 
 #jazzy-sidebar .wine-brand-mark {
+    border: 2px solid rgba(230, 189, 106, .65);
+    border-radius: 50%;
+    background: #f3edda;
     display: block;
-    filter: drop-shadow(0 3px 8px rgba(0, 0, 0, .32));
-    flex: 0 0 52px;
-    height: 52px;
-    object-fit: contain;
-    width: 52px;
+    flex: 0 0 60px;
+    height: 60px;
+    object-fit: cover;
+    width: 60px;
+    /* Halo doré subtil + ombre portée : le médaillon ressort sur la sidebar sombre. */
+    box-shadow:
+        0 0 0 3px rgba(244, 210, 119, .12),
+        0 4px 14px rgba(0, 0, 0, .4),
+        inset 0 0 0 1px rgba(255, 255, 255, .25);
+    transition: transform .25s var(--ease-out), box-shadow .25s var(--ease-out), border-color .25s var(--ease-out);
+}
+
+#jazzy-sidebar .wine-brand:hover .wine-brand-mark {
+    border-color: rgba(244, 210, 119, .95);
+    box-shadow:
+        0 0 0 4px rgba(244, 210, 119, .22),
+        0 6px 20px rgba(0, 0, 0, .5),
+        inset 0 0 0 1px rgba(255, 255, 255, .35);
+    transform: scale(1.05);
 }
 
 #jazzy-sidebar .wine-brand-text {
@@ -1691,3 +1738,26 @@
         display: none;
     }
 }
+
+/* ============================================================
+   FINITION — En-têtes de section purement structurels.
+   Ils restent dans le DOM (accessibilité + tests fonctionnels)
+   mais ne s'affichent jamais : la barre de menu reste épurée,
+   sans titres de groupe. Le sélecteur `li…[data-sb-section]`
+   a une spécificité (1 id, 1 classe, 1 attribut, 1 type) qui bat
+   les `display:flex !important` plus hauts, et on exclut la
+   section Favoris (pilotée par le JS via l'attribut `hidden`).
+   ============================================================ */
+#jazzy-sidebar li.nav-section[data-sb-section] {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+#jazzy-sidebar li.nav-section[data-sb-section]::before,
+#jazzy-sidebar li.nav-section[data-sb-section] .nav-section-icon,
+#jazzy-sidebar li.nav-section[data-sb-section] .nav-section-label {
+    display: none !important;
+}
+

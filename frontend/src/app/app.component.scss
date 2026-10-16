@@ -18,17 +18,3 @@
 .app__contenu:has(~ app-bandeau-hors-ligne.bandeau-flottant) {
   padding-bottom: 104px;
 }
-
-.app__footer {
-  margin-top: auto;
-  padding: var(--lb-gap-lg) 0;
-  background: var(--lb-bg-alt);
-  border-top: 1px solid var(--lb-divider);
-  color: var(--lb-text-muted);
-  font-size: 0.82rem;
-  text-align: center;
-
-  p {
-    margin: 2px 0;
-  }
-}

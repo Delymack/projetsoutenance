@@ -1,9 +1,10 @@
 """Suivi des clients : meilleurs contributeurs et créances.
 
-Le tableau de bord a été allégé : il ne porte plus que l'indicateur « Clients »
-et son raccourci vers la liste. Le classement des meilleurs contributeurs et
-les créances restent calculés par `stats_completes`, consommés par la page
-Clients et ses segments. Le contrat ci-dessous verrouille les deux moitiés.
+Le tableau de bord met en avant les meilleurs clients (30 j) dans un panneau
+dédié, en plus de l'indicateur « Clients » et de son raccourci vers la liste.
+Les créances, elles, restent calculées par `stats_completes` et consommées par
+la page Clients et ses segments. Le contrat ci-dessous verrouille les deux
+moitiés.
 """
 
 from decimal import Decimal
@@ -84,15 +85,15 @@ class PanelClientsDashboardTests(TestCase):
         self.assertIsNone(ligne['restant'])
 
     def test_le_dashboard_signale_les_ruptures_et_renvoie_vers_les_stocks(self):
-        """L'accueil met l'alerte stock avant le nombre total de clients."""
+        """L'accueil met l'alerte stock en avant et renvoie vers la liste."""
         reponse = self.client.get(reverse('admin:index'))
         self.assertEqual(reponse.status_code, 200)
         html = reponse.content.decode()
-        self.assertIn('wine-kpi-label">Produits en rupture<', html)
+        self.assertIn('dash-kpi__label">Ruptures de stock<', html)
         self.assertIn(reverse('admin:stocks_stock_changelist'), html)
-        # Le classement et les créances ne sont plus dupliqués sur l'accueil.
-        for absent in ('Meilleurs clients', 'Créances clients'):
-            self.assertNotIn(absent, html)
+        # Les créances ne sont pas dupliquées sur l'accueil : elles vivent
+        # dans le segment dédié de la page Clients.
+        self.assertNotIn('Créances clients', html)
 
     def test_la_liste_des_clients_expose_le_segment_des_creances(self):
         """Les créances ont migré vers la page Clients, qui reste segmentée."""

@@ -17,6 +17,8 @@ ICONES_PAIEMENT = {
     'CREDIT': 'fa-book',
 }
 
+MODES_EXCLUS_DE_LA_CAISSE = {'CARTE', 'CREDIT'}
+
 
 class POSView(LoginRequiredMixin, TemplateView):
     template_name = "admin/pos.html"
@@ -26,6 +28,11 @@ class POSView(LoginRequiredMixin, TemplateView):
         context.update(admin.site.each_context(self.request))
         # Les moyens proposés viennent des paramètres : la caisse suit le
         # paramétrage, pas une liste figée dans le gabarit.
-        context['modes_paiement'] = modes_actifs()
+        context['modes_paiement'] = [
+            (code, libelle)
+            for code, libelle in modes_actifs()
+            if code not in MODES_EXCLUS_DE_LA_CAISSE
+        ]
+        context['paiement_indisponible'] = not context['modes_paiement']
         context['icone_paiement'] = lambda code: ICONES_PAIEMENT.get(code, 'fa-money-bill')
         return context

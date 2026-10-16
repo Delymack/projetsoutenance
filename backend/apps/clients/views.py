@@ -63,3 +63,5 @@ class ReglementViewSet(viewsets.ModelViewSet):
                 "message": "Suppression impossible.",
                 "errors": e.detail,
             }, status=status.HTTP_400_BAD_REQUEST)
+
+

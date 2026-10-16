@@ -1,7 +1,7 @@
 <section class="catalogue lb-container">
   <header class="catalogue__header">
     <div>
-      <span class="eyebrow">Lazan'i Betsileo · Fianarantsoa</span>
+      <span class="lb-eyebrow">Lazan'i Betsileo · Fianarantsoa</span>
       <h1>{{ 'CATALOGUE.titre' | translate }}</h1>
       <p>{{ 'CATALOGUE.resultats' | translate: { count: vins().length } }}</p>
     </div>
@@ -70,16 +70,33 @@
   } @else {
     <div class="catalogue__grid" role="list" [attr.aria-label]="'CATALOGUE.titre' | translate">
       @for (vin of vins(); track vin.id) {
-      <article class="wine-card lb-card lb-card--hover" role="listitem">
+      <article class="wine-card lb-card lb-card--hover" role="listitem" (mousemove)="suivreCurseur($event)">
         <a class="wine-card__image-link" [routerLink]="['/vin', vin.id]" [attr.aria-label]="vin.nom">
           <img class="wine-card__image" [src]="vin.image" [alt]="vin.nom" loading="lazy" />
           <span class="wine-card__cat">{{ ('CATALOGUE.categories.' + vin.categorie) | translate }}</span>
         </a>
+
+        <button
+          type="button"
+          class="wine-card__favori"
+          [class.wine-card__favori--actif]="favoris.estFavori(vin.id)"
+          (click)="$event.preventDefault(); $event.stopPropagation(); favoris.basculer(vin.id)"
+          [attr.aria-label]="
+            (favoris.estFavori(vin.id) ? 'VIN.retirerFavoris' : 'VIN.ajouterFavoris') | translate
+          "
+        >
+          <mat-icon>{{ favoris.estFavori(vin.id) ? 'favorite' : 'favorite_border' }}</mat-icon>
+        </button>
+
         <div class="wine-card__body">
           <h2><a [routerLink]="['/vin', vin.id]">{{ vin.nom }}</a></h2>
 
           <div class="wine-card__meta">
             <span class="wine-card__meta-item">{{ vin.millesime || '—' }}</span>
+            @if (vin.cepage) {
+              <span class="wine-card__meta-sep" aria-hidden="true">·</span>
+              <span class="wine-card__meta-item">{{ vin.cepage }}</span>
+            }
           </div>
 
           @if (vin.noteMoyenne) {
@@ -110,27 +127,42 @@
           }
 
           <div class="wine-card__footer">
-            <strong class="wine-card__price">{{ vin.prix | number:'1.0-0' }} Ar</strong>
-            <button
-              type="button"
-              class="wine-card__voir"
-              [attr.aria-expanded]="detailsOuverts() === vin.id"
-              (click)="basculerDetails(vin.id)"
-            >
-              {{ (detailsOuverts() === vin.id ? 'COMMUN.voirMoins' : 'COMMUN.voirPlus') | translate }}
-            </button>
-            <button
-              type="button"
-              class="wine-card__ajout"
-              [class.wine-card__ajout--ok]="ajoutConfirme() === vin.id"
-              [disabled]="vin.stock < 1"
-              (click)="ajouterAuPanier(vin)"
-            >
-              {{
-                (ajoutConfirme() === vin.id ? 'CATALOGUE.ajoutReussi' : 'CATALOGUE.acheter')
-                  | translate
-              }}
-            </button>
+            <div class="wine-card__prix-ligne">
+              @if (vin.prixBarre && vin.prixBarre > vin.prix) {
+                <span class="wine-card__prix-barre">{{ vin.prixBarre | number:'1.0-0' }} Ar</span>
+              }
+              <strong class="wine-card__price">{{ vin.prix | number:'1.0-0' }} Ar</strong>
+              <span
+                class="wine-card__stock"
+                [class.wine-card__stock--rupture]="vin.stock < 1"
+              >
+                {{ (vin.stock < 1 ? 'VIN.rupture' : 'VIN.enStock') | translate }}
+              </span>
+            </div>
+
+            <div class="wine-card__actions-row">
+              <button
+                type="button"
+                class="wine-card__voir"
+                [attr.aria-expanded]="detailsOuverts() === vin.id"
+                (click)="basculerDetails(vin.id)"
+              >
+                {{ (detailsOuverts() === vin.id ? 'COMMUN.voirMoins' : 'COMMUN.voirPlus') | translate }}
+              </button>
+              <button
+                type="button"
+                class="wine-card__ajout lb-btn-ripple"
+                [class.wine-card__ajout--ok]="ajoutConfirme() === vin.id"
+                [disabled]="vin.stock < 1"
+                (click)="ajouterAuPanier(vin)"
+              >
+                <mat-icon aria-hidden="true">{{ ajoutConfirme() === vin.id ? 'check' : 'shopping_cart' }}</mat-icon>
+                {{
+                  (ajoutConfirme() === vin.id ? 'CATALOGUE.ajoutReussi' : 'CATALOGUE.acheter')
+                    | translate
+                }}
+              </button>
+            </div>
           </div>
         </div>
       </article>

@@ -251,8 +251,8 @@ def _telephone_whatsapp(client):
     Normalise un numéro de téléphone pour wa.me (chiffres, indicatif pays).
 
     wa.me n'accepte que l'international « nu » : ni indicatif de pays, ni
-    préfixe national. Un numéro togolais saisi « 034 00 00 000 » doit devenir
-    22834000000 — un lien construit sur le numéro brut est un lien mort, le
+    préfixe national. Un numéro malgache saisi « 034 00 00 000 » doit devenir
+    26134000000 — un lien construit sur le numéro brut est un lien mort, le
     client tape dessus et rien ne s'ouvre. `telephone` n'étant pas formaté en
     base, la normalisation se fait ici plutôt que sur le formulaire.
     """
@@ -260,13 +260,13 @@ def _telephone_whatsapp(client):
     if not brut:
         return ''
     if brut.startswith('00'):
-        # Préfixe international déjà saisi : on ne rajoute pas 228.
+        # Préfixe international déjà saisi : on ne rajoute pas 261.
         return brut[2:]
     if brut.startswith('0'):
         # Préfixe national (indicatif d'appel) : à retirer avant l'indicatif pays.
         brut = brut[1:]
     if len(brut) <= 9:
-        return f'228{brut}'
+        return f'261{brut}'
     return brut
 
 
@@ -333,6 +333,44 @@ class ReservationDetailSerializer(ReservationSerializer):
 
     class Meta(ReservationSerializer.Meta):
         fields = list(ReservationSerializer.Meta.fields) + ['facture_url']
+
+    def get_facture_url(self, obj):
+        from apps.ventes.factures import facture_accessible, facture_url as url_facture
+
+        if not facture_accessible(obj):
+            return ''
+        return url_facture(self.context.get('request'), obj)
+
+
+class ReservationSuiviSerializer(serializers.ModelSerializer):
+    """Vue publique et minimale d'une commande, accessible par sa référence.
+
+    Contrairement à ``ReservationDetailSerializer``, aucune donnée personnelle
+    complète du client n'est exposée (pas d'e-mail, d'adresse, de téléphone ni
+    de solde) : un simple nom affiché suffit au suivi.
+    """
+
+    lignes = LigneReservationSerializer(many=True, read_only=True)
+    client_nom = serializers.SerializerMethodField()
+    solde_du = serializers.SerializerMethodField()
+    facture_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Reservation
+        fields = [
+            'reference', 'statut', 'mode_reception', 'montant_total',
+            'montant_acompte', 'solde_du', 'date_expiration', 'date_creation',
+            'note', 'client_nom', 'lignes', 'facture_url',
+        ]
+        read_only_fields = fields
+
+    def get_client_nom(self, obj):
+        if not obj.client_id:
+            return ''
+        return f"{obj.client.prenom} {obj.client.nom}".strip()
+
+    def get_solde_du(self, obj):
+        return str(obj.solde_du)
 
     def get_facture_url(self, obj):
         from apps.ventes.factures import facture_accessible, facture_url as url_facture

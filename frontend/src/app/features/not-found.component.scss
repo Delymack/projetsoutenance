@@ -2,17 +2,74 @@
   display: grid;
   place-items: center;
   justify-items: center;
-  gap: var(--lb-gap-sm);
-  min-height: calc(100vh - 200px);
+  gap: var(--lb-gap);
+  min-height: calc(100vh - 220px);
+  padding: clamp(2rem, 5vw, 4rem) 1rem;
   text-align: center;
+
+  /* Fond atmosphérique : deux aurores radiales verts/or */
+  background:
+    radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--lb-accent) 10%, transparent), transparent 28rem),
+    radial-gradient(circle at 65% 60%, color-mix(in srgb, var(--lb-primary) 8%, transparent), transparent 28rem);
 }
 
 .page-404__code {
   font-family: var(--lb-font-display);
   font-size: clamp(4rem, 18vw, 9rem);
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1;
   color: transparent;
   -webkit-text-stroke: 3px var(--lb-primary);
   animation: lb-fade-in-up 500ms ease-out;
+}
+
+.page-404__code::selection {
+  background: transparent;
+}
+
+.page-404 h1 {
+  margin: 0;
+  font-family: var(--lb-font-display);
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  color: var(--lb-text);
+}
+
+.page-404__texte {
+  margin: 0;
+  max-width: 36ch;
+  color: var(--lb-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.page-404 a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lb-gap-xs);
+  padding: 0.6rem 1.4rem;
+  border-radius: var(--lb-radius-sm);
+  font-weight: 600;
+  color: var(--lb-primary-contrast);
+  background: linear-gradient(135deg, var(--lb-primary), var(--lb-vert-clair));
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--lb-primary) 28%, transparent);
+  transition:
+    transform var(--lb-transition),
+    box-shadow var(--lb-transition),
+    filter var(--lb-transition);
+
+  &:hover {
+    transform: translateY(-1.5px);
+    filter: saturate(1.06);
+    box-shadow: 0 10px 26px color-mix(in srgb, var(--lb-primary) 34%, transparent);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-404__code {
+    animation: none;
+  }
 }

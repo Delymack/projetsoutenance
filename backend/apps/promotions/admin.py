@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
+from config.admin_mixins import ActionsColonneMixin
 from apps.categories.models import Categorie
 from apps.produits.models import Produit
 from apps.promotions.models import Promotion, PromotionProduit
@@ -124,7 +125,7 @@ class PromotionAdminForm(forms.ModelForm):
 
 
 @admin.register(Promotion)
-class PromotionAdmin(admin.ModelAdmin):
+class PromotionAdmin(ActionsColonneMixin, admin.ModelAdmin):
     change_list_template = 'admin/promotions/promotion/change_list.html'
     change_form_template = 'admin/promotions/promotion/change_form.html'
     form = PromotionAdminForm
@@ -157,8 +158,11 @@ class PromotionAdmin(admin.ModelAdmin):
             ),
         }),
     )
+    # La fiche se nomme comme la création : Jazzmin rend ainsi le même DOM
+    # (`.tab-content .card-body`) des deux côtés, ce qui permet à la grille
+    # du gabarit de s'appliquer aussi bien à l'ajout qu'à la modification.
     fieldsets = (
-        (None, {
+        ('Promotion', {
             'fields': (
                 'nom', 'type_promotion', 'valeur', 'date_debut', 'date_fin',
                 'type_cible', 'quantite_min', 'code', 'statut',
@@ -168,6 +172,11 @@ class PromotionAdmin(admin.ModelAdmin):
     )
 
     def get_fieldsets(self, request, obj=None):
+        """Mêmes champs essentiels à la création qu'à la modification.
+
+        L'habillage est identique : le bandeau `.pr-create-hero` coiffe les
+        deux formulaires, seule la fiche complète garde ses statistiques.
+        """
         if obj is None:
             return self.add_fieldsets
         return self.fieldsets

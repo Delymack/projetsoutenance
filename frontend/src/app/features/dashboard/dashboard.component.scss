@@ -1,31 +1,50 @@
+/* Tableau de bord client / équipe — KPIs verts */
 :host {
   display: block;
 }
 
 .dashboard {
-  padding-block: 2rem 3rem;
+  padding-block: clamp(1.5rem, 4vw, 2.75rem) clamp(2.5rem, 6vw, 4rem);
 }
 
 .dashboard__header {
-  margin-bottom: 1.25rem;
-}
+  margin-bottom: 1.35rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--lb-border);
+  border-radius: var(--lb-radius-lg);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--lb-primary) 6%, var(--lb-surface)),
+    var(--lb-surface)
+  );
+  box-shadow: var(--lb-shadow-1);
+  position: relative;
+  overflow: hidden;
 
-.dashboard__header h1 {
-  margin: 0.35rem 0;
-  font-size: clamp(2rem, 4vw, 3rem);
-}
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, var(--lb-primary), var(--lb-accent));
+  }
 
-.dashboard__header p,
-.dashboard__sale small {
-  margin: 0;
-  color: var(--lb-text-muted);
+  h1 {
+    margin: 0.3rem 0;
+    font-size: clamp(1.85rem, 3.5vw, 2.6rem);
+  }
+
+  p {
+    margin: 0;
+    color: var(--lb-text-muted);
+  }
 }
 
 .eyebrow {
-  color: var(--lb-primary);
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
+  color: var(--lb-accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
@@ -42,29 +61,39 @@
 .dashboard__kpis article {
   display: grid;
   gap: 0.45rem;
-  padding: 1rem;
+  padding: 1.1rem 1.15rem;
+  border-radius: 16px;
+  background: var(--lb-surface);
+  border: 1px solid var(--lb-border);
+  box-shadow: var(--lb-shadow-1);
 }
 
 .dashboard__kpis mat-icon {
-  color: var(--lb-accent);
+  color: var(--lb-primary);
 }
 
 .dashboard__kpis span {
   color: var(--lb-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 .dashboard__kpis strong {
-  color: var(--lb-primary);
-  font-size: 1.45rem;
+  font-family: var(--lb-font-display);
+  color: var(--lb-text);
+  font-size: 1.55rem;
 }
 
 .dashboard__grid {
   grid-template-columns: minmax(0, 1fr) minmax(280px, 0.8fr);
-  margin-top: 1rem;
+  margin-top: 0.35rem;
 }
 
 .dashboard__panel {
-  padding: 1rem;
+  padding: 1.15rem;
+  border-radius: 16px;
+  background: var(--lb-surface);
+  border: 1px solid var(--lb-border);
 }
 
 .dashboard__sale {
@@ -73,10 +102,23 @@
   gap: 1rem;
   border-bottom: 1px dashed var(--lb-divider);
   padding: 0.75rem 0;
+  transition: border-color var(--lb-transition);
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--lb-accent) 45%, var(--lb-divider));
+  }
+
+  &:last-child {
+    border-bottom: 0;
+  }
 }
 
 .dashboard__sale div {
   display: grid;
+}
+
+.dashboard__sale small {
+  color: var(--lb-text-muted);
 }
 
 .dashboard__sale span {
@@ -105,7 +147,7 @@
   height: 100%;
   max-width: 100%;
   border-radius: inherit;
-  background: var(--lb-primary);
+  background: linear-gradient(90deg, var(--lb-primary), var(--lb-accent));
 }
 
 .dashboard__notification {
@@ -122,20 +164,15 @@
   background: var(--lb-success);
   color: var(--lb-text-inverse);
   box-shadow: var(--lb-shadow-3);
-  font-weight: 800;
+  font-weight: 700;
 }
 
-@media (max-width: 820px) {
-  .dashboard__grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Heatmap des ventes */
 .dashboard__heatmap {
   display: grid;
   gap: var(--lb-gap-sm);
-  margin-bottom: var(--lb-gap);
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 16px;
 }
 
 .dashboard__heatmap-picto {
@@ -151,5 +188,11 @@
     height: 18px;
     font-size: 18px;
     color: var(--lb-accent);
+  }
+}
+
+@media (max-width: 860px) {
+  .dashboard__grid {
+    grid-template-columns: 1fr;
   }
 }

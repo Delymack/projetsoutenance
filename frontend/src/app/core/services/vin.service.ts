@@ -87,6 +87,37 @@ function nombre(valeur: string | number | null | undefined, defaut = 0): number 
   return Number.isFinite(resultat) ? resultat : defaut;
 }
 
+/**
+ * Origine du serveur d'API (schéma + hôte), vide quand l'API est servie sur
+ * le même hôte que la boutique (`apiUrl = '/api'` en production).
+ */
+const ORIGINE_API = /^https?:\/\//i.test(environment.apiUrl)
+  ? new URL(environment.apiUrl).origin
+  : '';
+
+/**
+ * Renvoie une URL d'image que le navigateur peut réellement charger.
+ *
+ * Le serializer Django renvoie tantôt une URL absolue construite par
+ * `request.build_absolute_uri` (qui peut viser un hôte interne injoignable
+ * depuis le navigateur), tantôt un chemin relatif à `MEDIA_URL`
+ * (`/media/…`), lequel serait résolu contre l'origine de la boutique et
+ * renverrait un 404 tant que celle-ci ne sert pas les médias. On ramène
+ * donc tout à l'origine de l'API : sans effet en production (origine vide
+ * → chemin seul conservé), correction en développement.
+ */
+function normaliserUrlImage(brute: string | null | undefined, origineApi: string): string {
+  const valeur = (brute ?? '').trim();
+  if (!valeur) return '';
+  let chemin = valeur;
+  if (/^https?:\/\//i.test(valeur)) {
+    chemin = valeur.replace(/^https?:\/\/[^/?#]+/i, '');
+  }
+  if (!chemin) return '';
+  if (!chemin.startsWith('/')) chemin = `/${chemin}`;
+  return `${origineApi}${chemin}`;
+}
+
 function categorieVin(produit: ProduitApi): WineCategory {
   const texte = (produit.categorie?.nom || produit.type_vin || '').toLowerCase();
   if (texte.includes('blanc')) return 'blanc';
@@ -119,12 +150,14 @@ function versVin(produit: ProduitApi): Vin {
     stock: produit.stock_quantite ?? 0,
     volume,
     alcool: nombre(produit.degre_alcool),
-    region: produit.appellation || '',
     description: produit.description || '',
     notesDegustation: [],
     profil: { fruite: 0, tanin: 0, sucre: 0, acide: 0, bois: 0 },
     accords: [],
-    image: produit.image_url || produit.image || imageDeRepli || IMAGE_PRODUIT_DEFAUT,
+    image:
+      normaliserUrlImage(produit.image_url || produit.image, ORIGINE_API) ||
+      imageDeRepli ||
+      IMAGE_PRODUIT_DEFAUT,
     noteMoyenne: 0,
     nombreAvis: 0,
     producteur: produit.marque || '',
@@ -222,7 +255,7 @@ export class VinService {
       delay(250),
       map((vins) =>
         vins.filter((v) =>
-          [v.nom, v.cepage, v.region, v.producteur, v.cuvee, v.categorie]
+          [v.nom, v.cepage, v.producteur, v.cuvee, v.categorie]
             .join(' ')
             .toLowerCase()
             .includes(t),
@@ -321,7 +354,7 @@ export class VinService {
     if (f.recherche) {
       const t = f.recherche.trim().toLowerCase();
       resultat = resultat.filter((v) =>
-        [v.nom, v.cepage, v.region, v.producteur, v.cuvee, v.categorie]
+        [v.nom, v.cepage, v.producteur, v.cuvee, v.categorie]
           .join(' ')
           .toLowerCase()
           .includes(t),

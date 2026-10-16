@@ -1,0 +1,698 @@
+/* ============================================================
+   WineAdmin — Formulaires de Modification Unifiés
+   Applique le même design moderne à tous les formulaires (ajout et modification)
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Hero Header pour tous les formulaires (ajout ET modification)
+   ------------------------------------------------------------ */
+.change-form .form-hero {
+    align-items: center;
+    background:
+        radial-gradient(120% 160% at 88% -30%, rgba(201, 155, 59, .28) 0%, rgba(201, 155, 59, 0) 60%),
+        linear-gradient(115deg, var(--lb-wine-800) 0%, var(--lb-wine-600) 100%);
+    border: 1.5px solid rgba(201, 155, 59, .3);
+    border-radius: var(--lb-radius-lg);
+    box-shadow: var(--lb-hero-shadow);
+    color: #fff;
+    display: flex;
+    gap: 1rem;
+    margin: 0 0 1.25rem;
+    overflow: hidden;
+    padding: 1.35rem 1.5rem;
+    position: relative;
+    animation: fadeInDown 0.4s ease-out;
+}
+
+/* Filet or sur le bord supérieur */
+.change-form .form-hero::before {
+    background: linear-gradient(90deg, var(--lb-gold), rgba(240, 217, 154, 0) 85%);
+    content: "";
+    height: 3px;
+    inset: 0 0 auto;
+    position: absolute;
+}
+
+.change-form .form-hero-icon {
+    align-items: center;
+    background: rgba(201, 155, 59, .16);
+    border: 1.5px solid rgba(240, 217, 154, .45);
+    border-radius: 14px;
+    color: #f0d99a;
+    display: flex;
+    flex: 0 0 52px;
+    font-size: 1.25rem;
+    height: 52px;
+    justify-content: center;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12);
+    transition: all .2s ease;
+}
+
+.change-form .form-hero:hover .form-hero-icon {
+    transform: scale(1.05) rotate(5deg);
+    background: rgba(201, 155, 59, .24);
+}
+
+.change-form .form-hero-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.change-form .form-hero h1 {
+    color: #fff;
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    margin: 0 0 .35rem;
+    line-height: 1.2;
+}
+
+.change-form .form-hero p {
+    color: rgba(255, 255, 255, .78);
+    font-size: .88rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.change-form .form-hero-badge {
+    background: rgba(0, 0, 0, .3);
+    border: 1.5px solid rgba(240, 217, 154, .5);
+    border-radius: 999px;
+    color: #f0d99a;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .02em;
+    margin-left: auto;
+    padding: .5rem .9rem;
+    white-space: nowrap;
+    text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------
+   Masquer les onglets par défaut - utiliser la grille à la place
+   ------------------------------------------------------------ */
+.change-form #jazzy-tabs {
+    display: none;
+}
+
+/* ------------------------------------------------------------
+   Grille de formulaire pour tous les champs
+   ------------------------------------------------------------ */
+.change-form .tab-content > .tab-pane > .card {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+.change-form .tab-content .card-body {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 1.25rem !important;
+}
+
+/* Champs en pleine largeur */
+.change-form .tab-content .form-group.field-nom,
+.change-form .tab-content .form-group.field-title,
+.change-form .tab-content .form-group.field-name,
+.change-form .tab-content .form-group.field-first_name,
+.change-form .tab-content .form-group.field-last_name,
+.change-form .tab-content .form-group.field-email,
+.change-form .tab-content .form-group.field-telephone,
+.change-form .tab-content .form-group.field-description,
+.change-form .tab-content .form-group.field-content,
+.change-form .tab-content .form-group.field-notes,
+.change-form .tab-content .form-group.field-image,
+.change-form .tab-content .form-group.field-image_url {
+    grid-column: 1 / -1;
+}
+
+/* ------------------------------------------------------------
+   Cartes de champ individuelles
+   ------------------------------------------------------------ */
+.change-form .tab-content .form-group {
+    background: linear-gradient(135deg, var(--lb-surface) 0%, var(--lb-canvas) 100%);
+    border: 1.5px solid var(--lb-line);
+    border-radius: var(--lb-radius);
+    box-shadow: var(--lb-shadow-sm);
+    margin: 0;
+    min-width: 0;
+    padding: .95rem 1.1rem;
+    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeInUp 0.3s ease-out;
+}
+
+/* Animation en cascade pour les champs */
+.change-form .tab-content .form-group:nth-child(1) { animation-delay: 0s; }
+.change-form .tab-content .form-group:nth-child(2) { animation-delay: .05s; }
+.change-form .tab-content .form-group:nth-child(3) { animation-delay: .1s; }
+.change-form .tab-content .form-group:nth-child(4) { animation-delay: .15s; }
+.change-form .tab-content .form-group:nth-child(5) { animation-delay: .2s; }
+.change-form .tab-content .form-group:nth-child(6) { animation-delay: .25s; }
+.change-form .tab-content .form-group:nth-child(7) { animation-delay: .3s; }
+.change-form .tab-content .form-group:nth-child(8) { animation-delay: .35s; }
+
+/* Focus effect sur les cartes de champ */
+.change-form .tab-content .form-group:focus-within {
+    border-color: var(--lb-gold);
+    box-shadow: var(--lb-shadow), 0 0 0 3px rgba(201, 155, 59, .18);
+    transform: translateY(-2px);
+}
+
+/* ------------------------------------------------------------
+   Layout des champs (fix Bootstrap row)
+   ------------------------------------------------------------ */
+.change-form .tab-content .form-group .row {
+    display: block;
+}
+
+.change-form .tab-content .form-group .row > * {
+    float: none;
+    padding: 0;
+    width: 100%;
+}
+
+/* ------------------------------------------------------------
+   Labels améliorés
+   ------------------------------------------------------------ */
+.change-form .tab-content .form-group label {
+    color: var(--lb-wine);
+    display: block;
+    float: none;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    margin: 0 0 .45rem;
+    text-transform: uppercase;
+    width: auto;
+}
+
+.change-form .tab-content .form-group label .required {
+    color: var(--lb-gold);
+    font-weight: 900;
+}
+
+/* ------------------------------------------------------------
+   Inputs stylisés
+   ------------------------------------------------------------ */
+.change-form .tab-content .form-group input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+.change-form .tab-content .form-group select,
+.change-form .tab-content .form-group textarea {
+    border: 1.5px solid var(--lb-line);
+    border-radius: 10px;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: .95rem;
+    max-width: none;
+    min-height: 48px;
+    padding: .6rem .9rem;
+    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .05);
+}
+
+.change-form .tab-content .form-group input:hover,
+.change-form .tab-content .form-group select:hover,
+.change-form .tab-content .form-group textarea:hover {
+    border-color: var(--lb-gold-200);
+}
+
+.change-form .tab-content .form-group input:focus,
+.change-form .tab-content .form-group select:focus,
+.change-form .tab-content .form-group textarea:focus {
+    border-color: var(--lb-gold);
+    box-shadow: 0 0 0 3px rgba(201, 155, 59, .22), 0 4px 12px rgba(201, 155, 59, .1);
+    outline: none;
+    transform: translateY(-1px);
+}
+
+.change-form .tab-content .form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* ------------------------------------------------------------
+   Inputs spéciaux (monétaire, nombre)
+   ------------------------------------------------------------ */
+.change-form .tab-content .form-group input[type="number"],
+.change-form .tab-content .form-group input[type="tel"] {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+
+.change-form .tab-content .form-group.input-money input {
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: right;
+}
+
+/* ------------------------------------------------------------
+   Selects personnalisés
+   ------------------------------------------------------------ */
+.change-form .tab-content .form-group select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23641b2c' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M3 6l5 5 5-5'/%3E%3C/svg%3E");
+    background-position: right .9rem center;
+    background-repeat: no-repeat;
+    background-size: 14px;
+    cursor: pointer;
+    font-weight: 600;
+    padding-right: 2.5rem;
+}
+
+.change-form .tab-content .form-group select:hover {
+    border-color: var(--lb-gold-200);
+}
+
+/* ------------------------------------------------------------
+   Checkboxes et radios
+   ------------------------------------------------------------ */
+.change-form .tab-content .form-group input[type="checkbox"],
+.change-form .tab-content .form-group input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--lb-gold);
+    transition: transform .2s ease;
+}
+
+.change-form .tab-content .form-group input[type="checkbox"]:hover,
+.change-form .tab-content .form-group input[type="radio"]:hover {
+    transform: scale(1.1);
+}
+
+/* ------------------------------------------------------------
+   Help text et erreurs
+   ------------------------------------------------------------ */
+.change-form .tab-content .form-group .help-block {
+    color: var(--lb-ink-500);
+    font-size: .78rem;
+    font-style: italic;
+    margin-top: .4rem;
+    padding-left: .5rem;
+    border-left: 2px solid var(--lb-line);
+}
+
+.change-form .tab-content .form-group .errorlist {
+    color: var(--lb-wine);
+    font-size: .78rem;
+    font-weight: 700;
+    list-style: none;
+    margin: .4rem 0 0;
+    padding: .5rem .75rem;
+    background: linear-gradient(135deg, #fdf3f2 0%, #f9e8e6 100%);
+    border: 1.5px solid var(--lb-wine-200);
+    border-radius: 8px;
+    border-left: 4px solid var(--lb-wine);
+    animation: shake 0.5s ease-in-out;
+}
+
+/* ------------------------------------------------------------
+   Readonly fields
+   ------------------------------------------------------------ */
+.change-form .tab-content .form-group .readonly {
+    background: linear-gradient(135deg, #f7f0e4 0%, #f5e8d8 100%);
+    border: 1.5px dashed #e2d3be;
+    border-radius: 10px;
+    color: var(--lb-ink-700);
+    display: block;
+    font-weight: 700;
+    padding: .55rem .9rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, .05);
+}
+
+/* ------------------------------------------------------------
+   Barre d'actions unifiée
+   ------------------------------------------------------------ */
+.change-form #jazzy-actions {
+    margin-top: .5rem;
+    position: sticky;
+    top: 1rem;
+}
+
+.change-form #jazzy-actions .card {
+    border: 1.5px solid var(--lb-line);
+    border-radius: var(--lb-radius-lg);
+    box-shadow: var(--lb-shadow);
+    overflow: hidden;
+}
+
+.change-form #jazzy-actions .card::before {
+    background: linear-gradient(90deg, var(--lb-gold), var(--lb-wine), var(--lb-gold));
+    content: '';
+    display: block;
+    height: 3px;
+}
+
+.change-form #jazzy-actions .card-header {
+    background: linear-gradient(135deg, var(--lb-canvas) 0%, var(--lb-canvas-2) 100%);
+    border-bottom: 1.5px solid var(--lb-line);
+    padding: .9rem 1.15rem;
+}
+
+.change-form #jazzy-actions .card-header strong {
+    color: var(--lb-wine);
+    font-size: .85rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.change-form #jazzy-actions .card-body {
+    padding: .85rem 1.15rem;
+}
+
+/* ------------------------------------------------------------
+   Boutons d'action stylisés
+   ------------------------------------------------------------ */
+.change-form #jazzy-actions .btn,
+.change-form #jazzy-actions input[type="submit"] {
+    align-items: center;
+    border-radius: 10px;
+    display: inline-flex;
+    font-size: .9rem;
+    font-weight: 700;
+    gap: .5rem;
+    justify-content: center;
+    letter-spacing: .01em;
+    min-height: 50px;
+    min-width: 150px;
+    padding: .75rem 1.3rem;
+    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    margin-bottom: .5rem;
+}
+
+/* Bouton principal (Enregistrer) */
+.change-form #jazzy-actions [name="_save"] {
+    background: linear-gradient(115deg, var(--lb-wine) 0%, var(--lb-wine-600) 100%);
+    border: 1.5px solid var(--lb-wine);
+    box-shadow: 0 6px 18px rgba(100, 27, 44, .28);
+    color: #fff;
+}
+
+.change-form #jazzy-actions [name="_save"]:hover {
+    background: linear-gradient(115deg, var(--lb-wine-700) 0%, var(--lb-wine-800) 100%);
+    border-color: var(--lb-wine-800);
+    box-shadow: 0 9px 24px rgba(100, 27, 44, .35);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.change-form #jazzy-actions [name="_save"]:active {
+    transform: translateY(0) scale(.98);
+}
+
+/* Bouton "Enregistrer et ajouter" */
+.change-form #jazzy-actions [name="_addanother"] {
+    background: linear-gradient(135deg, var(--lb-gold-100) 0%, var(--lb-gold-200) 100%);
+    border: 1.5px solid var(--lb-gold-200);
+    color: var(--lb-gold-700);
+}
+
+.change-form #jazzy-actions [name="_addanother"]:hover {
+    background: linear-gradient(135deg, var(--lb-gold) 0%, var(--lb-gold-300) 100%);
+    border-color: var(--lb-gold);
+    color: var(--lb-gold-800);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(201, 155, 59, .2);
+}
+
+/* Boutons secondaires */
+.change-form #jazzy-actions [name="_continue"],
+.change-form #jazzy-actions [name="_saveasnew"] {
+    background: linear-gradient(135deg, var(--lb-surface) 0%, var(--lb-canvas) 100%);
+    border: 1.5px solid var(--lb-line);
+    color: var(--lb-ink-700);
+}
+
+.change-form #jazzy-actions [name="_continue"]:hover,
+.change-form #jazzy-actions [name="_saveasnew"]:hover {
+    background: linear-gradient(135deg, var(--lb-canvas) 0%, var(--lb-canvas-2) 100%);
+    border-color: var(--lb-ink-300);
+    color: var(--lb-ink);
+    transform: translateY(-2px);
+}
+
+/* Focus visible */
+.change-form #jazzy-actions button:focus-visible {
+    box-shadow: 0 0 0 3px rgba(201, 155, 59, .45);
+    outline: none;
+}
+
+/* ------------------------------------------------------------
+   Inline forms (TabularInline)
+   ------------------------------------------------------------ */
+.change-form .inline-group .tabular .form-group {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+}
+
+.change-form .inline-group .tabular .form-group label {
+    color: var(--lb-ink-500);
+    font-size: .75rem;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.change-form .inline-group .tabular td {
+    vertical-align: middle;
+    padding: .85rem .75rem;
+}
+
+/* ------------------------------------------------------------
+   Fieldsets (section headers)
+   ------------------------------------------------------------ */
+.change-form fieldset {
+    border: none;
+    padding: 0;
+    margin: 0 0 1.5rem;
+}
+
+.change-form fieldset > h2 {
+    background: linear-gradient(135deg, var(--lb-wine-100) 0%, var(--lb-wine-200) 100%);
+    border: 1.5px solid var(--lb-wine-200);
+    border-radius: var(--lb-radius-sm);
+    color: var(--lb-wine);
+    font-size: .85rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    padding: .7rem 1rem;
+    margin: 0 0 1rem;
+    text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------
+   Responsive Design
+   ------------------------------------------------------------ */
+@media (max-width: 768px) {
+    .change-form .form-hero {
+        align-items: flex-start;
+        padding: 1.15rem;
+        flex-direction: column;
+    }
+    
+    .change-form .form-hero-icon {
+        flex: 0 0 auto;
+        margin-bottom: .75rem;
+    }
+    
+    .change-form .form-hero-badge {
+        margin-left: 0;
+        margin-top: .75rem;
+    }
+    
+    .change-form .tab-content .card-body {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 1rem !important;
+    }
+    
+    .change-form #jazzy-actions .btn {
+        min-width: 0;
+    }
+}
+
+/* ------------------------------------------------------------
+   Animation pour le champ actif
+   ------------------------------------------------------------ */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* ------------------------------------------------------------
+   Override pour les templates spécifiques qui ont déjà leur propre CSS
+   ------------------------------------------------------------ */
+/* Ne pas appliquer la grille si le template a déjà son propre design */
+.model-produit.change-form:has(.pd-create-hero) .tab-content .card-body,
+.model-vente.change-form .tab-content .card-body {
+    /* Ces modèles ont leur propre design, on ne les modifie pas */
+}
+
+/* Barre d'actions globale : une action principale visible, les variantes
+   d'enregistrement dans un menu compact, et les outils d'objet à part. */
+.change-form #jazzy-actions.wa-action-bar {
+    align-items: center;
+    background:
+        radial-gradient(120% 180% at 100% 0, rgba(201, 155, 59, .12), transparent 55%),
+        var(--lb-surface);
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius-lg);
+    box-shadow: var(--lb-shadow-sm);
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem 1.25rem;
+    justify-content: space-between;
+    margin: 1.25rem 0;
+    padding: .8rem 1rem;
+    position: static;
+}
+
+.change-form .wa-action-bar__title {
+    align-items: center;
+    color: var(--lb-ink-700);
+    display: inline-flex;
+    font-size: .76rem;
+    font-weight: 800;
+    gap: .55rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.change-form .wa-action-bar__title i { color: var(--lb-gold-600); }
+
+.change-form .wa-action-bar__content,
+.change-form .wa-form-actions,
+.change-form .wa-action-bar__tools,
+.change-form .wa-action-bar__tools ul {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.change-form .wa-action-bar__content { justify-content: flex-end; }
+.change-form .wa-action-bar__tools ul { list-style: none; margin: 0; padding: 0; }
+.change-form .wa-action-bar__tools li { margin: 0; padding: 0; }
+
+.change-form #jazzy-actions .wa-action {
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    box-shadow: none;
+    cursor: pointer;
+    display: inline-flex;
+    font-size: .82rem;
+    font-weight: 750;
+    gap: .4rem;
+    justify-content: center;
+    line-height: 1.25;
+    margin: 0;
+    min-height: 40px;
+    min-width: 0;
+    padding: .6rem .9rem;
+    text-decoration: none;
+    transition: background-color .16s ease, border-color .16s ease, color .16s ease, transform .16s ease;
+    width: auto;
+}
+
+.change-form #jazzy-actions .wa-action:hover {
+    box-shadow: none;
+    transform: translateY(-1px);
+}
+
+.change-form #jazzy-actions .wa-action:focus-visible,
+.change-form .wa-form-actions__more summary:focus-visible {
+    outline: 3px solid rgba(201, 155, 59, .5);
+    outline-offset: 2px;
+}
+
+.change-form #jazzy-actions .wa-action--primary {
+    background: linear-gradient(120deg, var(--lb-wine-700), var(--lb-wine-800));
+    border-color: var(--lb-wine-800);
+    color: #fff;
+}
+
+.change-form #jazzy-actions .wa-action--primary:hover {
+    background: var(--lb-wine-900);
+    border-color: var(--lb-wine-900);
+    color: #fff;
+}
+
+.change-form #jazzy-actions .wa-action--secondary,
+.change-form .wa-action-bar__tools a {
+    background: var(--lb-canvas);
+    border-color: var(--lb-line);
+    color: var(--lb-ink-700);
+}
+
+.change-form #jazzy-actions .wa-action--secondary:hover,
+.change-form .wa-action-bar__tools a:hover {
+    background: var(--lb-gold-100);
+    border-color: var(--lb-gold-300);
+    color: var(--lb-wine-800);
+}
+
+.change-form #jazzy-actions .wa-action--danger {
+    background: #fff4f3;
+    border-color: #e7d2d7;
+    color: #8c1f33;
+}
+
+.change-form #jazzy-actions .wa-action--danger:hover {
+    background: #8c1f33;
+    border-color: #8c1f33;
+    color: #fff;
+}
+
+.change-form .wa-form-actions__more { position: relative; }
+
+.change-form .wa-form-actions__more > summary {
+    list-style: none;
+    user-select: none;
+}
+
+.change-form .wa-form-actions__more > summary::-webkit-details-marker { display: none; }
+.change-form .wa-form-actions__more[open] > summary { background: var(--lb-canvas-2); }
+
+.change-form .wa-form-actions__menu {
+    background: var(--lb-surface);
+    border: 1px solid var(--lb-line);
+    border-radius: var(--lb-radius);
+    box-shadow: var(--lb-shadow);
+    display: grid;
+    gap: .35rem;
+    min-width: 230px;
+    padding: .45rem;
+    position: absolute;
+    right: 0;
+    top: calc(100% + .4rem);
+    z-index: 20;
+}
+
+.change-form .wa-form-actions__menu .wa-action { justify-content: flex-start !important; }
+
+.change-form .wa-action-bar__tools a {
+    border-radius: 9px;
+    display: inline-flex;
+    font-size: .82rem;
+    font-weight: 700;
+    min-height: 40px;
+    padding: .6rem .9rem;
+    text-decoration: none;
+}
+
+@media (max-width: 640px) {
+    .change-form #jazzy-actions.wa-action-bar { align-items: stretch; }
+    .change-form .wa-action-bar__title { width: 100%; }
+    .change-form .wa-action-bar__content,
+    .change-form .wa-form-actions,
+    .change-form .wa-action-bar__tools { width: 100%; }
+    .change-form .wa-action-bar__content { justify-content: flex-start; }
+    .change-form .wa-action-bar__tools ul { flex-wrap: wrap; }
+}

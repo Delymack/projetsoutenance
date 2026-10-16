@@ -18,12 +18,6 @@
 
       <div class="confirmation__recap">
         <span class="confirmation__numero">{{ numero }}</span>
-        @if (!enAttenteValidation()) {
-        <span class="confirmation__points">
-          <mat-icon>workspace_premium</mat-icon>
-          +{{ pointsGagnes() }} {{ 'PROFIL.points' | translate }}
-        </span>
-        }
       </div>
 
       <div class="confirmation__etapes">
@@ -172,11 +166,6 @@
             <dd>{{ totalAffiche() | number }} Ar</dd>
           </div>
         </dl>
-
-        <p class="resume__points">
-          <mat-icon>workspace_premium</mat-icon>
-          {{ 'COMMANDE.pointsGagnes' | translate: { points: pointsGagnes() } }}
-        </p>
 
         <button
           mat-flat-button

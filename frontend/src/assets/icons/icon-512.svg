@@ -1,10 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Lazan'i Betsileo">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="512" height="512" role="img" aria-label="Lazan'i Betsileo">
   <defs>
-    <linearGradient id="lb-degrade" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="lbVin" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#8c2f3c"/>
       <stop offset="100%" stop-color="#6b1f2a"/>
     </linearGradient>
+    <radialGradient id="lbFond" cx="44%" cy="30%" r="82%">
+      <stop offset="0%" stop-color="#FCF6E6"/>
+      <stop offset="52%" stop-color="#F1E5C9"/>
+      <stop offset="100%" stop-color="#E0CFA7"/>
+    </radialGradient>
+    <linearGradient id="lbPaille" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E8D4A0"/>
+      <stop offset="100%" stop-color="#CDB478"/>
+    </linearGradient>
   </defs>
-  <rect width="512" height="512" rx="113" fill="url(#lb-degrade)"/>
-  <text x="256.0" y="328" font-size="266" text-anchor="middle">🍷</text>
+  <rect width="192" height="192" rx="42" fill="url(#lbVin)"/>
+  <ellipse cx="96" cy="94" rx="68" ry="60" fill="url(#lbFond)"/>
+  <ellipse cx="96" cy="94" rx="68" ry="60" fill="none" stroke="#2A2114" stroke-width="4.5"/>
+  <ellipse cx="96" cy="94" rx="61" ry="53" fill="none" stroke="#2A2114" stroke-width="1.6"/>
+  <g stroke="#241C10" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M90,108 C87,116 82,122 76,131 L116,131 C111,121 106,113 101,108 C98,110 93,110 90,108 Z" fill="#D9C6A0"/>
+    <path d="M82,82 C84,63 109,63 111,82 Z" fill="url(#lbPaille)"/>
+    <path d="M72,84 C84,74 108,74 120,84 C116,90 99,87 96,87 C83,87 76,90 72,84 Z" fill="#E4CE97"/>
+    <path d="M92,84 C102,84 106,92 106,100 C106,106 101,111 95,111 C89,111 86,106 86,100 C86,93 89,84 92,84 Z" fill="#F0DFBC"/>
+    <path d="M106,95 L111,100 L106,102" fill="#E6D2AC"/>
+    <path d="M96,88 L101,87" stroke-width="2.2"/>
+    <path d="M97,92 L102,91" stroke-width="2.4"/>
+  </g>
 </svg>

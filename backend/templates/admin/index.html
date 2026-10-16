@@ -7,221 +7,427 @@
 
 {% block extrastyle %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'css/wineadmin-dashboard.css' %}?v=4">
+  <link rel="stylesheet" href="{% static 'css/wineadmin-dashboard.css' %}?v=6">
 {% endblock %}
 
 {% block content %}
 {% get_dashboard_stats as stats %}
 {% get_media_prefix as media_prefix %}
-<main class="wine-home-content">
-  <header class="wine-welcome">
-    <div>
-      <p class="wine-eyebrow">Cave &amp; Boutique</p>
-      <h1>Tableau de bord</h1>
-      <p class="wine-date">{% now "l d F Y" %}</p>
-    </div>
-    <div class="wine-welcome-actions">
-      <a class="wine-button wine-button-primary" href="{% url 'caisse-enregistreuse' %}" data-quick-create="wide">
-        <i class="fas fa-cash-register" aria-hidden="true"></i>
-        <span>Nouvelle vente</span>
-      </a>
-      <a class="wine-button wine-button-light" href="{% url 'rapports' %}">
-        <i class="fas fa-chart-column" aria-hidden="true"></i>
-        <span>Rapports</span>
-      </a>
+<main class="dash">
+  <!-- ============ HERO · COMMAND CENTER ============ -->
+  <header class="dash-hero">
+    <div class="dash-hero__aurora" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="dash-hero__grid">
+      <div class="dash-hero__intro">
+        <img class="dash-hero__logo" src="{% static 'img/logo.webp' %}" alt="LAZAN'I BETSILEO" width="56" height="56" decoding="async">
+        <span class="dash-hero__eyebrow"><i class="fas fa-wine-bottle" aria-hidden="true"></i> Cave &amp; Boutique · Fianarantsoa</span>
+        <h1>Bonjour, <span class="dash-hero__name">{{ request.user.get_short_name|default:request.user.username }}</span></h1>
+        <p class="dash-hero__date">{% now "l d F Y" %} · <span class="dash-live" id="dash-clock" aria-hidden="true">--:--</span></p>
+        <div class="dash-hero__actions">
+          <a class="dash-btn dash-btn--gold" href="{% url 'caisse-enregistreuse' %}" data-quick-create="wide">
+            <i class="fas fa-cash-register" aria-hidden="true"></i><span>Nouvelle vente</span>
+          </a>
+          <a class="dash-btn dash-btn--ghost" href="{% url 'rapports' %}">
+            <i class="fas fa-chart-column" aria-hidden="true"></i><span>Rapports</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="dash-hero__goal">
+        {% if stats.objectif_progression != None %}
+        <div class="dash-goal" data-progress="{{ stats.objectif_bar }}">
+          <svg class="dash-goal__ring" viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="dash-goal__track" cx="60" cy="60" r="52"></circle>
+            <circle class="dash-goal__bar" cx="60" cy="60" r="52"></circle>
+          </svg>
+          <div class="dash-goal__center">
+            <strong data-count="{{ stats.objectif_progression }}">{{ stats.objectif_progression }}%</strong>
+            <span>objectif</span>
+          </div>
+        </div>
+        {% endif %}
+        <div class="dash-hero__goalmeta">
+          <span class="dash-hero__goallabel">CA du mois</span>
+          <strong>{{ stats.ca_mois|floatformat:0|intcomma }} <small>{{ societe.devise|default:"Ar" }}</small></strong>
+          {% if stats.tendance_ca_mois != None %}
+          <span class="dash-trend {% if stats.tendance_ca_mois >= 0 %}is-up{% else %}is-down{% endif %}">
+            <i class="fas {% if stats.tendance_ca_mois >= 0 %}fa-arrow-trend-up{% else %}fa-arrow-trend-down{% endif %}" aria-hidden="true"></i>
+            {{ stats.tendance_ca_mois|floatformat:"+" }}% vs mois dernier
+          </span>
+          {% endif %}
+        </div>
+      </div>
     </div>
   </header>
 
-  <section class="wine-kpis" aria-label="Indicateurs du mois">
-    <a class="wine-kpi wine-kpi-revenue" href="{% url 'admin:ventes_vente_changelist' %}">
-      <span class="wine-kpi-icon"><i class="fas fa-coins" aria-hidden="true"></i></span>
-      <span class="wine-kpi-label">Chiffre d’affaires du mois</span>
-      <strong>{{ stats.ca_mois|floatformat:0|intcomma }} <small>{{ societe.devise|default:"Ar" }}</small></strong>
-      {% if stats.tendance_ca_mois != None %}
-      <span class="wine-kpi-foot {% if stats.tendance_ca_mois >= 0 %}is-up{% else %}is-down{% endif %}">
-        <i class="fas {% if stats.tendance_ca_mois >= 0 %}fa-arrow-trend-up{% else %}fa-arrow-trend-down{% endif %}" aria-hidden="true"></i>
-        {{ stats.tendance_ca_mois|floatformat:"+" }} % vs mois précédent
+  <!-- ============ KPI · BANDEAU FLOTTANT ============ -->
+  <section class="dash-kpis" aria-label="Indicateurs du jour">
+    <a class="dash-kpi dash-kpi--revenue" href="{% url 'admin:ventes_vente_changelist' %}">
+      <span class="dash-kpi__medal"><i class="fas fa-coins" aria-hidden="true"></i></span>
+      <span class="dash-kpi__label">CA du jour</span>
+      <strong>{{ stats.ca_du_jour|floatformat:0|intcomma }} <small>{{ societe.devise|default:"Ar" }}</small></strong>
+      {% if stats.tendance_ca != None %}
+      <span class="dash-kpi__foot dash-trend {% if stats.tendance_ca >= 0 %}is-up{% else %}is-down{% endif %}">
+        <i class="fas {% if stats.tendance_ca >= 0 %}fa-caret-up{% else %}fa-caret-down{% endif %}" aria-hidden="true"></i>
+        {{ stats.tendance_ca|floatformat:"+" }}% vs hier
       </span>
       {% else %}
-      <span class="wine-kpi-foot">Depuis le début du mois</span>
+      <span class="dash-kpi__foot">{{ stats.ventes_du_jour }} vente{{ stats.ventes_du_jour|pluralize }} aujourd'hui</span>
       {% endif %}
     </a>
-    <a class="wine-kpi" href="{% url 'admin:ventes_vente_changelist' %}">
-      <span class="wine-kpi-icon"><i class="fas fa-wine-bottle" aria-hidden="true"></i></span>
-      <span class="wine-kpi-label">Unités vendues du mois</span>
-      <strong>{{ stats.produits_vendus_mois|intcomma }}</strong>
-      <span class="wine-kpi-foot">Ventes encaissées</span>
+
+    <a class="dash-kpi dash-kpi--sales" href="{% url 'admin:ventes_vente_changelist' %}">
+      <span class="dash-kpi__medal"><i class="fas fa-receipt" aria-hidden="true"></i></span>
+      <span class="dash-kpi__label">Ventes du jour</span>
+      <strong data-count="{{ stats.ventes_du_jour }}">{{ stats.ventes_du_jour }}</strong>
+      <span class="dash-kpi__foot">Panier moyen {{ stats.panier_moyen|floatformat:0|intcomma }} {{ societe.devise|default:"Ar" }}</span>
     </a>
-    <a class="wine-kpi wine-kpi-stock" href="{% url 'admin:stocks_stock_changelist' %}">
-      <span class="wine-kpi-icon"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i></span>
-      <span class="wine-kpi-label">Produits en rupture</span>
-      <strong>{{ stats.ruptures|intcomma }}</strong>
-      <span class="wine-kpi-foot">Voir les stocks</span>
+
+    <a class="dash-kpi dash-kpi--stock" href="{% url 'admin:stocks_stock_changelist' %}">
+      <span class="dash-kpi__medal"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i></span>
+      <span class="dash-kpi__label">Ruptures de stock</span>
+      <strong data-count="{{ stats.ruptures }}">{{ stats.ruptures }}</strong>
+      <span class="dash-kpi__foot">À ré-embouteiller</span>
     </a>
-    <a class="wine-kpi" href="{% url 'admin:promotions_promotion_changelist' %}">
-      <span class="wine-kpi-icon"><i class="fas fa-tags" aria-hidden="true"></i></span>
-      <span class="wine-kpi-label">Promotions actives</span>
-      <strong>{{ stats.nombre_promotions_actives|intcomma }}</strong>
-      <span class="wine-kpi-foot">En cours aujourd’hui</span>
+
+    <a class="dash-kpi dash-kpi--promo" href="{% url 'admin:promotions_promotion_changelist' %}">
+      <span class="dash-kpi__medal"><i class="fas fa-tags" aria-hidden="true"></i></span>
+      <span class="dash-kpi__label">Promotions actives</span>
+      <strong data-count="{{ stats.nombre_promotions_actives }}">{{ stats.nombre_promotions_actives }}</strong>
+      <span class="dash-kpi__foot">En cours</span>
+    </a>
+
+    <a class="dash-kpi dash-kpi--client" href="{% url 'admin:clients_client_changelist' %}">
+      <span class="dash-kpi__medal"><i class="fas fa-users" aria-hidden="true"></i></span>
+      <span class="dash-kpi__label">Clients</span>
+      <strong data-count="{{ stats.nombre_clients }}">{{ stats.nombre_clients }}</strong>
+      <span class="dash-kpi__foot">Taux transformation {{ stats.taux_transformation|floatformat:"0" }}%</span>
     </a>
   </section>
 
-  <section class="wine-dashboard-grid wine-dashboard-primary">
-    <article class="wine-panel wine-sales-panel">
-      <header class="wine-panel-heading">
+  <section class="dash-charts">
+    <!-- Graphique d'aire : 14 derniers jours -->
+    <article class="dash-panel dash-panel--area">
+      <header class="dash-panel__head">
         <div>
-          <h2>Chiffre d’affaires · 6 derniers mois</h2>
+          <span class="dash-panel__eyebrow">Activité</span>
+          <h2>Chiffre d’affaires · 14 derniers jours</h2>
         </div>
-        <span class="wine-panel-period">6 derniers mois</span>
+        <span class="dash-pill"><i class="fas fa-bolt" aria-hidden="true"></i> Temps réel</span>
       </header>
-      <div class="wine-month-chart" role="img" aria-label="Chiffre d’affaires des six derniers mois">
-        {% for mois in stats.ventes_par_mois %}
-        <div class="wine-month-column" title="{{ mois.label }} : {{ mois.ca|floatformat:0|intcomma }} {{ societe.devise|default:'Ar' }}">
-          <span class="wine-month-value">{% if mois.ca %}{{ mois.ca|floatformat:0|intcomma }}{% endif %}</span>
-          <div class="wine-month-track"><span class="wine-month-bar" style="--bar-height:{{ mois.hauteur }}%"></span></div>
-          <span class="wine-month-label">{{ mois.label }}</span>
-        </div>
-        {% endfor %}
+      <div class="dash-area" id="dash-area-chart">
+        <svg class="dash-area__svg" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="dashAreaFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(201,155,59,.55)"></stop>
+              <stop offset="100%" stop-color="rgba(201,155,59,0)"></stop>
+            </linearGradient>
+            <linearGradient id="dashAreaStroke" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#8d2f45"></stop>
+              <stop offset="100%" stop-color="#e9b949"></stop>
+            </linearGradient>
+          </defs>
+          <path class="dash-area__fill" fill="url(#dashAreaFill)"></path>
+          <path class="dash-area__line" fill="none" stroke="url(#dashAreaStroke)"></path>
+        </svg>
+        <div class="dash-area__xaxis" id="dash-area-labels" aria-hidden="true"></div>
       </div>
     </article>
 
-    <article class="wine-panel wine-region-panel">
-      <header class="wine-panel-heading">
+    <!-- Donut : répartition par appellation -->
+    <article class="dash-panel dash-panel--donut">
+      <header class="dash-panel__head">
         <div>
-          <h2>Ventes par appellation</h2>
+          <span class="dash-panel__eyebrow">Répartition</span>
+          <h2>CA par appellation</h2>
         </div>
-        <span class="wine-panel-period">Ce mois</span>
+        <span class="dash-pill">Ce mois</span>
       </header>
       {% if stats.ventes_par_appellation %}
-      <div class="wine-region-content">
-        <div class="wine-donut" id="wine-region-chart" role="img" aria-label="Répartition du chiffre d’affaires par appellation"></div>
-        <ul class="wine-legend" id="wine-region-legend">
+      <div class="dash-region">
+        <div class="dash-donut" id="dash-region-chart" role="img" aria-label="Répartition du chiffre d’affaires par appellation"></div>
+        <ul class="dash-legend" id="dash-region-legend">
           {% for origine in stats.ventes_par_appellation %}
           <li>
-            <span class="wine-legend-name"><i aria-hidden="true"></i>{{ origine.label }}</span>
+            <span class="dash-legend-name"><i aria-hidden="true"></i>{{ origine.label }}</span>
             <strong>{{ origine.ca|floatformat:0|intcomma }} <small>{{ societe.devise|default:"Ar" }}</small></strong>
           </li>
           {% endfor %}
         </ul>
       </div>
       {% else %}
-      <div class="wine-empty"><i class="fas fa-chart-pie" aria-hidden="true"></i><span>Aucune vente ce mois</span></div>
+      <div class="dash-empty"><i class="fas fa-chart-pie" aria-hidden="true"></i><span>Aucune vente ce mois</span></div>
       {% endif %}
     </article>
   </section>
 
-  <section class="wine-dashboard-grid wine-dashboard-secondary">
-    <article class="wine-panel wine-products-panel">
-      <header class="wine-panel-heading">
+  <section class="dash-grid2">
+    <!-- Meilleures ventes · podium -->
+    <article class="dash-panel dash-panel--top">
+      <header class="dash-panel__head">
         <div>
+          <span class="dash-panel__eyebrow">Palmarès</span>
           <h2>Meilleures ventes</h2>
         </div>
-        <a class="wine-panel-link" href="{% url 'admin:produits_produit_changelist' %}">Catalogue <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+        <a class="dash-panel-link" href="{% url 'admin:produits_produit_changelist' %}">Catalogue <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
       </header>
       {% if stats.meilleures_ventes %}
-      <ol class="wine-top-products">
+      <ol class="dash-top">
         {% for produit in stats.meilleures_ventes %}
-        <li>
-          <span class="wine-product-rank">{{ forloop.counter|stringformat:"02d" }}</span>
+        <li class="dash-top__item dash-top__item--{{ forloop.counter }}">
+          <span class="dash-top__rank">{{ forloop.counter }}</span>
           {% if produit.produit__image %}
-            <img class="wine-product-image" src="{{ media_prefix }}{{ produit.produit__image }}" alt="" loading="lazy">
+            <img class="dash-top__img" src="{{ media_prefix }}{{ produit.produit__image }}" alt="" loading="lazy">
           {% else %}
-            <span class="wine-product-image wine-product-placeholder"><i class="fas fa-wine-bottle" aria-hidden="true"></i></span>
+            <span class="dash-top__img dash-top__img--ph"><i class="fas fa-wine-bottle" aria-hidden="true"></i></span>
           {% endif %}
-          <span class="wine-product-name">{{ produit.produit__nom }}</span>
-          <strong class="wine-product-units">{{ produit.total_vendu }} <small>vendu{% if produit.total_vendu != 1 %}s{% endif %}</small></strong>
+          <span class="dash-top__name">{{ produit.produit__nom }}</span>
+          <strong class="dash-top__units">{{ produit.total_vendu }} <small>vendu{{ produit.total_vendu|pluralize }}</small></strong>
         </li>
         {% endfor %}
       </ol>
       {% else %}
-      <div class="wine-empty"><i class="fas fa-wine-bottle" aria-hidden="true"></i><span>Aucune vente enregistrée</span></div>
+      <div class="dash-empty"><i class="fas fa-wine-bottle" aria-hidden="true"></i><span>Aucune vente enregistrée</span></div>
       {% endif %}
     </article>
 
-    <article class="wine-panel wine-recent-panel">
-      <header class="wine-panel-heading">
+    <!-- Réassort : stocks à risque -->
+    <article class="dash-panel dash-panel--restock">
+      <header class="dash-panel__head">
         <div>
+          <span class="dash-panel__eyebrow">Réapprovisionnement</span>
+          <h2>Stocks à surveiller</h2>
+        </div>
+        <a class="dash-panel-link" href="{% url 'admin:stocks_stock_changelist' %}">Stocks <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+      </header>
+      {% if stats.reassort %}
+      <ul class="dash-restock">
+        {% for r in stats.reassort %}
+        <li class="dash-restock__row dash-restock__row--{{ r.urgence }}">
+          <div class="dash-restock__info">
+            <span class="dash-restock__name">{{ r.produit.nom }}</span>
+            <span class="dash-restock__meta">
+              {% if r.jours_restants != None %}{{ r.jours_restants }} j restants · {% endif %}
+              stock {{ r.quantite }}
+            </span>
+          </div>
+          <div class="dash-restock__bar" title="Criticité {{ r.couverture_pct }}%">
+            <span style="width: {{ r.couverture_pct }}%"></span>
+          </div>
+          <span class="dash-restock__tag">{{ r.a_embouteiller }} à emb.</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="dash-empty"><i class="fas fa-box" aria-hidden="true"></i><span>Tous les stocks sont couverts</span></div>
+      {% endif %}
+    </article>
+  </section>
+
+  <!-- ============ VENTES RÉCENTES + TOP CLIENTS ============ -->
+  <section class="dash-grid2">
+    <article class="dash-panel dash-panel--recent">
+      <header class="dash-panel__head">
+        <div>
+          <span class="dash-panel__eyebrow">Flux</span>
           <h2>Ventes récentes</h2>
         </div>
-        <a class="wine-panel-link" href="{% url 'admin:ventes_vente_changelist' %}">Tout voir <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+        <a class="dash-panel-link" href="{% url 'admin:ventes_vente_changelist' %}">Tout voir <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
       </header>
       {% if stats.ventes_recentes %}
-      <div class="wine-table-scroll">
-        <table class="wine-recent-table">
-          <thead><tr><th>Référence</th><th>Client</th><th>Articles</th><th>Total</th></tr></thead>
+      <div class="dash-table-scroll">
+        <table class="dash-table">
+          <thead>
+            <tr><th>Référence</th><th>Client</th><th class="ta-c">Art.</th><th class="ta-r">Total</th></tr>
+          </thead>
           <tbody>
             {% for vente in stats.ventes_recentes %}
             <tr>
-              <td><a href="{% url 'admin:ventes_vente_change' vente.pk %}">{{ vente.reference }}</a><time>{{ vente.date_vente|date:"d/m · H:i" }}</time></td>
-              <td>{{ vente.nom_client }}</td>
-              <td>{{ vente.quantite_totale }}</td>
-              <td class="wine-sale-total">{{ vente.total_net|floatformat:0|intcomma }} <small>{{ societe.devise|default:"Ar" }}</small></td>
+              <td>
+                <a href="{% url 'admin:ventes_vente_change' vente.pk %}" class="dash-table__ref">{{ vente.reference }}</a>
+                <time>{{ vente.date_vente|date:"d/m · H:i" }}</time>
+              </td>
+              <td class="dash-table__client">{{ vente.nom_client }}</td>
+              <td class="ta-c">{{ vente.quantite_totale }}</td>
+              <td class="ta-r dash-table__total">{{ vente.total_net|floatformat:0|intcomma }} <small>{{ societe.devise|default:"Ar" }}</small></td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
       {% else %}
-      <div class="wine-empty"><i class="fas fa-receipt" aria-hidden="true"></i><span>Aucune vente récente</span></div>
+      <div class="dash-empty"><i class="fas fa-receipt" aria-hidden="true"></i><span>Aucune vente récente</span></div>
+      {% endif %}
+    </article>
+
+    <article class="dash-panel dash-panel--clients">
+      <header class="dash-panel__head">
+        <div>
+          <span class="dash-panel__eyebrow">Fidélité</span>
+          <h2>Meilleurs clients (30 j)</h2>
+        </div>
+        <a class="dash-panel-link" href="{% url 'admin:clients_client_changelist' %}">Clients <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+      </header>
+      {% if stats.top_clients %}
+      <ul class="dash-clients">
+        {% for client in stats.top_clients %}
+        <li class="dash-clients__row">
+          <span class="dash-clients__avatar" aria-hidden="true">{{ client.client__nom|first|upper }}</span>
+          <span class="dash-clients__info">
+            <span class="dash-clients__name">{{ client.client__nom }}</span>
+            <span class="dash-clients__meta">{{ client.achats }} achat{{ client.achats|pluralize }} · {{ client.part }}% du top</span>
+          </span>
+          <strong class="dash-clients__ca">{{ client.ca|floatformat:0|intcomma }} <small>{{ societe.devise|default:"Ar" }}</small></strong>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="dash-empty"><i class="fas fa-user-group" aria-hidden="true"></i><span>Aucun client sur la période</span></div>
       {% endif %}
     </article>
   </section>
 
-  <section class="wine-panel wine-promotions-panel">
-    <header class="wine-panel-heading">
+  <!-- ============ PROMOTIONS ============ -->
+  <section class="dash-panel dash-panel--promo">
+    <header class="dash-panel__head">
       <div>
+        <span class="dash-panel__eyebrow">Offres</span>
         <h2>Promotions actives</h2>
       </div>
-      <a class="wine-panel-link" href="{% url 'admin:promotions_promotion_changelist' %}">Gérer les promotions <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+      <a class="dash-panel-link" href="{% url 'admin:promotions_promotion_changelist' %}">Gérer <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
     </header>
     {% if stats.promotions_actives %}
-    <div class="wine-promotions-list">
+    <div class="dash-promos">
       {% for promotion in stats.promotions_actives %}
-      <article class="wine-promotion-card">
-        <span class="wine-promo-icon"><i class="fas fa-tag" aria-hidden="true"></i></span>
-        <div class="wine-promo-info">
+      <article class="dash-promo">
+        <span class="dash-promo__icon"><i class="fas fa-tag" aria-hidden="true"></i></span>
+        <div class="dash-promo__info">
           <h3>{{ promotion.nom }}</h3>
           <span>{{ promotion.get_type_promotion_display }}</span>
         </div>
-        <strong class="wine-promo-value">
+        <strong class="dash-promo__value">
           {% if promotion.type_promotion == "POURCENTAGE" %}-{{ promotion.valeur|floatformat:"-2" }} %
           {% elif promotion.type_promotion == "MONTANT_FIXE" %}-{{ promotion.valeur|floatformat:0|intcomma }} {{ societe.devise|default:"Ar" }}
           {% elif promotion.type_promotion == "PRIX_PROMO" %}{{ promotion.prix_promotionnel|floatformat:0|intcomma }} {{ societe.devise|default:"Ar" }}
           {% else %}{{ promotion.quantite_achetee }} + {{ promotion.quantite_offerte }}{% endif %}
         </strong>
-        <span class="wine-promo-end">Jusqu’au {{ promotion.date_fin|date:"d/m/Y" }}</span>
+        <span class="dash-promo__end">Jusqu’au {{ promotion.date_fin|date:"d/m/Y" }}</span>
       </article>
       {% endfor %}
     </div>
     {% else %}
-    <div class="wine-empty wine-empty-inline"><i class="fas fa-tags" aria-hidden="true"></i><span>Aucune promotion en cours</span></div>
+    <div class="dash-empty"><i class="fas fa-tags" aria-hidden="true"></i><span>Aucune promotion en cours</span></div>
     {% endif %}
   </section>
 </main>
 
-{{ stats.ventes_par_appellation|json_script:"wine-region-data" }}
+{{ stats.ventes_par_appellation|json_script:"dash-region-data" }}
+{{ stats.ventes_par_jour_json|json_script:"dash-days-data" }}
 <script>
-  (function () {
-    var dataNode = document.getElementById('wine-region-data');
-    var chart = document.getElementById('wine-region-chart');
-    var legend = document.getElementById('wine-region-legend');
-    if (!dataNode || !chart || !legend) return;
-    var data = JSON.parse(dataNode.textContent || '[]');
-    var colors = ['#76253c', '#bd8b42', '#536b54', '#b66f54', '#9c8790', '#d6bd8e'];
-    var total = data.reduce(function (sum, item) { return sum + item.ca; }, 0);
-    if (!total) return;
-    var offset = 0;
-    var segments = data.map(function (item, index) {
-      var start = offset;
-      offset += item.ca / total * 100;
-      var swatch = colors[index % colors.length];
-      legend.querySelectorAll('li')[index].style.setProperty('--legend-color', swatch);
-      return swatch + ' ' + start + '% ' + offset + '%';
-    });
-    chart.style.background = 'conic-gradient(' + segments.join(',') + ')';
-    chart.setAttribute('aria-label', 'Répartition du chiffre d’affaires : ' + data.map(function (item) {
-      return item.label + ' ' + Math.round(item.ca / total * 100) + ' pour cent';
-    }).join(', '));
-  })();
+(function () {
+  "use strict";
+
+  /* ---- Jauge d'objectif : cercle SVG animé au chargement ---- */
+  var goal = document.querySelector(".dash-goal");
+  if (goal) {
+    var bar = goal.querySelector(".dash-goal__bar");
+    var r = bar ? parseFloat(bar.getAttribute("r")) : 0;
+    var pct = Math.max(0, Math.min(100, parseFloat(goal.getAttribute("data-progress")) || 0));
+    var circ = 2 * Math.PI * r;
+    if (bar) {
+      bar.style.strokeDasharray = circ;
+      bar.style.strokeDashoffset = circ;
+      requestAnimationFrame(function () {
+        bar.style.transition = "stroke-dashoffset 1.1s cubic-bezier(.22,.61,.36,1)";
+        bar.style.strokeDashoffset = circ * (1 - pct / 100);
+      });
+    }
+  }
+
+  /* ---- Horloge temps réel ---- */
+  var clock = document.getElementById("dash-clock");
+  if (clock) {
+    var tick = function () {
+      var d = new Date();
+      clock.textContent = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+    };
+    tick();
+    setInterval(tick, 30000);
+  }
+
+  /* ---- Donut : répartition par appellation ---- */
+  var dataNode = document.getElementById("dash-region-data");
+  var chart = document.getElementById("dash-region-chart");
+  var legend = document.getElementById("dash-region-legend");
+  if (dataNode && chart && legend) {
+    var data = JSON.parse(dataNode.textContent || "[]");
+    var colors = ["#8d2f45", "#c99b3b", "#2f6b4f", "#7a2838", "#d9a84b", "#3f7b5f"];
+    var total = data.reduce(function (s, i) { return s + i.ca; }, 0);
+    if (total) {
+      var offset = 0;
+      var segments = data.map(function (item, index) {
+        var start = offset;
+        offset += item.ca / total * 100;
+        var swatch = colors[index % colors.length];
+        var li = legend.querySelectorAll("li")[index];
+        if (li) li.style.setProperty("--legend-color", swatch);
+        return swatch + " " + start + "% " + offset + "%";
+      });
+      chart.style.background = "conic-gradient(" + segments.join(",") + ")";
+      chart.setAttribute("aria-label", "Répartition du chiffre d’affaires : " + data.map(function (item) {
+        return item.label + " " + Math.round(item.ca / total * 100) + " pour cent";
+      }).join(", "));
+    }
+  }
+
+  /* ---- Graphique d'aire lissée : 14 derniers jours ---- */
+  var daysNode = document.getElementById("dash-days-data");
+  var area = document.getElementById("dash-area-chart");
+  if (daysNode && area) {
+    var days = JSON.parse(daysNode.textContent || "[]");
+    if (days.length) {
+      var line = area.querySelector(".dash-area__line");
+      var fill = area.querySelector(".dash-area__fill");
+      var labels = document.getElementById("dash-area-labels");
+      var max = days.reduce(function (m, d) { return Math.max(m, d.total); }, 0) || 1;
+      var W = 100, H = 100, pad = 8;
+      var pts = days.map(function (d, i) {
+        var x = (i / (days.length - 1)) * W;
+        var y = H - pad - (d.total / max) * (H - pad * 2);
+        return [x, y, d];
+      });
+      var path = "M " + pts[0][0] + " " + pts[0][1];
+      for (var i = 0; i < pts.length - 1; i++) {
+        var cx = (pts[i][0] + pts[i + 1][0]) / 2;
+        path += " C " + cx + " " + pts[i][1] + ", " + cx + " " + pts[i + 1][1] + ", " + pts[i + 1][0] + " " + pts[i + 1][1];
+      }
+      line.setAttribute("d", path);
+      fill.setAttribute("d", path + " L " + W + " " + H + " L 0 " + H + " Z");
+      if (labels) {
+        labels.innerHTML = pts
+          .filter(function (_, i) { return i % 4 === 0 || i === pts.length - 1; })
+          .map(function (p) { return "<span>" + p[2].label + "</span>"; })
+          .join("");
+      }
+    }
+  }
+
+  /* ---- Compteurs animés : chiffres qui montent au chargement ---- */
+  document.querySelectorAll(".dash [data-count]").forEach(function (el) {
+    var target = parseFloat(el.getAttribute("data-count"));
+    if (isNaN(target)) return;
+    var hasUnit = !!el.querySelector("small");
+    var t0 = null;
+    var step = function (ts) {
+      if (!t0) t0 = ts;
+      var p = Math.min((ts - t0) / 800, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      var val = Math.round(target * eased).toLocaleString("fr-FR");
+      el.childNodes[0].nodeValue = val + (hasUnit ? " " : "");
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+})();
 </script>
 {% endblock %}

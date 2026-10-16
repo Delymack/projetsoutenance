@@ -7,7 +7,7 @@ import {
 import { inject, Injector } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
-import { catchError, throwError } from 'rxjs';
+import { catchError, from, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 /**
@@ -41,41 +41,58 @@ export const authInterceptor: HttpInterceptorFn = (req, suivant) => {
     snack.open(translate.instant(message), 'OK', { duration: duree, panelClass: [panelClass] });
   };
 
+  const signaler = (erreur: HttpErrorResponse): void => {
+    switch (erreur.status) {
+      case 0:
+        // Status 0 = requête jamais arrivée au serveur (réseau coupé, DNS, CORS).
+        notifier('ERREURS.reseau', 'snack-danger', 5000);
+        break;
+      case 403:
+        notifier('ERREURS.403', 'snack-warning', 5000);
+        break;
+      case 404:
+        notifier('ERREURS.404', 'snack-warning', 4000);
+        break;
+      case 500:
+        notifier('ERREURS.500', 'snack-danger', 6000);
+        break;
+      default:
+        if (erreur.status >= 400) notifier('COMMUN.erreur', 'snack-warning', 5000);
+    }
+  };
+
   return suivant(requete).pipe(
     catchError((erreur: HttpErrorResponse) => {
-      switch (erreur.status) {
-        case 0:
-          // Status 0 = requête jamais arrivée au serveur (réseau coupé, DNS, CORS).
-          notifier('ERREURS.reseau', 'snack-danger', 5000);
-          break;
-
-        case 401:
-          // Un échec de `/auth/login/` est géré par la page elle-même : on ne
-          // purges pas une session qui n'existe pas encore.
-          if (req.url.includes('/auth/')) break;
-          notifier('ERREURS.401', 'snack-danger', 5000);
-          // Visiteur anonyme : on ne redirige pas vers /connexion (le catalogue
-          // se consulte sans compte), on laisse la page décider.
-          if (token) auth.deconnexion('/connexion');
-          break;
-
-        case 403:
-          notifier('ERREURS.403', 'snack-warning', 5000);
-          break;
-
-        case 404:
-          notifier('ERREURS.404', 'snack-warning', 4000);
-          break;
-
-        case 500:
-          notifier('ERREURS.500', 'snack-danger', 6000);
-          break;
-
-        default:
-          if (erreur.status >= 400) {
-            notifier('COMMUN.erreur', 'snack-warning', 5000);
-          }
+      // Échec d'authentification sur /auth/* (login, inscription, code OTP) :
+      // la page affiche elle-même le message, on ne touche pas à la session.
+      if (erreur.status === 401 && req.url.includes('/auth/')) {
+        return throwError(() => erreur);
       }
+
+      // 401 sur une ressource protégée (JWT expiré) : on renouvelle le token
+      // puis on rejoue la requête une seule fois. La session n'est rompue
+      // (déconnexion) que si le rafraîchissement échoue — le client reste donc
+      // connecté tant qu'il ne se déconnecte pas explicitement.
+      if (erreur.status === 401 && token) {
+        return from(auth.renouvelerToken()).pipe(
+          switchMap((nouveau) => {
+            if (nouveau) {
+              const rejeu = req.clone({ setHeaders: { Authorization: `Bearer ${nouveau}` } });
+              return suivant(rejeu).pipe(
+                catchError((erreurRejeu: HttpErrorResponse) => {
+                  signaler(erreurRejeu);
+                  return throwError(() => erreurRejeu);
+                }),
+              );
+            }
+            notifier('ERREURS.401', 'snack-danger', 5000);
+            auth.deconnexion('/connexion');
+            return throwError(() => erreur);
+          }),
+        );
+      }
+
+      signaler(erreur);
       return throwError(() => erreur);
     }),
   );

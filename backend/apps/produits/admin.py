@@ -7,7 +7,6 @@ from django.http import HttpResponse, JsonResponse
 from django.template.response import TemplateResponse
 from django.urls import path
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 
 from apps.produits.barcode import cle_ean13_valide, code_svg
 from apps.produits.images import ImageDistanteInvalide, telecharger_image
@@ -190,17 +189,18 @@ class ProduitAdmin(ActionsColonneMixin, admin.ModelAdmin):
     change_list_template = 'admin/produits/produit/change_list.html'
     change_form_template = 'admin/produits/produit/change_form.html'
     form = ProduitAdminForm
-    # Liste réduite au pilotage : la photo, le nom, la famille, le prix de vente,
-    # le signalement du code-barres, le stock, l'état. La colonne « Marque »
-    # (appellation / type) disparaît, et avec elle le conditionnement, les marges
-    # et le tarif revendeur : ces données se lisent sur la fiche du produit, pas
-    # sur un tableau de 25 lignes. Le tarif revendeur reste éditable sur la fiche
-    # (attribut de cave). Le code-barres, lui, reste : « À générer » est un
-    # travail à faire, pas un détail de fiche (test_changelist_produits_sans_code_barre).
+    # Liste réduite aux données qui comptent sur la ligne : la photo, le nom,
+    # le prix de vente, le stock et l'état. La catégorie, le code-barres, le
+    # conditionnement, les marges et le tarif revendeur ont quitté le tableau :
+    # ces données se lisent sur la fiche du produit, pas sur un tableau de
+    # 25 lignes. Le nom porte le lien de la ligne : un clic ouvre la fiche,
+    # au titre de la colonne « Actions » (Modifier / Supprimer) pour la même
+    # destination. Une ligne sans code-barres reste affichable
+    # (test_changelist_produits_sans_code_barre).
     list_display = (
-        'image_tag', 'nom', 'categorie', 'prix_vente', 'code_barre_display',
-        'stock_badge', 'statut_display'
+        'image_tag', 'nom', 'prix_vente', 'stock_badge', 'statut_display',
     )
+    list_display_links = ('nom',)
     list_editable = ('prix_vente',)
     search_fields = ('nom', 'marque', 'type_vin', 'description', 'code_barre')
     search_help_text = "Nom, marque, type, code-barres"
@@ -277,15 +277,15 @@ class ProduitAdmin(ActionsColonneMixin, admin.ModelAdmin):
     )
 
     def get_fieldsets(self, request, obj=None):
-        """Fiche complète à la modification, champs essentiels à la création."""
+        """Fiche complète à la modification, champs essentiels à la création.
+
+        Ce qui est retiré pour aller vite à la création (code-barres,
+        cépage, millésime, catégorie…) doit rester saisissable ensuite :
+        la fiche est le seul endroit où ces attributs de cave se renseignent.
+        """
         if obj is None:
             return self.add_fieldsets
         return self.fieldsets
-
-    def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
-        extra_context = extra_context or {}
-        extra_context['is_produit_add'] = object_id is None
-        return super().changeform_view(request, object_id, form_url, extra_context)
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         kwargs['help_text'] = ''
@@ -326,19 +326,6 @@ class ProduitAdmin(ActionsColonneMixin, admin.ModelAdmin):
         return super().changelist_view(request, extra_context=extra_context)
 
     # --- Colonnes personnalisées ---
-
-    @admin.display(description='Code-barres', ordering='code_barre')
-    def code_barre_display(self, obj):
-        if not obj.code_barre:
-            return format_html('<span class="lb-badge lb-badge-wine">{}</span>', 'À générer')
-        alerte = ''
-        if obj.code_barre.isdigit() and len(obj.code_barre) == 13 and not cle_ean13_valide(obj.code_barre):
-            alerte = mark_safe('<i class="fas fa-triangle-exclamation lb-val-wine"></i> ')
-        return format_html(
-            '{}<code style="font-size:11px;background:var(--lb-canvas-2);padding:2px 6px;'
-            'border-radius:4px">{}</code>',
-            alerte, obj.code_barre,
-        )
 
     @admin.display(description='Stock')
     def stock_badge(self, obj):
@@ -399,9 +386,24 @@ class ProduitAdmin(ActionsColonneMixin, admin.ModelAdmin):
 
     @admin.display(description='Code-barres (aperçu)')
     def code_barre_svg(self, obj):
+        """Aperçu du code, avec alerte si la clé EAN-13 est invalide.
+
+        Le code-barres n'est plus une colonne de la liste : l'alerte se lit
+        sur la fiche, là où le code se corrige.
+        """
         if obj is None or not obj.code_barre:
             return '—'
-        return format_html('{}', code_svg(obj.code_barre, hauteur=48))
+        alerte = ''
+        if (
+            obj.code_barre.isdigit()
+            and len(obj.code_barre) == 13
+            and not cle_ean13_valide(obj.code_barre)
+        ):
+            alerte = (
+                '<i class="fas fa-triangle-exclamation lb-val-wine" '
+                'title="Clé EAN-13 invalide"></i> '
+            )
+        return format_html('{}{}', alerte, code_svg(obj.code_barre, hauteur=48))
 
     @admin.display(description='Aperçu étiquette (30 × 20 mm)')
     def etiquette_preview(self, obj):

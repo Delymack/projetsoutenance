@@ -1,5 +1,5 @@
 /* ============================================================
-   WineAdmin — habillage global de navigation
+   WineAdmin — habillage global de navigation (VERSION AMÉLIORÉE)
    Charge le sidebar puis style: navbar, dropdowns,
    en-tête de contenu, breadcrumbs, footer.
    ============================================================ */
@@ -7,12 +7,13 @@
 @import url("wineadmin-theme.css");
 
 :root {
-    --wine-bordeaux: #2f6b4f;
+    --wine-bordeaux: #641b2c;
     --wine-deep: #0e0509;
     --wine-gold: #c99b3b;
     --wine-gold-soft: #e6bd6a;
     --wine-cream: #fbf8f2;
     --wine-ink: #1a0810;
+    --wine-sage: #2f6b4f;
 }
 
 /* ============================================================
@@ -466,34 +467,45 @@
    ============================================================ */
 #jazzy-navbar .nav-link.btn.wine-account-trigger {
     align-items: center;
-    border-radius: 50%;
+    border: 1px solid rgba(230, 189, 106, .3);
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(230, 189, 106, .12), rgba(42, 15, 26, .35));
     display: inline-flex;
-    height: 44px;
+    gap: .1rem;
+    height: auto;
     justify-content: center;
-    padding: 0 !important;
-    width: 44px;
+    padding: .18rem .5rem .18rem .22rem !important;
+    transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }
 #jazzy-navbar .nav-link.btn.wine-account-trigger:hover,
 #jazzy-navbar .nav-link.btn.wine-account-trigger:focus {
-    background: transparent !important;
+    background: linear-gradient(135deg, rgba(230, 189, 106, .2), rgba(42, 15, 26, .5)) !important;
+    border-color: var(--wine-gold-soft);
+    box-shadow: 0 0 0 3px rgba(230, 189, 106, .18);
 }
 .wine-account-chip {
     align-items: center;
     background: transparent;
     border: 0;
-    border-radius: 50%;
+    border-radius: 999px;
     display: flex;
-    height: 42px;
-    justify-content: center;
-    padding: .25rem;
-    width: 42px;
+    gap: .5rem;
+    height: auto;
+    justify-content: flex-start;
+    padding: 0;
+    width: auto;
     transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease;
 }
 #jazzy-navbar .nav-link.wine-account-trigger:hover .wine-account-chip,
 .wine-account.show .wine-account-chip {
-    background: rgba(230, 189, 106, .15);
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+.wine-account.show .nav-link.btn.wine-account-trigger {
+    background: linear-gradient(135deg, rgba(230, 189, 106, .24), rgba(42, 15, 26, .55)) !important;
     border-color: var(--wine-gold-soft);
-    box-shadow: 0 0 0 2px rgba(230, 189, 106, .18);
+    box-shadow: 0 0 0 3px rgba(230, 189, 106, .22);
 }
 
 /* --- Avatar (base, réutilisé partout) --- */
@@ -517,7 +529,7 @@
     width: 100%;
 }
 .wine-account-avatar i { color: #efd48e; font-size: .95rem; }
-.wine-account-avatar .wine-account-status {
+.wine-account-avatar .wine-account-presence {
     background: #35c26c;
     border: 2px solid #0e0509;
     border-radius: 50%;
@@ -529,7 +541,7 @@
     width: 11px;
 }
 .wine-account-avatar-xl { height: 60px; width: 60px; }
-.wine-account-avatar-xl .wine-account-status {
+.wine-account-avatar-xl .wine-account-presence {
     border-width: 3px;
     height: 14px;
     width: 14px;
@@ -713,6 +725,18 @@ body.wine-account-overlay-active .app-wrapper {
     padding: .42rem .7rem;
 }
 .wine-account-hero-foot i { color: #e7c584; margin-right: .35rem; }
+
+/* --- Responsive du déclencheur : sur petits écrans on garde l'avatar seul --- */
+@media (max-width: 575.98px) {
+    #jazzy-navbar .nav-link.btn.wine-account-trigger {
+        padding: .22rem !important;
+    }
+    #jazzy-navbar .wine-account-txt,
+    #jazzy-navbar .wine-account-caret {
+        display: none !important;
+    }
+    #jazzy-navbar .wine-account-chip { gap: 0; }
+}
 
 /* --- Corps : sections d'actions --- */
 .wine-account-body { padding: .3rem .55rem .5rem; }

@@ -53,13 +53,13 @@
     {% endif %}
 
     <!-- Sidebar : chargé directement, versionné, garanti même en cas de cache -->
-    <link rel="stylesheet" href="{% static 'css/wineadmin-sidebar.css' %}?v=17">
+    <link rel="stylesheet" href="{% static 'css/wineadmin-sidebar.css' %}?v=20">
 
     <!-- Design system WineAdmin : tokens (3 couleurs) + composants partagés -->
     <link rel="stylesheet" href="{% static 'css/wineadmin-design.css' %}?v=13">
-    <link rel="stylesheet" href="{% static 'css/wineadmin-quickcreate.css' %}?v=8">
+    <link rel="stylesheet" href="{% static 'css/wineadmin-quickcreate.css' %}?v=10">
     <!-- Fenêtres flottantes d'ajout lié : modale et formulaire popup (toutes les tables) -->
-    <link rel="stylesheet" href="{% static 'css/wineadmin-popup.css' %}?v=1">
+    <link rel="stylesheet" href="{% static 'css/wineadmin-popup.css' %}?v=2">
     <link rel="stylesheet" href="{% static 'css/wineadmin-notifications.css' %}?v=2">
     <style>
         {# Filet de sécurité : le sidebar reste sombre bordeaux quoi qu'il arrive. #}
@@ -312,7 +312,16 @@
                                 {% else %}
                                     <i class="fas fa-user"></i>
                                 {% endif %}
+                                <span class="wine-account-presence" title="En ligne" aria-hidden="true"></span>
                             </span>
+                            <span class="wine-account-txt">
+                                <span class="wine-account-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+                                <span class="wine-account-role">
+                                    {{ request.user.get_role_display|default:"Personnel" }}
+                                    {% if request.user.is_superuser %}<span class="wine-account-sup"><i class="fas fa-crown"></i></span>{% endif %}
+                                </span>
+                            </span>
+                            <i class="fas fa-chevron-down wine-account-caret" aria-hidden="true"></i>
                         </span>
                     </a>
 
@@ -417,7 +426,7 @@
 
             <aside class="app-sidebar bg-body-secondary shadow {{ jazzmin_ui.sidebar_classes }}" id="jazzy-sidebar" data-bs-theme="dark">
                 <a href="{% url 'admin:index' %}" class="wine-brand {{ jazzmin_ui.brand_classes }}" id="jazzy-logo" title="Accueil — {{ jazzmin_settings.site_header|default:"LAZAN'I BETSILEO" }}">
-                    <img class="wine-brand-mark" src="{% static 'img/lazani-betsileo-mark.svg' %}" alt="" width="52" height="52" aria-hidden="true">
+                    <img class="wine-brand-mark" src="{% static 'img/logo.webp' %}" alt="Logo LAZAN'I BETSILEO" width="64" height="64">
                     <span class="wine-brand-text">
                         <span class="wine-brand-title">{{ jazzmin_settings.site_header|default:"LAZAN'I BETSILEO" }}</span>
                         <span class="wine-brand-subtitle">Cave &amp; Boutique</span>
@@ -589,6 +598,36 @@
 </div>
 {% endif %}
 
+{% comment %}
+Fenêtre de confirmation avant suppression. Elle est ouverte par
+static/js/wineadmin-confirm.js, qui intercepte tout lien portant la classe
+« databtn-delete » : colonne Actions des listes et bouton « Supprimer » des
+fiches. Sans JavaScript, le lien reste un lien normal et Django affiche sa
+propre page de confirmation.
+{% endcomment %}
+{% if not is_popup %}
+<div class="wine-confirm" id="wine-confirm" aria-hidden="true">
+    <button class="wine-confirm-backdrop" type="button" data-confirm-close tabindex="-1" aria-label="Fermer"></button>
+    <section class="wine-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="wine-confirm-title">
+        <span class="wine-confirm-icon" aria-hidden="true"><i class="fas fa-trash-alt"></i></span>
+        <h2 class="wine-confirm-title" id="wine-confirm-title">Confirmer la suppression</h2>
+        <p class="wine-confirm-message" id="wine-confirm-message" aria-live="polite"></p>
+        <form method="post" id="wine-confirm-form">
+            {% csrf_token %}
+            {# Django n'exécute la suppression que si le POST n'est pas vide : #}
+            {# c'est le rôle de ce champ, comme sur sa propre page de confirmation. #}
+            <input type="hidden" name="post" value="yes">
+            <div class="wine-confirm-actions">
+                <button type="button" class="wine-confirm-cancel" data-confirm-close>Annuler</button>
+                <button type="submit" class="wine-confirm-ok">
+                    <i class="fas fa-trash-alt" aria-hidden="true"></i> Supprimer
+                </button>
+            </div>
+        </form>
+    </section>
+</div>
+{% endif %}
+
 {% if jazzmin_settings.show_ui_builder %}
 <div id="codeBox" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -617,8 +656,9 @@
 <script src="{% static "vendor/adminlte/js/adminlte.min.js" %}"></script>
 <!-- Django customisations -->
 <script src="{% static "jazzmin/js/main.js" %}"></script>
-<script src="{% static 'js/wineadmin-quickcreate.js' %}?v=8"></script>
+<script src="{% static 'js/wineadmin-quickcreate.js' %}?v=11"></script>
 <script src="{% static 'js/wineadmin-notifications.js' %}?v=2"></script>
+<script src="{% static 'js/wineadmin-confirm.js' %}?v=1"></script>
 
 {% if jazzmin_settings.custom_js %}
     {% for script in jazzmin_settings.custom_js|to_list %}

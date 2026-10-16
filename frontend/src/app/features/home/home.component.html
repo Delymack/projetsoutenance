@@ -1,6 +1,6 @@
 <!-- Hero de marque et accès rapide au catalogue -->
 <section class="vitrine vitrine--image-haut">
-  <div class="lb-container vitrine__contenu vitrine__contenu--image-haut">
+  <div class="vitrine__contenu vitrine__contenu--image-haut">
     <div class="vitrine__intro">
       <h1 class="vitrine__titre lb-titre-plein lb-fade-in">{{ 'ACCUEIL.titre' | translate }}</h1>
       <p class="vitrine__soustitre lb-fade-in">{{ 'APP.baseline' | translate }}</p>
@@ -114,19 +114,9 @@
             </button>
 
             <div class="produit__corps">
-              @if (vin.cuvee) {
-                <span class="produit__domaine">{{ vin.cuvee }}</span>
-              }
               <h3 class="produit__nom">
                 <a [routerLink]="['/vin', vin.id]">{{ vin.nom }}</a>
               </h3>
-
-              <div class="produit__meta">
-                <span class="produit__meta-item">
-                  <mat-icon aria-hidden="true">calendar_today</mat-icon>
-                  {{ vin.millesime || '—' }}
-                </span>
-              </div>
 
               @if (vin.noteMoyenne) {
               <div class="produit__note" [attr.aria-label]="(vin.noteMoyenne | number:'1.1-1') + ' / 5'">
@@ -143,18 +133,29 @@
               }
 
               @if (detailsOuverts() === vin.id) {
-                <div class="produit__details">
-                  <p>{{ vin.description || vin.nom }}</p>
-                  <dl>
+                <div class="produit__fenetre" role="dialog" [attr.aria-label]="vin.nom">
+                  <div class="produit__fenetre-entete">
+                    <mat-icon aria-hidden="true">wine_bar</mat-icon>
+                    <strong>{{ vin.nom }}</strong>
+                    <button type="button" class="produit__fenetre-fermer" (click)="basculerDetails(vin.id)" [attr.aria-label]="'COMMUN.voirMoins' | translate">
+                      <mat-icon aria-hidden="true">close</mat-icon>
+                    </button>
+                  </div>
+                  <p class="produit__fenetre-desc">{{ vin.description || vin.nom }}</p>
+                  <dl class="produit__fenetre-liste">
                     <div>
                       <dt>{{ 'CATALOGUE.categorie' | translate }}</dt>
                       <dd>{{ ('CATALOGUE.categories.' + vin.categorie) | translate }}</dd>
                     </div>
                     <div>
-                      <dt>{{ 'VIN.millesime' | translate }}</dt>
-                      <dd>{{ vin.millesime || '—' }}</dd>
+                      <dt>{{ 'CATALOGUE.prix' | translate }}</dt>
+                      <dd>{{ vin.prix | number: '1.0-0' }} Ar</dd>
                     </div>
                   </dl>
+                  <a class="produit__fenetre-lien" [routerLink]="['/vin', vin.id]">
+                    <span>{{ 'COMMUN.voirPlus' | translate }}</span>
+                    <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+                  </a>
                 </div>
               }
 

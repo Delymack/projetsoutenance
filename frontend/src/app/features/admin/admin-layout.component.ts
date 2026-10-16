@@ -71,11 +71,6 @@ export class AdminLayoutComponent {
       route: '/admin/catalogue',
     },
     {
-      label: 'ADMIN.fidelite',
-      icon: 'workspace_premium',
-      route: '/admin/fidelite',
-    },
-    {
       label: 'ADMIN.rapports',
       icon: 'analytics',
       route: '/admin/rapports',

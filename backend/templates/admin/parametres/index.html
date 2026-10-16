@@ -307,6 +307,35 @@
   .cfg-savebar .btn:disabled { cursor: not-allowed; opacity: .55; }
   html[data-bs-theme="dark"] .cfg-savebar { background: var(--lb-surface); border-color: var(--lb-line); }
   html[data-bs-theme="dark"] .cfg-savebar #cfg-dirty-msg { color: var(--lb-gold-200); }
+  .cfg-shell { max-width: 1480px; }
+  .cfg-head { padding: 1rem 1.2rem; }
+  .cfg-head h1 { font-size: 1.45rem; }
+  .cfg-head .cfg-sub { font-size: .9rem; }
+  .cfg-tabs { gap: .25rem; }
+  .cfg-tabs::before { font-size: .68rem; }
+  .cfg-tab { font-size: .82rem; min-height: 44px; padding: .55rem .7rem; }
+  .cfg-panel-heading h2 { font-size: 1.08rem; }
+  .cfg-panel > .cfg-aide { font-size: .84rem; }
+  .cfg-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+  .cfg-label, .cfg-name { font-size: .88rem; }
+  .cfg-hint { font-size: .74rem; }
+  .cfg-field .form-control { font-size: .9rem; min-height: 42px; }
+  .cfg-field textarea.form-control { min-height: 86px; }
+  .cfg-table { font-size: .84rem; }
+  .cfg-table th { font-size: .7rem; }
+  .cfg-table td { padding: .65rem .6rem; }
+  .cfg-usr-sub, .cfg-badge { font-size: .7rem; }
+  .cfg-kpi span { font-size: .7rem; }
+  .cfg-savebar { background: var(--lb-surface); border-color: var(--lb-line); box-shadow: 0 6px 20px rgba(43,27,32,.1); }
+  .cfg-savebar #cfg-dirty-msg { color: var(--lb-wine); font-size: .84rem; }
+  .cfg-chip:focus-within, .cfg-field :focus-visible, .cfg-user-toolbar :focus-visible {
+    outline: 3px solid rgba(139,48,70,.3); outline-offset: 2px;
+  }
+  html[data-bs-theme="dark"] .cfg-savebar #cfg-dirty-msg { color: var(--lb-gold-200); }
+  @media (max-width: 520px) {
+    .cfg-head h1 { font-size: 1.3rem; }
+    .cfg-table th, .cfg-table td { padding: .55rem .45rem; }
+  }
   @media (prefers-reduced-motion: reduce) {
     .cfg-panel, .cfg-tab, .cfg-field { animation: none; transition: none; }
   }
@@ -324,7 +353,7 @@
   <div class="cfg-toolbar">
     <label class="cfg-search-box" for="cfg-search">
       <i class="fas fa-search" aria-hidden="true"></i>
-      <input type="search" id="cfg-search" placeholder="Rechercher un réglage…" autocomplete="off">
+      <input type="search" id="cfg-search" placeholder="Rechercher un réglage…" autocomplete="off" aria-label="Rechercher un paramètre">
     </label>
   </div>
 
@@ -399,10 +428,10 @@
             <td>{% if u.est_vide %}<span class="cfg-usr-sub">Jamais</span>{% else %}{{ u.last_login|date:"d/m/Y H:i" }}{% endif %}</td>
             <td>
               <div class="cfg-acts">
-                <a class="btn btn-sm btn-outline-dark" href="{{ u.url_modifier }}" title="Modifier la fiche"><i class="fas fa-pen"></i></a>
-                <a class="btn btn-sm btn-outline-dark" href="{{ u.url_mot_de_passe }}" title="Réinitialiser le mot de passe"><i class="fas fa-key"></i></a>
+                <a class="btn btn-sm btn-outline-dark" href="{{ u.url_modifier }}" title="Modifier la fiche" aria-label="Modifier la fiche de {{ u.username }}"><i class="fas fa-pen" aria-hidden="true"></i></a>
+                <a class="btn btn-sm btn-outline-dark" href="{{ u.url_mot_de_passe }}" title="Réinitialiser le mot de passe" aria-label="Réinitialiser le mot de passe de {{ u.username }}"><i class="fas fa-key" aria-hidden="true"></i></a>
                 {% if u.peut_etre_supprime %}
-                <a class="btn btn-sm btn-outline-danger" href="{{ u.url_supprimer }}" title="Supprimer le compte"><i class="fas fa-trash"></i></a>
+                <a class="btn btn-sm btn-outline-danger" href="{{ u.url_supprimer }}" title="Supprimer le compte" aria-label="Supprimer le compte de {{ u.username }}"><i class="fas fa-trash" aria-hidden="true"></i></a>
                 {% else %}
                 <button class="btn btn-sm btn-outline-secondary" disabled title="Vous ne pouvez pas supprimer votre propre compte"><i class="fas fa-trash"></i></button>
                 {% endif %}
@@ -480,7 +509,7 @@
     </div>
 
     <div class="cfg-savebar">
-      <span id="cfg-dirty-msg"></span>
+      <span id="cfg-dirty-msg" role="status" aria-live="polite"></span>
       <button type="submit" class="btn btn-warning" id="cfg-save" disabled><i class="fas fa-save mr-1"></i> Enregistrer</button>
     </div>
   </form>
@@ -531,12 +560,12 @@
             <td>
               <div class="cfg-acts">
                 {% if s.disponible %}
-                <a class="btn btn-sm btn-outline-dark" href="{% url 'parametres:sauvegarde-telecharger' s.pk %}" title="Télécharger"><i class="fas fa-download"></i></a>
+                <a class="btn btn-sm btn-outline-dark" href="{% url 'parametres:sauvegarde-telecharger' s.pk %}" title="Télécharger" aria-label="Télécharger la sauvegarde du {{ s.date|date:'d/m/Y H:i' }}"><i class="fas fa-download" aria-hidden="true"></i></a>
                 {% endif %}
                 {% if sauvegarde_autorisee %}
                 <form method="post" action="{% url 'parametres:sauvegarde-supprimer' s.pk %}" onsubmit="return confirm('Supprimer définitivement cette sauvegarde ?');">
                   {% csrf_token %}
-                  <button class="btn btn-sm btn-outline-danger" type="submit" title="Supprimer"><i class="fas fa-trash"></i></button>
+                  <button class="btn btn-sm btn-outline-danger" type="submit" title="Supprimer" aria-label="Supprimer la sauvegarde du {{ s.date|date:'d/m/Y H:i' }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                 </form>
                 {% endif %}
               </div>
@@ -612,7 +641,18 @@
     return true;
   }
   tabs.forEach(function (tab, index) {
-    tab.addEventListener('click', function () { activer(tab.getAttribute('data-tab')); });
+    tab.addEventListener('click', function () {
+      activer(tab.getAttribute('data-tab'));
+      if (searchEl && searchEl.value.trim()) {
+        var panel = document.getElementById('panel-' + tab.getAttribute('data-tab'));
+        var empty = panel && panel.querySelector('.cfg-search-empty');
+        var hasVisibleFields = panel && Array.prototype.some.call(
+          panel.querySelectorAll('.cfg-field'),
+          function (field) { return field.style.display !== 'none'; }
+        );
+        if (empty) empty.style.display = hasVisibleFields ? 'none' : 'block';
+      }
+    });
     tab.addEventListener('keydown', function (event) {
       var nextIndex = index;
       if (event.key === 'ArrowDown' || event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
@@ -638,17 +678,19 @@
   var hasDirty = false;
   function recalc() {
     hasDirty = false;
-    var nbSection = {};
-    document.querySelectorAll('.cfg-panel').forEach(function () {});
     document.querySelectorAll('#cfg-form .cfg-field').forEach(function (f) {
-      var cle = f.getAttribute('data-cle');
-      var input = f.querySelector('input, select, textarea');
-      var changed = false;
-      if (input && input.type === 'checkbox') {
-        changed = input.checked !== input.defaultChecked;
-      } else if (input) {
-        changed = input.value !== input.defaultValue;
-      }
+      var controls = f.querySelectorAll('input, select, textarea');
+      var changed = Array.prototype.some.call(controls, function (input) {
+        if (input.type === 'checkbox' || input.type === 'radio') {
+          return input.checked !== input.defaultChecked;
+        }
+        if (input.tagName === 'SELECT') {
+          return Array.prototype.some.call(input.options, function (option) {
+            return option.selected !== option.defaultSelected;
+          });
+        }
+        return input.value !== input.defaultValue;
+      });
       f.classList.toggle('dirty', changed);
       if (changed) hasDirty = true;
     });
@@ -673,27 +715,32 @@
   function filterFields() {
     if (!searchEl) return;
     var q = searchEl.value.trim().toLowerCase();
-    var n = 0;
+    var panelCounts = {};
     var firstMatch = null;
     document.querySelectorAll('#cfg-form .cfg-field').forEach(function (f) {
       var text = (f.textContent || '').toLowerCase();
       var visible = !q || text.indexOf(q) !== -1;
       f.style.display = visible ? '' : 'none';
       if (visible) {
-        n++;
-        if (q && !firstMatch) firstMatch = f.closest('.cfg-panel');
+        var panel = f.closest('.cfg-panel');
+        if (panel) {
+          panelCounts[panel.id] = (panelCounts[panel.id] || 0) + 1;
+          if (q && !firstMatch) firstMatch = panel;
+        }
       }
     });
     document.querySelectorAll('.cfg-panel').forEach(function (p) {
       var empty = p.querySelector('.cfg-search-empty');
-      if (empty) empty.style.display = p.hidden ? 'none' : (n ? 'none' : 'block');
+      if (empty) empty.style.display = p.hidden || !q || panelCounts[p.id] ? 'none' : 'block';
     });
-    if (q && firstMatch) activer(firstMatch.id.replace('panel-', ''));
+    if (q && firstMatch) {
+      activer(firstMatch.id.replace('panel-', ''));
+      var empty = firstMatch.querySelector('.cfg-search-empty');
+      if (empty) empty.style.display = 'none';
+    }
   }
   if (searchEl) {
     searchEl.addEventListener('input', filterFields);
-    var tabs = document.querySelectorAll('.cfg-tab');
-    tabs.forEach(function (t) { t.addEventListener('click', filterFields); });
   }
 
   // Recherche dans la liste des comptes : elle filtre sur ce qui est affiché,

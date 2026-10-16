@@ -1,9 +1,12 @@
-@use '@angular/material' as mat;
+/* ==========================================================================
+   Admin Commandes — Pipeline Kanban de validation
+   Design system : tokens --lb-* unifiés, colonnes colorées par statut.
+   ========================================================================== */
 
 .admin-commandes {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--lb-gap-lg);
 }
 
 .admin-commandes__header {
@@ -11,28 +14,29 @@
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--lb-gap-md);
 }
 
 .admin-commandes__titre {
   h1 {
-    margin: 0 0 4px;
-    font-size: 1.75rem;
+    margin: 0 0 2px;
+    font-family: var(--lb-font-display);
+    font-size: clamp(1.5rem, 2.8vw, 1.85rem);
     font-weight: 600;
-    color: var(--text);
+    color: var(--lb-text);
   }
 }
 
 .admin-commandes__subtitle {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--lb-text-muted);
   font-size: 0.9375rem;
 }
 
 .admin-commandes__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: var(--lb-gap-sm);
 }
 
 .admin-commandes__recherche {
@@ -43,10 +47,12 @@
   width: 200px;
 }
 
+/* ------------------------------------------------------------------ Kanban */
+
 .admin-commandes__kanban {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 16px;
+  gap: var(--lb-gap-md);
   min-height: 600px;
   overflow-x: auto;
   padding-bottom: 16px;
@@ -55,33 +61,38 @@
 .kanban-colonne {
   display: flex;
   flex-direction: column;
-  background: var(--bg);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
+  background: var(--lb-bg-alt);
+  border-radius: var(--lb-radius-lg);
+  border: 1px solid var(--lb-border);
   min-width: 280px;
   height: fit-content;
-  max-height: calc(100vh - 200px);
+  max-height: calc(100vh - 230px);
+  box-shadow: var(--lb-shadow-1);
+  transition: background-color var(--lb-transition);
+
+  &:hover {
+    background: color-mix(in srgb, var(--lb-bg-alt) 70%, transparent);
+  }
 }
 
 .kanban-colonne__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
-  border-bottom: 1px solid var(--border);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  background: var(--surface);
-  position: sticky;
-  top: 0;
-  z-index: 1;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--lb-divider);
+  border-radius: var(--lb-radius-lg) var(--lb-radius-lg) 0 0;
+  background: color-mix(in srgb, var(--lb-primary) 8%, var(--lb-surface));
+  flex-shrink: 0;
 }
 
 .kanban-colonne__titre {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: var(--text);
-  text-transform: capitalize;
+  color: var(--lb-text);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .kanban-colonne__badge {
@@ -91,11 +102,11 @@
   min-width: 24px;
   height: 24px;
   padding: 0 8px;
-  border-radius: var(--radius-full);
-  background: var(--primary-light);
-  color: var(--primary);
-  font-size: 0.75rem;
-  font-weight: 600;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--lb-primary) 16%, transparent);
+  color: var(--lb-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .kanban-colonne__cartes {
@@ -109,26 +120,29 @@
 }
 
 .kanban-carte {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  background: var(--lb-surface);
+  border: 1px solid var(--lb-border);
+  border-radius: var(--lb-radius-md);
   padding: 16px;
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s, transform 0.2s;
+  box-shadow: var(--lb-shadow-1);
   cursor: grab;
+  transition:
+    box-shadow var(--lb-transition),
+    transform var(--lb-transition),
+    border-color var(--lb-transition);
 
   &:hover {
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--lb-shadow-2);
     transform: translateY(-2px);
   }
 
   &.cdk-drag-preview {
-    box-shadow: var(--shadow-lg);
-    transform: rotate(3deg);
+    box-shadow: var(--lb-shadow-3);
+    transform: rotate(3deg) scale(1.02);
   }
 
   &.cdk-drag-animating {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -143,12 +157,12 @@
 .kanban-carte__reference {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text);
+  color: var(--lb-text);
 }
 
 .kanban-carte__date {
-  font-size: 0.75rem;
-  color: var(--text-muted);
+  font-size: 0.72rem;
+  color: var(--lb-text-muted);
   white-space: nowrap;
 }
 
@@ -159,19 +173,20 @@
 .kanban-carte__client-nom {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text);
+  color: var(--lb-text);
 }
 
 .kanban-carte__client-email {
-  font-size: 0.75rem;
-  color: var(--text-muted);
+  font-size: 0.72rem;
+  color: var(--lb-text-muted);
 }
 
 .kanban-carte__total {
   font-size: 1.125rem;
   font-weight: 700;
-  color: var(--primary);
+  color: var(--lb-primary);
   margin-bottom: 12px;
+  font-family: var(--lb-font-display);
 }
 
 .kanban-carte__details {
@@ -180,29 +195,30 @@
   align-items: center;
   margin-bottom: 12px;
   padding-top: 12px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--lb-divider);
 }
 
 .kanban-carte__lignes {
-  font-size: 0.75rem;
-  color: var(--text-muted);
+  font-size: 0.72rem;
+  color: var(--lb-text-muted);
 }
 
 .kanban-carte__source {
-  font-size: 0.6875rem;
+  font-size: 0.65rem;
   font-weight: 600;
   padding: 2px 8px;
-  border-radius: var(--radius-full);
+  border-radius: 999px;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 
   &[data-source="reservation"] {
-    background: var(--info-light);
-    color: var(--info);
+    background: color-mix(in srgb, var(--lb-info) 14%, transparent);
+    color: var(--lb-info);
   }
 
   &[data-source="vente"] {
-    background: var(--success-light);
-    color: var(--success);
+    background: color-mix(in srgb, var(--lb-success) 14%, transparent);
+    color: var(--lb-success);
   }
 }
 
@@ -212,11 +228,11 @@
 }
 
 .kanban-carte__menu-btn {
-  color: var(--text-muted);
+  color: var(--lb-text-muted);
 
   &:hover {
-    color: var(--text);
-    background: var(--hover);
+    color: var(--lb-text);
+    background: var(--lb-bg-hover);
   }
 }
 
@@ -228,9 +244,9 @@
   flex: 1;
   padding: 32px 16px;
   text-align: center;
-  color: var(--text-muted);
-  border: 2px dashed var(--border);
-  border-radius: var(--radius-md);
+  color: var(--lb-text-muted);
+  border: 2px dashed var(--lb-border);
+  border-radius: var(--lb-radius-md);
   margin: 12px;
 
   mat-icon {
@@ -239,12 +255,15 @@
     height: 32px;
     margin-bottom: 8px;
     opacity: 0.5;
+    color: var(--lb-accent);
   }
 
   span {
     font-size: 0.8125rem;
   }
 }
+
+/* ------------------------------------------------------------------ Responsive */
 
 @media (max-width: 1400px) {
   .admin-commandes__kanban {
@@ -275,5 +294,78 @@
 
   .admin-commandes__kanban {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Couleurs par statut — les en-têtes de colonnes Kanban sont teintées
+   différemment pour un repérage visuel instantané.
+   ------------------------------------------------------------------ */
+.kanban-colonne {
+  &[data-statut="a_valider"] {
+    .kanban-colonne__header {
+      background: color-mix(in srgb, var(--lb-warning) 10%, var(--lb-surface));
+      border-bottom-color: color-mix(in srgb, var(--lb-warning) 30%, var(--lb-border));
+    }
+    .kanban-colonne__badge {
+      background: color-mix(in srgb, var(--lb-warning) 14%, transparent);
+      color: var(--lb-warning);
+    }
+  }
+
+  &[data-statut="validee"] {
+    .kanban-colonne__header {
+      background: color-mix(in srgb, var(--lb-info) 10%, var(--lb-surface));
+      border-bottom-color: color-mix(in srgb, var(--lb-info) 30%, var(--lb-border));
+    }
+    .kanban-colonne__badge {
+      background: color-mix(in srgb, var(--lb-info) 14%, transparent);
+      color: var(--lb-info);
+    }
+  }
+
+  &[data-statut="encaissee"] {
+    .kanban-colonne__header {
+      background: color-mix(in srgb, var(--lb-success) 10%, var(--lb-surface));
+      border-bottom-color: color-mix(in srgb, var(--lb-success) 30%, var(--lb-border));
+    }
+    .kanban-colonne__badge {
+      background: color-mix(in srgb, var(--lb-success) 14%, transparent);
+      color: var(--lb-success);
+    }
+  }
+
+  &[data-statut="expediee"] {
+    .kanban-colonne__header {
+      background: color-mix(in srgb, var(--lb-primary) 10%, var(--lb-surface));
+      border-bottom-color: color-mix(in srgb, var(--lb-primary) 30%, var(--lb-border));
+    }
+    .kanban-colonne__badge {
+      background: color-mix(in srgb, var(--lb-primary) 14%, transparent);
+      color: var(--lb-primary);
+    }
+  }
+
+  &[data-statut="livree"] {
+    .kanban-colonne__header {
+      background: color-mix(in srgb, var(--lb-success) 12%, var(--lb-surface));
+      border-bottom-color: color-mix(in srgb, var(--lb-success) 34%, var(--lb-border));
+    }
+    .kanban-colonne__badge {
+      background: color-mix(in srgb, var(--lb-success) 14%, transparent);
+      color: var(--lb-success);
+    }
+  }
+
+  &[data-statut="annulee"],
+  &[data-statut="refusee"] {
+    .kanban-colonne__header {
+      background: color-mix(in srgb, var(--lb-danger) 10%, var(--lb-surface));
+      border-bottom-color: color-mix(in srgb, var(--lb-danger) 30%, var(--lb-border));
+    }
+    .kanban-colonne__badge {
+      background: color-mix(in srgb, var(--lb-danger) 12%, transparent);
+      color: var(--lb-danger);
+    }
   }
 }

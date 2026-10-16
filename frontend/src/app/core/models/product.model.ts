@@ -56,8 +56,6 @@ export interface Vin {
   volume: number;
   /** Degré d'alcool. */
   alcool: number;
-  /** Région / appellation. */
-  region: string;
   /** Description commerciale. */
   description: string;
   /** Notes de dégustation. */
@@ -123,7 +121,6 @@ export interface AdresseClient {
   telephone: string;
   ligne: string;
   ville: string;
-  region?: string;
   notes?: string;
   parDefaut?: boolean;
 }
@@ -169,38 +166,6 @@ export interface LotPromo {
   remisePct: number;
   /** Vin offert (null si le lot n'est pas une bouteille). */
   vinOffertId: string | null;
-}
-
-/** Niveaux du programme de fidélité, du moins au plus exigeant. */
-export type NiveauFidelite = 'Bronze' | 'Argent' | 'Or' | 'Platine';
-
-/** Palier de fidélité. */
-export interface PalierFidelite {
-  cle: NiveauFidelite;
-  /** Points requis pour atteindre le palier. */
-  seuil: number;
-  /** Icône Material affichée sur la pastille de niveau. */
-  icone: string;
-}
-
-/** Badge décoré par le cumul de points. */
-export interface BadgeFidelite {
-  id: string;
-  /** Points requis pour débloquer le badge. */
-  seuil: number;
-  icone: string;
-  /** Clé i18n de la description. */
-  cle: string;
-}
-
-/** Récompense échangeable contre des points. */
-export interface RecompenseFidelite {
-  id: string;
-  /** Coût en points. */
-  cout: number;
-  icone: string;
-  /** Clé i18n du libellé. */
-  cle: string;
 }
 
 /** Profils proposés par le quiz gustatif. */

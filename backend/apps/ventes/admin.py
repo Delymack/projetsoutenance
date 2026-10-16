@@ -255,10 +255,11 @@ class VenteAdmin(ActionsColonneMixin, admin.ModelAdmin):
             pk=vente_id,
         )
         format_impression = request.GET.get('format')
-        # Les deux natures de remise s'additionnent : la facture doit annoncer
-        # l'effort commercial total, pas seulement ce que la promotion a fait.
+        # `LigneVente.remise` contient déjà la somme des deux natures de remise
+        # (promotion automatique + geste commercial manuel) : l'additionner à
+        # nouveau avec `remise_manuelle` compterait le geste deux fois.
         total_remise = sum(
-            (ligne.remise + ligne.remise_manuelle for ligne in vente.lignes.all()),
+            (ligne.remise for ligne in vente.lignes.all()),
             Decimal('0.00'),
         )
         context = dict(

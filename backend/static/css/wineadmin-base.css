@@ -1,0 +1,419 @@
+/* ============================================================
+   WineAdmin — Base Template Improvements
+   Améliore le template de base et les messages système
+   ============================================================ */
+
+/* Messages de notification Django */
+.messagelist {
+    margin: 1rem 0;
+    padding: 0;
+    list-style: none;
+}
+
+.messagelist li {
+    padding: .85rem 1.15rem;
+    margin-bottom: .5rem;
+    border-radius: var(--lb-radius);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    animation: fadeInDown 0.4s ease-out;
+    box-shadow: var(--lb-shadow-sm);
+}
+
+.messagelist li.success {
+    background: linear-gradient(135deg, var(--lb-sage-100) 0%, var(--lb-sage-200) 100%);
+    border: 1.5px solid var(--lb-sage-200);
+    color: var(--lb-sage-800);
+}
+
+.messagelist li.warning {
+    background: linear-gradient(135deg, var(--lb-gold-100) 0%, var(--lb-gold-200) 100%);
+    border: 1.5px solid var(--lb-gold-200);
+    color: var(--lb-gold-800);
+}
+
+.messagelist li.error {
+    background: linear-gradient(135deg, var(--lb-wine-100) 0%, var(--lb-wine-200) 100%);
+    border: 1.5px solid var(--lb-wine-200);
+    color: var(--lb-wine-800);
+}
+
+.messagelist li.info {
+    background: linear-gradient(135deg, var(--lb-canvas) 0%, var(--lb-canvas-2) 100%);
+    border: 1.5px solid var(--lb-line);
+    color: var(--lb-ink-700);
+}
+
+.messagelist li i {
+    font-size: 1.1rem;
+}
+
+/* Alertes Bootstrap personnalisées */
+.alert {
+    border-radius: var(--lb-radius);
+    border: 1.5px solid;
+    font-weight: 600;
+    padding: .9rem 1.15rem;
+    box-shadow: var(--lb-shadow-sm);
+}
+
+.alert-success {
+    background: linear-gradient(135deg, var(--lb-sage-100) 0%, var(--lb-sage-200) 100%);
+    border-color: var(--lb-sage-200);
+    color: var(--lb-sage-800);
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, var(--lb-gold-100) 0%, var(--lb-gold-200) 100%);
+    border-color: var(--lb-gold-200);
+    color: var(--lb-gold-800);
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, var(--lb-wine-100) 0%, var(--lb-wine-200) 100%);
+    border-color: var(--lb-wine-200);
+    color: var(--lb-wine-800);
+}
+
+.alert-info {
+    background: linear-gradient(135deg, var(--lb-canvas) 0%, var(--lb-canvas-2) 100%);
+    border-color: var(--lb-line);
+    color: var(--lb-ink-700);
+}
+
+.alert .close {
+    opacity: .7;
+    transition: opacity .2s ease;
+}
+
+.alert .close:hover {
+    opacity: 1;
+}
+
+/* Page d'accueil admin */
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-stat {
+    background: linear-gradient(135deg, var(--lb-surface) 0%, var(--lb-canvas) 100%);
+    border: 1.5px solid var(--lb-line);
+    border-radius: var(--lb-radius);
+    padding: 1.25rem;
+    box-shadow: var(--lb-shadow-sm);
+    transition: all .25s ease;
+}
+
+.dashboard-stat:hover {
+    box-shadow: var(--lb-shadow);
+    transform: translateY(-3px);
+    border-color: var(--lb-gold-200);
+}
+
+.dashboard-stat h3 {
+    color: var(--lb-ink-500);
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin: 0 0 .5rem;
+}
+
+.dashboard-stat .value {
+    color: var(--lb-ink);
+    font-size: 2rem;
+    font-weight: 750;
+    line-height: 1;
+}
+
+.dashboard-stat .link {
+    color: var(--lb-wine);
+    font-weight: 700;
+    font-size: .88rem;
+    margin-top: .5rem;
+    display: inline-block;
+    text-decoration: none;
+    transition: color .2s ease;
+}
+
+.dashboard-stat .link:hover {
+    color: var(--lb-wine-700);
+}
+
+/* Page de login */
+.login {
+    background: linear-gradient(135deg, var(--lb-wine-800) 0%, var(--lb-wine-900) 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.login .card {
+    background: linear-gradient(135deg, var(--lb-surface) 0%, var(--lb-canvas) 100%);
+    border: 1.5px solid var(--lb-line);
+    border-radius: var(--lb-radius-lg);
+    box-shadow: var(--lb-hero-shadow);
+    max-width: 400px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.login .card-header {
+    background: linear-gradient(135deg, var(--lb-wine) 0%, var(--lb-wine-600) 100%);
+    border: 0;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.login .card-header h1 {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 750;
+    margin: 0;
+}
+
+.login .card-body {
+    padding: 2rem;
+}
+
+.login .form-control {
+    border: 1.5px solid var(--lb-line);
+    border-radius: var(--lb-radius-sm);
+    padding: .7rem .9rem;
+    font-size: .95rem;
+}
+
+.login .btn-primary {
+    background: linear-gradient(135deg, var(--lb-wine) 0%, var(--lb-wine-600) 100%);
+    border: 1.5px solid var(--lb-wine);
+    border-radius: var(--lb-radius-sm);
+    padding: .7rem 1.5rem;
+    font-weight: 700;
+    width: 100%;
+}
+
+.login .btn-primary:hover {
+    background: linear-gradient(135deg, var(--lb-wine-700) 0%, var(--lb-wine-800) 100%);
+    transform: translateY(-2px);
+}
+
+/* Page 404 et 500 */
+.error-page {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.error-page h1 {
+    font-size: 6rem;
+    font-weight: 800;
+    color: var(--lb-wine);
+    line-height: 1;
+    margin-bottom: 1rem;
+}
+
+.error-page h2 {
+    color: var(--lb-ink);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.error-page p {
+    color: var(--lb-ink-500);
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+.error-page .btn {
+    padding: .7rem 2rem;
+    font-size: 1rem;
+}
+
+/* Footer amélioré */
+.app-footer {
+    background: linear-gradient(120deg, var(--lb-wine-900) 0%, var(--lb-wine-800) 100%) !important;
+    border-top: 1.5px solid var(--lb-gold-200);
+    color: #e9f2ed !important;
+    font-size: .85rem;
+    padding: 1rem 1.5rem;
+}
+
+.app-footer strong {
+    color: var(--lb-gold-soft);
+    font-weight: 800;
+}
+
+.app-footer .float-end {
+    color: var(--lb-gold-200);
+}
+
+.app-footer a {
+    color: var(--lb-gold-soft);
+    text-decoration: none;
+    transition: color .2s ease;
+}
+
+.app-footer a:hover {
+    color: #fff;
+}
+
+/* Breadcrumb amélioré */
+.breadcrumb {
+    background: linear-gradient(135deg, var(--lb-canvas) 0%, var(--lb-canvas-2) 100%);
+    border: 1.5px solid var(--lb-line);
+    border-radius: var(--lb-radius-sm);
+    padding: .6rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.breadcrumb-item {
+    color: var(--lb-ink-500);
+    font-weight: 600;
+    font-size: .88rem;
+}
+
+.breadcrumb-item a {
+    color: var(--lb-wine);
+    text-decoration: none;
+    transition: color .2s ease;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--lb-wine-700);
+}
+
+.breadcrumb-item.active {
+    color: var(--lb-ink-700);
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--lb-canvas-2);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--lb-wine-300) 0%, var(--lb-wine-200) 100%);
+    border-radius: 10px;
+    border: 2px solid var(--lb-canvas-2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--lb-wine-200) 0%, var(--lb-wine-100) 100%);
+}
+
+/* Loader pour les chargements asynchrones */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(14, 5, 9, .8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--lb-gold-200);
+    border-top-color: var(--lb-gold);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Badges de statut améliorés */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .35rem .7rem;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.status-badge.active {
+    background: linear-gradient(135deg, var(--lb-sage-100) 0%, var(--lb-sage-200) 100%);
+    color: var(--lb-sage-800);
+    border: 1.5px solid var(--lb-sage-200);
+}
+
+.status-badge.inactive {
+    background: linear-gradient(135deg, var(--lb-wine-100) 0%, var(--lb-wine-200) 100%);
+    color: var(--lb-wine-800);
+    border: 1.5px solid var(--lb-wine-200);
+}
+
+.status-badge.pending {
+    background: linear-gradient(135deg, var(--lb-gold-100) 0%, var(--lb-gold-200) 100%);
+    color: var(--lb-gold-800);
+    border: 1.5px solid var(--lb-gold-200);
+}
+
+/* Tooltip personnalisé */
+[data-bs-toggle="tooltip"] {
+    position: relative;
+}
+
+.tooltip-inner {
+    background: linear-gradient(135deg, var(--lb-wine-800) 0%, var(--lb-wine-900) 100%);
+    border: 1.5px solid var(--lb-gold-200);
+    border-radius: var(--lb-radius-sm);
+    font-weight: 600;
+    font-size: .85rem;
+}
+
+/* Focus visible amélioré pour accessibilité */
+:focus-visible {
+    outline: 3px solid var(--lb-gold);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Print styles */
+@media print {
+    .main-sidebar,
+    #jazzy-navbar,
+    .app-footer,
+    .lb-panel-head,
+    #changelist-filter,
+    #toolbar,
+    .paginator {
+        display: none !important;
+    }
+    
+    .lb-panel,
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #000 !important;
+    }
+    
+    body {
+        background: #fff !important;
+    }
+}

@@ -71,25 +71,40 @@ class AccesPagesTests(TestCase):
         self.assertNotContains(response, 'wine-account-stat')
         self.assertNotContains(response, 'wine-theme-toggle')
         self.assertContains(response, 'id="wine-quick-create"')
-        self.assertContains(response, 'wineadmin-quickcreate.css?v=8')
-        self.assertContains(response, 'wineadmin-quickcreate.js?v=8')
+        self.assertContains(response, 'wineadmin-quickcreate.css?v=10')
+        self.assertContains(response, 'wineadmin-popup.css?v=2')
+        self.assertContains(response, 'wineadmin-quickcreate.js?v=11')
         quick_create_js = (RACINE / 'static' / 'js' / 'wineadmin-quickcreate.js').read_text(encoding='utf-8')
         self.assertIn("'[name=\"_addanother\"], [name=\"_continue\"], [name=\"_saveasnew\"], a'", quick_create_js)
         self.assertNotIn('Enregistrer et ajouter', quick_create_js)
         self.assertIn('wine-quick-create-cancel', quick_create_js)
         quick_create_css = (RACINE / 'static' / 'css' / 'wineadmin-quickcreate.css').read_text(encoding='utf-8')
         self.assertIn('[name="_save"]', quick_create_css)
-        self.assertIn("const label = editMode ? 'Modifier' : 'Enregistrer';", quick_create_js)
+        self.assertIn('.wine-quick-create-content [hidden] { display: none !important; }', quick_create_css)
+        self.assertIn("const label = editMode ? 'Valider' : 'Enregistrer';", quick_create_js)
         self.assertIn("ligneChamps.after(ligneActions);", quick_create_js)
         self.assertIn("colonneChamps?.classList.add('wine-quick-create-fields');", quick_create_js)
-        self.assertIn("'.submit-row, .card-body > .d-flex.flex-wrap'", quick_create_js)
+        self.assertIn("'.wa-form-actions, .submit-row, .card-body > .d-flex.flex-wrap'", quick_create_js)
+        self.assertIn("La barre d’actions du formulaire est introuvable.", quick_create_js)
         self.assertIn("content.querySelector('#content-main form')", quick_create_js)
+        self.assertIn("if (!formulaire)", quick_create_js)
+        self.assertIn("'lignes_resume'", quick_create_js)
+        self.assertIn("'mode_reception'", quick_create_js)
+        self.assertIn("'adresse_livraison'", quick_create_js)
+        self.assertIn("'date_expiration'", quick_create_js)
+        self.assertIn("'note'", quick_create_js)
+        self.assertIn("groupe.hidden = !champsRapides.has(champ);", quick_create_js)
+        self.assertIn("formulaire.querySelectorAll('.inline-group')", quick_create_js)
         self.assertIn("Boolean(lien.closest('tr')) && pageModification", quick_create_js)
         self.assertIn("lien.matches('.databtn-edit')", quick_create_js)
         self.assertIn("pageModification", quick_create_js)
         self.assertIn('wine-quick-create-actions', quick_create_css)
         self.assertIn('justify-content: flex-end;', quick_create_css)
-        self.assertIn('min-width: 132px;', quick_create_css)
+        self.assertIn('min-width: 140px;', quick_create_css)
+        self.assertIn('color: #2b1b20 !important;', quick_create_css)
+        popup_css = (RACINE / 'static' / 'css' / 'wineadmin-popup.css').read_text(encoding='utf-8')
+        self.assertIn('body.popup .fields-card select', popup_css)
+        self.assertIn('body.wine-quick-create-open .select2-dropdown', popup_css)
         self.assertIn("'[name=\"_addanother\"], [name=\"_continue\"], [name=\"_saveasnew\"], a'", quick_create_js)
         self.assertNotIn('position: sticky;', quick_create_css)
         self.assertContains(response, 'data-quick-create="wide"')
@@ -294,20 +309,30 @@ class ChangelistsVentesProduitsTests(TestCase):
             nom='Antsirabe Rouge', type_vin='Rouge', marque="LAZAN'I BETSILEO",
             cout_revenir=Decimal('18000.00'), prix_vente=Decimal('38000.00'), statut=True,
         )
-        # Sans code-barres : la colonne doit afficher « À générer » sans lever.
+        # Sans code-barres : la liste doit rester affichable sans lever.
         self.assertFalse(self.produit.code_barre)
         Stock.objects.update_or_create(
             produit=self.produit, defaults={'quantite': 12, 'seuil_alerte': 5},
         )
 
     def test_changelist_produits_sans_code_barre(self):
-        """RRegression : format_html() sans argument levait une TypeError."""
+        """La page s'affiche pour un produit sans code-barres.
+
+        Depuis l'allègement de la liste (photo, nom, prix, stock, état,
+        actions), le code-barres n'est plus une colonne : il reste un filtre
+        et un champ de la fiche. Une ligne sans code ne doit rien casser.
+        """
         self.client.force_login(self.admin)
         response = self.client.get('/admin/produits/produit/')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'À générer')
         html = response.content.decode()
         self.assertContains(response, '<h1><i class="fas fa-wine-bottle lb-hero-icon"></i>Produits</h1>')
+        # Les colonnes de l'essentiel sont bien celles attendues…
+        for colonne in ('column-prix_vente', 'column-stock_badge', 'column-statut_display'):
+            self.assertIn(colonne, html)
+        # …et la catégorie comme le code-barres ont quitté le tableau.
+        for retire in ('column-categorie', 'column-code_barre_display'):
+            self.assertNotIn(retire, html)
         for precision in (
             'Le catalogue de vos cuvées',
             'Référentiel',

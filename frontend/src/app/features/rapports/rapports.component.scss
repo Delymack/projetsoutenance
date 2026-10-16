@@ -1,11 +1,16 @@
-
+/* ==========================================================================
+   Rapports & Analyses — Graphiques ngx-charts
+   Design system : tokens --lb-* unifiés, cartes cohitives, légendes nettes.
+   ========================================================================== */
 
 .rapports {
-  padding-block: var(--lb-gap-lg);
+  padding-block: clamp(1.5rem, 4vw, 2.75rem);
   display: flex;
   flex-direction: column;
   gap: var(--lb-gap-lg);
 }
+
+/* ------------------------------------------------------------------ Header */
 
 .rapports__header {
   display: flex;
@@ -15,12 +20,33 @@
   align-items: flex-start;
 }
 
+.rapports__header > div {
+  display: grid;
+  gap: var(--lb-gap-xs);
+}
+
+.rapports__header h1 {
+  margin: 0;
+  font-family: var(--lb-font-display);
+  font-size: clamp(1.75rem, 3.5vw, 2.4rem);
+  font-weight: 600;
+  color: var(--lb-text);
+}
+
+.rapports__header p {
+  margin: 0;
+  color: var(--lb-text-muted);
+  font-size: 0.9rem;
+}
+
 .rapports__actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--lb-gap-sm);
   align-items: center;
 }
+
+/* ------------------------------------------------------------------ Grid */
 
 .rapports__grid {
   display: grid;
@@ -33,12 +59,109 @@
   display: flex;
   flex-direction: column;
   gap: var(--lb-gap-sm);
-  min-height: 320px;
+  min-height: 340px;
+  background: var(--lb-surface);
+  border: 1px solid var(--lb-border);
+  border-radius: var(--lb-radius-lg);
+  padding: var(--lb-gap);
+  box-shadow: var(--lb-shadow-1);
+  transition:
+    box-shadow var(--lb-transition),
+    transform var(--lb-transition);
+
+  &:hover {
+    box-shadow: var(--lb-shadow-2);
+  }
 }
 
 .rapports__chart--wide {
-  min-height: 360px;
+  grid-column: 1 / -1;
+  min-height: 380px;
 }
+
+.rapports__chart h2 {
+  margin: 0;
+  font-family: var(--lb-font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--lb-text);
+  display: flex;
+  align-items: center;
+  gap: var(--lb-gap-xs);
+}
+
+.rapports__chart h2::before {
+  content: '';
+  width: 4px;
+  height: 20px;
+  border-radius: var(--lb-radius-sm);
+  background: linear-gradient(180deg, var(--lb-primary), var(--lb-accent));
+}
+
+/* Couleurs des graphiques ngx-charts */
+:host ::ng-deep ngx-charts-bar-vertical,
+:host ::ng-deep ngx-charts-bar-horizontal,
+:host ::ng-deep ngx-charts-pie-chart {
+  .chart-legend {
+    span {
+      margin-right: var(--lb-gap-sm) !important;
+    }
+  }
+}
+
+/* Barres : or principal + or clair */
+:host ::ng-deep ngx-charts-bar-vertical .bar,
+:host ::ng-deep ngx-charts-bar-horizontal .bar {
+  fill: var(--lb-primary);
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+/* Barres secondaires : doré */
+:host ::ng-deep ngx-charts-bar-vertical .bar.second,
+:host ::ng-deep ngx-charts-bar-horizontal .bar.second {
+  fill: var(--lb-accent);
+}
+
+/* Camembert : dégradé or→vin */
+:host ::ng-deep ngx-charts-pie-chart .arc {
+  stroke: var(--lb-surface);
+  stroke-width: 2;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+/* Axes et grille */
+:host ::ng-deep ngx-charts .x.axis path,
+:host ::ng-deep ngx-charts .y.axis path,
+:host ::ng-deep ngx-charts .axis line,
+:host ::ng-deep ngx-charts .tick text,
+:host ::ng-deep ngx-charts .grid-line {
+  stroke: var(--lb-border) !important;
+  fill: var(--lb-text-muted) !important;
+  color: var(--lb-text-muted) !important;
+  font-size: 0.72rem !important;
+}
+
+:host ::ng-deep ngx-charts .x.axis path,
+:host ::ng-deep ngx-charts .y.axis path {
+  stroke: var(--lb-border) !important;
+}
+
+/* Labels des données */
+:host ::ng-deep ngx-charts .data-label {
+  fill: var(--lb-text) !important;
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+}
+
+/* ------------------------------------------------------------------ Responsive */
 
 @media (min-width: 1024px) {
   .rapports__chart {
@@ -61,5 +184,9 @@
 
   .rapports__actions > * {
     flex: 1 1 100%;
+  }
+
+  .rapports__chart {
+    padding: var(--lb-gap-sm);
   }
 }

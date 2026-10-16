@@ -8,7 +8,6 @@ import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { CommandesService } from '../../../core/services/commandes.service';
-import { FideliteService } from '../../../core/services/fidelite.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -19,7 +18,6 @@ import { FideliteService } from '../../../core/services/fidelite.service';
 })
 export class AdminDashboardComponent {
   private readonly commandes = inject(CommandesService);
-  private readonly fidelite = inject(FideliteService);
 
   readonly stats = computed(() => ({
     commandesEnAttente: this.commandes.commandes().filter((c) => c.validationStatut === 'A_VALIDER').length,

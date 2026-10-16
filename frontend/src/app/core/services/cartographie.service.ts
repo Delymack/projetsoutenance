@@ -45,8 +45,7 @@ export class CartographieService {
           if (!terme) return true;
           return (
             cave.nom.toLocaleLowerCase('fr').includes(terme) ||
-            cave.ville.toLocaleLowerCase('fr').includes(terme) ||
-            cave.region.toLocaleLowerCase('fr').includes(terme)
+            cave.ville.toLocaleLowerCase('fr').includes(terme)
           );
         }),
       ),

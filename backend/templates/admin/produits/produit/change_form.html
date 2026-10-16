@@ -5,12 +5,15 @@
 {{ block.super }}
 <style>
   /* ------------------------------------------------------------------
-     Ajout d'un produit : les informations de vente, lues d'un coup d'œil.
-     Le sélecteur `:has(.pd-create-hero)` limite ces règles à la création,
-     la fiche complète garde sa mise en page à onglets habituelle.
+     Fiche produit — le thème réel du projet : onglets `#jazzy-tabs`,
+     lignes `.form-group.field-*`, barre d'actions `#jazzy-actions`.
+     Les sélecteurs visent ce DOM : le template admin vanilla
+     (`fieldset.module` / `.form-row`) n'existe pas ici. Le bandeau
+     `.pd-create-hero` coiffe la création ET la modification : la même
+     mise en page habille les deux, seule la fiche complète garde ses
+     onglets (plusieurs sections).
      ------------------------------------------------------------------ */
-  .model-produit.change-form:has(.pd-create-hero) #content { max-width: 1080px; margin: 0 auto; }
-  .model-produit.change-form:has(.pd-create-hero) #content-main { max-width: 760px; margin: 0 auto; }
+  .model-produit.change-form:has(.pd-create-hero) #content { margin: 0 auto; max-width: 1140px; }
 
   /* Bandeau d'en-tête : dégradé grenat, liseré or, ombre portée douce. */
   .model-produit .pd-create-hero {
@@ -25,9 +28,9 @@
     display: flex;
     gap: 1rem;
     margin: 0 0 1rem;
+    overflow: hidden;
     padding: 1.25rem 1.4rem;
     position: relative;
-    overflow: hidden;
   }
   /* Filet or sur le bord supérieur : rappelle la couleur d'accent de la charte. */
   .model-produit .pd-create-hero::before {
@@ -71,23 +74,34 @@
     white-space: nowrap;
   }
 
-  /* Un seul onglet pour un seul bloc : on le masque, il n'a rien à cacher. */
-  .model-produit.change-form:has(.pd-create-hero) #jazzy-tabs { display: none; }
+  /* Un seul onglet pour un seul bloc : on le masque, il n'a rien à cacher.
+     La fiche complète (plusieurs sections) garde ses onglets. */
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-tabs:has(> li:only-child) { display: none; }
 
-  /* Champ en carte : le libellé au-dessus, l'invite de saisie en dessous.
-     Deux colonnes : le nom, la famille et la description occupent toute la
-     largeur, les champs courts se placent deux par deux. */
-  .model-produit.change-form:has(.pd-create-hero) fieldset.module {
+  /* ------------------------------------------------------------------
+     Grille de la création : chaque champ devient une carte sur deux
+     colonnes — libellé au-dessus, saisie en dessous. Nom, famille, photo,
+     lien de la photo et description passent en pleine largeur.
+     ------------------------------------------------------------------ */
+  .model-produit.change-form:has(.pd-create-hero) .tab-content > .tab-pane > .card {
     background: transparent;
     border: 0;
-    display: grid;
-    gap: .8rem;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding: 0;
+    box-shadow: none;
   }
-  .model-produit.change-form:has(.pd-create-hero) fieldset.module > h2 { grid-column: 1 / -1; }
-  .model-produit.change-form:has(.pd-create-hero) fieldset.module > .form-row {
-    align-content: start;
+  .model-produit.change-form:has(.pd-create-hero) .tab-content .card-body {
+    display: grid;
+    gap: .85rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 1rem !important;
+  }
+  .model-produit.change-form:has(.pd-create-hero) .form-group.field-nom,
+  .model-produit.change-form:has(.pd-create-hero) .form-group.field-type_vin,
+  .model-produit.change-form:has(.pd-create-hero) .form-group.field-image,
+  .model-produit.change-form:has(.pd-create-hero) .form-group.field-image_url,
+  .model-produit.change-form:has(.pd-create-hero) .form-group.field-description {
+    grid-column: 1 / -1;
+  }
+  .model-produit.change-form:has(.pd-create-hero) .tab-content .form-group {
     background: var(--lb-surface);
     border: 1px solid var(--lb-line);
     border-radius: var(--lb-radius);
@@ -98,35 +112,31 @@
     transition: border-color .18s ease, box-shadow .18s ease;
   }
   /* La carte prend la lumière quand on écrit dedans : on sait où l'on est. */
-  .model-produit.change-form:has(.pd-create-hero) fieldset.module > .form-row:focus-within {
+  .model-produit.change-form:has(.pd-create-hero) .tab-content .form-group:focus-within {
     border-color: var(--lb-gold);
     box-shadow: var(--lb-shadow), 0 0 0 3px rgba(201, 155, 59, .18);
   }
-  .model-produit.change-form:has(.pd-create-hero) .form-row.field-nom,
-  .model-produit.change-form:has(.pd-create-hero) .form-row.field-type_vin,
-  .model-produit.change-form:has(.pd-create-hero) .form-row.field-description { grid-column: 1 / -1; }
-  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row > .row { display: block; }
-  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row label {
+  /* Bootstrap aligne libellé et champ côte à côte : on remet la colonne. */
+  .model-produit.change-form:has(.pd-create-hero) .tab-content .form-group .row { display: block; }
+  .model-produit.change-form:has(.pd-create-hero) .tab-content .form-group .row > * {
+    float: none;
+    padding: 0;
+    width: 100%;
+  }
+  .model-produit.change-form:has(.pd-create-hero) .tab-content .form-group label {
     color: var(--lb-wine);
     display: block;
     float: none;
     font-size: .72rem;
     font-weight: 800;
     letter-spacing: .06em;
-    margin-bottom: .4rem;
+    margin: 0 0 .4rem;
     text-transform: uppercase;
     width: auto;
   }
-  /* La colonne Bootstrap du contenu est neutralisée : le champ occupe la carte
-     entière, sinon il resterait aligné à droite avec un vide à gauche. */
-  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row > .row > div {
-    float: none;
-    padding: 0;
-    width: 100%;
-  }
-  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row input:not([type="checkbox"]):not([type="radio"]),
-  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row select,
-  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row textarea {
+  .model-produit.change-form:has(.pd-create-hero) .tab-content .form-group input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+  .model-produit.change-form:has(.pd-create-hero) .tab-content .form-group select,
+  .model-produit.change-form:has(.pd-create-hero) .tab-content .form-group textarea {
     border: 1px solid var(--lb-line);
     border-radius: 10px;
     box-sizing: border-box;
@@ -138,26 +148,25 @@
     transition: border-color .18s ease, box-shadow .18s ease;
     width: 100%;
   }
-  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row textarea { min-height: 92px; resize: vertical; }
-  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row input:focus,
-  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row select:focus,
-  .model-produit.change-form:has(.pd-create-hero) fieldset.module .form-row textarea:focus {
+  .model-produit.change-form:has(.pd-create-hero) .tab-content .form-group textarea {
+    min-height: 92px;
+    resize: vertical;
+  }
+  .model-produit.change-form:has(.pd-create-hero) .tab-content .form-group input:focus,
+  .model-produit.change-form:has(.pd-create-hero) .tab-content .form-group select:focus,
+  .model-produit.change-form:has(.pd-create-hero) .tab-content .form-group textarea:focus {
     border-color: var(--lb-gold);
     box-shadow: 0 0 0 3px rgba(201, 155, 59, .22);
     outline: none;
   }
-  .model-produit.change-form:has(.pd-create-hero) .form-row.field-prix_vente input {
+  .model-produit.change-form:has(.pd-create-hero) .form-group.field-prix_vente input {
     font-size: 1.1rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
   }
 
-  /* ------------------------------------------------------------------
-     Sélecteur de famille : une liste déroulante, fermée sur les six familles
-     du domaine. Un menu tient sur une ligne et ne se déroule qu'à la demande,
-     là où six cartes occupaient tout l'écran pour un seul choix.
-     ------------------------------------------------------------------ */
-  .model-produit.change-form:has(.pd-create-hero) .form-row.field-type_vin select {
+  /* Sélecteur de famille : flèche dessinée, menu fermé sur six familles. */
+  .model-produit.change-form:has(.pd-create-hero) .form-group.field-type_vin select {
     appearance: none;
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23641b2c' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M3 6l5 5 5-5'/%3E%3C/svg%3E");
     background-position: right .85rem center;
@@ -167,36 +176,26 @@
     font-weight: 600;
     padding-right: 2.4rem;
   }
-  .model-produit.change-form:has(.pd-create-hero) .form-row.field-type_vin select:hover {
+  .model-produit.change-form:has(.pd-create-hero) .form-group.field-type_vin select:hover {
     border-color: var(--lb-gold-200);
   }
 
   /* ------------------------------------------------------------------
-     Boutons de la création : ils remontent au-dessus du formulaire, la
-     saisie tient sur un écran, il n'y a plus de raison de les laisser dans
-     une colonne latérale sur un écran large.
+     Barre d'actions : commune à la création et à la fiche. « Enregistrer »
+     porte le grenat, les suites possibles restent en retrait.
      ------------------------------------------------------------------ */
-  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions {
-    margin-top: .4rem;
-    position: static;
-  }
-  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions .card {
+  .model-produit.change-form #jazzy-actions .card {
     border: 1px solid var(--lb-line);
     border-radius: var(--lb-radius-lg);
     box-shadow: var(--lb-shadow-sm);
   }
-  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions .card-body { padding: .7rem .85rem; }
-  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions .submit-row {
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-    gap: .55rem;
-    justify-content: flex-end;
+  .model-produit.change-form #jazzy-actions .card-body { padding: .7rem .85rem; }
+  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions {
+    margin-top: .4rem;
+    position: static;
   }
-  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions .submit-row div { display: contents; }
-  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions input[type="submit"],
-  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions button[type="submit"],
-  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions .btn {
+  .model-produit.change-form #jazzy-actions .btn,
+  .model-produit.change-form #jazzy-actions input[type="submit"] {
     align-items: center;
     border-radius: 10px;
     display: inline-flex;
@@ -205,222 +204,369 @@
     gap: .45rem;
     justify-content: center;
     letter-spacing: .01em;
-    min-height: 48px;
-    min-width: 140px;
-    padding: .7rem 1.2rem;
+    min-height: 40px;
+    min-width: 0;
+    padding: .6rem .9rem;
     transition: background .16s ease, border-color .16s ease, box-shadow .16s ease, transform .12s ease;
   }
   /* Enregistrer : le seul bouton qui lance une action, il porte le grenat. */
-  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions [name="_save"] {
+  .model-produit.change-form #jazzy-actions [name="_save"] {
     background: linear-gradient(115deg, var(--lb-wine) 0%, var(--lb-wine-600) 100%);
     border: 1px solid var(--lb-wine);
     box-shadow: 0 6px 16px rgba(100, 27, 44, .24);
     color: #fff;
   }
-  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions [name="_save"]:hover {
+  .model-produit.change-form #jazzy-actions [name="_save"]:hover {
     background: var(--lb-wine-800);
     border-color: var(--lb-wine-800);
     box-shadow: 0 9px 22px rgba(100, 27, 44, .3);
+    color: #fff;
     transform: translateY(-1px);
   }
-  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions [name="_save"]:active { transform: translateY(0); }
-  /* Enregistrer et continuer : même action, suite immédiate. */
-  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions [name="_addanother"] {
+  .model-produit.change-form #jazzy-actions [name="_save"]:active { transform: translateY(0); }
+  /* Enregistrer et ajouter un nouveau : suite immédiate, en or. */
+  .model-produit.change-form #jazzy-actions [name="_addanother"] {
     background: var(--lb-gold-100);
     border: 1px solid var(--lb-gold-200);
     color: var(--lb-gold-600);
   }
-  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions [name="_addanother"]:hover {
+  .model-produit.change-form #jazzy-actions [name="_addanother"]:hover {
     background: #f7ecd4;
     border-color: var(--lb-gold);
+    color: var(--lb-gold-600);
+    transform: translateY(-1px);
   }
-  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions [name="_saveasnew"] {
+  /* Enregistrer et continuer / enregistrer en tant que : secondaires. */
+  .model-produit.change-form #jazzy-actions [name="_continue"],
+  .model-produit.change-form #jazzy-actions [name="_saveasnew"] {
     background: var(--lb-surface);
     border: 1px solid var(--lb-line);
     color: var(--lb-ink-700);
   }
-  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions [name="_saveasnew"]:hover {
+  .model-produit.change-form #jazzy-actions [name="_continue"]:hover,
+  .model-produit.change-form #jazzy-actions [name="_saveasnew"]:hover {
     background: var(--lb-canvas);
     border-color: var(--lb-ink-300);
     color: var(--lb-ink);
+    transform: translateY(-1px);
   }
-  .model-produit.change-form:has(.pd-create-hero) #jazzy-actions button:focus-visible {
+  .model-produit.change-form #jazzy-actions button:focus-visible {
     box-shadow: 0 0 0 3px rgba(201, 155, 59, .45);
     outline: none;
   }
-
   /* ------------------------------------------------------------------
-     Aperçu de la photo : inséré par le script à côté des champs image.
-     Il occupe toute la largeur de la grille et montre, avant l'enregistrement,
-     le fichier choisi ou l'image de l'URL collée.
+     Sélection de la photo : le champ fichier reste dans le formulaire —
+     la classe `pd-file-hidden` le masque une fois la zone montée, et le
+     rendu natif (« Currently: … », case « Clear ») est mis de côté. La
+     zone ci-dessous le pilote : clic pour choisir, glisser-déposer,
+     aperçu, boutons Remplacer / Retirer. Ajout ET modification.
      ------------------------------------------------------------------ */
-  .model-produit.change-form:has(.pd-create-hero) .pd-image-preview {
-    grid-column: 1 / -1;
-  }
-  .model-produit.change-form:has(.pd-create-hero) .pd-image-preview__box {
+  .model-produit.change-form .pd-file-hidden { display: none; }
+  .model-produit.change-form .pd-native-cache { display: none; }
+  .model-produit.change-form .pd-image-preview { margin: .5rem 0 0; }
+  .model-produit.change-form .pd-image-preview__box {
     align-items: center;
     background: var(--lb-canvas-2);
-    border: 1px dashed var(--lb-ink-300);
-    border-radius: 10px;
+    border: 2px dashed var(--lb-ink-300);
+    border-radius: 12px;
+    cursor: pointer;
     display: flex;
+    flex-direction: column;
+    gap: .55rem;
     justify-content: center;
-    min-height: 150px;
-    overflow: hidden;
-    padding: .6rem;
+    min-height: 160px;
+    outline: none;
+    padding: 1rem;
+    text-align: center;
+    transition: background .16s ease, border-color .16s ease, box-shadow .16s ease;
+    width: 100%;
   }
-  .model-produit.change-form:has(.pd-create-hero) .pd-image-preview__box img {
-    border-radius: 6px;
-    max-height: 220px;
+  .model-produit.change-form .pd-image-preview__box:hover,
+  .model-produit.change-form .pd-image-preview__box:focus-visible,
+  .model-produit.change-form .pd-image-preview__box.is-dragover {
+    background: rgba(201, 155, 59, .08);
+    border-color: var(--lb-gold);
+    box-shadow: 0 0 0 3px rgba(201, 155, 59, .18);
+  }
+  .model-produit.change-form .pd-image-preview__vide {
+    color: var(--lb-ink-500);
+    font-size: .84rem;
+  }
+  .model-produit.change-form .pd-image-preview__vide i {
+    color: var(--lb-gold-600);
+    display: block;
+    font-size: 1.7rem;
+    margin: 0 auto .4rem;
+  }
+  .model-produit.change-form .pd-image-preview__vide strong {
+    color: var(--lb-ink-700);
+    display: block;
+    font-size: .93rem;
+    margin-bottom: .15rem;
+  }
+  .model-produit.change-form .pd-image-preview__box img {
+    border-radius: 8px;
+    max-height: 230px;
     max-width: 100%;
     object-fit: contain;
   }
-  .model-produit.change-form:has(.pd-create-hero) .pd-image-preview__vide {
-    color: var(--lb-ink-500);
-    font-size: .86rem;
-    font-style: italic;
+  .model-produit.change-form .pd-image-preview__actions {
+    display: flex;
+    gap: .5rem;
+    justify-content: center;
   }
-
-  /* Le nom, le volume et le prix restent obligatoires, la photo et la
-     description non : l'astérisque garde donc son sens ici, on le laisse. */
+  .model-produit.change-form .pd-image-preview__actions button {
+    background: var(--lb-surface);
+    border: 1px solid var(--lb-line);
+    border-radius: 8px;
+    color: var(--lb-ink-700);
+    cursor: pointer;
+    font-size: .8rem;
+    font-weight: 700;
+    padding: .42rem .85rem;
+    transition: background .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .model-produit.change-form .pd-image-preview__actions .pd-btn-remplacer:hover {
+    background: var(--lb-gold-100);
+    border-color: var(--lb-gold-200);
+    color: var(--lb-gold-600);
+  }
+  .model-produit.change-form .pd-image-preview__actions .pd-btn-vider:hover {
+    background: #fdf1f3;
+    border-color: var(--lb-wine);
+    color: var(--lb-wine);
+  }
+  .model-produit.change-form .pd-image-preview__fichier {
+    color: var(--lb-ink-500);
+    font-size: .78rem;
+    margin: .4rem 0 0;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
 
   @media (max-width: 700px) {
     .model-produit .pd-create-hero { align-items: flex-start; padding: 1.05rem; }
     .model-produit .pd-create-pill { display: none; }
-    .model-produit.change-form:has(.pd-create-hero) fieldset.module { grid-template-columns: minmax(0, 1fr); }
-    .model-produit.change-form:has(.pd-create-hero) #jazzy-actions .submit-row { justify-content: stretch; }
-    .model-produit.change-form:has(.pd-create-hero) #jazzy-actions input[type="submit"],
-    .model-produit.change-form:has(.pd-create-hero) #jazzy-actions button[type="submit"] { flex: 1 1 0; min-width: 0; }
+    .model-produit.change-form:has(.pd-create-hero) .tab-content .card-body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .model-produit.change-form #jazzy-actions .btn { flex: 1 1 0; min-width: 0; }
   }
 </style>
 {% endblock %}
 
 {% block form_top %}
-{% if is_produit_add %}
-<section class="pd-create-hero" aria-labelledby="produit-create-title">
+<section class="pd-create-hero" aria-labelledby="produit-hero-title">
   <div class="pd-create-icon" aria-hidden="true"><i class="fas fa-wine-bottle"></i></div>
   <div>
-    <h1 id="produit-create-title">Nouveau produit</h1>
-    <p>L'essentiel pour vendre : le nom, la famille, le volume, le prix, la photo et la description. La catégorie, le cépage et le code-barres se complètent ensuite sur la fiche.</p>
+    <h1 id="produit-hero-title">
+      {% if original %}{{ original.nom }}{% else %}Nouveau produit{% endif %}
+    </h1>
+    <p>
+      {% if original %}
+        Modifiez la fiche complète : tarification, conditionnement, code-barres et attributs de cave.
+      {% else %}
+        L'essentiel pour vendre : le nom, la famille, le volume, le prix, la photo et la description. La catégorie, le cépage et le code-barres se complètent ensuite sur la fiche.
+      {% endif %}
+    </p>
   </div>
-  <span class="pd-create-pill">7 champs</span>
+  <span class="pd-create-pill">
+    {% if original %}{{ original.get_type_vin_display }}{% else %}7 champs{% endif %}
+  </span>
 </section>
-{% endif %}
 {{ block.super }}
 {% endblock %}
-
 {% block extrajs %}
 {{ block.super }}
-{% if is_produit_add %}
 <script>
   (function () {
     var racine = document.querySelector('.model-produit.change-form');
     if (!racine) { return; }
+    var champFichier = racine.querySelector('.form-group.field-image input[type="file"]');
+    if (!champFichier) { return; }
+    var champUrl = racine.querySelector('.form-group.field-image_url input[type="url"]');
+    // Le conteneur du champ (classe `field-image`), pas seulement son parent :
+    // selon le widget, l'input peut être enveloppé dans un bloc initial.
+    var conteneur = champFichier.closest('.field-image') || champFichier.parentElement;
 
-    // Le libellé des boutons de l'admin est nu : on lui remet une icône pour
-    // que l'action principale se lise sans lire le mot. Les `input` de Jazzmin
-    // sont remplacés par un `button` de même nom, seul moyen d'insérer un glyphe.
-    var icones = {
-      '_save': 'fa-check',
-      '_addanother': 'fa-forward',
-      '_saveasnew': 'fa-copy',
-      '_continue': 'fa-list'
-    };
-    racine.querySelectorAll('#jazzy-actions [name]').forEach(function (bouton) {
-      var cle = bouton.getAttribute('name');
-      var icone = icones[cle];
-      if (!icone || bouton.dataset.pdIcone) { return; }
-      var libelle = (bouton.value || bouton.textContent || '').trim();
-      if (!libelle) { return; }
-      bouton.dataset.pdIcone = '1';
-      if (!(bouton instanceof HTMLInputElement)) {
-        bouton.insertBefore(document.createTextNode(' '), bouton.firstChild);
-        bouton.insertBefore(
-          Object.assign(document.createElement('i'), { className: 'fas ' + icone }),
-          bouton.firstChild
-        );
-        return;
-      }
-      var remplacant = document.createElement('button');
-      remplacant.type = 'submit';
-      remplacant.name = cle;
-      remplacant.value = bouton.value;
-      remplacant.className = bouton.className;
-      remplacant.append(
-        Object.assign(document.createElement('i'), { className: 'fas ' + icone }),
-        document.createTextNode(' ' + libelle)
-      );
-      bouton.replaceWith(remplacant);
-    });
-  })();
-</script>
-<script>
-  (function () {
-    var racine = document.querySelector('.model-produit.change-form');
-    if (!racine) { return; }
-    var champFichier = racine.querySelector('.form-row.field-image input[type="file"]');
-    var champUrl = racine.querySelector('.form-row.field-image_url input[type="url"]');
-    if (!champFichier && !champUrl) { return; }
+    // Le champ reste dans le formulaire (caché) : c'est lui qui porte
+    // `name="image"`. Sans JavaScript, la classe n'est jamais posée et le
+    // champ fichier natif reste utilisable tel quel.
+    champFichier.classList.add('pd-file-hidden');
 
-    // Carte d'aperçu : un cadre vide tant qu'aucune image n'est fournie, une
-    // vignette dès qu'un fichier est choisi ou qu'une URL est collée.
+    // Le rendu natif (« Currently: photo.jpg », case « Clear ») sert de
+    // source à la zone : on le met de côté sans le retirer du formulaire.
+    // Les blocs d'erreur du champ restent visibles.
+    var blocNatatif = conteneur.querySelector('p.file-upload');
+    if (blocNatatif) {
+      blocNatatif.classList.add('pd-native-cache');
+    } else {
+      Array.prototype.slice.call(conteneur.childNodes).forEach(function (noeud) {
+        if (noeud.nodeType === 3) {
+          if (noeud.textContent.trim()) {
+            var cache = document.createElement('span');
+            cache.className = 'pd-native-cache';
+            noeud.parentNode.replaceChild(cache, noeud);
+          }
+        } else if (
+          noeud.nodeType === 1 && noeud !== champFichier &&
+          !noeud.classList.contains('help-block')
+        ) {
+          noeud.classList.add('pd-native-cache');
+        }
+      });
+    }
+    var lienInitial = conteneur.querySelector('a[href]');
+    var caseVider = conteneur.querySelector('input[name="image-clear"]');
+
+    // Zone de sélection : clic ou glisser-déposer, aperçu, deux actions.
     var carte = document.createElement('div');
-    carte.className = 'form-row pd-image-preview';
-    var libelle = document.createElement('label');
-    libelle.textContent = 'Aperçu de la photo';
+    carte.className = 'pd-image-preview';
     var boite = document.createElement('div');
     boite.className = 'pd-image-preview__box';
+    boite.tabIndex = 0;
+    boite.setAttribute('role', 'button');
+    boite.setAttribute('aria-label', 'Choisir la photo du produit');
     var vide = document.createElement('span');
     vide.className = 'pd-image-preview__vide';
-    vide.textContent = 'Aucune image sélectionnée';
+    vide.innerHTML =
+      '<i class="fas fa-cloud-arrow-up"></i>' +
+      '<strong>Cliquez pour choisir une image</strong>' +
+      '<span>ou déposez-la ici (JPG, PNG, WEBP)</span>';
     var vignette = document.createElement('img');
     vignette.alt = 'Aperçu de la photo du produit';
     vignette.hidden = true;
-    boite.append(vide, vignette);
-    carte.append(libelle, boite);
+    var actions = document.createElement('div');
+    actions.className = 'pd-image-preview__actions';
+    var remplacer = document.createElement('button');
+    remplacer.type = 'button';
+    remplacer.className = 'pd-btn-remplacer';
+    remplacer.innerHTML = '<i class="fas fa-rotate"></i> Remplacer';
+    var boutonRetirer = document.createElement('button');
+    boutonRetirer.type = 'button';
+    boutonRetirer.className = 'pd-btn-vider';
+    boutonRetirer.innerHTML = '<i class="fas fa-trash"></i> Retirer';
+    actions.append(remplacer, boutonRetirer);
+    var nomFichier = document.createElement('p');
+    nomFichier.className = 'pd-image-preview__fichier';
+    boite.append(vignette, vide, actions);
+    carte.append(boite, nomFichier);
+    if (blocNatatif && blocNatatif.contains(champFichier)) {
+      blocNatatif.after(carte);
+    } else {
+      champFichier.after(carte);
+    }
 
-    var ancre = racine.querySelector('.form-row.field-image_url')
-      || racine.querySelector('.form-row.field-image');
-    ancre.after(carte);
-
-    var afficher = function (source) {
+    var afficher = function (source, nom) {
       if (!source) {
         vignette.hidden = true;
         vignette.removeAttribute('src');
         vide.hidden = false;
+        actions.hidden = true;
+        nomFichier.textContent = '';
         return;
       }
       vignette.src = source;
       vignette.hidden = false;
       vide.hidden = true;
+      actions.hidden = false;
+      nomFichier.textContent = nom || '';
     };
 
+    // Une image morte (URL expirée, fichier illisible) retombe sur l'état
+    // vide plutôt que sur une icône cassée.
+    vignette.addEventListener('error', function () {
+      if (!vignette.hidden && vignette.src.indexOf('data:') !== 0) {
+        afficher('', '');
+      }
+    });
+
     var fichierChoisi = function () {
-      return !!(champFichier && champFichier.files && champFichier.files[0]);
+      return !!(champFichier.files && champFichier.files[0]);
+    };
+
+    // État de départ : la photo actuelle du produit, sinon rien.
+    var etatDepart = function () {
+      if (lienInitial && !(caseVider && caseVider.checked)) {
+        afficher(lienInitial.href, lienInitial.textContent.trim());
+        return;
+      }
+      afficher('', '');
     };
 
     var depuisFichier = function () {
-      if (!fichierChoisi()) { return; }
+      if (!fichierChoisi()) {
+        etatDepart();
+        return;
+      }
+      if (caseVider) { caseVider.checked = false; }
+      var fichier = champFichier.files[0];
       var lecteur = new FileReader();
-      lecteur.onload = function (evenement) { afficher(evenement.target.result); };
-      lecteur.readAsDataURL(champFichier.files[0]);
+      lecteur.onload = function (evenement) {
+        afficher(evenement.target.result, fichier.name);
+      };
+      lecteur.readAsDataURL(fichier);
     };
-
-    if (champFichier) {
-      champFichier.addEventListener('change', function () {
-        if (fichierChoisi()) { depuisFichier(); return; }
-        afficher(champUrl ? champUrl.value.trim() : '');
-      });
-    }
+    champFichier.addEventListener('change', depuisFichier);
+    // Colle d'URL (formulaire d'ajout) : l'aperçu suit la saisie, sauf si
+    // un fichier joint l'emporte déjà — la logique du serveur est la même.
     if (champUrl) {
       champUrl.addEventListener('input', function () {
         if (fichierChoisi()) { return; }
-        afficher(champUrl.value.trim());
+        afficher(champUrl.value.trim(), champUrl.value.trim());
       });
     }
 
-    var existante = racine.querySelector('.form-row.field-image a[href]');
-    if (existante) { afficher(existante.href); }
+    // La zone entière ouvre le sélecteur de fichiers.
+    boite.addEventListener('click', function () {
+      champFichier.click();
+    });
+    boite.addEventListener('keydown', function (evenement) {
+      if (evenement.key !== 'Enter' && evenement.key !== ' ') { return; }
+      evenement.preventDefault();
+      champFichier.click();
+    });
+
+    remplacer.addEventListener('click', function (evenement) {
+      evenement.stopPropagation();
+      champFichier.click();
+    });
+    // Retirer : vide la sélection ; sur une fiche existante, coche aussi la
+    // case « Clear » de Django pour supprimer la photo à l'enregistrement.
+    boutonRetirer.addEventListener('click', function (evenement) {
+      evenement.stopPropagation();
+      champFichier.value = '';
+      if (champUrl) { champUrl.value = ''; }
+      if (caseVider) { caseVider.checked = true; }
+      afficher('', '');
+    });
+
+    // Glisser-déposer : le fichier lâché devient celui du champ.
+    ['dragenter', 'dragover'].forEach(function (type) {
+      boite.addEventListener(type, function (evenement) {
+        evenement.preventDefault();
+        boite.classList.add('is-dragover');
+      });
+    });
+    boite.addEventListener('dragleave', function () {
+      boite.classList.remove('is-dragover');
+    });
+    boite.addEventListener('drop', function (evenement) {
+      evenement.preventDefault();
+      boite.classList.remove('is-dragover');
+      var fichiers = evenement.dataTransfer && evenement.dataTransfer.files;
+      if (!fichiers || !fichiers.length) { return; }
+      try {
+        champFichier.files = fichiers;
+      } catch (erreur) {
+        return; // navigateur qui refuse l'affectation : le clic reste possible
+      }
+      champFichier.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    etatDepart();
   })();
 </script>
-{% endif %}
 {% endblock %}
+
+

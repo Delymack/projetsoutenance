@@ -1,4 +1,6 @@
 # backend/config/urls.py
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import RedirectView
@@ -51,5 +53,12 @@ urlpatterns = [
     path('api/', include('apps.categories.urls')),
     path('api/', include('apps.clients.urls')),
     path('api/', include('apps.promotions.urls')),
+    path('api/', include('apps.stocks.urls')),
     path('api/', include('apps.clients.fidelite_urls')),
 ]
+
+# En développement, Django sert lui-même les photos téléversées
+# (`MEDIA_ROOT`) : sans cette route, l'image enregistrée sur un produit
+# répond 404 et n'apparaît ni en boutique ni dans l'aperçu de la fiche.
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,10 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 
+import { MatIconModule } from '@angular/material/icon';
+import { TranslateModule } from '@ngx-translate/core';
+
 import { NavbarComponent } from './layout/navbar/navbar.component';
+import { FooterComponent } from './layout/footer/footer.component';
 import { BandeauHorsLigneComponent } from './shared/components/bandeau-hors-ligne/bandeau-hors-ligne.component';
 import { ChatbotComponent } from './shared/components/chatbot/chatbot.component';
 import { ConnectivityService } from './core/services/connectivity.service';
@@ -24,7 +27,16 @@ import { PanierService } from './core/services/panier.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, BandeauHorsLigneComponent, ChatbotComponent, TranslateModule],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    MatIconModule,
+    NavbarComponent,
+    FooterComponent,
+    BandeauHorsLigneComponent,
+    ChatbotComponent,
+    TranslateModule,
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,7 +64,6 @@ export class AppComponent {
 
   readonly horsLigne = this.connectivite.horsLigne;
   readonly enAttente = this.sync.enAttente;
-  readonly annee = new Date().getFullYear();
 
   /** The customer display and any route flagged `sansChrome` hide the navbar and footer. */
   readonly chromeVisible = computed(() => !this.sansChrome());

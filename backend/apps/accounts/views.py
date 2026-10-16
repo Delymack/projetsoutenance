@@ -21,6 +21,13 @@ from .serializers import (
     SignupVerifySerializer,
     UserSerializer,
 )
+from .services import (
+    clear_totp_attempts,
+    record_totp_failed,
+    totp_locked,
+    unobfuscate_totp_secret,
+    verify_totp,
+)
 from .services.email_service import raison_echec_email, send_verification_email
 from .services.sms_service import send_verification_sms
 from .utils import generate_code
@@ -254,6 +261,25 @@ class LoginVerifyView(APIView):
 
         if not user.is_active:
             return Response({'error': 'Compte désactivé'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Le code OTP ne remplace pas le second facteur : un compte protégé par
+        # la 2FA doit fournir son code TOTP même en connexion par code.
+        if getattr(user, 'totp_enabled', False):
+            if totp_locked(user.username):
+                return Response({
+                    'error': 'Trop de tentatives de code de double authentification. Compte temporairement verrouillé.',
+                    'totp_required': True,
+                }, status=status.HTTP_400_BAD_REQUEST)
+            provided_totp = serializer.validated_data.get('totp', '')
+            if not provided_totp or not verify_totp(
+                unobfuscate_totp_secret(user.totp_secret or ''), provided_totp
+            ):
+                record_totp_failed(user.username)
+                return Response({
+                    'error': 'Code de double authentification invalide ou manquant.',
+                    'totp_required': True,
+                }, status=status.HTTP_400_BAD_REQUEST)
+            clear_totp_attempts(user.username)
 
         vc.set_used()
         refresh = RefreshToken.for_user(user)

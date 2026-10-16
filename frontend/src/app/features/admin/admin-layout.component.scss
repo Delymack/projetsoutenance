@@ -1,8 +1,17 @@
+/* ==========================================================================
+   Admin Layout — Panneau d'administration
+   Sidebar fixe · Header collant · Contenu principal
+   Utilise exclusivement le système de tokens --lb-* pour le thème clair/sombre.
+   ========================================================================== */
+
 .admin-layout {
   display: flex;
   min-height: 100vh;
-  background: var(--bg);
+  background: var(--lb-bg);
+  font-family: var(--lb-font-body);
 }
+
+/* ------------------------------------------------------------------ Sidebar */
 
 .admin-sidebar {
   position: fixed;
@@ -10,12 +19,16 @@
   left: 0;
   bottom: 0;
   width: 260px;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
+  background:
+    color-mix(in srgb, var(--lb-surface) 82%, transparent),
+    linear-gradient(180deg, var(--lb-primary) 0%, color-mix(in srgb, var(--lb-primary) 82%, transparent) 100%);
+  border-right: 1px solid var(--lb-border);
   display: flex;
   flex-direction: column;
   z-index: 1000;
-  transition: width 0.25s ease, transform 0.25s ease;
+  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 
   &.collapsed {
     width: 72px;
@@ -23,7 +36,7 @@
 
   &.mobile-open {
     transform: translateX(0);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--lb-shadow-3);
   }
 
   &__header {
@@ -31,24 +44,25 @@
     align-items: center;
     justify-content: space-between;
     height: 64px;
-    padding: 0 16px;
-    border-bottom: 1px solid var(--border);
-  }
+    padding: 0 clamp(12px, 3vw, 16px);
+    border-bottom: 1px solid var(--lb-border);
 
-  &__title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--primary);
-    white-space: nowrap;
-    overflow: hidden;
+    .admin-sidebar__title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--lb-text);
+      white-space: nowrap;
+      overflow: hidden;
 
-    mat-icon {
-      font-size: 28px;
-      width: 28px;
-      height: 28px;
+      mat-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+        color: var(--lb-accent);
+      }
     }
   }
 
@@ -58,9 +72,9 @@
     justify-content: center;
     width: 40px;
     height: 40px;
-    border-radius: var(--radius-md);
-    background: var(--primary-light);
-    color: var(--primary);
+    border-radius: var(--lb-radius-sm);
+    background: color-mix(in srgb, var(--lb-accent) 16%, transparent);
+    color: var(--lb-accent);
     cursor: default;
 
     mat-icon {
@@ -76,16 +90,16 @@
     justify-content: center;
     width: 32px;
     height: 32px;
-    border-radius: var(--radius-md);
-    color: var(--text-secondary);
+    border-radius: var(--lb-radius-sm);
+    color: var(--lb-text-muted);
     background: transparent;
-    border: none;
+    border: 0;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
+    transition: background-color var(--lb-transition), color var(--lb-transition);
 
     &:hover {
-      background: var(--hover);
-      color: var(--text);
+      background: var(--lb-bg-hover);
+      color: var(--lb-text);
     }
 
     mat-icon {
@@ -103,7 +117,7 @@
 
   &__footer {
     padding: 16px;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--lb-border);
   }
 
   &__user {
@@ -112,10 +126,11 @@
     gap: 12px;
     padding: 8px;
     margin-bottom: 12px;
-    border-radius: var(--radius-md);
+    border-radius: var(--lb-radius-sm);
+    transition: background-color var(--lb-transition);
 
     &:hover {
-      background: var(--hover);
+      background: var(--lb-bg-hover);
     }
   }
 
@@ -126,7 +141,7 @@
 
     strong {
       font-size: 0.875rem;
-      color: var(--text);
+      color: var(--lb-text);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -134,7 +149,7 @@
 
     small {
       font-size: 0.75rem;
-      color: var(--text-muted);
+      color: var(--lb-text-muted);
     }
   }
 
@@ -143,11 +158,16 @@
     justify-content: flex-start;
     gap: 12px;
     padding: 10px 12px;
-    color: var(--text-secondary);
+    color: var(--lb-text-muted);
+    border: 0;
 
     &:hover {
-      background: var(--error-light);
-      color: var(--error);
+      background: var(--lb-danger-light);
+      color: var(--lb-danger);
+    }
+
+    mat-icon {
+      color: inherit;
     }
   }
 
@@ -156,14 +176,16 @@
     height: 40px;
     margin: 0 auto;
     justify-content: center;
-    color: var(--text-secondary);
+    color: var(--lb-text-muted);
 
     &:hover {
-      background: var(--error-light);
-      color: var(--error);
+      background: var(--lb-danger-light);
+      color: var(--lb-danger);
     }
   }
 }
+
+/* ------------------------------------------------------------------ Menu */
 
 .admin-menu {
   list-style: none;
@@ -179,26 +201,26 @@
     align-items: center;
     gap: 12px;
     width: 100%;
-    padding: 10px 12px;
-    border-radius: var(--radius-md);
-    color: var(--text-secondary);
+    padding: 10px 14px;
+    border-radius: var(--lb-radius-sm);
+    color: var(--lb-text);
     text-decoration: none;
     font-size: 0.875rem;
     font-weight: 500;
-    transition: background 0.2s, color 0.2s;
     white-space: nowrap;
+    transition: all var(--lb-transition);
 
     &:hover {
-      background: var(--hover);
-      color: var(--text);
+      background: var(--lb-bg-hover);
+      color: var(--lb-primary);
     }
 
     &.active {
-      background: var(--primary-light);
-      color: var(--primary);
+      background: var(--lb-primary);
+      color: var(--lb-primary-contrast);
 
       .admin-menu__icon {
-        color: var(--primary);
+        color: var(--lb-primary-contrast);
       }
     }
   }
@@ -208,7 +230,7 @@
     width: 20px;
     height: 20px;
     flex-shrink: 0;
-    transition: color 0.2s;
+    transition: color var(--lb-transition);
   }
 
   &__label {
@@ -221,21 +243,21 @@
     font-size: 18px;
     width: 18px;
     height: 18px;
-    color: var(--text-muted);
-    transition: transform 0.2s;
+    color: var(--lb-text-muted);
+    transition: transform var(--lb-transition);
   }
 
   &__sous-menu {
     list-style: none;
     margin: 0;
     padding: 4px 0 4px 40px;
-    border-left: 2px solid var(--border);
+    border-left: 2px solid var(--lb-border);
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.25s ease;
+    transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
     .admin-menu__item:last-child .admin-menu__sous-lien {
-      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      border-radius: 0 0 var(--lb-radius-sm) var(--lb-radius-sm);
     }
   }
 
@@ -245,20 +267,20 @@
     gap: 10px;
     width: 100%;
     padding: 8px 12px;
-    border-radius: var(--radius-md);
-    color: var(--text-secondary);
+    border-radius: var(--lb-radius-sm);
+    color: var(--lb-text);
     text-decoration: none;
     font-size: 0.8125rem;
-    transition: background 0.2s, color 0.2s;
+    transition: all var(--lb-transition);
 
     &:hover {
-      background: var(--hover);
-      color: var(--text);
+      background: var(--lb-bg-hover);
+      color: var(--lb-primary);
     }
 
     &.active {
-      background: var(--primary-light);
-      color: var(--primary);
+      background: var(--lb-primary-light);
+      color: var(--lb-primary);
     }
   }
 
@@ -274,9 +296,11 @@
     justify-content: center;
     width: 36px;
     height: 36px;
-    border-radius: var(--radius-md);
+    border-radius: var(--lb-radius-sm);
   }
 }
+
+/* ------------------------------------------------------------------ Overlay */
 
 .admin-overlay {
   position: fixed;
@@ -284,20 +308,24 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--lb-overlay);
   z-index: 999;
 }
+
+/* ------------------------------------------------------------------ Main */
 
 .admin-main {
   flex: 1;
   margin-left: 260px;
   min-height: 100vh;
-  transition: margin-left 0.25s ease;
+  transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 
   &.sidebar-collapsed {
     margin-left: 72px;
   }
 }
+
+/* ------------------------------------------------------------------ Header */
 
 .admin-header {
   position: sticky;
@@ -307,35 +335,113 @@
   align-items: center;
   gap: 16px;
   height: 64px;
-  padding: 0 24px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-}
+  padding: 0 clamp(16px, 4vw, 24px);
+  background:
+    color-mix(in srgb, var(--lb-surface) 88%, transparent);
+  border-bottom: 1px solid var(--lb-border);
+  box-shadow: var(--lb-shadow-1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 
-.admin-header__menu-btn {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  background: transparent;
-  border: none;
-  cursor: pointer;
+  &__menu-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--lb-radius-sm);
+    color: var(--lb-text-muted);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    transition: background-color var(--lb-transition), color var(--lb-transition);
 
-  &:hover {
-    background: var(--hover);
-    color: var(--text);
+    &:hover {
+      background: var(--lb-bg-hover);
+      color: var(--lb-text);
+    }
+
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
   }
 
-  mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--lb-radius-sm);
+    color: var(--lb-text-muted);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    transition: background-color var(--lb-transition), color var(--lb-transition);
+
+    &:hover {
+      background: var(--lb-bg-hover);
+      color: var(--lb-text);
+    }
+
+    mat-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+  }
+
+  &__badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: var(--lb-accent);
+    color: var(--lb-accent-contrast);
+    font-size: 0.65rem;
+    font-weight: 600;
+    line-height: 18px;
+    text-align: center;
+  }
+
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 12px 4px 4px;
+    border-radius: var(--lb-radius-sm);
+    cursor: pointer;
+    transition: background-color var(--lb-transition);
+
+    &:hover {
+      background: var(--lb-bg-hover);
+    }
+  }
+
+  &__user-nom {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--lb-text);
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
+
+/* ------------------------------------------------------------------ Breadcrumb */
 
 .admin-breadcrumb {
   flex: 1;
@@ -361,17 +467,17 @@
 }
 
 .admin-breadcrumb__link {
-  color: var(--text-secondary);
+  color: var(--lb-text-muted);
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color var(--lb-transition);
 
   &:hover {
-    color: var(--primary);
+    color: var(--lb-primary);
   }
 }
 
 .admin-breadcrumb__current {
-  color: var(--text);
+  color: var(--lb-text);
   font-weight: 500;
 }
 
@@ -379,87 +485,18 @@
   font-size: 18px;
   width: 18px;
   height: 18px;
-  color: var(--text-muted);
+  color: var(--lb-text-muted);
 }
 
-.admin-header__actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.admin-header__btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-
-  &:hover {
-    background: var(--hover);
-    color: var(--text);
-  }
-
-  mat-icon {
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
-  }
-}
-
-.admin-header__badge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  border-radius: 8px;
-  background: var(--error);
-  color: white;
-  font-size: 0.625rem;
-  font-weight: 600;
-  line-height: 16px;
-  text-align: center;
-}
-
-.admin-header__user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 4px 12px 4px 4px;
-  border-radius: var(--radius-md);
-  background: var(--hover);
-  cursor: pointer;
-  transition: background 0.2s;
-
-  &:hover {
-    background: var(--hover-strong);
-  }
-}
-
-.admin-header__user-nom {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text);
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+/* ------------------------------------------------------------------ Content */
 
 .admin-content {
-  padding: 24px;
+  padding: clamp(20px, 4vw, 32px);
   max-width: 1400px;
   margin: 0 auto;
 }
+
+/* ------------------------------------------------------------------ Responsive */
 
 @media (max-width: 1024px) {
   .admin-sidebar {
@@ -495,9 +532,5 @@
 
   .admin-content {
     padding: 16px;
-  }
-
-  .admin-breadcrumb__label {
-    display: none;
   }
 }

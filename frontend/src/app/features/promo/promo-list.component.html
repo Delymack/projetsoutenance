@@ -1,6 +1,6 @@
 <main class="promos lb-container">
-  <header class="promos__header">
-    <span class="eyebrow">🍷 Lazan'i Betsileo</span>
+  <header class="promos__header lb-page-header">
+    <span class="lb-eyebrow">Lazan'i Betsileo</span>
     <h1>{{ 'PROMO.titre' | translate }}</h1>
     <p>{{ 'PROMO.sousTitre' | translate }}</p>
   </header>
@@ -42,34 +42,39 @@
             {{ 'PROMO.bienfin' | translate: { date: fin(promo) | date: 'dd/MM/yyyy' } }}
           </p>
 
-          <p class="promo__vins-titre">{{ 'PROMO.vinsConcernes' | translate }}</p>
-          <ul class="promo__vins">
-            @for (vin of promo.vins; track vin.id) {
-              <li class="promo__vin">
-                <a class="promo__vin-image" [routerLink]="['/vin', vin.id]">
-                  <img [src]="vin.image" [alt]="vin.nom" loading="lazy" />
-                </a>
-                <div class="promo__vin-infos">
-                  <a class="promo__vin-nom" [routerLink]="['/vin', vin.id]">{{ vin.nom }}</a>
-                  <span class="promo__vin-prix">
-                    @if (promo.remisePct !== null && (vin.prixBarre ?? vin.prix) > prixPromo(vin, promo)) {
-                      <s>{{ (vin.prixBarre ?? vin.prix) | number: '1.0-0' }} Ar</s>
-                    }
-                    <strong>{{ prixPromo(vin, promo) | number: '1.0-0' }} Ar</strong>
-                  </span>
-                </div>
-                <button
-                  mat-icon-button
-                  type="button"
-                  [disabled]="vin.stock <= 0"
-                  [attr.aria-label]="'VIN.ajouterPanier' | translate"
-                  (click)="ajouterAuPanier(vin, promo)"
-                >
-                  <mat-icon>{{ vinAjoute() === vin.id ? 'check' : 'add_shopping_cart' }}</mat-icon>
-                </button>
-              </li>
-            }
-          </ul>
+          @if (promo.vins.length > 0) {
+            <p class="promo__vins-titre">{{ 'PROMO.vinsConcernes' | translate }}</p>
+            <ul class="promo__vins">
+              @for (vin of promo.vins; track vin.id) {
+                <li class="promo__vin">
+                  <a class="promo__vin-image" [routerLink]="['/vin', vin.id]">
+                    <img [src]="vin.image" [alt]="vin.nom" loading="lazy" />
+                  </a>
+                  <div class="promo__vin-infos">
+                    <a class="promo__vin-nom" [routerLink]="['/vin', vin.id]">{{ vin.nom }}</a>
+                    <span class="promo__vin-prix">
+                      @if (promo.remisePct !== null && (vin.prixBarre ?? vin.prix) > prixPromo(vin, promo)) {
+                        <s>{{ (vin.prixBarre ?? vin.prix) | number: '1.0-0' }} Ar</s>
+                      }
+                      <strong>{{ prixPromo(vin, promo) | number: '1.0-0' }} Ar</strong>
+                    </span>
+                  </div>
+                  <button
+                    mat-icon-button
+                    type="button"
+                    [disabled]="vin.stock <= 0"
+                    [attr.aria-label]="'VIN.ajouterPanier' | translate"
+                    (click)="ajouterAuPanier(vin, promo)"
+                  >
+                    <mat-icon>{{ vinAjoute() === vin.id ? 'check' : 'add_shopping_cart' }}</mat-icon>
+                  </button>
+                </li>
+              }
+            </ul>
+          } @else {
+            <!-- État vide : promotion créée sans vins rattachés -->
+            <p class="promo__vins-vide">{{ 'PROMO.aucunVin' | translate }}</p>
+          }
 
         </article>
       }

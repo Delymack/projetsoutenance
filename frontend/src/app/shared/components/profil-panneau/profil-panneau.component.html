@@ -8,19 +8,6 @@
   <!-- ------------------------------------------------------ Carte de membre -->
   <header class="compte__carte">
     <div class="compte__avatar">
-      <!-- Anneau d'avancement : le tour complet vaut le palier suivant. -->
-      <svg class="compte__anneau" viewBox="0 0 64 64" aria-hidden="true">
-        <circle class="compte__anneau-fond" cx="32" cy="32" [attr.r]="rayon" />
-        <circle
-          class="compte__anneau-jauge"
-          cx="32"
-          cy="32"
-          [attr.r]="rayon"
-          [attr.stroke-dasharray]="circonference"
-          [attr.stroke-dashoffset]="tiret()"
-        />
-      </svg>
-
       <app-avatar [nom]="nom()" [photo]="photo()" [taille]="56" />
 
       <button
@@ -47,43 +34,9 @@
       @if (contact()) {
         <small class="compte__contact">{{ contact() }}</small>
       }
-      <div class="compte__etiquettes">
-        <span class="compte__etiquette">
-          <mat-icon>verified_user</mat-icon>
-          {{ 'AUTH.role.' + role() | translate }}
-        </span>
-        <span class="compte__etiquette compte__etiquette--palier">
-          <mat-icon>{{ palier().icone }}</mat-icon>
-          {{ palier().cle }}
-        </span>
-      </div>
+      <div class="compte__etiquettes"><span class="compte__etiquette"><mat-icon>verified_user</mat-icon>{{ 'AUTH.role.' + role() | translate }}</span></div>
     </div>
 
-    <div class="compte__fidelite">
-      <p class="compte__points">
-        <strong>{{ points() | number }}</strong>
-        <small>{{ 'PROFIL.points' | translate }}</small>
-      </p>
-      <div
-        class="compte__jauge"
-        role="progressbar"
-        [attr.aria-valuenow]="progression()"
-        aria-valuemin="0"
-        aria-valuemax="100"
-      >
-        <span [style.width.%]="progression()"></span>
-      </div>
-      @if (palierSuivant(); as suivant) {
-        <small class="compte__suivant">
-          {{
-            'COMPTE.versPalier'
-              | translate: { points: (pointsRestants() | number), palier: suivant.cle }
-          }}
-        </small>
-      } @else {
-        <small class="compte__suivant">{{ 'COMPTE.auSommet' | translate }}</small>
-      }
-    </div>
   </header>
 
   @if (retourPhoto(); as retour) {

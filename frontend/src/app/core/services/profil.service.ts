@@ -1,6 +1,5 @@
 import { Injectable, Signal, computed, inject, signal } from '@angular/core';
 
-import { FideliteService } from './fidelite.service';
 
 /** clés */
 const CLE_TELEPHONE = 'lb.profil.telephone';
@@ -36,14 +35,6 @@ const PREFERENCES_DEFAUT: PreferencesProfil = {
   newsletter: false,
 };
 
-/** paliers */
-const PALIERS: readonly { seuil: number; palier: string }[] = [
-  { seuil: 500, palier: 'Bronze' },
-  { seuil: 1500, palier: 'Argent' },
-  { seuil: 3000, palier: 'Or' },
-  { seuil: 6000, palier: 'Platine' },
-];
-
 /** barème */
 const COMPLETUDE_COORDONNEES = 40;
 const COMPLETUDE_ADRESSE = 20;
@@ -75,9 +66,6 @@ function booleen(valeur: unknown, defaut: boolean): boolean {
 /** carnet d'adresses */
 @Injectable({ providedIn: 'root' })
 export class ProfilService {
- /** fidélité */
-  private readonly points = inject(FideliteService);
-
  /** état */
   private readonly telephoneSig = signal<string>(this.lireTexte(CLE_TELEPHONE));
   private readonly villeSig = signal<string>(this.lireTexte(CLE_VILLE));
@@ -128,16 +116,6 @@ export class ProfilService {
 
     return Math.round(score);
   });
-
- /** échéance */
-  readonly prochaineEcheance: Signal<{ pointsManquants: number; palier: string } | null> = computed(
-    () => {
-      const points = Math.max(this.points.points(), 0);
-      const suivant = PALIERS.find((palier) => palier.seuil > points);
-      if (!suivant) return null;
-      return { pointsManquants: suivant.seuil - points, palier: suivant.palier };
-    },
-  );
 
  /** téléphone */
   majTelephone(valeur: string): void {

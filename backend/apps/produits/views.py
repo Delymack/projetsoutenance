@@ -159,6 +159,26 @@ class ProduitViewSet(viewsets.ModelViewSet):
         updated = Produit.objects.filter(id__in=ids).update(statut=statut)
         return Response({'updated': updated, 'statut': statut})
 
+    @action(detail=True, methods=['post'], url_path='modifier')
+    def modifier(self, request, pk=None):
+        produit = self.get_object()
+        serializer = ProduitSerializer(data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        produit.nom = serializer.validated_data.get('nom', produit.nom)
+        produit.description = serializer.validated_data.get('description', produit.description)
+        produit.type_vin = serializer.validated_data.get('type_vin', produit.type_vin)
+        produit.unite_vente = serializer.validated_data.get('unite_vente', produit.unite_vente)
+        produit.contenance = serializer.validated_data.get('contenance', produit.contenance)
+        produit.prix_conditionnement = serializer.validated_data.get('prix_conditionnement', produit.prix_conditionnement)
+        produit.prix_vente = serializer.validated_data.get('prix_vente', produit.prix_vente)
+        produit.cout_revenir = serializer.validated_data.get('cout_revenir', produit.cout_revenir)
+        produit.code_barre = serializer.validated_data.get('code_barre', produit.code_barre)
+        produit.statut = serializer.validated_data.get('statut', produit.statut)
+        produit.categorie = serializer.validated_data.get('categorie', produit.categorie)
+        produit.save()
+        return Response(ProduitSerializer(produit).data, status=status.HTTP_200_OK)
+
     @action(detail=False, methods=['get'], url_path='par-type')
     def par_type(self, request):
         """Liste des types de vin avec compteur."""

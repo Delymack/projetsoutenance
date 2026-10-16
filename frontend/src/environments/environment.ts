@@ -10,7 +10,7 @@ export const environment = {
   // hors ligne), au prix d'un catalogue figé dans `core/data/mock-vins.ts`.
   useMock: false,
   /** URL de base de l'API Django. */
-  apiUrl: 'http://127.0.0.1:8002/api',
+  apiUrl: 'http://127.0.0.1:8000/api',
   /** Nom affiché dans le bandeau de développement. */
   nomApp: 'Lazan\'i Betsileo',
 };

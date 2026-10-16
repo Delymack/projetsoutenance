@@ -4,16 +4,7 @@
 
 .promos__header {
   margin-bottom: var(--lb-gap-lg);
-  text-align: center;
-
-  h1 {
-    margin: 0.35rem 0;
-  }
-
-  p {
-    margin: 0;
-    color: var(--lb-text-muted);
-  }
+  text-align: left;
 }
 
 /* ---------- Promotions ---------- */
@@ -88,6 +79,18 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/* État vide : promotion sans vins rattachés */
+.promo__vins-vide {
+  margin: var(--lb-gap) 0 0;
+  padding: 0.85rem var(--lb-gap-sm);
+  border: 1px dashed var(--lb-border);
+  border-radius: var(--lb-radius);
+  color: var(--lb-text-muted);
+  font-size: 0.82rem;
+  font-style: italic;
+  text-align: center;
 }
 
 .promo__vin {

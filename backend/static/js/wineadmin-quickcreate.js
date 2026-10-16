@@ -161,29 +161,70 @@
         if (formulaire && ligneChamps && panneauActions) {
             const colonneChamps = ligneChamps.querySelector('.col-lg-9');
             const colonneActions = panneauActions.closest('.col-12');
-            const ligneActions = panneauActions.querySelector('.submit-row, .card-body > .d-flex.flex-wrap');
+            const ligneActions = panneauActions.querySelector(
+                '.wa-form-actions, .submit-row, .card-body > .d-flex.flex-wrap'
+            );
 
             colonneChamps?.classList.add('wine-quick-create-fields');
             if (ligneActions) {
                 ligneActions.classList.add('submit-row');
                 ligneActions.classList.add('wine-quick-create-actions');
                 ligneChamps.after(ligneActions);
+                panneauActions.querySelectorAll('.object-tools, .object-tools *').forEach((outil) => outil.remove());
+                colonneActions?.remove();
+            } else {
+                throw new Error('La barre d’actions du formulaire est introuvable.');
             }
-            panneauActions.querySelectorAll('.object-tools, .object-tools *').forEach((outil) => outil.remove());
-            colonneActions?.remove();
+        }
+
+        if (editMode && activeUrl &&
+            /^\/admin\/ventes\/reservation\/\d+\/change\/$/.test(activeUrl.pathname)) {
+            if (!formulaire) {
+                throw new Error('Le formulaire de modification de la commande est introuvable.');
+            }
+            const champsRapides = new Set([
+                'client',
+                'lignes_resume',
+                'mode_reception',
+                'adresse_livraison',
+                'date_expiration',
+                'note',
+            ]);
+            const groupes = Array.from(
+                formulaire.querySelectorAll('.form-group[class*="field-"]')
+            );
+
+            if (!groupes.length) {
+                throw new Error('Les champs de la commande sont introuvables.');
+            }
+
+            groupes.forEach((groupe) => {
+                const champ = Array.from(groupe.classList)
+                    .find((classe) => classe.startsWith('field-'))
+                    ?.slice('field-'.length);
+                groupe.hidden = !champsRapides.has(champ);
+            });
+            formulaire.querySelectorAll('.inline-group').forEach((groupe) => {
+                groupe.hidden = true;
+            });
+            formulaire.querySelectorAll('.tab-pane').forEach((panneau) => {
+                if (!panneau.querySelector('.form-group:not([hidden])')) {
+                    panneau.hidden = true;
+                }
+            });
         }
 
         content.querySelectorAll('.submit-row').forEach((ligne) => {
             const enregistrer = ligne.querySelector('button[name="_save"], input[name="_save"]');
             if (enregistrer) {
                 enregistrer.classList.add('wine-quick-create-save');
-                const label = editMode ? 'Modifier' : 'Enregistrer';
+                const label = editMode ? 'Valider' : 'Enregistrer';
                 if (enregistrer instanceof HTMLInputElement) {
                     enregistrer.value = label;
                 } else {
                     enregistrer.replaceChildren();
                     const icon = document.createElement('i');
-                    icon.className = editMode ? 'fas fa-pen' : 'fas fa-check';
+                    icon.className = editMode ? 'fas fa-check' : 'fas fa-save';
                     icon.setAttribute('aria-hidden', 'true');
                     enregistrer.append(icon, document.createTextNode(` ${label}`));
                 }
@@ -252,7 +293,7 @@
         mettreAJourActions();
 
         const premierChamp = content.querySelector(
-            '.change-form input:not([type="hidden"]):not([disabled]), .change-form select:not([disabled]), .change-form textarea:not([disabled]), #pos-root input:not([disabled])'
+            '.change-form .form-group:not([hidden]) input:not([type="hidden"]):not([disabled]), .change-form .form-group:not([hidden]) select:not([disabled]), .change-form .form-group:not([hidden]) textarea:not([disabled]), #pos-root input:not([disabled])'
         );
         if (premierChamp) premierChamp.focus({ preventScroll: true });
     }
@@ -289,6 +330,8 @@
         editMode = /^\/admin\/.+\/[^/]+\/change\/$/.test(url.pathname);
         rechargeDemandee = false;
         title.textContent = lien.dataset.quickCreateTitle || lien.textContent.trim() || 'Nouvelle fiche';
+        const iconeEntete = overlay.querySelector('.wine-quick-create-icon i');
+        if (iconeEntete) iconeEntete.className = editMode ? 'fas fa-pen' : 'fas fa-plus';
         dialog.classList.toggle('is-wide', widePage);
         overlay.setAttribute('aria-hidden', 'false');
         document.body.classList.add('wine-quick-create-open');

@@ -21,7 +21,6 @@ import { AuthService } from '../../../core/services/auth.service';
 import { AvatarService } from '../../../core/services/avatar.service';
 import { CommandesService } from '../../../core/services/commandes.service';
 import { FavorisService } from '../../../core/services/favoris.service';
-import { FideliteService } from '../../../core/services/fidelite.service';
 import { Langue, LangueService } from '../../../core/services/langue.service';
 import { MessageService } from '../../../core/services/message.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -30,9 +29,6 @@ import { ProfilService } from '../../../core/services/profil.service';
 import { SonService } from '../../../core/services/son.service';
 import { Theme, ThemeService } from '../../../core/services/theme.service';
 import { AvatarComponent } from '../avatar/avatar.component';
-
-/** Rayon de l'anneau de fidélité, dans le repère 64 × 64 du SVG. */
-const RAYON_ANNEAU = 28;
 
 /** Un raccourci du panneau : route, libellé, icône, compteur éventuel. */
 interface Raccourci {
@@ -90,7 +86,6 @@ interface Chiffre {
 export class ProfilPanneauComponent {
   private readonly auth = inject(AuthService);
   private readonly avatar = inject(AvatarService);
-  private readonly fidelite = inject(FideliteService);
   readonly commandes = inject(CommandesService);
   private readonly favoris = inject(FavorisService);
   private readonly panier = inject(PanierService);
@@ -113,19 +108,6 @@ export class ProfilPanneauComponent {
     () => this.utilisateur()?.email || this.utilisateur()?.telephone || '',
   );
   readonly role = computed(() => this.auth.role() ?? 'client');
-
-  // --- Fidélité ---
-  readonly points = this.fidelite.points;
-  readonly palier = this.fidelite.niveau;
-  readonly palierSuivant = this.fidelite.niveauSuivant;
-  readonly pointsRestants = this.fidelite.pointsRestants;
-  readonly progression = computed(() =>
-    Math.max(0, Math.min(100, this.fidelite.progression())),
-  );
-  /** Rayon et circonférence de l'anneau : servent au tracé du cercle. */
-  readonly rayon = RAYON_ANNEAU;
-  readonly circonference = 2 * Math.PI * RAYON_ANNEAU;
-  readonly tiret = computed(() => this.circonference * (1 - this.progression() / 100));
 
   // --- Activité ---
   readonly derniereCommande = computed<Commande | null>(
@@ -193,12 +175,6 @@ export class ProfilPanneauComponent {
       params: { section: 'adresses' },
       cle: 'PROFIL.adresses',
       icone: 'local_shipping',
-    },
-    {
-      chemin: '/profil',
-      params: { section: 'fidelite' },
-      cle: 'PROFIL.fidelite',
-      icone: 'workspace_premium',
     },
   ];
 

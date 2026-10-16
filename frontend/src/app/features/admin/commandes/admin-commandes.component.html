@@ -27,7 +27,7 @@
   <!-- Vue Kanban -->
   <section class="admin-commandes__kanban" aria-label="Pipeline de validation des commandes">
     @for (statut of statuts; track statut) {
-      <div class="kanban-colonne">
+      <div class="kanban-colonne" [attr.data-statut]="statut.toLowerCase()">
         <header class="kanban-colonne__header">
           <h2 class="kanban-colonne__titre">
             {{ 'ADMIN.statut.' + statut | translate }}

@@ -1,48 +1,59 @@
-{% load i18n admin_urls jazzmin %}
-{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+{% load i18n admin_urls %}
 
 {% block submit-row %}
 {% if is_promotion_add %}
-<div class="d-flex flex-wrap gap-2 align-items-center pr-create-actions">
-    <button type="submit" class="btn btn-sm {{ jazzmin_ui.button_classes.success }}" name="_save" value="1">
+<div class="wa-form-actions pr-create-actions" role="group" aria-label="{% trans 'Form actions' %}">
+    <button type="submit" class="btn wa-action wa-action--primary" name="_save" value="1">
         <i class="fas fa-check mr-1" aria-hidden="true"></i> Enregistrer
     </button>
-    <a href="{% url 'admin:promotions_promotion_changelist' %}" class="btn btn-sm {{ jazzmin_ui.button_classes.secondary }}">
+    <a href="{% url 'admin:promotions_promotion_changelist' %}" class="btn wa-action wa-action--secondary">
         <i class="fas fa-times mr-1" aria-hidden="true"></i> Annuler
     </a>
 </div>
 {% else %}
-<div class="d-flex flex-wrap gap-2 align-items-center">
+<div class="wa-form-actions" role="group" aria-label="{% trans 'Form actions' %}">
     {% if show_save %}
-        <button type="submit" class="btn btn-sm {{ jazzmin_ui.button_classes.success }}" name="_save">
-            <i class="fas fa-save mr-1"></i> {% trans 'Save' %}
+        <button type="submit" class="btn wa-action wa-action--primary" name="_save">
+            <i class="fas fa-check mr-1" aria-hidden="true"></i> {% trans 'Save' %}
         </button>
     {% endif %}
-    {% if show_save_as_new %}
-        <button type="submit" class="btn btn-sm {{ jazzmin_ui.button_classes.info }}" name="_saveasnew">
-            <i class="fas fa-clone mr-1"></i> {% trans 'Save as new' %}
-        </button>
+
+    {% if show_save_as_new or show_save_and_add_another or show_save_and_continue or show_close %}
+        <details class="wa-form-actions__more">
+            <summary class="btn wa-action wa-action--secondary">
+                <i class="fas fa-ellipsis" aria-hidden="true"></i>
+                <span>{% trans 'More actions' %}</span>
+            </summary>
+            <div class="wa-form-actions__menu">
+                {% if show_save_and_continue %}
+                    <button type="submit" class="btn wa-action wa-action--secondary" name="_continue">
+                        <i class="fas fa-pen-to-square mr-1" aria-hidden="true"></i>
+                        {% if can_change %}{% trans 'Save and continue editing' %}{% else %}{% trans 'Save and view' %}{% endif %}
+                    </button>
+                {% endif %}
+                {% if show_save_and_add_another %}
+                    <button type="submit" class="btn wa-action wa-action--secondary" name="_addanother">
+                        <i class="fas fa-plus mr-1" aria-hidden="true"></i> {% trans 'Save and add another' %}
+                    </button>
+                {% endif %}
+                {% if show_save_as_new %}
+                    <button type="submit" class="btn wa-action wa-action--secondary" name="_saveasnew">
+                        <i class="fas fa-clone mr-1" aria-hidden="true"></i> {% trans 'Save as new' %}
+                    </button>
+                {% endif %}
+                {% if show_close %}
+                    <a href="{% url opts|admin_urlname:'changelist' %}" class="btn wa-action wa-action--secondary">
+                        <i class="fas fa-arrow-left mr-1" aria-hidden="true"></i> {% trans 'Close' %}
+                    </a>
+                {% endif %}
+            </div>
+        </details>
     {% endif %}
-    {% if show_save_and_add_another %}
-        <button type="submit" class="btn btn-sm {{ jazzmin_ui.button_classes.info }}" name="_addanother">
-            <i class="fas fa-plus-circle mr-1"></i> {% trans 'Save and add another' %}
-        </button>
-    {% endif %}
-    {% if show_save_and_continue %}
-        <button type="submit" class="btn btn-sm {{ jazzmin_ui.button_classes.info }}" name="_continue">
-            <i class="fas fa-pencil-alt mr-1"></i>
-            {% if can_change %}{% trans 'Save and continue editing' %}{% else %}{% trans 'Save and view' %}{% endif %}
-        </button>
-    {% endif %}
-    {% if show_close %}
-        <a href="{% url opts|admin_urlname:'changelist' %}" class="btn btn-sm {{ jazzmin_ui.button_classes.secondary }}">
-            <i class="fas fa-arrow-left mr-1"></i> {% trans 'Close' %}
-        </a>
-    {% endif %}
+
     {% if show_delete_link and original %}
         {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
-        <a href="{% add_preserved_filters delete_url %}" class="btn btn-sm {{ jazzmin_ui.button_classes.danger }}">
-            <i class="fas fa-trash-alt mr-1"></i> {% trans "Delete" %}
+        <a href="{% add_preserved_filters delete_url %}" class="btn wa-action wa-action--danger databtn-delete" data-confirm-name="{{ original|escape }}">
+            <i class="fas fa-trash-can mr-1" aria-hidden="true"></i> {% trans "Delete" %}
         </a>
     {% endif %}
 

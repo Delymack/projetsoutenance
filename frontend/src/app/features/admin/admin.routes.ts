@@ -45,12 +45,6 @@ export const ADMIN_ROUTES: Routes = [
           import('./catalogue/admin-catalogue.component').then((m) => m.AdminCatalogueComponent),
       },
       {
-        path: 'fidelite',
-        title: 'Fidélité',
-        loadComponent: () =>
-          import('./fidelite/admin-fidelite.component').then((m) => m.AdminFideliteComponent),
-      },
-      {
         path: 'rapports',
         title: 'Rapports',
         loadComponent: () =>
