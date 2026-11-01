@@ -460,7 +460,7 @@ html[data-bs-theme="dark"] #jazzy-navbar .wine-notification-actions button {
 
 html[data-bs-theme="dark"] #jazzy-navbar .wine-notifications-error {
     background: #3a2026;
-    color: #e7d2d7;
+    color: #ffc9cb;
 }
 
 /* Réponse guidée depuis la cloche de notifications. */
