@@ -37,50 +37,50 @@ CATEGORIES = [
     ("Liqueurs & Apéritifs", "Liqueurs et apéritifs de cépages, service frais."),
 ]
 
-# (nom, type_vin, categorie, millésime, cépage, appellation, marque, prix_vente,
+# (nom, type_vin, categorie, cépage, appellation, marque, prix_vente,
 #  stock, seuil_alerte, degré, description)
 PRODUITS = [
-    ("Tsiky dia Loatra", "Rouge", "Rouges", 2021, "Syrah", "Fianarantsoa",
+    ("Tsiky dia Loatra", "Rouge", "Rouges", "Syrah", "Fianarantsoa",
      "Domaine Tsiky", 55000, 42, 10, 13.5,
      "Rouge profond des hautes terres betsileo, syrah vieillie en fût de chêne "
      "local. Tanins soyeux, finale longue et poivrée."),
-    ("Gris de Betsileo", "Blanche", "Blancs", 2022, "Viognier", "Fianarantsoa",
+    ("Gris de Betsileo", "Blanche", "Blancs", "Viognier", "Fianarantsoa",
      "Domaine Tsiky", 38000, 65, 10, 12.5,
      "Blanc sec et minéral, nez d'agrumes confits et de fleurs blanches. "
      "Idéal sur les entrées et les poissons de rivière."),
-    ("Rosé d'Ihosy", "Rose", "Rosés", 2023, "Cabernet Sauvignon", "Ihosy",
+    ("Rosé d'Ihosy", "Rose", "Rosés", "Cabernet Sauvignon", "Ihosy",
      "Cave d'Ihosy", 35000, 30, 10, 12.0,
      "Rosé de pressée directe, fruits rouges frais et bouche vive. "
      "Le vin des après-midi chauds."),
-    ("Pétillant de Tsarasaotra", "Blanche", "Mousseux", 2022, "Colombard",
+    ("Pétillant de Tsarasaotra", "Blanche", "Mousseux", "Colombard",
      "Tsarasaotra", "Maison Tsarasaotra", 80000, 18, 6, 11.5,
      "Pétillant méthode traditionnelle, bulle fine et finale sèche. "
      "Pour les grandes occasions."),
-    ("Malbec Ambatondrazaka", "Rouge", "Rouges", 2020, "Malbec", "Ambatondrazaka",
+    ("Malbec Ambatondrazaka", "Rouge", "Rouges", "Malbec", "Ambatondrazaka",
      "Domaine Ambatondrazaka", 58000, 55, 10, 14.0,
      "Malbec charpenté des hautes terres, fruits noirs et réglisse. "
      "Compagnon des viandes grillées."),
-    ("Vermentino Antsirabe", "Blanche", "Blancs", 2022, "Vermentino", "Antsirabe",
+    ("Vermentino Antsirabe", "Blanche", "Blancs", "Vermentino", "Antsirabe",
      "Domaine Vert", 42000, 38, 10, 13.0,
      "Blanc de montagne, floral et salin, élevé sur lies fines."),
-    ("Cuvée des Rogations", "Rose", "Rosés", 2023, "Merlot", "Fianarantsoa",
+    ("Cuvée des Rogations", "Rose", "Rosés", "Merlot", "Fianarantsoa",
      "Domaine Tsiky", 39000, 26, 10, 11.0,
      "Rosé doux et fruité, notes de pêche et de grenadine."),
-    ("Pinot Noir Androy", "Rouge", "Rouges", 2019, "Pinot Noir", "Androy",
+    ("Pinot Noir Androy", "Rouge", "Rouges", "Pinot Noir", "Androy",
      "Domaine Androy", 75000, 4, 6, 13.5,
      "Cuvée prestige, pinot noir délicat et parfumé, élevage long. "
      "Stock limité."),
-    ("Liqueur de Moussafely", "Liqueur", "Liqueurs & Apéritifs", 2020, "Assemblage",
+    ("Liqueur de Moussafely", "Liqueur", "Liqueurs & Apéritifs", "Assemblage",
      "Moussafely", "Maison Moussafely", 52000, 0, 5, 20.0,
      "Liqueur de cépages, notes de miel et d'orange amère. "
      "À servir très frais."),
-    ("Sauvignon Blanc Vakio", "Blanche", "Blancs", 2023, "Sauvignon Blanc",
+    ("Sauvignon Blanc Vakio", "Blanche", "Blancs", "Sauvignon Blanc",
      "Vakio", "Domaine Vakio", 33000, 72, 12, 12.0,
      "Blanc vif et aromatique, buis et pamplemousse."),
-    ("Cabernet Fianarantsoa", "Rouge", "Rouges", 2020, "Cabernet Sauvignon",
+    ("Cabernet Fianarantsoa", "Rouge", "Rouges", "Cabernet Sauvignon",
      "Fianarantsoa", "Domaine Tsiky", 60000, 48, 10, 13.5,
      "Cuvée charpentée, tanins fermes et longue garde."),
-    ("Vendange d'Or", "Blanche", "Mousseux", 2021, "Chardonnay", "Tsarasaotra",
+    ("Vendange d'Or", "Blanche", "Mousseux", "Chardonnay", "Tsarasaotra",
      "Maison Tsarasaotra", 92000, 8, 4, 12.5,
      "Mousseux de prestige, chardonnay vinifié en blanc de blancs."),
 ]
@@ -109,7 +109,7 @@ def run_seed_catalogue():
     print(f"Produits ({len(PRODUITS)})…")
     produits = {}
     for (
-        nom, type_vin, categorie, millesime, cepage, appellation, marque,
+        nom, type_vin, categorie, cepage, appellation, marque,
         prix_vente, stock, seuil, degre, description,
     ) in PRODUITS:
         prix = Decimal(prix_vente)
@@ -118,7 +118,6 @@ def run_seed_catalogue():
             description=description,
             type_vin=type_vin,
             marque=marque,
-            millesime=millesime,
             volume="75 cl",
             appellation=appellation,
             cepage=cepage,

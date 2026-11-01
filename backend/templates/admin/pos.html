@@ -1,6 +1,13 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static lb_tags %}
 
+{% block bodyclass %}{{ block.super }} wine-pos-page{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/wineadmin-pos.css' %}?v=7">
+{% endblock %}
+
 {% block content_title %}{% endblock %}
 {% block content %}
 <style>
@@ -46,6 +53,53 @@
   .pos .pos-status-pill.bad { background:#f6ecee; border-color:#e7d2d7; color:#8c1f33; }
   .pos .pos-status-pill.bad i { color:var(--red); }
   .pos .pos-status-pill button { background:currentColor; border:0; border-radius:7px; color:#fff; cursor:pointer; font-size:.71rem; font-weight:800; padding:.2rem .5rem; }
+  .pos .reservation-banner { align-items:center; background:linear-gradient(110deg,#fff8e9,#fff); border:1px solid #e8d8ae; border-radius:13px; color:#60451d; display:flex; gap:.7rem; margin:0 0 .65rem; padding:.7rem .85rem; }
+  .pos .reservation-banner[hidden] { display:none; }
+  .pos .reservation-banner > i { align-items:center; background:#f4e7c7; border-radius:10px; color:#8a641c; display:flex; flex:0 0 38px; height:38px; justify-content:center; }
+  .pos .reservation-banner strong { display:block; font-size:.82rem; }
+  .pos .reservation-banner span { color:#78664a; display:block; font-size:.73rem; margin-top:.12rem; }
+  .pos .reservation-queue { background:linear-gradient(145deg,#fff,#fbf7f1); border:1px solid #e8ded3; border-radius:15px; box-shadow:0 8px 22px rgba(43,27,32,.055); margin:.1rem 0 .9rem; overflow:hidden; }
+  .pos .reservation-queue-head { align-items:center; background:radial-gradient(ellipse at 92% -50%,rgba(230,189,106,.28),transparent 52%),linear-gradient(105deg,#32131f,#642537 72%,#44202b); color:#fff; display:flex; justify-content:space-between; padding:.72rem .9rem; }
+  .pos .reservation-queue-heading { align-items:center; display:flex; gap:.6rem; }
+  .pos .reservation-queue-icon { align-items:center; background:rgba(255,255,255,.1); border:1px solid rgba(230,189,106,.34); border-radius:10px; color:#f1d18a; display:flex; flex:0 0 34px; height:34px; justify-content:center; }
+  .pos .reservation-queue-head strong { color:#fff; display:block; font-size:.84rem; }
+  .pos .reservation-queue-head small { color:rgba(255,255,255,.7); display:block; font-size:.67rem; margin-top:.12rem; }
+  .pos .reservation-queue-count { align-items:center; background:#e7c477; border:1px solid rgba(255,255,255,.35); border-radius:999px; color:#382614; display:inline-flex; font-size:.73rem; font-weight:900; justify-content:center; min-width:28px; padding:.25rem .5rem; }
+  .pos .reservation-queue-list { display:grid; gap:.65rem; grid-template-columns:repeat(auto-fit,minmax(min(100%,285px),1fr)); max-height:300px; overflow:auto; padding:.75rem; }
+  .pos .reservation-queue-empty { align-items:center; background:#fff; border:1px dashed #ded1c3; border-radius:11px; color:#786c66; display:flex; font-size:.77rem; gap:.45rem; margin:0; padding:.8rem; }
+  .pos .reservation-card { background:#fff; border:1px solid #e9e1d9; border-left:3px solid #b8944d; border-radius:12px; box-shadow:0 3px 10px rgba(43,27,32,.035); padding:.68rem .72rem; transition:border-color .15s,box-shadow .15s,transform .15s; }
+  .pos .reservation-card[data-source="SITE"] { border-left-color:#6689ad; }
+  .pos .reservation-card:hover { border-color:#cdbb9e; box-shadow:0 8px 18px rgba(43,27,32,.09); transform:translateY(-1px); }
+  .pos .reservation-card-top { align-items:center; display:flex; gap:.5rem; justify-content:space-between; }
+  .pos .reservation-ref { color:#5f1729; font-size:.69rem; font-weight:900; letter-spacing:.035em; }
+  .pos .reservation-card-title { color:#302529; font-size:.82rem; font-weight:850; margin-top:.32rem; overflow-wrap:anywhere; }
+  .pos .reservation-card-meta { color:#786c70; font-size:.7rem; line-height:1.45; margin-top:.14rem; }
+  .pos .reservation-origin { border-radius:999px; flex:0 0 auto; font-size:.61rem; font-weight:900; letter-spacing:.035em; padding:.23rem .5rem; }
+  .pos .reservation-origin.site { background:#eaf1f8; color:#385d82; }
+  .pos .reservation-origin.interne { background:#f6efdf; color:#75591e; }
+  .pos .reservation-state { border-radius:999px; display:inline-flex; font-size:.62rem; font-weight:850; margin-top:.38rem; padding:.2rem .48rem; }
+  .pos .reservation-state.pending { background:#fff2d6; color:#785510; }
+  .pos .reservation-state.deposit { background:#eaf5ee; color:#28623c; }
+  .pos .reservation-state.validated { background:#e8f1f8; color:#355b7e; }
+  .pos .reservation-balance { align-items:baseline; border-top:1px solid #f0ebe6; display:flex; justify-content:space-between; margin-top:.55rem; padding-top:.45rem; }
+  .pos .reservation-balance span { color:#796d68; font-size:.67rem; font-weight:700; }
+  .pos .reservation-balance strong { color:#5d1729; font-size:.9rem; font-variant-numeric:tabular-nums; font-weight:900; }
+  .pos .reservation-card-actions { display:flex; gap:.4rem; margin-top:.6rem; }
+  .pos .reservation-card-actions button { align-items:center; border:1px solid transparent; border-radius:8px; cursor:pointer; display:inline-flex; flex:1; font-size:.7rem; font-weight:850; gap:.3rem; justify-content:center; min-height:36px; padding:.3rem .5rem; transition:filter .15s,transform .15s; }
+  .pos .reservation-card-actions button:hover:not(:disabled) { filter:brightness(.97); transform:translateY(-1px); }
+  .pos .reservation-card-actions .reserve-cash { background:linear-gradient(100deg,#23613d,#2f8050); box-shadow:0 3px 8px rgba(35,97,61,.16); color:#fff; }
+  .pos .reservation-card-actions .reserve-validate { background:linear-gradient(100deg,#f3e5bf,#f8efd9); border-color:#e8d4a0; color:#694a13; }
+  .pos .reservation-card-actions .reserve-cancel { background:#fff; border-color:#ead9dc; color:#8c3545; flex:0 0 auto; }
+  .pos .reservation-card-actions button:disabled { cursor:not-allowed; opacity:.5; }
+  @media(max-width:575px) {
+    .pos .reservation-queue-list { grid-template-columns:minmax(0,1fr); max-height:250px; padding:.55rem; }
+    .pos .reservation-queue-head { padding:.65rem .7rem; }
+  }
+  .pos .cart.reservation-cart .cart-actions { display:none; }
+  .pos .cart.reservation-cart .cart-item .remove,
+  .pos .cart.reservation-cart .cart-item .quantity,
+  .pos .cart.reservation-cart .cart-line-actions,
+  .pos .cart.reservation-cart .cart-more { display:none; }
   /* ---------- Toolbar catalogue ---------- */
   .pos .catalogue { background:linear-gradient(180deg,#fff,var(--cream)); border:1px solid var(--line); border-radius:16px; box-shadow:0 8px 26px rgba(43,27,32,.06); padding:.85rem; }
   .pos .toolbar-row { align-items:center; display:flex; flex-wrap:wrap; gap:.4rem; }
@@ -255,8 +309,8 @@
   /* ---------- Surcouche reçu ---------- */
   .overlay { align-items:center; background:rgba(16,8,11,.66); backdrop-filter:blur(4px); display:none; inset:0; justify-content:center; padding:1rem; position:fixed; z-index:2500; }
   .overlay.open { animation:pos-fade .18s ease; display:flex; }
-  .overlay .receipt { background:#fff; border-radius:18px; box-shadow:0 30px 80px rgba(0,0,0,.5); max-height:94vh; max-width:520px; overflow:auto; width:100%; }
-  .overlay .ok-banner { align-items:center; background:linear-gradient(120deg,#17733e,#1d8a4c); border-radius:18px 18px 0 0; color:#fff; display:flex; gap:.65rem; padding:.9rem 1.1rem; }
+  .overlay .receipt { background:#fff; border:1px solid rgba(201,155,59,.35); border-radius:20px; box-shadow:0 30px 90px rgba(0,0,0,.48); max-height:94vh; max-width:540px; overflow:auto; width:100%; }
+  .overlay .ok-banner { align-items:center; background:radial-gradient(ellipse at 90% 0,rgba(230,189,106,.22),transparent 45%),linear-gradient(120deg,#173e2a,#1d8a4c); border-radius:20px 20px 0 0; color:#fff; display:flex; gap:.75rem; padding:1rem 1.15rem; }
   .overlay .ok-banner .big { font-size:1.6rem; }
   .overlay .ok-banner h3 { font-size:1rem; font-weight:800; margin:0; }
   .overlay .ok-banner p { color:rgba(255,255,255,.85); font-size:.79rem; margin:.12rem 0 0; }
@@ -271,6 +325,7 @@
   .overlay .rec-actions .wide { grid-column:1 / -1; }
   .overlay .rec-actions a, .overlay .rec-actions button { align-items:center; background:var(--wine); border:0; border-radius:10px; color:#fff; cursor:pointer; display:inline-flex; font-size:.81rem; font-weight:800; gap:.35rem; justify-content:center; min-height:var(--cible); padding:0 .65rem; text-decoration:none; }
   .overlay .rec-actions .alt { background:#fff; border:1px solid var(--line); color:#5f4e52; }
+  .overlay .rec-actions #receipt-facture { background:linear-gradient(100deg,#641b2c,#8b3046); box-shadow:0 7px 18px rgba(100,27,44,.22); grid-column:1 / -1; min-height:48px; }
   .overlay .rec-actions .wa { background:#1da851; }
   .overlay .rec-actions .wa:disabled { background:#cfe3d4; color:#6b8b74; cursor:not-allowed; }
 
@@ -357,15 +412,20 @@
   {% include "admin/includes/onglets_caisse.html" %}
   <!-- ================= EN-TÊTE 56 px ================= -->
   <header class="pos-head">
-    <h1><i class="fas fa-cash-register"></i> Nouvelle vente</h1>
+    <div class="pos-hero-copy">
+      <span class="pos-hero-kicker"><i class="fas fa-cash-register"></i> Caisse</span>
+      <h1>Vente rapide et sécurisée</h1>
+      <p>Service de qualité pour une expérience unique</p>
+    </div>
+    <div class="pos-hero-quote" aria-hidden="true">
+      <span>Le vin rassemble les gens</span>
+      <small>Profitez de chaque instant</small>
+    </div>
     <div class="head-stats">
       <span class="cashier-chip" id="cashier-chip"><i class="fas fa-user-tie"></i> <span id="cashier-name">{{ request.user.get_full_name|default:request.user.username }}</span></span>
-      <span class="hstat gold" id="hstat-savings" style="display:none"><i class="fas fa-tag"></i><span id="hstat-savings-txt">-0,00</span></span>
-      <span class="hstat"><i class="fas fa-bolt"></i><span id="hstat-promos">0 promo</span></span>
     </div>
     <div class="head-right">
       <span class="clock" id="pos-clock">--:--:--</span>
-      <button class="mini-btn" id="layout-toggle" type="button" title="Basculer DENSE / PHOTO"><i class="fas fa-table-cells"></i></button>
       <button class="mini-btn" id="sound-toggle" type="button" title="Activer / couper le bip"><i class="fas fa-volume-mute"></i></button>
       <button class="mini-btn" id="fullscreen-toggle" type="button" title="Plein écran (F11)"><i class="fas fa-expand"></i></button>
     </div>
@@ -387,6 +447,10 @@
   <div class="pos-status-strip">
     <span class="pos-status-pill" id="pill-session"><i class="fas fa-circle"></i> <span>Session…</span></span>
   </div>
+  <div class="reservation-banner" id="reservation-banner" hidden role="status">
+    <i class="fas fa-box-open" aria-hidden="true"></i>
+    <div><strong id="reservation-title">Commande à encaisser</strong><span id="reservation-detail"></span></div>
+  </div>
 
   <div class="row">
     <!-- ================= CATALOGUE ================= -->
@@ -394,20 +458,33 @@
       <div class="catalogue">
         <div class="catalogue-intro">
           <div>
-            <span class="catalogue-kicker">Point de vente</span>
-            <h2><i class="fas fa-wine-bottle" aria-hidden="true"></i>Catalogue des produits</h2>
+            <span class="catalogue-kicker">Sélection du comptoir</span>
+            <h2><i class="fas fa-wine-bottle" aria-hidden="true"></i>Produits disponibles</h2>
           </div>
-          <p>Choisissez une référence ou scannez son code-barres.</p>
+          <p>Choisissez un produit pour l’ajouter au panier.</p>
         </div>
+        <section class="reservation-queue" aria-labelledby="reservation-queue-title">
+          <div class="reservation-queue-head">
+            <div class="reservation-queue-heading">
+              <span class="reservation-queue-icon"><i class="fas fa-clipboard-list" aria-hidden="true"></i></span>
+              <span><strong id="reservation-queue-title">Commandes à traiter</strong><small>Commandes manuelles et commandes du site</small></span>
+            </div>
+            <span class="reservation-queue-count" id="reservation-queue-count">0</span>
+          </div>
+          <div class="reservation-queue-list" id="reservation-queue" aria-live="polite">
+            <p class="reservation-queue-empty"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Chargement des commandes…</p>
+          </div>
+        </section>
+        <div class="category-list" id="category-list" aria-label="Filtrer par catégorie"></div>
         <div class="toolbar-row">
           <div class="search-wrap">
             <i class="fas fa-barcode"></i>
-            <input id="search-input" class="form-control" type="search" autocomplete="off" placeholder="Scanner ou rechercher : nom, marque, millésime…" aria-label="Scanner ou rechercher un produit">
+            <input id="search-input" class="form-control" type="search" autocomplete="off" placeholder="Scanner ou rechercher : nom, marque…" aria-label="Scanner ou rechercher un produit">
             <button class="search-clear" id="search-clear" type="button" title="Effacer (Échap)"><i class="fas fa-times-circle"></i></button>
           </div>
           <button class="tool-toggle" id="promo-only" type="button"><i class="fas fa-tag"></i> En promo</button>
+          <button class="tool-toggle" id="layout-toggle" type="button" title="Basculer DENSE / PHOTO"><i class="fas fa-table-cells"></i><span class="sr-only">Basculer l’affichage</span></button>
         </div>
-        <div class="category-list" id="category-list" aria-label="Filtrer par catégorie"></div>
         <div class="product-count" id="product-count">Chargement du catalogue…</div>
         <div class="product-list" id="product-list" aria-live="polite"></div>
       </div>
@@ -415,23 +492,45 @@
 
     <!-- ================= PANIER ================= -->
     <aside class="col-lg-4 mb-3">
-      <section class="cart">
+      <section class="cart" id="cart-panel">
         <header class="cart-head">
-          <h2><span class="items-badge" id="items-count">0</span>Panier</h2>
+          <h2><i class="fas fa-shopping-cart" aria-hidden="true"></i> Panier de vente <span class="items-badge" id="items-count">0</span></h2>
           <span class="cart-actions">
-            <button id="cancel-sale" class="danger" type="button" title="Annuler la vente (F9)"><i class="fas fa-trash"></i></button>
+            <button id="cancel-sale" class="danger" type="button" title="Vider le panier (F9)"><i class="fas fa-trash"></i><span>Vider</span></button>
           </span>
         </header>
         <div class="cart-body">
           <div id="notice" class="notice" role="alert"></div>
 
-          <div class="client-label-row">
-            <label for="client-select">Client</label>
-          </div>
-          <div class="client-row">
-            <select id="client-select" class="form-control"><option value="">Client de passage</option></select>
-            <button class="add-client" id="express-client" type="button" title="Créer un client rapidement" aria-label="Créer un client rapidement"><i class="fas fa-user-plus"></i></button>
-          </div>
+          <section class="client-selection" aria-labelledby="client-select-label">
+            <div class="client-label-row">
+              <label id="client-select-label" for="client-select">
+                <i class="fas fa-user" aria-hidden="true"></i> Client de la vente
+              </label>
+              <span class="client-optional">Facultatif</span>
+            </div>
+            <div class="client-row">
+              <div class="client-select-wrap">
+                <i class="fas fa-users client-select-icon" aria-hidden="true"></i>
+                <select id="client-select" class="form-control" aria-describedby="client-selection-help">
+                  <option value="">Client de passage</option>
+                </select>
+                <i class="fas fa-chevron-down client-select-chevron" aria-hidden="true"></i>
+              </div>
+              <button class="add-client" id="express-client" type="button" title="Créer un client rapidement" aria-label="Créer un client rapidement">
+                <i class="fas fa-user-plus" aria-hidden="true"></i>
+              </button>
+            </div>
+            <p class="client-selection-help" id="client-selection-help">Associez une fiche pour appliquer fidélité et crédit.</p>
+            <div class="selected-client-card" id="selected-client-card" role="status" aria-live="polite">
+              <span class="selected-client-avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
+              <span class="selected-client-details">
+                <strong id="selected-client-name">Client de passage</strong>
+                <small id="selected-client-contact">Aucune fiche client associée</small>
+              </span>
+              <span class="selected-client-badge" id="selected-client-badge">Passage</span>
+            </div>
+          </section>
           {# Saisie libre du nom quand aucune fiche client n'est sélectionnée. #}
           <div class="client-row" id="client-libelle-row" style="display:none;margin-top:.35rem">
             <input type="text" id="client-libelle" class="form-control" placeholder="Nom du client (facultatif)" maxlength="150" autocomplete="off">
@@ -441,10 +540,13 @@
             <div class="empty"><i class="fas fa-shopping-basket d-block mb-2" style="font-size:1.4rem"></i>Votre panier est vide.</div>
           </div>
 
-          <div class="tool-row">
-            <button id="open-remise" type="button" disabled><i class="fas fa-percent"></i> Remise</button>
-            <button id="open-retour" type="button" class="warn"><i class="fas fa-rotate-left"></i> Retour</button>
-          </div>
+          <details class="cart-more">
+            <summary><i class="fas fa-ellipsis" aria-hidden="true"></i> Plus d’actions</summary>
+            <div class="tool-row">
+              <button id="open-remise" type="button" disabled><i class="fas fa-percent"></i> Remise</button>
+              <button id="open-retour" type="button" class="warn"><i class="fas fa-rotate-left"></i> Retour</button>
+            </div>
+          </details>
 
           {# Plus de code promotionnel : les offres s'appliquent toutes seules. #}
           <div class="promo-code-row">
@@ -464,7 +566,6 @@
           <div class="savings-row" id="savings-row" style="display:none"><span><i class="fas fa-tag mr-1"></i>Économies</span><span id="savings-amount">- 0,00</span></div>
           <div class="total-row"><small>Total à encaisser</small><span class="total" id="cart-total">0,00</span></div>
           <button class="checkout" id="checkout-btn" type="button" disabled><i class="fas fa-lock mr-1"></i> Encaisser la vente</button>
-          <p class="secure"><b>F1</b> bip · <b>F2</b> scanner · <b>F4</b> payer · <b>F5</b> mixte · <b>F6</b> remise · <b>F7</b> retour · <b>F9</b> annuler · <b>F10</b> clôture</p>
         </div>
       </section>
     </aside>
@@ -665,8 +766,25 @@
       <div class="rec-actions">
         <button type="button" class="wa wide" id="receipt-wa" disabled><i class="fab fa-whatsapp mr-1"></i> Envoyer sur WhatsApp</button>
         <a class="alt" id="receipt-print" href="#"><i class="fas fa-print mr-1"></i> Ticket</a>
-        <a class="alt" id="receipt-facture" href="#"><i class="fas fa-file-invoice mr-1"></i> Facture</a>
+        <a id="receipt-facture" href="#"><i class="fas fa-file-invoice mr-1"></i> Ouvrir la facture</a>
         <button type="button" class="wide" id="receipt-next"><i class="fas fa-arrow-right mr-1"></i> Vente suivante (Entrée)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CONFIRMATION ACTION ================= -->
+<div class="pos-modal" id="pos-confirm-modal" role="alertdialog" aria-modal="true" aria-labelledby="pos-confirm-title" aria-describedby="pos-confirm-message">
+  <div class="pay-card confirm-card">
+    <header class="pay-head">
+      <h3 id="pos-confirm-title"><i class="fas fa-circle-question mr-2"></i><span id="pos-confirm-title-text">Confirmer l’action</span></h3>
+      <button class="pay-close" id="pos-confirm-close" type="button" aria-label="Fermer"><i class="fas fa-times"></i></button>
+    </header>
+    <div class="pay-body">
+      <p class="confirm-message" id="pos-confirm-message"></p>
+      <div class="confirm-actions">
+        <button class="secondary-pay" id="pos-confirm-cancel" type="button">Annuler</button>
+        <button class="confirm-action" id="pos-confirm-ok" type="button">Confirmer</button>
       </div>
     </div>
   </div>
@@ -674,5 +792,5 @@
 
 <div class="pos-toasts" id="pos-toasts" aria-live="polite"></div>
 
-<script src="{% static 'js/wineadmin-pos.js' %}" defer></script>
+<script src="{% static 'js/wineadmin-pos.js' %}?v=10" defer></script>
 {% endblock %}

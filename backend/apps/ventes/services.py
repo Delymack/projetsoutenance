@@ -1373,7 +1373,7 @@ class CaisseService:
             return _money(_brut_groupes(modes))
 
         top_produits = (
-            lignes.values('produit__nom', 'produit__millesime')
+            lignes.values('produit__nom')
             .annotate(nb=Sum(F('quantite') * F('contenance')), ca=Sum('sous_total'))
             .order_by('-nb')[:6]
         )

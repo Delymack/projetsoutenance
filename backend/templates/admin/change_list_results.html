@@ -12,15 +12,16 @@
 </div>
 {% endif %}
 
+<div class="list-print-actions d-flex justify-content-end mb-2">
+    <button type="button" class="lb-btn" data-admin-print-list aria-label="Imprimer la liste">
+        <i class="fas fa-print" aria-hidden="true"></i>
+        <span>Imprimer</span>
+    </button>
+</div>
+
 {% if results %}
     <div class="card">
         <div class="card-body table-responsive">
-            <div class="d-flex justify-content-end mb-2">
-                <button type="button" class="lb-btn" onclick="window.print(); return false;" aria-label="Imprimer la liste">
-                    <i class="fas fa-print" aria-hidden="true"></i>
-                    <span>Imprimer</span>
-                </button>
-            </div>
             <table id="result_list" class="table table-striped">
                 <thead>
                     <tr>

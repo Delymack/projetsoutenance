@@ -11,6 +11,7 @@ import os
 import sys
 
 from django.core.exceptions import ImproperlyConfigured
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -18,10 +19,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Initialize environ
 env = environ.Env()
 
-# Read .env file
-env_file = BASE_DIR / '.env'
-if env_file.exists():
-    environ.Env.read_env(env_file)
+# Keep backend-local values first while also loading Neon-generated root vars.
+for env_file in (BASE_DIR / '.env', BASE_DIR.parent / '.env'):
+    if env_file.exists():
+        environ.Env.read_env(env_file)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 _INITIAL_SECRET_KEY = 'django-insecure-default-key-do-not-use-in-prod'
@@ -100,6 +101,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'config.middleware.SessionExpiryMiddleware',
@@ -254,9 +256,8 @@ if GOOGLE_OAUTH2_CLIENT_ID:
     }
 
 # Database
-# Configuration PostgreSQL via variables d'environnement, avec repli automatique
-# sur SQLite si PostgreSQL n'est pas configuré OU n'est pas joignable.
-# Cela évite de casser le projet lorsque la base PostgreSQL n'existe pas encore.
+# PostgreSQL is selected by DATABASE_URL in hosted environments. SQLite remains
+# the local development fallback, but production must never silently use it.
 SQLITE_FALLBACK = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -290,7 +291,17 @@ def _postgres_reachable(config):
         return False
 
 
-if env('DB_NAME', default=None):
+DATABASE_URL = env('DATABASE_URL', default='')
+
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=not DEBUG,
+        )
+    }
+elif env('DB_NAME', default=None):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -302,9 +313,18 @@ if env('DB_NAME', default=None):
         }
     }
     if not _postgres_reachable(DATABASES['default']):
-        DATABASES = SQLITE_FALLBACK
-else:
+        if DEBUG:
+            DATABASES = SQLITE_FALLBACK
+        else:
+            raise ImproperlyConfigured(
+                "La base PostgreSQL configurée n'est pas joignable."
+            )
+elif DEBUG:
     DATABASES = SQLITE_FALLBACK
+else:
+    raise ImproperlyConfigured(
+        "Définissez DATABASE_URL ou les variables DB_* pour PostgreSQL en production."
+    )
 
 # REST Framework Configuration
 REST_FRAMEWORK = {
@@ -327,6 +347,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
     'DEFAULT_THROTTLE_RATES': {
         'reservation_site': '10/hour',
+        'contact_message': '5/hour',
     },
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     # Exports tabulaires : `?format=csv` et `?format=xlsx` sur les rapports.
@@ -449,6 +470,53 @@ STATICFILES_DIRS = [
     ('icone', BASE_DIR / 'templates' / 'admin' / 'icone'),
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+storage_credentials = (
+    env('AWS_ACCESS_KEY_ID', default=''),
+    env('AWS_SECRET_ACCESS_KEY', default=''),
+    env('AWS_ENDPOINT_URL_S3', default=''),
+    env('AWS_REGION', default=''),
+)
+NEON_OBJECT_STORAGE_ENABLED = all(storage_credentials)
+if any(storage_credentials) and not NEON_OBJECT_STORAGE_ENABLED:
+    raise ImproperlyConfigured(
+        'Configurez AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, '
+        'AWS_ENDPOINT_URL_S3 et AWS_REGION ensemble.'
+    )
+if not DEBUG and not NEON_OBJECT_STORAGE_ENABLED:
+    raise ImproperlyConfigured(
+        'Le stockage Neon est requis en production pour les images produits.'
+    )
+
+if NEON_OBJECT_STORAGE_ENABLED:
+    (
+        AWS_ACCESS_KEY_ID,
+        AWS_SECRET_ACCESS_KEY,
+        AWS_S3_ENDPOINT_URL,
+        AWS_S3_REGION_NAME,
+    ) = storage_credentials
+    AWS_S3_ADDRESSING_STYLE = 'path'
+    AWS_S3_SIGNATURE_VERSION = 's3v4'
+    AWS_QUERYSTRING_AUTH = True
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = None
+    product_image_storage = {
+        'BACKEND': 'storages.backends.s3.S3Storage',
+        'OPTIONS': {'bucket_name': 'assets'},
+    }
+else:
+    product_image_storage = {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    }
+
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'product_images': product_image_storage,
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
+    },
+}
 
 # Le « / » initial est obligatoire : sans lui, `produit.image.url` vaut
 # `media/…` (relatif) et la boutique le colle après `/catalogue/…`, ce qui

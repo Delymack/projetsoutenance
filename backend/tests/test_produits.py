@@ -53,6 +53,7 @@ class ProduitTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
         self.assertEqual(response.data['results'][0]['nom'], "Vin Rouge Bdx")
+        self.assertNotIn('millesime', response.data['results'][0])
 
     def test_catalogue_affiche_le_tarif_detailant_du_client(self):
         client_pro = Client.objects.create(

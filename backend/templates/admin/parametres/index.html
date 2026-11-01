@@ -4,6 +4,13 @@
 {% block content_title %}
 {% endblock %}
 
+{% block bodyclass %}{{ block.super }} wine-params-page{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/wineadmin-params.css' %}?v=1">
+{% endblock %}
+
 {% block content %}
 <style>
   .cfg-shell { max-width: 1060px; }
@@ -344,9 +351,12 @@
 <div class="cfg-shell">
   <header class="cfg-head">
     <div class="cfg-head-main">
-      <p class="cfg-eyebrow">CONFIGURATION</p>
-      <h1>Paramètres</h1>
-      <p class="cfg-sub">Boutique · Comptes · Sauvegardes</p>
+      <span class="cfg-head-icon" aria-hidden="true"><i class="fas fa-gear"></i></span>
+      <div>
+        <p class="cfg-eyebrow">CONFIGURATION DE LA BOUTIQUE</p>
+        <h1>Paramètres</h1>
+        <p class="cfg-sub">Configurez les informations de votre boutique et vos outils de gestion.</p>
+      </div>
     </div>
   </header>
 

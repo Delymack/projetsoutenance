@@ -843,63 +843,68 @@
 }
 
 /* ============================================================
-   Pied du sidebar
+   Bandeau vignoble décoratif à la place du pied de navigation
    ============================================================ */
-#jazzy-sidebar .sidebar-footer {
-    padding: 0.7rem 0.9rem 0.8rem;
-    border-top: 1px solid rgba(244, 210, 119, 0.05);
-    background: rgba(0, 0, 0, 0.22);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    flex-shrink: 0;
+#jazzy-sidebar .sidebar-visual {
+    border: 1px solid rgba(233, 185, 73, .24);
+    border-radius: 13px;
+    flex: 0 0 88px;
+    margin: .65rem .8rem .75rem;
+    overflow: hidden;
+    position: relative;
 }
-#jazzy-sidebar .sf-item {
+#jazzy-sidebar .sidebar-visual::after {
+    background: linear-gradient(90deg, rgba(18, 5, 9, .88), rgba(18, 5, 9, .32)),
+                linear-gradient(0deg, rgba(18, 5, 9, .65), transparent 70%);
+    content: "";
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+}
+#jazzy-sidebar .sidebar-visual > img {
+    height: 100%;
+    inset: 0;
+    object-fit: cover;
+    object-position: center 57%;
+    position: absolute;
+    width: 100%;
+}
+#jazzy-sidebar .sidebar-visual-caption {
+    align-items: center;
+    bottom: 0;
     display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    padding: 0.55rem 0.6rem;
-    border-radius: 11px;
-    color: var(--wine-text-muted) !important;
-    font-size: 0.8rem;
-    font-weight: 500;
-    text-decoration: none !important;
-    transition: all 0.18s ease;
+    gap: .55rem;
+    left: 0;
+    padding: .6rem .7rem;
+    position: absolute;
+    right: 0;
+    z-index: 1;
 }
-#jazzy-sidebar .sf-item:hover {
-    background: rgba(212, 168, 83, 0.09);
-    color: var(--wine-gold-soft) !important;
-    transform: translateX(2px);
+#jazzy-sidebar .sidebar-visual-caption > img {
+    background: #f3edda;
+    border: 1px solid rgba(233, 185, 73, .65);
+    border-radius: 6px;
+    flex: 0 0 82px;
+    height: 38px;
+    object-fit: contain;
+    width: 82px;
 }
-#jazzy-sidebar .sf-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.8rem;
-    height: 1.8rem;
-    padding: 0.18rem;
-    border-radius: 9px;
-    background: rgba(212, 168, 83, 0.08);
-    color: var(--wine-gold);
-    font-size: 0.64rem;
-    flex-shrink: 0;
-}
-#jazzy-sidebar .sf-divider {
-    height: 1px;
-    background: rgba(244, 210, 119, 0.055);
-    margin: 0.45rem 0;
-}
-#jazzy-sidebar .sf-brand {
+#jazzy-sidebar .sidebar-visual-caption span {
     display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    padding: 0.35rem 0.6rem;
-    color: var(--wine-text-dim);
-    font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    flex-direction: column;
+    gap: .12rem;
+    min-width: 0;
 }
-#jazzy-sidebar .sf-brand i { color: var(--wine-gold); font-size: 0.56rem; }
+#jazzy-sidebar .sidebar-visual-caption strong {
+    color: #fff3d4;
+    font-size: .64rem;
+    letter-spacing: .08em;
+    line-height: 1.2;
+}
+#jazzy-sidebar .sidebar-visual-caption small {
+    color: rgba(255, 243, 212, .78);
+    font-size: .62rem;
+}
 
 /* ============================================================
    Mode replié (desktop)
@@ -978,9 +983,21 @@
         font-size: 0.68rem !important;
     }
 
-    .sidebar-collapse #jazzy-sidebar .sidebar-footer { align-items: center; }
-    .sidebar-collapse #jazzy-sidebar .sf-item, 
-    .sidebar-collapse #jazzy-sidebar .sf-brand { justify-content: center; }
+    .sidebar-collapse #jazzy-sidebar .sidebar-visual {
+        border-radius: 11px;
+        flex-basis: 48px;
+        margin: .45rem .4rem .55rem;
+    }
+    .sidebar-collapse #jazzy-sidebar .sidebar-visual-caption {
+        justify-content: center;
+        padding: .45rem;
+    }
+    .sidebar-collapse #jazzy-sidebar .sidebar-visual-caption > img {
+        flex-basis: 42px;
+        height: 24px;
+        width: 42px;
+    }
+    .sidebar-collapse #jazzy-sidebar .sidebar-visual-caption span { display: none; }
 
     .sidebar-collapse #jazzy-sidebar .nav-treeview { display: none !important; }
 }
@@ -1199,9 +1216,9 @@
 @media (min-width: 992px) {
     #jazzy-sidebar {
         position: sticky;
-        top: 0;
+        top: 68px;
         align-self: flex-start;
-        height: 100vh;
+        height: calc(100vh - 68px);
         z-index: 20;
     }
     /* Le bibosome interne scrolle indépendamment du contenu. */
@@ -1668,14 +1685,14 @@
 }
 
 #jazzy-sidebar .wine-brand-mark {
-    border: 2px solid rgba(230, 189, 106, .65);
-    border-radius: 50%;
+    border: 1px solid rgba(230, 189, 106, .65);
+    border-radius: 8px;
     background: #f3edda;
     display: block;
-    flex: 0 0 60px;
-    height: 60px;
-    object-fit: cover;
-    width: 60px;
+    flex: 0 0 92px;
+    height: 44px;
+    object-fit: contain;
+    width: 92px;
     /* Halo doré subtil + ombre portée : le médaillon ressort sur la sidebar sombre. */
     box-shadow:
         0 0 0 3px rgba(244, 210, 119, .12),
@@ -1724,9 +1741,9 @@
     }
 
     .sidebar-collapse #jazzy-sidebar .wine-brand-mark {
-        flex-basis: 44px;
-        height: 44px;
-        width: 44px;
+        flex-basis: 68px;
+        height: 34px;
+        width: 68px;
     }
 
     .sidebar-collapse #jazzy-sidebar .sb-find {
@@ -1761,3 +1778,48 @@
     display: none !important;
 }
 
+/* Palette de marque et proportions cohérentes avec la console de réglages. */
+:root {
+    --lte-sidebar-width: 250px;
+}
+
+#jazzy-sidebar {
+    background: linear-gradient(180deg, #32131f 0%, #1a0810 100%) !important;
+    border-right-color: rgba(201, 155, 59, .24);
+    box-shadow: 5px 0 20px rgba(43, 27, 32, .16);
+}
+
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link:hover,
+#jazzy-sidebar .sidebar-menu > .has-treeview.menu-open > .nav-link {
+    background: rgba(255, 255, 255, .07);
+    border-color: rgba(255, 255, 255, .1);
+}
+
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link.active,
+#jazzy-sidebar .sidebar-menu > .nav-item > .nav-link.sb-kbd-active {
+    background: linear-gradient(100deg, rgba(100, 27, 44, .9), rgba(100, 27, 44, .48));
+    border-color: rgba(201, 155, 59, .4);
+    box-shadow: inset 3px 0 #c99b3b;
+    color: #f4e2b7 !important;
+}
+
+@media (max-width: 991.98px) {
+    :root {
+        --lte-sidebar-width: 270px;
+    }
+}
+
+@media (min-width: 992px) {
+    .wine-admin-shell.sidebar-collapse .app-wrapper {
+        grid-template-columns: 0 minmax(0, 1fr);
+    }
+
+    .wine-admin-shell.sidebar-collapse #jazzy-sidebar {
+        margin-left: 0;
+        max-width: 0;
+        min-width: 0;
+        overflow: hidden;
+        visibility: hidden;
+        width: 0;
+    }
+}

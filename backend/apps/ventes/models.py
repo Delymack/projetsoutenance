@@ -400,8 +400,14 @@ class MessageClient(models.Model):
     nom = models.CharField(max_length=150, verbose_name=_('Nom'))
     telephone = models.CharField(max_length=30, blank=True, verbose_name=_('Téléphone'))
     email = models.EmailField(blank=True, verbose_name=_('Email'))
+    compte_client = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='messages_client', verbose_name=_('Compte client'),
+    )
     sujet = models.CharField(max_length=150, verbose_name=_('Sujet'))
     message = models.TextField(max_length=3000, verbose_name=_('Message'))
+    reponse = models.TextField(max_length=3000, blank=True, default='', verbose_name=_('Réponse'))
+    repondu_le = models.DateTimeField(null=True, blank=True, verbose_name=_('Répondu le'))
     statut = models.CharField(
         max_length=10, choices=Statut.choices, default=Statut.NOUVEAU, verbose_name=_('Statut'),
     )

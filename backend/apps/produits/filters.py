@@ -10,8 +10,6 @@ class ProduitFilter(django_filters.FilterSet):
     prix_max = django_filters.NumberFilter(field_name="prix_vente", lookup_expr='lte')
     cout_revenir_min = django_filters.NumberFilter(field_name="cout_revenir", lookup_expr='gte')
     cout_revenir_max = django_filters.NumberFilter(field_name="cout_revenir", lookup_expr='lte')
-    millesime_min = django_filters.NumberFilter(field_name="millesime", lookup_expr='gte')
-    millesime_max = django_filters.NumberFilter(field_name="millesime", lookup_expr='lte')
     nom = django_filters.CharFilter(field_name="nom", lookup_expr='icontains')
     marque = django_filters.CharFilter(field_name="marque", lookup_expr='icontains')
     appellation = django_filters.CharFilter(field_name="appellation", lookup_expr='icontains')

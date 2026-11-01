@@ -175,12 +175,10 @@ class ClientAdmin(ActionsColonneMixin, admin.ModelAdmin):
     change_form_template = 'admin/clients/client/change_form.html'
     # La colonne « Actions » standard (mixin : Modifier / Supprimer / Voir) est
     # conservée ; `contact_actions` n'ajoute que les raccourcis téléphone/WhatsApp.
-    # Les colonnes « Niveau », « Fidélité » et « Crédit dispo. » ont été retirées :
-    # elles alourdissaient la lecture. Le niveau reste visible en badge dans la
-    # colonne Client, la fidélité et le crédit restent dans la fiche et les KPI.
+    # Les informations de fidélité et d'encours restent dans la fiche et les KPI,
+    # pas dans le tableau de consultation.
     list_display = (
-        'client_display', 'contact_display', 'activite_display', 'solde_du_display',
-        'contact_actions',
+        'client_display', 'contact_display', 'activite_display', 'contact_actions',
     )
     search_fields = ('nom', 'prenom', 'telephone', 'email', 'adresse')
     # Les critères restent disponibles par paramètres d'URL et par KPI ; le
@@ -305,23 +303,8 @@ class ClientAdmin(ActionsColonneMixin, admin.ModelAdmin):
             '<span style="display:flex;align-items:center;gap:.6rem">'
             '<span class="lb-avatar lb-avatar-sm">{}</span>'
             '<span><span class="lb-val-ink">{} {}</span>'
-            '<br><span style="display:flex;align-items:center;gap:.4rem;'
-            'color:var(--lb-ink-500);font-size:.74rem">{} {}</span></span></span>',
-            initiales, obj.nom, obj.prenom,
-            obj.get_type_client_display(), self._badge_niveau(obj),
-        )
-
-    def _badge_niveau(self, obj):
-        """Badge de niveau, compact, destiné à être intégré à une cellule."""
-        styles = {
-            Client.Niveau.BRONZE: ('lb-badge-muted', 'fa-glass-cheers'),
-            Client.Niveau.ARGENT: ('lb-badge-wine', 'fa-medal'),
-            Client.Niveau.OR: ('lb-badge-gold', 'fa-crown'),
-        }
-        css, icon = styles.get(obj.niveau, styles[Client.Niveau.BRONZE])
-        return format_html(
-            '<span class="lb-badge {}"><i class="fas {}"></i>{}</span>', css, icon,
-            obj.get_niveau_display(),
+            '<br><span style="color:var(--lb-ink-500);font-size:.74rem">{}</span></span></span>',
+            initiales, obj.nom, obj.prenom, obj.get_type_client_display(),
         )
 
     @admin.display(description='Contact')
@@ -341,18 +324,6 @@ class ClientAdmin(ActionsColonneMixin, admin.ModelAdmin):
             '<br><span style="color:var(--lb-ink-500);font-size:.7rem">Dernier : {}</span></span>',
             obj.nombre_achats, '' if obj.nombre_achats == 1 else 's',
             obj.ca_genere, devise, dernier,
-        )
-
-    @admin.display(description='Encours', ordering='solde_du')
-    def solde_du_display(self, obj):
-        devise = settings.SOCIETE.get('devise', 'Ar')
-        if obj.solde_du > 0:
-            return format_html(
-                '<span class="lb-badge lb-badge-wine"><i class="fas fa-triangle-exclamation"></i>{} {}</span>',
-                obj.solde_du, devise,
-            )
-        return format_html(
-            '<span class="lb-badge lb-badge-sage"><i class="fas fa-check"></i>{}</span>', _('À jour')
         )
 
     @admin.display(description='Contact rapide')

@@ -18,6 +18,40 @@
     let pageBodyClasses = [];
     let pageStyles = [];
 
+    const champsModificationRapide = {
+        'account/emailaddress': ['user', 'email', 'verified', 'primary'],
+        'accounts/user': [
+            'username', 'email', 'first_name', 'last_name', 'telephone',
+            'role', 'is_active', 'is_staff',
+        ],
+        'accounts/verificationcode': [
+            'contact', 'contact_type', 'purpose', 'is_used', 'expires_at',
+            'attempts', 'last_sent_at',
+        ],
+        'categories/categorie': ['nom', 'description', 'statut'],
+        'clients/client': ['nom', 'prenom', 'telephone', 'email', 'adresse', 'max_credit'],
+        'parametres/parametre': ['cle', 'section', 'libelle', 'valeur'],
+        'promotions/promotion': [
+            'nom', 'type_promotion', 'valeur', 'date_debut', 'date_fin',
+            'type_cible', 'quantite_min', 'code', 'statut',
+            'produits_cibles', 'categories',
+        ],
+        'produits/produit': [
+            'nom', 'marque', 'type_vin', 'volume', 'prix_vente', 'statut', 'image',
+        ],
+        'stocks/stock': ['produit', 'quantite', 'seuil_alerte'],
+        'ventes/messageclient': ['nom', 'telephone', 'email', 'sujet', 'message', 'statut'],
+        'ventes/reservation': [
+            'client', 'montant_total', 'montant_acompte', 'taux_tva', 'tva_incluse',
+            'mode_reception', 'adresse_livraison', 'date_expiration', 'lignes_resume', 'note',
+        ],
+        'ventes/vente': [
+            'reference', 'statut', 'mode_paiement', 'paiements_display', 'total',
+            'net_a_encaiser_display', 'remise_manuelle_totale', 'motif_remise',
+            'acompte_anticipe', 'client', 'client_libelle',
+        ],
+    };
+
     function clearPageAssets() {
         pageStyles.forEach((style) => style.remove());
         pageStyles = [];
@@ -150,6 +184,59 @@
         });
     }
 
+    function simplifierModification(formulaire) {
+        if (!editMode || !activeUrl) return;
+        const correspondance = activeUrl.pathname.match(
+            /^\/admin\/([^/]+)\/([^/]+)\/\d+\/change\/$/
+        );
+        if (!correspondance) return;
+
+        const champs = champsModificationRapide[`${correspondance[1]}/${correspondance[2]}`];
+        if (!champs) return;
+        if (!formulaire) {
+            throw new Error('Le formulaire de modification est introuvable.');
+        }
+
+        const groupes = Array.from(
+            formulaire.querySelectorAll('.form-group[class*="field-"]')
+        );
+        if (!groupes.length) {
+            throw new Error('Les champs du formulaire de modification sont introuvables.');
+        }
+
+        const champsEssentiels = new Set(champs);
+        groupes.forEach((groupe) => {
+            const champ = Array.from(groupe.classList)
+                .find((classe) => classe.startsWith('field-'))
+                ?.slice('field-'.length);
+            groupe.hidden = !champsEssentiels.has(champ) && !groupe.querySelector('.errorlist');
+        });
+
+        formulaire.querySelectorAll('.inline-group').forEach((groupe) => {
+            groupe.hidden = !groupe.querySelector('.errorlist');
+        });
+        formulaire.querySelectorAll('.tab-pane').forEach((panneau) => {
+            if (!panneau.querySelector('.form-group:not([hidden]), .inline-group:not([hidden])')) {
+                panneau.hidden = true;
+            }
+        });
+    }
+
+    function simplifierAjout(formulaire) {
+        if (editMode || !formulaire) return;
+
+        content.querySelectorAll(
+            '.pd-create-hero p, .pd-create-pill, .cl-hero p, .cl-hero-pill, ' +
+            '.st-hero p, .st-hero-pill, .pr-create-hero p, .pr-create-pill, ' +
+            '.form-hero p, .form-hero-badge, fieldset .description, ' +
+            '.form-group .help-block, .form-group .form-text, .form-group .help'
+        ).forEach((element) => {
+            if (!element.querySelector('input, select, textarea, button, a')) {
+                element.remove();
+            }
+        });
+    }
+
     function mettreAJourActions() {
         normaliserActions();
         deplierPanneaux();
@@ -177,42 +264,8 @@
             }
         }
 
-        if (editMode && activeUrl &&
-            /^\/admin\/ventes\/reservation\/\d+\/change\/$/.test(activeUrl.pathname)) {
-            if (!formulaire) {
-                throw new Error('Le formulaire de modification de la commande est introuvable.');
-            }
-            const champsRapides = new Set([
-                'client',
-                'lignes_resume',
-                'mode_reception',
-                'adresse_livraison',
-                'date_expiration',
-                'note',
-            ]);
-            const groupes = Array.from(
-                formulaire.querySelectorAll('.form-group[class*="field-"]')
-            );
-
-            if (!groupes.length) {
-                throw new Error('Les champs de la commande sont introuvables.');
-            }
-
-            groupes.forEach((groupe) => {
-                const champ = Array.from(groupe.classList)
-                    .find((classe) => classe.startsWith('field-'))
-                    ?.slice('field-'.length);
-                groupe.hidden = !champsRapides.has(champ);
-            });
-            formulaire.querySelectorAll('.inline-group').forEach((groupe) => {
-                groupe.hidden = true;
-            });
-            formulaire.querySelectorAll('.tab-pane').forEach((panneau) => {
-                if (!panneau.querySelector('.form-group:not([hidden])')) {
-                    panneau.hidden = true;
-                }
-            });
-        }
+        simplifierAjout(formulaire);
+        simplifierModification(formulaire);
 
         content.querySelectorAll('.submit-row').forEach((ligne) => {
             const enregistrer = ligne.querySelector('button[name="_save"], input[name="_save"]');

@@ -1,0 +1,556 @@
+.wine-admin-shell {
+    --wa-dialog-surface: #fff;
+    --wa-dialog-body: #fffdfb;
+    --wa-dialog-ink: #34282d;
+    --wa-dialog-muted: #64565a;
+    --wa-dialog-line: #e4d9d4;
+    --wa-dialog-input: #fff;
+    --wa-dialog-placeholder: #75666a;
+}
+
+body.wine-admin-shell.popup {
+    background: var(--wa-dialog-body);
+    color: var(--wa-dialog-ink);
+}
+
+body.wine-admin-shell.popup .fields-card {
+    background: var(--wa-dialog-surface);
+    border-color: var(--wa-dialog-line);
+    color: var(--wa-dialog-ink);
+}
+
+body.wine-admin-shell.popup .fields-card .form-group > .row > label {
+    color: var(--wa-dialog-ink);
+}
+
+body.wine-admin-shell.popup .fields-card > .card-body,
+.wine-admin-shell .wine-quick-create-content .fields-card > .card-body {
+    background: var(--wa-dialog-surface);
+    color: var(--wa-dialog-ink);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell {
+    --wa-dialog-surface: #24151d;
+    --wa-dialog-body: #1d1117;
+    --wa-dialog-ink: #f5eaf0;
+    --wa-dialog-muted: #c9b9c0;
+    --wa-dialog-line: #503741;
+    --wa-dialog-input: #170c11;
+    --wa-dialog-placeholder: #b7a4ac;
+}
+
+.wine-admin-shell .modal-content,
+.wine-admin-shell .wine-quick-create-dialog,
+.wine-admin-shell .wine-confirm-dialog,
+.wine-admin-shell .pos-modal .pay-card,
+.wine-admin-shell .overlay .receipt,
+.wine-admin-shell .express-card,
+.wine-admin-shell .annuler-modal .am-card {
+    background: var(--wa-dialog-surface);
+    border: 1px solid var(--wa-dialog-line);
+    border-radius: 18px;
+    box-shadow: 0 24px 70px rgba(27, 8, 16, .3);
+    color: var(--wa-dialog-ink);
+}
+
+body.wine-admin-shell.popup .fields-card input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+body.wine-admin-shell.popup .fields-card select,
+body.wine-admin-shell.popup .fields-card textarea {
+    background-color: var(--wa-dialog-input);
+    border-color: var(--wa-dialog-line);
+    color: var(--wa-dialog-ink);
+}
+
+.wine-admin-shell .modal-header,
+.wine-admin-shell .wine-quick-create-header,
+.wine-admin-shell .pos-modal .pay-head,
+.wine-admin-shell .express-head,
+.wine-admin-shell .annuler-modal .am-head {
+    background:
+        radial-gradient(120% 200% at 90% -40%, rgba(201, 155, 59, .25), transparent 62%),
+        linear-gradient(110deg, #351321, #641b2c 70%, #74223a);
+    border-bottom: 1px solid rgba(230, 189, 106, .38);
+    color: #fff;
+}
+
+.wine-admin-shell .modal-header .modal-title,
+.wine-admin-shell .wine-quick-create-header h2,
+.wine-admin-shell .pos-modal .pay-head h3,
+.wine-admin-shell .express-head h3,
+.wine-admin-shell .annuler-modal .am-head {
+    color: #fff;
+}
+
+.wine-admin-shell .modal-header .btn-close {
+    filter: brightness(0) invert(1);
+    opacity: .9;
+}
+
+.wine-admin-shell .modal-header .close,
+.wine-admin-shell .pos-modal .pay-close {
+    color: #fff;
+    opacity: .9;
+}
+
+.wine-admin-shell .modal-body,
+.wine-admin-shell .modal-footer,
+.wine-admin-shell .wine-confirm-dialog,
+.wine-admin-shell .wine-quick-create-content,
+.wine-admin-shell .pos-modal .pay-body,
+.wine-admin-shell .overlay .rec-body,
+.wine-admin-shell .express-body,
+.wine-admin-shell .annuler-modal .am-body {
+    background: var(--wa-dialog-body);
+    color: var(--wa-dialog-ink);
+}
+
+.wine-admin-shell .modal-footer {
+    border-top: 1px solid var(--wa-dialog-line);
+}
+
+.wine-admin-shell .modal-body label,
+.wine-admin-shell .modal-body legend,
+.wine-admin-shell .modal-body dt,
+.wine-admin-shell .modal-body dd,
+.wine-admin-shell .modal-body th,
+.wine-admin-shell .modal-body td,
+.wine-admin-shell .modal-body .form-check-label,
+.wine-admin-shell .modal-body .control-label,
+.wine-admin-shell .modal-body .col-form-label,
+.wine-admin-shell .wine-quick-create-content,
+.wine-admin-shell .wine-quick-create-content label,
+.wine-admin-shell .pos-modal .pay-body,
+.wine-admin-shell .pos-modal .pay-body label,
+.wine-admin-shell .express-body,
+.wine-admin-shell .express-body label,
+.wine-admin-shell .annuler-modal .am-body {
+    color: var(--wa-dialog-ink);
+}
+
+.wine-admin-shell .modal-body .text-muted,
+.wine-admin-shell .modal-body .form-text,
+.wine-admin-shell .modal-body .help,
+.wine-admin-shell .modal-body .help-block,
+.wine-admin-shell .wine-quick-create-content .text-muted,
+.wine-admin-shell .wine-quick-create-content .form-text,
+.wine-admin-shell .pos-modal .amount-sub,
+.wine-admin-shell .pos-modal .info-line,
+.wine-admin-shell .pos-modal .secondary-pay,
+.wine-admin-shell .pos-modal .retour-line .info,
+.wine-admin-shell .pos-modal .retour-line .max,
+.wine-admin-shell .pos-modal .split .split-line .del,
+.wine-admin-shell .overlay .rec-line .q,
+.wine-admin-shell .overlay .rec-meta,
+.wine-admin-shell .express-body .text-muted {
+    color: var(--wa-dialog-muted) !important;
+}
+
+.wine-admin-shell .modal-body input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+.wine-admin-shell .modal-body select,
+.wine-admin-shell .modal-body textarea,
+.wine-admin-shell .wine-quick-create-content input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+.wine-admin-shell .wine-quick-create-content select,
+.wine-admin-shell .wine-quick-create-content textarea,
+.wine-admin-shell .pos-modal .input-cash,
+.wine-admin-shell .pos-modal .form-control-pos,
+.wine-admin-shell .pos-modal .split .split-line input,
+.wine-admin-shell .pos-modal .retour-line input,
+.wine-admin-shell .express-body .form-control {
+    background-color: var(--wa-dialog-input);
+    border-color: var(--wa-dialog-line);
+    color: var(--wa-dialog-ink);
+}
+
+body.wine-admin-shell.popup .fields-card input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+body.wine-admin-shell.popup .fields-card select,
+body.wine-admin-shell.popup .fields-card textarea,
+body.wine-admin-shell.popup .fields-card .select2-selection,
+body.wine-admin-shell.popup .fields-card .select2-search__field,
+.wine-admin-shell .wine-quick-create-content .fields-card input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+.wine-admin-shell .wine-quick-create-content .fields-card select,
+.wine-admin-shell .wine-quick-create-content .fields-card textarea,
+.wine-admin-shell .wine-quick-create-content .fields-card .select2-selection,
+.wine-admin-shell .wine-quick-create-content .fields-card .select2-search__field {
+    background-color: var(--wa-dialog-input);
+    border-color: var(--wa-dialog-line);
+    color: var(--wa-dialog-ink);
+    color-scheme: inherit;
+    -webkit-text-fill-color: var(--wa-dialog-ink);
+}
+
+body.wine-admin-shell.popup .fields-card .form-group > .row > label,
+.wine-admin-shell .wine-quick-create-content .fields-card .form-group > .row > label {
+    color: var(--wa-dialog-ink);
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .035em;
+}
+
+body.wine-admin-shell.popup .fields-card .help-block,
+body.wine-admin-shell.popup .fields-card .form-text,
+body.wine-admin-shell.popup .fields-card .help,
+.wine-admin-shell .wine-quick-create-content .fields-card .help-block,
+.wine-admin-shell .wine-quick-create-content .fields-card .form-text,
+.wine-admin-shell .wine-quick-create-content .fields-card .help {
+    color: var(--wa-dialog-muted);
+}
+
+body.wine-admin-shell.popup .fields-card .form-group:focus-within,
+.wine-admin-shell .wine-quick-create-content .fields-card .form-group:focus-within {
+    border-color: rgba(201, 155, 59, .62);
+    box-shadow: 0 7px 20px rgba(27, 8, 16, .08), 0 0 0 2px rgba(201, 155, 59, .1);
+}
+
+body.wine-admin-shell.popup .fields-card .form-group:has(.errorlist) input:not([type="hidden"]),
+body.wine-admin-shell.popup .fields-card .form-group:has(.errorlist) select,
+body.wine-admin-shell.popup .fields-card .form-group:has(.errorlist) textarea,
+.wine-admin-shell .wine-quick-create-content .fields-card .form-group:has(.errorlist) input:not([type="hidden"]),
+.wine-admin-shell .wine-quick-create-content .fields-card .form-group:has(.errorlist) select,
+.wine-admin-shell .wine-quick-create-content .fields-card .form-group:has(.errorlist) textarea {
+    background: var(--wa-dialog-surface);
+    border-color: #b42338;
+}
+
+body.wine-admin-shell.popup .fields-card .form-group:has(.errorlist) input:focus,
+body.wine-admin-shell.popup .fields-card .form-group:has(.errorlist) select:focus,
+body.wine-admin-shell.popup .fields-card .form-group:has(.errorlist) textarea:focus,
+.wine-admin-shell .wine-quick-create-content .fields-card .form-group:has(.errorlist) input:focus,
+.wine-admin-shell .wine-quick-create-content .fields-card .form-group:has(.errorlist) select:focus,
+.wine-admin-shell .wine-quick-create-content .fields-card .form-group:has(.errorlist) textarea:focus {
+    border-color: #b42338;
+    box-shadow: 0 0 0 3px rgba(180, 35, 56, .17);
+}
+
+body.wine-admin-shell.popup .fields-card .form-group .readonly,
+.wine-admin-shell .wine-quick-create-content .fields-card .form-group .readonly {
+    background: var(--wa-dialog-body);
+    border-color: var(--wa-dialog-line);
+    color: var(--wa-dialog-muted);
+}
+
+body.wine-admin-shell.popup #jazzy-actions > .card.action-card,
+.wine-admin-shell .wine-quick-create-content .submit-row.wine-quick-create-actions {
+    background: var(--wa-dialog-surface);
+    border-color: var(--wa-dialog-line);
+    box-shadow: 0 12px 30px rgba(27, 8, 16, .14);
+}
+
+body.wine-admin-shell.change-form #content-main .tab-content .form-group {
+    background: linear-gradient(135deg, var(--wa-dialog-surface), var(--wa-dialog-body));
+    border-color: var(--wa-dialog-line);
+    color: var(--wa-dialog-ink);
+}
+
+body.wine-admin-shell.change-form #content-main .tab-content .form-group label,
+body.wine-admin-shell.change-form #content-main .tab-content .form-group .form-label {
+    color: var(--wa-dialog-ink);
+}
+
+body.wine-admin-shell.change-form #content-main .tab-content .form-group input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+body.wine-admin-shell.change-form #content-main .tab-content .form-group select,
+body.wine-admin-shell.change-form #content-main .tab-content .form-group textarea,
+body.wine-admin-shell.change-form #content-main .tab-content .form-group .select2-selection {
+    background-color: var(--wa-dialog-input);
+    border-color: var(--wa-dialog-line);
+    color: var(--wa-dialog-ink);
+    color-scheme: inherit;
+}
+
+body.wine-admin-shell.change-form #content-main .tab-content .form-group input::placeholder,
+body.wine-admin-shell.change-form #content-main .tab-content .form-group textarea::placeholder {
+    color: var(--wa-dialog-placeholder);
+    opacity: 1;
+}
+
+body.wine-admin-shell.change-form #content-main .tab-content .form-group input:focus,
+body.wine-admin-shell.change-form #content-main .tab-content .form-group select:focus,
+body.wine-admin-shell.change-form #content-main .tab-content .form-group textarea:focus,
+body.wine-admin-shell.change-form #content-main .tab-content .form-group .select2-selection:focus {
+    border-color: #c99b3b;
+    box-shadow: 0 0 0 3px rgba(201, 155, 59, .22);
+    outline: 0;
+}
+
+body.wine-admin-shell.change-form #content-main .tab-content .form-group .help-block,
+body.wine-admin-shell.change-form #content-main .tab-content .form-group .help,
+body.wine-admin-shell.change-form #content-main .tab-content .form-group .form-text {
+    color: var(--wa-dialog-muted);
+}
+
+body.wine-admin-shell.change-form #content-main .tab-content .form-group .readonly {
+    background: var(--wa-dialog-body);
+    border-color: var(--wa-dialog-line);
+    color: var(--wa-dialog-muted);
+}
+
+body.wine-admin-shell.change-form #content-main .tab-content .form-group .errorlist {
+    background: var(--wa-dialog-body);
+    border-color: #b42338;
+    color: #b42338;
+}
+
+body.wine-admin-shell.change-form #jazzy-actions > .card {
+    background: var(--wa-dialog-surface);
+    border-color: var(--wa-dialog-line);
+}
+
+.wine-admin-shell .modal-body input::placeholder,
+.wine-admin-shell .modal-body textarea::placeholder,
+.wine-admin-shell .wine-quick-create-content input::placeholder,
+.wine-admin-shell .wine-quick-create-content textarea::placeholder,
+.wine-admin-shell .wine-quick-create-content .select2-selection__placeholder,
+body.wine-admin-shell.popup .fields-card input::placeholder,
+body.wine-admin-shell.popup .fields-card textarea::placeholder,
+body.wine-admin-shell.popup .fields-card .select2-selection__placeholder,
+.wine-admin-shell .pos-modal input::placeholder,
+.wine-admin-shell .pos-modal textarea::placeholder,
+.wine-admin-shell .express-body input::placeholder {
+    color: var(--wa-dialog-placeholder);
+    opacity: 1;
+}
+
+.wine-admin-shell .modal-body input:focus,
+.wine-admin-shell .modal-body select:focus,
+.wine-admin-shell .modal-body textarea:focus,
+.wine-admin-shell .wine-quick-create-content input:focus,
+.wine-admin-shell .wine-quick-create-content select:focus,
+.wine-admin-shell .wine-quick-create-content textarea:focus,
+body.wine-admin-shell.popup .fields-card input:focus,
+body.wine-admin-shell.popup .fields-card select:focus,
+body.wine-admin-shell.popup .fields-card textarea:focus,
+.wine-admin-shell .pos-modal .input-cash:focus,
+.wine-admin-shell .pos-modal .form-control-pos:focus,
+.wine-admin-shell .pos-modal .split .split-line input:focus,
+.wine-admin-shell .pos-modal .retour-line input:focus,
+.wine-admin-shell .express-body .form-control:focus {
+    border-color: #c99b3b;
+    box-shadow: 0 0 0 3px rgba(201, 155, 59, .24);
+    color: var(--wa-dialog-ink);
+    outline: 0;
+}
+
+.wine-admin-shell .modal-body input[type="checkbox"],
+.wine-admin-shell .modal-body input[type="radio"],
+.wine-admin-shell .wine-quick-create-content input[type="checkbox"],
+.wine-admin-shell .wine-quick-create-content input[type="radio"] {
+    accent-color: #641b2c;
+}
+
+.wine-admin-shell .modal-body .select2-container--default .select2-selection,
+.wine-admin-shell .wine-quick-create-content .select2-container--default .select2-selection {
+    background: var(--wa-dialog-input);
+    border-color: var(--wa-dialog-line);
+    color: var(--wa-dialog-ink);
+}
+
+.wine-admin-shell .modal-body .select2-container--default .select2-selection__rendered,
+.wine-admin-shell .modal-body .select2-container--default .select2-selection__placeholder,
+.wine-admin-shell .wine-quick-create-content .select2-container--default .select2-selection__rendered,
+.wine-admin-shell .wine-quick-create-content .select2-container--default .select2-selection__placeholder,
+body.wine-admin-shell.popup .select2-container--default .select2-selection__rendered,
+body.wine-admin-shell.popup .select2-container--default .select2-selection__placeholder {
+    color: var(--wa-dialog-ink);
+}
+
+.wine-admin-shell .modal-body .select2-dropdown,
+.wine-admin-shell .wine-quick-create-content .select2-dropdown,
+body.wine-admin-shell.popup .select2-dropdown {
+    background: var(--wa-dialog-surface);
+    border-color: var(--wa-dialog-line);
+    color: var(--wa-dialog-ink);
+}
+
+.wine-admin-shell .modal-body .select2-results__option,
+.wine-admin-shell .wine-quick-create-content .select2-results__option,
+body.wine-admin-shell.popup .select2-results__option {
+    color: var(--wa-dialog-ink);
+}
+
+.wine-admin-shell .modal-body .select2-results__option--highlighted[aria-selected],
+.wine-admin-shell .wine-quick-create-content .select2-results__option--highlighted[aria-selected] {
+    background: #641b2c;
+    color: #fff;
+}
+
+.wine-admin-shell .modal-body pre,
+.wine-admin-shell .modal-body code {
+    background: var(--wa-dialog-body);
+    color: var(--wa-dialog-ink);
+}
+
+.wine-admin-shell .modal-footer .btn,
+.wine-admin-shell .annuler-modal .am-foot .btn,
+.wine-admin-shell .wine-confirm-actions button,
+.wine-admin-shell .wine-quick-create-actions button,
+.wine-admin-shell .pos-modal button,
+.wine-admin-shell .overlay .rec-actions a,
+.wine-admin-shell .overlay .rec-actions button,
+.wine-admin-shell .express-body .btn-exp {
+    border-radius: 10px;
+    font-weight: 750;
+}
+
+.wine-admin-shell .pos-modal .confirm-message {
+    color: var(--wa-dialog-ink);
+    line-height: 1.55;
+    margin: 0 0 1rem;
+}
+
+.wine-admin-shell .pos-modal .confirm-actions {
+    display: flex;
+    gap: .6rem;
+    justify-content: flex-end;
+}
+
+.wine-admin-shell .pos-modal .confirm-actions button {
+    min-height: 44px;
+    padding: .55rem 1rem;
+}
+
+.wine-admin-shell .pos-modal .confirm-action {
+    background: linear-gradient(100deg, #641b2c, #8b3046);
+    border: 1px solid #641b2c;
+    color: #fff;
+}
+
+.wine-admin-shell .modal-footer .btn:focus-visible,
+.wine-admin-shell .annuler-modal .am-foot .btn:focus-visible,
+.wine-admin-shell .wine-confirm-actions button:focus-visible,
+.wine-admin-shell .wine-quick-create-actions button:focus-visible,
+.wine-admin-shell .pos-modal button:focus-visible,
+.wine-admin-shell .overlay .rec-actions a:focus-visible,
+.wine-admin-shell .overlay .rec-actions button:focus-visible,
+.wine-admin-shell .express-body .btn-exp:focus-visible {
+    outline: 3px solid #c99b3b;
+    outline-offset: 2px;
+}
+
+.wine-admin-shell .modal .invalid-feedback,
+.wine-admin-shell .modal .errorlist,
+.wine-admin-shell .wine-quick-create-content .invalid-feedback,
+.wine-admin-shell .wine-quick-create-content .errorlist,
+body.wine-admin-shell.popup .fields-card .errorlist {
+    color: #b42338;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .modal .invalid-feedback,
+html[data-bs-theme="dark"] .wine-admin-shell .modal .errorlist,
+html[data-bs-theme="dark"] .wine-admin-shell .wine-quick-create-content .invalid-feedback,
+html[data-bs-theme="dark"] .wine-admin-shell .wine-quick-create-content .errorlist,
+html[data-bs-theme="dark"] body.wine-admin-shell.popup .fields-card .errorlist {
+    color: #ff9aa8;
+}
+
+html[data-bs-theme="dark"] body.wine-admin-shell.popup .fields-card .form-group:has(.errorlist) input,
+html[data-bs-theme="dark"] body.wine-admin-shell.popup .fields-card .form-group:has(.errorlist) select,
+html[data-bs-theme="dark"] body.wine-admin-shell.popup .fields-card .form-group:has(.errorlist) textarea,
+html[data-bs-theme="dark"] .wine-admin-shell .wine-quick-create-content .fields-card .form-group:has(.errorlist) input,
+html[data-bs-theme="dark"] .wine-admin-shell .wine-quick-create-content .fields-card .form-group:has(.errorlist) select,
+html[data-bs-theme="dark"] .wine-admin-shell .wine-quick-create-content .fields-card .form-group:has(.errorlist) textarea {
+    border-color: #ff9aa8;
+}
+
+html[data-bs-theme="dark"] body.wine-admin-shell.change-form #content-main .tab-content .form-group .errorlist {
+    border-color: #ff9aa8;
+    color: #ff9aa8;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .overlay .ok-banner {
+    background: linear-gradient(120deg, #174b35, #176b3e);
+    border-bottom: 1px solid rgba(230, 189, 106, .38);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .change-box {
+    background: #173b2b;
+    color: #b9f1ce;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .change-box.negar {
+    background: #4a202a;
+    color: #ffc1ca;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .quick-cash button,
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .pave button,
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .secondary-pay,
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .split .add-mode {
+    background: #302129;
+    border-color: var(--wa-dialog-line);
+    color: var(--wa-dialog-ink);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .overlay .rec-actions .alt {
+    background: #302129;
+    border-color: var(--wa-dialog-line);
+    color: var(--wa-dialog-ink);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .amount-big,
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .cash-more,
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .split .split-head,
+html[data-bs-theme="dark"] .wine-admin-shell .overlay .rec-total strong {
+    color: #efbd4f;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .split .restant {
+    color: #ff9aa8;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .split .restant.ok,
+html[data-bs-theme="dark"] .wine-admin-shell .wine-quick-create-state.is-success,
+html[data-bs-theme="dark"] .wine-admin-shell .wine-quick-create-state.is-success i {
+    color: #9fe0bb;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .pave button.op {
+    color: var(--wa-dialog-muted);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .pave button.clr {
+    background: #4a202a;
+    color: #ffc1ca;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .retour-line .info,
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .retour-line .max,
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .split .split-line .del {
+    color: var(--wa-dialog-muted);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .wine-confirm-title,
+html[data-bs-theme="dark"] .wine-admin-shell .wine-confirm-message,
+html[data-bs-theme="dark"] .wine-admin-shell .wine-confirm-message strong,
+html[data-bs-theme="dark"] .wine-admin-shell .wine-confirm-cancel {
+    color: var(--wa-dialog-ink);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .wine-confirm-icon,
+html[data-bs-theme="dark"] .wine-admin-shell .wine-confirm-cancel {
+    background: #302129;
+    border-color: var(--wa-dialog-line);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .wine-quick-create-state.is-error {
+    color: #ff9aa8;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .split .split-line,
+html[data-bs-theme="dark"] .wine-admin-shell .pos-modal .split,
+html[data-bs-theme="dark"] .wine-admin-shell .overlay .rec-lines {
+    border-color: var(--wa-dialog-line);
+}
+
+@media (max-width: 575px) {
+    .wine-admin-shell .wine-quick-create {
+        padding: .5rem;
+    }
+
+    .wine-admin-shell .wine-quick-create-dialog {
+        border-radius: 14px;
+        height: 96dvh;
+    }
+
+    .wine-admin-shell .modal-dialog {
+        margin: .5rem;
+    }
+}

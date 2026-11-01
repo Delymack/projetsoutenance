@@ -133,6 +133,20 @@ class CatalogueCaisseApiTests(BasePosApi):
         resultats = data['results'] if isinstance(data, dict) and 'results' in data else data
         self.assertTrue(any(c['nom'] == 'Rouge' for c in resultats))
 
+    def test_categories_sont_lisibles_sans_authentification(self):
+        self.client.logout()
+        response = self.client.get(reverse('categories-list'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_modification_categories_reste_protegee_sans_authentification(self):
+        self.client.logout()
+        response = self.client.post(
+            reverse('categories-list'),
+            {'nom': 'Nouvelle', 'statut': True},
+            content_type='application/json',
+        )
+        self.assertIn(response.status_code, (401, 403))
+
 
 # ---------------------------------------------------------------------------
 # Obligation de session (contrainte du poste de caisse)

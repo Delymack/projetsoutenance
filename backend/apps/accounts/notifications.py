@@ -22,6 +22,7 @@ def active_notifications():
                 'summary': 'Produit indisponible — réapprovisionnement nécessaire.',
                 'icon': 'fa-box-open',
                 'level': 'danger',
+                'category': 'stock',
                 'url': stock_url,
             })
         elif stock.quantite <= stock.seuil_alerte:
@@ -31,6 +32,7 @@ def active_notifications():
                 'summary': f'{stock.quantite} unité(s) restante(s), seuil : {stock.seuil_alerte}.',
                 'icon': 'fa-boxes-stacked',
                 'level': 'warning',
+                'category': 'stock',
                 'url': stock_url,
             })
 
@@ -52,17 +54,24 @@ def active_notifications():
             ])),
             'icon': 'fa-basket-shopping',
             'level': 'info',
+            'category': 'commande',
             'url': reverse('admin:ventes_reservation_change', args=[reservation.pk]),
         })
 
     for message in MessageClient.objects.filter(statut=MessageClient.Statut.NOUVEAU):
         items.append({
             'key': f'message-client:{message.pk}',
-            'title': f'Message client : {message.sujet}',
-            'summary': f'{message.nom} · {message.message[:110]}',
+            'title': f'Nouveau message client : {message.sujet}',
+            'summary': ' · '.join(filter(None, [
+                message.nom,
+                message.email or message.telephone,
+                message.message[:110],
+            ])),
             'icon': 'fa-envelope',
             'level': 'info',
-            'url': reverse('admin:ventes_messageclient_change', args=[message.pk]),
+            'category': 'message',
+            'url': f"{reverse('admin:ventes_messageclient_change', args=[message.pk])}?repondre=1",
+            'action_label': 'Répondre',
         })
 
     now = timezone.now()
@@ -85,6 +94,7 @@ def active_notifications():
             ),
             'icon': 'fa-calendar-xmark' if expiree else 'fa-clock',
             'level': 'danger' if expiree else 'warning',
+            'category': 'promotion',
             'url': promo_url,
         })
 
@@ -138,4 +148,11 @@ def notifications_pour_utilisateur(user):
             'etat': state.etat,
             'non_lue': state.etat == UserNotification.Etat.NON_LUE,
         })
-    return result
+    return sorted(
+        result,
+        key=lambda item: (
+            not item['non_lue'],
+            {'message': 0, 'commande': 1, 'stock': 2, 'promotion': 3}.get(item['category'], 4),
+            item['key'],
+        ),
+    )

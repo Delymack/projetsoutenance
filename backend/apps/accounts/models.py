@@ -23,8 +23,11 @@ class User(AbstractUser):
     telephone = models.CharField(max_length=30, blank=True, null=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.VENDEUR)
     avatar_url = models.URLField(blank=True, max_length=500)
+    avatar = models.CharField(max_length=100, blank=True, null=True)
     google_uid = models.CharField(max_length=128, blank=True, default='')
     is_2fa_enabled = models.BooleanField(default=False)
+    code_recuperation_expire_le = models.DateTimeField(blank=True, null=True)
+    code_recuperation_hash = models.CharField(max_length=128, blank=True, default='')
     totp_secret = models.CharField(
         max_length=64,
         blank=True,

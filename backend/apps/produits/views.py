@@ -27,7 +27,7 @@ class ProduitViewSet(viewsets.ModelViewSet):
         'nom', 'description', 'marque', 'appellation', 'cepage', 'type_vin', 'code_barre',
     ]
     ordering_fields = [
-        'nom', 'prix_vente', 'cout_revenir', 'date_creation', 'millesime', 'degre_alcool',
+        'nom', 'prix_vente', 'cout_revenir', 'date_creation', 'degre_alcool',
     ]
     ordering = ['-date_creation']
 

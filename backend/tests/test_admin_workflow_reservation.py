@@ -187,5 +187,6 @@ class WorkflowValidationAdminTests(TestCase):
 
         boutons = str(ReservationAdmin(Reservation, None).actions_reservation(reservation))
         self.assertIn('Encaisser', boutons)
+        self.assertIn(f'/admin/caisse/?reservation={reservation.pk}', boutons)
+        self.assertNotIn(f'/admin/ventes/reservation/{reservation.pk}/encaisser/', boutons)
         self.assertNotIn('Valider', boutons)
-

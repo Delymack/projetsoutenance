@@ -38,7 +38,7 @@
         0 2px 8px rgba(0, 0, 0, .18);
     display: flex;
     flex-direction: column;
-    height: min(820px, 90dvh);
+    height: min(860px, 92dvh);
     max-width: 960px;
     overflow: hidden;
     position: relative;
@@ -56,7 +56,7 @@
 }
 
 .wine-quick-create-dialog.is-wide {
-    height: min(900px, 94vh);
+    height: min(920px, 94dvh);
     max-width: 1440px;
     width: min(96vw, 1440px);
 }
@@ -125,8 +125,8 @@
 
 /* --- Corps -------------------------------------------------------- */
 .wine-quick-create-content {
-    background: var(--lb-canvas-2, #f5f2ed);
-    color: #3d3034;
+    background: var(--wa-dialog-body, var(--lb-canvas-2, #f5f2ed));
+    color: var(--wa-dialog-ink, #3d3034);
     flex: 1 1 auto;
     min-height: 0;
     overflow: auto;
@@ -195,10 +195,10 @@
 /* La carte des champs : c'est elle qui donne au formulaire l'épaisseur
    d'une fiche plutôt que l'air d'une page détachée. */
 .wine-quick-create-content .fields-card {
-    background: var(--lb-surface, #fff);
-    border: 1px solid #e9e1d8;
+    background: var(--wa-dialog-surface, var(--lb-surface, #fff));
+    border: 1px solid var(--wa-dialog-line, #e9e1d8);
     border-radius: 16px;
-    box-shadow: 0 10px 28px rgba(35, 17, 24, .06);
+    box-shadow: 0 10px 28px rgba(35, 17, 24, .08);
     margin: 0;
     overflow: hidden;
 }
@@ -208,8 +208,10 @@
 }
 
 .wine-quick-create-content .fields-card > .card-header {
-    background: var(--lb-wine-800, #34101c);
-    border-bottom: 0;
+    background:
+        radial-gradient(120% 180% at 90% 0, rgba(201, 155, 59, .16), transparent 60%),
+        var(--lb-wine-800, #34101c);
+    border-bottom: 1px solid rgba(201, 155, 59, .2);
     color: #fff;
     font-size: .78rem;
     font-weight: 800;
@@ -287,7 +289,7 @@
 }
 
 .wine-quick-create-content .fields-card .form-group > .row > label {
-        color: var(--lb-wine, #641b2c);
+        color: var(--wa-dialog-ink, var(--lb-wine, #641b2c));
         display: block;
         float: none;
         font-size: .74rem;
@@ -308,12 +310,12 @@
 .wine-quick-create-content .fields-card input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
     .wine-quick-create-content .fields-card select,
     .wine-quick-create-content .fields-card textarea {
-        background: #faf7f5;
-        border: 1px solid var(--lb-line, #ebe3de);
+        background: var(--wa-dialog-input, #faf7f5);
+        border: 1px solid var(--wa-dialog-line, var(--lb-line, #ebe3de));
         border-radius: 10px;
         box-shadow: none;
         box-sizing: border-box;
-        color: #1a1a1a;
+        color: var(--wa-dialog-ink, #1a1a1a);
         font-size: .96rem;
         font-weight: 500;
         letter-spacing: .01em;
@@ -327,7 +329,7 @@
 
     .wine-quick-create-content .fields-card input::placeholder,
     .wine-quick-create-content .fields-card textarea::placeholder {
-        color: #999;
+        color: var(--wa-dialog-placeholder, #75666a);
     }
 
 .wine-quick-create-content .fields-card input:not([type="checkbox"]):not([type="radio"]):focus,
@@ -343,7 +345,7 @@
     background: var(--lb-canvas, #faf7f5);
     border: 1px dashed var(--lb-line, #e5dbd2);
     border-radius: 10px;
-    color: #5f4e52;
+    color: var(--wa-dialog-muted, #5f4e52);
     font-size: .88rem;
     min-height: 42px;
     padding: .6rem .8rem;
@@ -351,7 +353,7 @@
 
 /* Aides et erreurs. */
 .wine-quick-create-content .help-block {
-    color: #7d7075;
+    color: var(--wa-dialog-muted, #7d7075);
     font-size: .78rem;
     margin-top: .3rem;
 }
@@ -372,40 +374,14 @@
     border-color: #a1263a;
 }
 
-/* Les champs restent lisibles dans les thèmes clair/sombre et après
-   l'injection AJAX du formulaire dans la fenêtre. */
-.wine-quick-create-content .fields-card input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
-.wine-quick-create-content .fields-card select,
-.wine-quick-create-content .fields-card textarea,
-.wine-quick-create-content .fields-card .select2-selection,
-.wine-quick-create-content .fields-card .select2-search__field {
-    background-color: #fff !important;
-    color: #2b1b20 !important;
-    color-scheme: light;
-    -webkit-text-fill-color: #2b1b20;
-}
-
-.wine-quick-create-content .fields-card input::placeholder,
-.wine-quick-create-content .fields-card textarea::placeholder,
-.wine-quick-create-content .fields-card .select2-selection__placeholder {
-    color: #786b6e !important;
-    opacity: 1;
-    -webkit-text-fill-color: #786b6e;
-}
-
-.wine-quick-create-content .fields-card .select2-selection__rendered,
-.wine-quick-create-content .fields-card .select2-results__option {
-    color: #2b1b20 !important;
-}
-
 /* --- Barre d'action ----------------------------------------------- */
 /* La barre suit le défilement avec le formulaire : dans une fenêtre de
    saisie, un bouton figé au bas de l'écran masque les derniers champs et
    donne l'impression que l'enregistrement est déjà lancé. */
 .wine-quick-create-content .submit-row.wine-quick-create-actions {
     align-items: center;
-    background: rgba(255, 255, 255, .96);
-    border: 1px solid #e8dfd3;
+    background: var(--wa-dialog-surface, rgba(255, 255, 255, .96));
+    border: 1px solid var(--wa-dialog-line, #e8dfd3);
     border-radius: 15px;
     box-shadow: 0 10px 28px rgba(35, 17, 24, .09);
     display: flex;
@@ -456,15 +432,15 @@
 }
 
 .wine-quick-create-content .submit-row.wine-quick-create-actions .wine-quick-create-cancel {
-        background: #fff;
-        border: 1px solid #d8cec5;
-        color: #645b5d;
+        background: var(--wa-dialog-body, #fff);
+        border: 1px solid var(--wa-dialog-line, #d8cec5);
+        color: var(--wa-dialog-muted, #645b5d);
     }
 
     .wine-quick-create-content .submit-row.wine-quick-create-actions .wine-quick-create-cancel:hover {
-        background: #f5f2ef;
-        border-color: #b7a9a2;
-        color: #3d3034;
+        background: var(--wa-dialog-surface, #f5f2ef);
+        border-color: var(--wa-dialog-line, #b7a9a2);
+        color: var(--wa-dialog-ink, #3d3034);
     }
 
     .wine-quick-create-content .submit-row.wine-quick-create-actions button:focus-visible {
@@ -476,7 +452,7 @@
 
     .wine-quick-create-content .submit-row.wine-quick-create-actions .wine-quick-create-feedback {
         flex: 1 0 100%;
-        color: #605459;
+        color: var(--wa-dialog-muted, #605459);
         font-size: .82rem;
         margin: .15rem 0 0;
         text-align: right;

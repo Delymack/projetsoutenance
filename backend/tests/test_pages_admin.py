@@ -46,8 +46,15 @@ class AccesPagesTests(TestCase):
         self.client.force_login(self.admin)
         response = self.client.get('/admin/')
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'wineadmin-sidebar.css?v=24')
+        self.assertContains(response, 'wineadmin-pages.css?v=5')
+        self.assertNotContains(response, 'wine-top-brand')
         self.assertContains(response, 'class="wine-brand"')
-        self.assertContains(response, 'img/lazani-betsileo-mark.svg')
+        self.assertContains(response, 'img/logo.webp?v=2')
+        self.assertContains(response, 'class="sidebar-visual"')
+        self.assertContains(response, 'img/sidebar-vineyard.png')
+        self.assertNotContains(response, 'class="sidebar-footer"')
+        self.assertNotContains(response, 'Documentation API')
         self.assertNotContains(response, 'class="sidebar-brand"')
         self.assertNotContains(response, 'class="sb-user"')
         self.assertNotContains(response, 'ESPACE CAISSE')
@@ -59,8 +66,9 @@ class AccesPagesTests(TestCase):
         self.assertContains(response, 'id="jazzy-usermenu"')
         self.assertContains(response, 'id="wine-notifications-trigger"')
         self.assertContains(response, 'id="wine-notifications-menu"')
-        self.assertContains(response, 'wineadmin-notifications.css?v=2')
-        self.assertContains(response, 'wineadmin-notifications.js?v=2')
+        self.assertContains(response, 'wineadmin-notifications.css?v=8')
+        self.assertContains(response, 'wineadmin-dialogs.css?v=2')
+        self.assertContains(response, 'wineadmin-notifications.js?v=5')
         self.assertContains(response, 'aria-labelledby="wine-account-trigger"')
         self.assertContains(response, 'Sécurité')
         self.assertContains(response, 'Mot de passe')
@@ -71,9 +79,9 @@ class AccesPagesTests(TestCase):
         self.assertNotContains(response, 'wine-account-stat')
         self.assertNotContains(response, 'wine-theme-toggle')
         self.assertContains(response, 'id="wine-quick-create"')
-        self.assertContains(response, 'wineadmin-quickcreate.css?v=10')
-        self.assertContains(response, 'wineadmin-popup.css?v=2')
-        self.assertContains(response, 'wineadmin-quickcreate.js?v=11')
+        self.assertContains(response, 'wineadmin-quickcreate.css?v=11')
+        self.assertContains(response, 'wineadmin-popup.css?v=3')
+        self.assertContains(response, 'wineadmin-quickcreate.js?v=14')
         quick_create_js = (RACINE / 'static' / 'js' / 'wineadmin-quickcreate.js').read_text(encoding='utf-8')
         self.assertIn("'[name=\"_addanother\"], [name=\"_continue\"], [name=\"_saveasnew\"], a'", quick_create_js)
         self.assertNotIn('Enregistrer et ajouter', quick_create_js)
@@ -93,7 +101,33 @@ class AccesPagesTests(TestCase):
         self.assertIn("'adresse_livraison'", quick_create_js)
         self.assertIn("'date_expiration'", quick_create_js)
         self.assertIn("'note'", quick_create_js)
-        self.assertIn("groupe.hidden = !champsRapides.has(champ);", quick_create_js)
+        self.assertIn("groupe.hidden = !champsEssentiels.has(champ)", quick_create_js)
+        self.assertIn("function simplifierModification(formulaire)", quick_create_js)
+        self.assertIn("function simplifierAjout(formulaire)", quick_create_js)
+        for precision in (
+            '.pd-create-hero p', '.cl-hero p', '.st-hero p', '.pr-create-hero p',
+            'fieldset .description', '.form-group .help-block',
+        ):
+            self.assertIn(precision, quick_create_js)
+        forms_unified_js = (
+            RACINE / 'static' / 'js' / 'wineadmin-forms-unified.js'
+        ).read_text(encoding='utf-8')
+        self.assertIn("contentTitle?.querySelector('.form-mode.add')", forms_unified_js)
+        self.assertIn('fieldset .description', forms_unified_js)
+        self.assertIn("'produits/produit': [", quick_create_js)
+        self.assertIn("'categories/categorie': ['nom', 'description', 'statut']", quick_create_js)
+        self.assertIn("'clients/client': ['nom', 'prenom', 'telephone', 'email', 'adresse', 'max_credit']", quick_create_js)
+        for modele in (
+            'account/emailaddress', 'accounts/user', 'accounts/verificationcode',
+            'categories/categorie', 'clients/client', 'parametres/parametre',
+            'promotions/promotion', 'produits/produit', 'stocks/stock',
+            'ventes/messageclient', 'ventes/reservation', 'ventes/vente',
+        ):
+            self.assertIn(f"'{modele}': [", quick_create_js)
+        for champ in ("'nom'", "'marque'", "'type_vin'", "'volume'", "'prix_vente'", "'statut'", "'image'"):
+            self.assertIn(champ, quick_create_js)
+        self.assertIn("!groupe.querySelector('.errorlist')", quick_create_js)
+        self.assertIn("groupe.hidden = !groupe.querySelector('.errorlist');", quick_create_js)
         self.assertIn("formulaire.querySelectorAll('.inline-group')", quick_create_js)
         self.assertIn("Boolean(lien.closest('tr')) && pageModification", quick_create_js)
         self.assertIn("lien.matches('.databtn-edit')", quick_create_js)
@@ -101,13 +135,20 @@ class AccesPagesTests(TestCase):
         self.assertIn('wine-quick-create-actions', quick_create_css)
         self.assertIn('justify-content: flex-end;', quick_create_css)
         self.assertIn('min-width: 140px;', quick_create_css)
-        self.assertIn('color: #2b1b20 !important;', quick_create_css)
+        self.assertIn('background: var(--wa-dialog-surface, var(--lb-surface, #fff));', quick_create_css)
+        self.assertNotIn('color: #2b1b20 !important;', quick_create_css)
         popup_css = (RACINE / 'static' / 'css' / 'wineadmin-popup.css').read_text(encoding='utf-8')
         self.assertIn('body.popup .fields-card select', popup_css)
+        self.assertNotIn('background-color: #fff !important;', popup_css)
         self.assertIn('body.wine-quick-create-open .select2-dropdown', popup_css)
         self.assertIn("'[name=\"_addanother\"], [name=\"_continue\"], [name=\"_saveasnew\"], a'", quick_create_js)
         self.assertNotIn('position: sticky;', quick_create_css)
         self.assertContains(response, 'data-quick-create="wide"')
+        dialogs_css = (RACINE / 'static' / 'css' / 'wineadmin-dialogs.css').read_text(encoding='utf-8')
+        self.assertIn('.wine-admin-shell .pos-modal .pay-card', dialogs_css)
+        self.assertIn('html[data-bs-theme="dark"] .wine-admin-shell', dialogs_css)
+        self.assertIn('.wine-admin-shell .wine-quick-create-content input:focus', dialogs_css)
+        self.assertIn('body.wine-admin-shell.change-form #content-main .tab-content .form-group input', dialogs_css)
 
         html = response.content.decode()
         self.assertEqual(html.count('wineadmin.js?v=12'), 1)
@@ -157,13 +198,17 @@ class AccesPagesTests(TestCase):
         for identifiant in (
             'report-print', 'report-pdf', 'report-xlsx', 'report-csv',
             'report-start', 'report-end', 'report-group', 'sales-table',
-            'promotions-table',
+            'promotions-table', 'report-chart', 'sales-chart-title',
+            'report-filter-title', 'promo-sales', 'promo-discount',
         ):
             with self.subTest(identifiant=identifiant):
                 self.assertContains(response, f'id="{identifiant}"')
         self.assertContains(response, 'Filtres')
         self.assertContains(response, 'Ventes')
         self.assertContains(response, 'Promotions')
+        self.assertContains(response, 'Appliquer')
+        self.assertContains(response, 'Évolution des ventes')
+        self.assertContains(response, 'Détail des ventes')
         self.assertNotContains(response, 'Données actualisées à la demande')
         self.assertNotContains(response, 'Analysez les ventes')
 
@@ -257,6 +302,10 @@ class PromotionAdminTests(TestCase):
         self.assertNotEqual(kpis['expirees'], 0)
         self.assertIn('Promo à échéance', response.content.decode())
         self.assertIsNotNone(response.context.get('promotions_alerts'))
+        html = response.content.decode()
+        self.assertIn('Liste des promotions', html)
+        for retire in ('Impact réel', 'Top promos', 'Happy hour</small>', 'Sans cible</small>'):
+            self.assertNotIn(retire, html)
 
     def test_impact_promotions_utilise_le_champ_total_des_ventes(self):
         produit = Produit.objects.create(
@@ -289,10 +338,14 @@ class PromotionAdminTests(TestCase):
         response = self.client.get('/admin/promotions/promotion/')
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Ventes promo')
-        self.assertContains(response, 'Remise accordée')
-        self.assertContains(response, 'CA généré')
         self.assertContains(response, 'Désactiver')
+        html = response.content.decode()
+        for column in ('column-nom', 'column-regle_display', 'column-cible_display',
+                       'column-etat_display', 'column-statut_toggle_display'):
+            self.assertIn(column, html)
+        for removed_column in ('column-ventes_stat_display', 'column-remise_stat_display',
+                               'column-ca_stat_display'):
+            self.assertNotIn(removed_column, html)
         kpis = response.context['promotions_kpis']
         self.assertEqual(kpis['ca_total_30j'], Decimal('9000.00'))
         self.assertEqual(kpis['ca_promo_30j'], Decimal('9000.00'))
@@ -337,8 +390,12 @@ class ChangelistsVentesProduitsTests(TestCase):
             'Le catalogue de vos cuvées',
             'Référentiel',
             'potentiel Ar',
+            'Marge en stock',
+            'Étiquettes',
         ):
             self.assertNotIn(precision, html)
+        self.assertIn('Catalogue produits', html)
+        self.assertIn('En rupture', html)
 
     def test_changelist_ventes_avec_remise_manuelle(self):
         """La fiche vente affiche la remise manuelle, y compris après allègement
@@ -435,3 +492,45 @@ class POSTests(TestCase):
         response = self.client.get('/admin/caisse/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Nouvelle vente')
+        self.assertContains(response, 'wine-pos-page')
+        self.assertContains(response, 'wineadmin-pos.css?v=7')
+        self.assertContains(response, 'wineadmin-pos.js?v=10')
+        self.assertContains(response, 'Vente rapide et sécurisée')
+        self.assertContains(response, 'Plus d’actions')
+        self.assertNotContains(response, 'pos-quick-actions')
+        self.assertContains(response, 'id="reservation-banner"')
+        self.assertContains(response, 'id="reservation-queue"')
+        self.assertContains(response, 'id="selected-client-card"')
+        self.assertContains(response, 'id="client-selection-help"')
+        self.assertContains(response, 'id="client-select"')
+        self.assertContains(response, 'id="pos-confirm-modal"')
+        self.assertContains(response, 'Commandes à traiter')
+        self.assertContains(response, 'reservation-queue-icon')
+        self.assertContains(response, 'reservation-balance')
+        self.assertContains(response, 'id="receipt-facture"')
+        self.assertContains(response, 'Ouvrir la facture')
+        self.assertContains(response, 'Panier de vente')
+        self.assertContains(response, 'id="product-list"')
+        html = response.content.decode()
+        self.assertLess(html.index('id="reservation-queue"'), html.index('id="product-list"'))
+        self.assertLess(html.index('id="reservation-queue"'), html.index('id="cart-panel"'))
+        styles = (RACINE / 'static' / 'css' / 'wineadmin-pos.css').read_text(encoding='utf-8')
+        self.assertIn('.wine-pos-page .pos .client-selection {', styles)
+        self.assertIn('html[data-bs-theme="light"] .wine-pos-page .pos .client-selection', styles)
+        self.assertIn('.wine-pos-page:not(.dense) .product-thumb', styles)
+        self.assertIn('grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));', styles)
+        self.assertIn('linear-gradient(155deg, #34101c, #2a0d16)', styles)
+        self.assertIn('url("../img/sidebar-vineyard.png")', styles)
+        self.assertIn('grid-template-columns: minmax(0, 1.45fr) minmax(210px, .85fr);', styles)
+        self.assertIn('.wine-pos-page .pos:not(.dense) .product-add', styles)
+        script = (RACINE / 'static' / 'js' / 'wineadmin-pos.js').read_text(encoding='utf-8')
+        self.assertIn('demanderConfirmation(', script)
+        self.assertNotIn('confirm(', script)
+        self.assertIn("dense: 'caveor-pos-dense-v2'", script)
+        self.assertIn('let dense = false;', script)
+        self.assertIn("marque === 'lazani betsileo'", script)
+        self.assertIn('${precision ? `<span class="product-brand">', script)
+        self.assertNotIn("$('quick-client').addEventListener('click'", script)
+        self.assertIn('<details class="cart-line-actions">', script)
+        self.assertIn('data-action="plus"', script)
+        self.assertIn('data-action="remise"', script)

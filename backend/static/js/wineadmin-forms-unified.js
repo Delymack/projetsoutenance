@@ -13,12 +13,24 @@
         const changeForm = document.querySelector('.change-form');
         if (!changeForm) return;
 
-        // Ne pas appliquer si le template a déjà son propre hero (ex: produit création)
-        if (changeForm.querySelector('.pd-create-hero')) return;
-        if (changeForm.querySelector('.form-hero')) return;
-
         // Trouver le content-title pour extraire les informations
         const contentTitle = document.querySelector('.app-content-header h3');
+        if (contentTitle?.querySelector('.form-mode.add')) {
+            changeForm.querySelectorAll(
+                '.pd-create-hero p, .pd-create-pill, .cl-hero p, .cl-hero-pill, ' +
+                '.st-hero p, .st-hero-pill, .pr-create-hero p, .pr-create-pill, ' +
+                '.form-hero p, .form-hero-badge, fieldset .description, ' +
+                '.form-group .help-block, .form-group .form-text, .form-group .help'
+            ).forEach(function (element) {
+                if (!element.querySelector('input, select, textarea, button, a')) {
+                    element.remove();
+                }
+            });
+        }
+
+        // Ne pas appliquer si le template a déjà son propre hero.
+        if (changeForm.querySelector('.pd-create-hero, .cl-hero, .st-hero, .pr-create-hero')) return;
+        if (changeForm.querySelector('.form-hero')) return;
         if (!contentTitle) return;
 
         const titleText = contentTitle.textContent.trim();

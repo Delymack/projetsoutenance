@@ -1,5 +1,4 @@
 {% extends "admin/change_list.html" %}
-{% load i18n lb_tags %}
 
 {% block content_title %}{% endblock %}
 
@@ -37,16 +36,50 @@
   .model-client.change-list #changelist.filtered #changelist-form { width: 100%; }
   .model-client.change-list #changelist .changelist-form-container { width: 100%; }
 
-  /* Barre de recherche : une seule ligne, recherche à gauche, compteur à droite. */
-  .model-client.change-list .lb-portefeuille { flex-wrap: wrap; }
-  .model-client.change-list .lb-searchbar {
+  .model-client.change-list .client-list-toolbar {
       align-items: center;
       border-bottom: 1px solid var(--lb-line);
       display: flex;
       flex-wrap: wrap;
-      gap: .5rem;
+      gap: .75rem;
+      justify-content: space-between;
+      margin: 0 0 .85rem;
+      padding: 0 0 .75rem;
+  }
+  .model-client.change-list .client-list-toolbar h1 {
+      color: var(--lb-ink);
+      font-size: 1.15rem;
+      font-weight: 800;
       margin: 0;
-      padding: 0 1.25rem .9rem;
+  }
+  .model-client.change-list .client-list-toolbar h1 i {
+      color: var(--lb-wine);
+      margin-right: .4rem;
+  }
+  .model-client.change-list .client-list-toolbar .lb-btn {
+      background: linear-gradient(110deg, #641b2c, #853046);
+      border: 0;
+      border-radius: 9px;
+      color: #fff;
+      font-weight: 750;
+      min-height: 40px;
+      padding: .55rem .85rem;
+  }
+  .model-client.change-list .client-list-toolbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+  }
+  .model-client.change-list .list-print-actions { display: none !important; }
+
+  /* Barre utile : recherche directe et nombre de résultats. */
+  .model-client.change-list .lb-searchbar {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin: 0 0 .85rem;
+      padding: 0;
   }
   .model-client.change-list .lb-searchbar-icon { color: var(--lb-ink-500); }
   .model-client.change-list .lb-searchbar input[type="search"] {
@@ -88,53 +121,16 @@
 {% endblock %}
 
 {% block content %}
-<div class="lb-hero">
-  <div class="lb-hero-body">
-    <div class="lb-eyebrow">Fidélité</div>
-    <h1><i class="fas fa-users lb-hero-icon"></i>Clients</h1>
+<header class="client-list-toolbar">
+  <h1><i class="fas fa-users" aria-hidden="true"></i>Clients</h1>
+  <div class="client-list-toolbar-actions">
+    <button class="lb-btn client-print-button" type="button" data-admin-print-list aria-label="Imprimer la liste des clients">
+      <i class="fas fa-print" aria-hidden="true"></i> Imprimer
+    </button>
+    <a class="lb-btn" href="{% url 'admin:clients_client_add' %}">
+      <i class="fas fa-user-plus" aria-hidden="true"></i> Nouveau client
+    </a>
   </div>
-  <div class="lb-hero-actions">
-    <a class="lb-btn" href="{% url 'admin:clients_client_add' %}"><i class="fas fa-user-plus"></i> Nouveau client</a>
-  </div>
-</div>
-
-<section class="lb-kpis">
-  <a class="lb-kpi is-clickable" href="{% url 'admin:clients_client_changelist' %}">
-    <i class="fas fa-users lb-kpi-icon"></i>
-    <small>Clients enregistrés</small>
-    <strong>{{ clients_kpis.total|intcomma }}</strong>
-  </a>
-  <a class="lb-kpi lb-kpi-ok is-clickable" href="?fidelite=fidelite">
-    <i class="fas fa-crown lb-kpi-icon"></i>
-    <small>Acheteurs actifs</small>
-    <strong>{{ clients_kpis.actifs|intcomma }}</strong>
-  </a>
-  <a class="lb-kpi lb-kpi-warn is-clickable" href="?solde_due=1">
-    <i class="fas fa-scale-balanced lb-kpi-icon"></i>
-    <small>Encours total</small>
-    <strong>{{ clients_kpis.encours|floatformat:0|intcomma }}</strong>
-  </a>
-  <a class="lb-kpi is-clickable" href="?fidelite=ambassadeur">
-    <i class="fas fa-chart-line lb-kpi-icon"></i>
-    <small>CA clients</small>
-    <strong>{{ clients_kpis.ca_total|floatformat:0|intcomma }}</strong>
-  </a>
-  <a class="lb-kpi lb-kpi-neutral is-clickable" href="?type_client__exact=REVENDEUR">
-    <i class="fas fa-store lb-kpi-icon"></i>
-    <small>Revendeurs</small>
-    <strong>{{ clients_kpis.revenus|intcomma }}</strong>
-  </a>
-  <a class="lb-kpi lb-kpi-danger is-clickable" href="?inactif_90j=1">
-    <i class="fas fa-user-clock lb-kpi-icon"></i>
-    <small>Sans achat 90 j</small>
-    <strong>{{ clients_kpis.sans_achat_90j|intcomma }}</strong>
-  </a>
-</section>
-
-<div class="lb-panel">
-  <div class="lb-panel-head lb-portefeuille">
-    <h2><i class="fas fa-layer-group lb-kpi-icon"></i> Portefeuille clients</h2>
-  </div>
-  <div class="lb-panel-body lb-panel-body--flush">{{ block.super }}</div>
-</div>
+</header>
+{{ block.super }}
 {% endblock %}
