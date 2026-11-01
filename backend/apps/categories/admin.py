@@ -6,7 +6,7 @@ from config.admin_mixins import ActionsColonneMixin
 @admin.register(Categorie)
 class CategorieAdmin(ActionsColonneMixin, admin.ModelAdmin):
     change_list_template = 'admin/categories/categorie/change_list.html'
-    list_display = ('nom', 'produits_count', 'statut', 'date_creation')
+    list_display = ('nom', 'produits_count', 'statut')
     search_fields = ('nom',)
     list_filter = ('statut',)
     ordering = ('nom',)

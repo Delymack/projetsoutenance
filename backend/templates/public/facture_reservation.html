@@ -60,6 +60,21 @@
             body { background:#fff; padding:0; }
             .toolbar { display:none !important; }
             .invoice { box-shadow:none; border-radius:0; max-width:100%; }
+            * {
+                background:none !important;
+                box-shadow:none !important;
+                color:#000 !important;
+                text-shadow:none !important;
+            }
+            body, .invoice { background:#fff !important; }
+            .inv-head { border-bottom:2px solid #000; }
+            .inv-brand .logo { display:none !important; }
+            .status-chip, .retour { border:1px solid #555 !important; border-radius:0 !important; }
+            table.items thead th { border-bottom:2px solid #000 !important; }
+            table.items td { border-bottom:1px solid #777 !important; }
+            .totaux .row.grand { border-top:2px solid #000 !important; }
+            .inv-foot { border-top:1px solid #000 !important; }
+            tr, .party, .totaux, .retour { break-inside:avoid; }
         }
         @media (max-width:620px) { .parties { flex-direction:column; } .totaux { flex-direction:column; } }
     </style>
@@ -124,7 +139,7 @@
                         <td>
                             <span class="prod">{{ ligne.produit.nom }}</span>
                             <div class="sub">
-                                {{ ligne.produit.marque }}{% if ligne.produit.millesime %} · {{ ligne.produit.millesime }}{% endif %}
+                                {{ ligne.produit.marque }}
                                 {% if ligne.unite != 'BOUTEILLE' %} · vendu au {{ ligne.get_unite_display|lower }}{% endif %}
                                 {% if ligne.contenance > 1 %} · {{ ligne.contenance }} bouteilles{% endif %}
                             </div>

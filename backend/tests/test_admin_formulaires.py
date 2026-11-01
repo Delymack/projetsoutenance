@@ -358,7 +358,7 @@ class FormulairesAdminTests(TestCase):
         html = ajout.content.decode()
         self.assertIn('pd-create-hero', html)
         for absent in (
-            'name="cepage"', 'name="code_barre"', 'name="millesime"',
+            'name="cepage"', 'name="code_barre"',
             'name="categorie"', 'name="cout_revenir"',
         ):
             self.assertNotIn(
@@ -394,8 +394,9 @@ class FormulairesAdminTests(TestCase):
 
         self.assertEqual(fiche.status_code, 200)
         html = fiche.content.decode()
+        self.assertNotIn('name="millesime"', html)
         for attendu in (
-            'name="code_barre"', 'name="cepage"', 'name="millesime"',
+            'name="code_barre"', 'name="cepage"',
             'name="categorie"', 'name="image"',
         ):
             self.assertIn(attendu, html, f'{attendu} absent de la fiche')

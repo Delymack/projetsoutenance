@@ -1,5 +1,6 @@
 import json
 from datetime import timedelta
+from decimal import Decimal
 
 from django.test import TestCase
 from django.urls import reverse
@@ -11,7 +12,7 @@ from apps.clients.models import Client
 from apps.produits.models import Produit
 from apps.stocks.models import Stock
 from apps.ventes.models import MessageClient, Reservation, Vente
-from apps.ventes.services import ReservationService
+from apps.ventes.services import CaisseService, ReservationService
 
 
 class CommandesClientsTests(TestCase):
@@ -103,9 +104,75 @@ class CommandesClientsTests(TestCase):
         )
 
         reservation = Reservation.objects.get(source=Reservation.Source.INTERNE)
-        self.assertRedirects(response, reverse('admin:ventes_reservation_change', args=[reservation.pk]))
+        self.assertRedirects(
+            response,
+            reverse('admin:ventes_reservation_change', args=[reservation.pk]),
+        )
+        fiche = self.client.get(response.url)
+        self.assertContains(
+            fiche,
+            f'{reverse("caisse-enregistreuse")}?reservation={reservation.pk}',
+        )
+        self.assertContains(fiche, 'Encaisser à la caisse')
         self.assertEqual(reservation.utilisateur, self.admin)
         self.assertEqual(reservation.montant_total, 9000)
+
+    def test_commande_manuelle_est_encaissee_depuis_le_flux_caisse(self):
+        client = Client.objects.create(nom='Ando', prenom='Lala', telephone='0340004321')
+        reservation = ReservationService.creer(
+            client_id=client.pk,
+            lignes_data=[{'produit_id': self.produit.pk, 'quantite': 2}],
+            utilisateur=self.admin,
+            acompte=Decimal('3000.00'),
+            mode_acompte=Vente.ModePaiement.ESPECES,
+        )
+        endpoint = reverse('reservations-detail', args=[reservation.pk])
+        detail = self.client.get(endpoint)
+        self.assertEqual(detail.status_code, 200)
+        self.assertEqual(detail.json()['solde_du'], '15000.00')
+
+        response = self.client.post(
+            reverse('reservations-encaisser', args=[reservation.pk]),
+            data=json.dumps({
+                'mode_paiement': Vente.ModePaiement.ESPECES,
+                'montant': str(reservation.solde_du),
+            }),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200, response.content)
+        reservation.refresh_from_db()
+        self.assertEqual(reservation.statut, Reservation.Statut.SOLDEE)
+        self.assertEqual(reservation.vente.total, reservation.montant_total)
+        self.assertEqual(reservation.vente.acompte_anticipe, Decimal('3000.00'))
+        self.assertEqual(reservation.vente.paiements.get().montant, Decimal('15000.00'))
+
+    def test_file_caisse_affiche_commandes_manuelles_et_site_a_traiter(self):
+        client_interne = Client.objects.create(nom='Client', prenom='Interne')
+        commande_interne = ReservationService.creer(
+            client_id=client_interne.pk,
+            lignes_data=[{'produit_id': self.produit.pk, 'quantite': 1}],
+            utilisateur=self.admin,
+        )
+        client_site = Client.objects.create(nom='Client', prenom='Site')
+        commande_site = ReservationService.creer(
+            client_id=client_site.pk,
+            lignes_data=[{'produit_id': self.produit.pk, 'quantite': 1}],
+            utilisateur=self.admin,
+            source=Reservation.Source.SITE,
+        )
+
+        response = self.client.get('/api/reservations/?a_retirer=1')
+
+        self.assertEqual(response.status_code, 200)
+        commandes = response.data['results']
+        par_id = {commande['id']: commande for commande in commandes}
+        self.assertEqual(par_id[commande_interne.pk]['source'], Reservation.Source.INTERNE)
+        self.assertEqual(par_id[commande_site.pk]['source'], Reservation.Source.SITE)
+        self.assertEqual(
+            par_id[commande_site.pk]['validation_statut'],
+            Reservation.ValidationStatut.A_VALIDER,
+        )
 
     def test_reservation_revendeur_conserve_son_tarif_jusqua_encaissement(self):
         client = Client.objects.create(
@@ -146,7 +213,7 @@ class CommandesClientsTests(TestCase):
         notifications = notifications_pour_utilisateur(self.admin)
         titres = [item['title'] for item in notifications]
         self.assertTrue(any('Nouvelle commande client' in titre for titre in titres))
-        self.assertIn('Message client : Disponibilité', titres)
+        self.assertIn('Nouveau message client : Disponibilité', titres)
         self.assertEqual(MessageClient.objects.count(), 1)
 
     def test_message_client_refuse_sans_telephone_ni_email(self):

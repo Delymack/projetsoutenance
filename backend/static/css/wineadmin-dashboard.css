@@ -117,11 +117,14 @@
 }
 
 .dash-hero__logo {
+  background: #f3edda;
+  border: 1px solid rgba(233, 185, 73, .65);
   display: block;
-  width: 56px;
-  height: 56px;
+  width: 128px;
+  height: 60px;
   margin-bottom: .9rem;
-  border-radius: 14px;
+  border-radius: 10px;
+  object-fit: contain;
   box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
 }
 

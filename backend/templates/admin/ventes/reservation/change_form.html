@@ -41,11 +41,8 @@ Standard soutenance : le jury voit le circuit sans deviner.
           </a>
           <span class="lb-workflow__aide">L'encaissement sera possible après validation.</span>
         {% elif original.statut == 'EN_ATTENTE' or original.statut == 'ACOMPTE' %}
-          <a class="lb-btn lb-btn--sage" href="{% url 'admin:reservation-encaisser' original.pk %}">
-            <i class="fas fa-cash-register"></i> Encaisser (espèces)
-          </a>
-          <a class="lb-btn" href="{% url 'caisse-enregistreuse' %}">
-            <i class="fas fa-cash-register"></i> Ouvrir la caisse
+          <a class="lb-btn lb-btn--sage" href="{% url 'caisse-enregistreuse' %}?reservation={{ original.pk }}">
+            <i class="fas fa-cash-register"></i> Encaisser à la caisse
           </a>
         {% elif original.statut == 'SOLDEE' and original.vente_id %}
           <a class="lb-btn" href="{% url 'admin:ventes_vente_change' original.vente_id %}">

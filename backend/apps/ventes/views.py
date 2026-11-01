@@ -290,7 +290,9 @@ class ReservationViewSet(viewsets.ModelViewSet):
         if self.request.query_params.get('a_retirer') == '1':
             qs = qs.filter(
                 statut__in=[Reservation.Statut.EN_ATTENTE, Reservation.Statut.ACOMPTE],
-                date_expiration__gte=timezone.localdate(),
+            ).filter(
+                Q(date_expiration__isnull=True)
+                | Q(date_expiration__gte=timezone.localdate())
             ).order_by('date_expiration', 'date_creation')
         return qs
 
@@ -582,6 +584,13 @@ class ReservationViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='encaisser')
     def encaisser(self, request, pk=None):
         """Solde la réservation : la vente part, le stock bouge, le CA est réalisé."""
+        blocage = CaisseService.session_requise_et_absente(request.user)
+        if blocage:
+            return Response({
+                "success": False,
+                "message": "Caisse fermée.",
+                "errors": {"session": blocage['message']},
+            }, status=status.HTTP_409_CONFLICT)
         try:
             vente, reservation = ReservationService.encaisser(
                 reservation_id=pk,

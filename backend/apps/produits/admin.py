@@ -50,7 +50,7 @@ def exporter_csv(modeladmin, request, queryset):
     response['Content-Disposition'] = 'attachment; filename="export_produits.csv"'
     writer = csv.writer(response, delimiter=';')
     writer.writerow([
-        'Nom', 'Marque', 'Appellation', 'Cépage', 'Type', 'Millésime', 'Volume',
+        'Nom', 'Marque', 'Appellation', 'Cépage', 'Type', 'Volume',
         'Degré', 'Code-barres', 'Unité', 'Contenance', 'Coût de revient',
         'Prix détaillant', 'Prix consommateur', 'Prix lot', 'Marge',
         'Catégorie', 'Stock', 'Statut',
@@ -63,7 +63,7 @@ def exporter_csv(modeladmin, request, queryset):
         marge = prod.prix_vente - prod.cout_revenir
         writer.writerow([
             prod.nom, prod.marque, prod.appellation, prod.cepage, prod.type_vin,
-            prod.millesime or '', prod.volume, prod.degre_libelle,
+            prod.volume, prod.degre_libelle,
             prod.code_barre or '', prod.get_unite_vente_display(), prod.contenance,
             prod.cout_revenir, prod.prix_revendeur, prod.prix_vente,
             prod.prix_conditionnement or '', marge,
@@ -258,7 +258,7 @@ class ProduitAdmin(ActionsColonneMixin, admin.ModelAdmin):
         }),
         ('Cave', {
             'fields': (
-                'millesime', 'appellation', 'cepage', 'degre_alcool',
+                'appellation', 'cepage', 'degre_alcool',
                 'elevage', 'temperature_service', 'potentiel_garde',
             ),
         }),
@@ -280,7 +280,7 @@ class ProduitAdmin(ActionsColonneMixin, admin.ModelAdmin):
         """Fiche complète à la modification, champs essentiels à la création.
 
         Ce qui est retiré pour aller vite à la création (code-barres,
-        cépage, millésime, catégorie…) doit rester saisissable ensuite :
+        cépage, catégorie…) doit rester saisissable ensuite :
         la fiche est le seul endroit où ces attributs de cave se renseignent.
         """
         if obj is None:
@@ -348,10 +348,15 @@ class ProduitAdmin(ActionsColonneMixin, admin.ModelAdmin):
         """Aperçu miniature de l'image du produit dans la liste et le détail admin."""
         if obj.image:
             return format_html(
-                '<img src="{}" style="width:48px;height:48px;object-fit:cover;border-radius:6px" />',
-                obj.image.url
+                '<img src="{}" alt="Photo de {}">',
+                obj.image.url,
+                obj.nom,
             )
-        return format_html('<span style="color:#999">{}</span>', '—')
+        return format_html(
+            '<span class="product-card-placeholder" aria-hidden="true">'
+            '<i class="fas fa-wine-bottle">{}</i></span>',
+            '',
+        )
 
     @admin.display(description='État', boolean=True)
     def statut_display(self, obj):
@@ -465,7 +470,7 @@ class ProduitAdmin(ActionsColonneMixin, admin.ModelAdmin):
         response['Content-Disposition'] = 'attachment; filename="produits_export.csv"'
         writer = csv.writer(response, delimiter=';')
         writer.writerow([
-            'Nom', 'Marque', 'Appellation', 'Cépage', 'Type', 'Millésime', 'Volume',
+            'Nom', 'Marque', 'Appellation', 'Cépage', 'Type', 'Volume',
             'Degré', 'Code-barres', 'Unité', 'Contenance', 'Coût de revient',
             'Prix Vente', 'Prix lot', 'Marge', 'Catégorie', 'Stock', 'Statut',
         ])
@@ -477,7 +482,7 @@ class ProduitAdmin(ActionsColonneMixin, admin.ModelAdmin):
             marge = prod.marge_unitaire
             writer.writerow([
                 prod.nom, prod.marque, prod.appellation, prod.cepage,
-                prod.get_type_vin_display(), prod.millesime or '', prod.volume,
+                prod.get_type_vin_display(), prod.volume,
                 prod.degre_libelle, prod.code_barre or '',
                 prod.get_unite_vente_display(), prod.contenance,
                 prod.cout_revenir, prod.prix_vente, prod.prix_conditionnement or '', marge,

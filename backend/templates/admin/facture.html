@@ -147,6 +147,25 @@
             .invoice { box-shadow:none; border-radius:0; max-width:100%; }
             /* @page pilote la largeur du papier : 80 mm en continu. */
             body.ticket80 .invoice { margin:0; max-width:none; width:80mm; }
+
+            * {
+                background:none !important;
+                box-shadow:none !important;
+                color:#000 !important;
+                text-shadow:none !important;
+            }
+            body, .invoice, body.ticket80 .invoice { background:#fff !important; }
+            .inv-head { border-bottom:2px solid #000; }
+            .inv-brand .logo, .qr-box, .reglement .ligne .mode i { display:none !important; }
+            .status-chip, .reglement, .motifs, .retour {
+                border:1px solid #555 !important;
+                border-radius:0 !important;
+            }
+            table.items thead th { border-bottom:2px solid #000 !important; }
+            table.items td, .reglement .ligne { border-bottom:1px solid #777 !important; }
+            .totaux .row.grand { border-top:2px solid #000 !important; }
+            .inv-foot { border-top:1px solid #000 !important; }
+            tr, .party, .reglement, .totaux, .motifs { break-inside:avoid; }
         }
         @page ticket80 { size:80mm auto; margin:4mm; }
         @media print { body.ticket80 .invoice { page: ticket80; } }
@@ -237,7 +256,7 @@
                         <td>
                             <span class="prod">{{ ligne.produit.nom }}</span>
                             <div class="sub">
-                                {{ ligne.produit.marque }}{% if ligne.produit.millesime %} · {{ ligne.produit.millesime }}{% endif %}
+                                {{ ligne.produit.marque }}
                                 {% if ligne.unite != 'BOUTEILLE' %} · vendu au {{ ligne.get_unite_display|lower }}{% endif %}
                                 {% if ligne.contenance > 1 %} · {{ ligne.contenance }} bouteilles{% endif %}
                             </div>

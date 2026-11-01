@@ -30,7 +30,7 @@
 
   {# ---- Identité de la boutique ---- #}
   <a href="{% url 'admin:index' %}" class="wine-brand" id="jazzy-logo" title="Accueil — {{ jazzmin_settings.site_header|default:"LAZAN'I BETSILEO" }}">
-    <img class="wine-brand-mark" src="{% static 'img/lazani-betsileo-mark.svg' %}" alt="" width="52" height="52" aria-hidden="true">
+    <img class="wine-brand-mark" src="{% static 'img/logo.webp' %}?v=2" alt="Logo LAZAN' BETSILEO" width="104" height="48">
     <span class="wine-brand-text">
       <span class="wine-brand-title">{{ jazzmin_settings.site_header|default:"LAZAN'I BETSILEO" }}</span>
       <span class="wine-brand-subtitle">Cave &amp; Boutique</span>
@@ -177,20 +177,15 @@
     </nav>
   </div>
 
-  {# ---- Footer ---- #}
-  <div class="sidebar-footer">
-    <a href="/api/docs/" target="_blank" rel="noopener" class="sf-item">
-      <span class="sf-icon"><i class="fas fa-book-open"></i></span>
-      <span>Documentation API</span>
-    </a>
-    <a href="{% url 'admin:password_change' %}" class="sf-item">
-      <span class="sf-icon"><img class="sb-png" src="{% sidebar_icon 'securite' %}" alt=""></span>
-      <span>Changer le mot de passe</span>
-    </a>
-    <div class="sf-divider"></div>
-    <div class="sf-brand">
-      <i class="fas fa-wine-bottle"></i>
-      <span>LAZAN' BETSILEO — v1.1</span>
+  {# Image décorative à la place du pied de navigation. #}
+  <div class="sidebar-visual" role="img" aria-label="Vignoble et verre de vin au coucher du soleil">
+    <img src="{% static 'img/sidebar-vineyard.png' %}" alt="">
+    <div class="sidebar-visual-caption">
+      <img src="{% static 'img/logo.webp' %}?v=2" alt="" aria-hidden="true">
+      <span>
+        <strong>LAZAN' BETSILEO</strong>
+        <small>Cave &amp; Boutique</small>
+      </span>
     </div>
   </div>
 </aside>

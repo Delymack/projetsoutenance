@@ -357,6 +357,8 @@ class FactureCommandeTests(APITestCase):
         self.assertIn(reservation.reference, html)
         self.assertIn('Hanta', html)
         self.assertIn('Imprimer', html)
+        self.assertIn('color:#000 !important', html)
+        self.assertIn('.inv-brand .logo { display:none !important; }', html)
 
     def test_commande_non_validee_sans_facture(self):
         self.client.force_authenticate(user=self.client_user)

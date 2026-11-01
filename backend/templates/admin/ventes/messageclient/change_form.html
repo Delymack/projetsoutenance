@@ -1,0 +1,49 @@
+{% extends "admin/change_form.html" %}
+
+{% block form_top %}
+{{ block.super }}
+{% if original %}
+<section class="wine-message-hero" aria-labelledby="wine-message-heading">
+  <div class="wine-message-hero__identity">
+    <span class="wine-message-hero__icon"><i class="fas fa-envelope-open-text" aria-hidden="true"></i></span>
+    <div>
+      <p class="wine-message-hero__eyebrow">Conversation client</p>
+      <h1 id="wine-message-heading">{{ original.sujet }}</h1>
+      <p class="wine-message-hero__meta">
+        {{ original.nom }} · reçu le {{ original.cree_le|date:"d/m/Y à H:i" }}
+        {% if original.email %} · {{ original.email }}{% endif %}
+        {% if original.telephone %} · {{ original.telephone }}{% endif %}
+      </p>
+    </div>
+  </div>
+  <div class="wine-message-hero__status">
+    <span class="wine-message-status wine-message-status--{{ original.statut|lower }}">
+      {% if original.statut == 'NOUVEAU' %}À traiter{% elif original.statut == 'TRAITE' %}Répondu{% else %}Archivé{% endif %}
+    </span>
+    <a class="wine-message-back" href="{% url 'admin:ventes_messageclient_changelist' %}">
+      <i class="fas fa-arrow-left" aria-hidden="true"></i> Tous les messages
+    </a>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block after_field_sets %}
+{{ block.super }}
+{% if original and request.GET.repondre == '1' %}
+<div class="wine-message-send-action">
+  <button type="submit" name="_save" value="Save" class="wine-message-send-button">
+    <i class="fas fa-paper-plane" aria-hidden="true"></i> Envoyer la réponse
+  </button>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const field = document.querySelector('[data-message-reply]');
+    if (field) {
+      field.focus({ preventScroll: true });
+      field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+</script>
+{% endif %}
+{% endblock %}

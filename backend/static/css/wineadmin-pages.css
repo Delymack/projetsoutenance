@@ -1,0 +1,616 @@
+/* Cadre commun des pages du back-office Lazan'i Betsileo. */
+.wine-admin-shell {
+    --admin-wine: var(--lb-wine, #641b2c);
+    --admin-gold: var(--lb-gold, #c99b3b);
+    --admin-sage: var(--lb-sage, #2f6b4f);
+    --admin-ink: var(--lb-ink, #2b1b20);
+    --admin-muted: var(--lb-ink-500, #838383);
+    --admin-line: var(--lb-line, #ebe3de);
+    --admin-surface: var(--lb-surface, #fff);
+    --admin-canvas: var(--lb-canvas, #faf7f5);
+    --lte-sidebar-width: 270px;
+    background: var(--admin-canvas) !important;
+    color: var(--admin-ink);
+    font-family: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+.wine-admin-shell .app-wrapper {
+    background: transparent;
+}
+
+/* La marque, la recherche et le compte forment un bandeau de navigation unique. */
+.wine-admin-shell #jazzy-navbar {
+    background: linear-gradient(105deg, #161616 0%, #202020 58%, #141414 100%) !important;
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(201, 155, 59, .38);
+    box-shadow: 0 8px 26px rgba(13, 18, 31, .24);
+    min-height: 68px;
+    padding-block: .35rem;
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+}
+
+.wine-admin-shell #jazzy-navbar > .container-fluid {
+    gap: .45rem;
+}
+
+.wine-admin-shell #jazzy-navbar .navbar-nav.ms-auto {
+    align-items: center;
+    flex: 0 0 auto;
+    gap: .55rem;
+    margin-left: auto;
+}
+
+.wine-admin-shell #jazzy-navbar .navbar-nav.ms-auto > .nav-item {
+    flex: 0 0 auto;
+}
+
+.wine-admin-shell #jazzy-navbar .navbar-nav.ms-auto .wine-account-trigger {
+    border: 1px solid rgba(201, 155, 59, .38);
+    border-radius: 999px;
+    display: inline-flex;
+    height: 46px;
+    max-width: 260px;
+    min-width: 0;
+    padding: .2rem .65rem .2rem .3rem !important;
+    width: auto !important;
+}
+
+.wine-admin-shell #jazzy-navbar .wine-account-chip {
+    gap: .55rem;
+    min-width: 0;
+}
+
+.wine-admin-shell #jazzy-navbar .wine-account-txt {
+    min-width: 0;
+    text-align: left;
+}
+
+.wine-admin-shell #jazzy-navbar .wine-account-name {
+    max-width: 10rem;
+}
+
+.wine-admin-shell #jazzy-navbar .wine-account-caret {
+    flex: 0 0 auto;
+    margin-left: .1rem;
+}
+
+.wine-admin-shell #jazzy-navbar .wine-notifications-trigger {
+    background: rgba(255, 255, 255, .055) !important;
+    border: 1px solid rgba(255, 255, 255, .14);
+    color: #f3d37e;
+    height: 44px;
+    min-width: 44px;
+    width: 44px;
+}
+
+.wine-admin-shell #jazzy-navbar .wine-notifications-trigger:hover,
+.wine-admin-shell #jazzy-navbar .wine-notifications-trigger:focus-visible,
+.wine-admin-shell #jazzy-navbar .wine-notifications.show .wine-notifications-trigger {
+    background: rgba(201, 155, 59, .16) !important;
+    border-color: rgba(201, 155, 59, .58);
+    color: #ffe4a0;
+}
+
+.wine-admin-shell #jazzy-navbar .wine-notifications-trigger .wine-notifications-count {
+    border: 2px solid #202020;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+    right: -5px;
+    top: -5px;
+    z-index: 1;
+}
+
+.wine-admin-shell #jazzy-navbar .wine-notifications-menu {
+    max-height: min(72vh, 560px);
+    right: 0;
+    top: calc(100% + .7rem);
+    width: min(400px, calc(100vw - 1.5rem));
+    z-index: 1300;
+}
+
+.wine-admin-shell #jazzy-navbar .wine-gsearch {
+    max-width: 560px;
+}
+
+.wine-admin-shell #jazzy-navbar .wine-gsearch input {
+    background: rgba(255, 255, 255, .055);
+    border-color: rgba(255, 255, 255, .14);
+    border-radius: 999px;
+    min-height: 40px;
+}
+
+.wine-admin-shell #jazzy-navbar .wine-gsearch input:focus {
+    background: rgba(255, 255, 255, .09);
+    border-color: rgba(201, 155, 59, .7);
+}
+
+.wine-admin-shell #jazzy-navbar .wine-sidebar-toggle {
+    background: rgba(255, 255, 255, .055);
+    border-color: rgba(255, 255, 255, .14);
+    border-radius: 10px;
+}
+
+/* Navigation fixe encre-bleue, active grenat et or. */
+.wine-admin-shell #jazzy-sidebar {
+    background: linear-gradient(180deg, #161616 0%, #181818 68%, #111111 100%) !important;
+    border-right: 1px solid rgba(201, 155, 59, .2);
+    border-left: 0;
+    box-shadow: 5px 0 22px rgba(10, 17, 30, .13);
+}
+
+.wine-admin-shell #jazzy-sidebar .wine-brand {
+    background: linear-gradient(110deg, rgba(255, 255, 255, .045), transparent);
+    border-bottom-color: rgba(201, 155, 59, .2);
+}
+
+.wine-admin-shell #jazzy-sidebar .sidebar-menu > .nav-item > .nav-link {
+    border-radius: 9px;
+    margin-block: .1rem;
+    min-height: 2.6rem;
+}
+
+.wine-admin-shell #jazzy-sidebar .sidebar-menu > .nav-item > .nav-link:hover {
+    background: rgba(255, 255, 255, .075);
+    border-color: rgba(255, 255, 255, .1);
+}
+
+.wine-admin-shell #jazzy-sidebar .sidebar-menu > .nav-item > .nav-link.active,
+.wine-admin-shell #jazzy-sidebar .sidebar-menu > .nav-item > .nav-link.sb-kbd-active {
+    background: linear-gradient(100deg, rgba(100, 27, 44, .9), rgba(100, 27, 44, .43));
+    border-color: rgba(201, 155, 59, .42);
+    box-shadow: inset 3px 0 var(--admin-gold);
+    color: #f8e9c2 !important;
+}
+
+.wine-admin-shell #jazzy-sidebar .nav-badge-count {
+    background: var(--admin-gold);
+    color: #2b1b20;
+}
+
+/* Zone de travail et titres des pages Django standard. */
+.wine-admin-shell .app-main {
+    background: transparent;
+}
+
+.wine-admin-shell .app-content-header {
+    background: transparent;
+    border: 0;
+    padding: 1rem 0 .35rem;
+}
+
+.wine-admin-shell .app-content-header > .container-fluid,
+.wine-admin-shell .app-content > .container-fluid {
+    padding-inline: clamp(.85rem, 2vw, 1.6rem);
+}
+
+.wine-admin-shell .app-content-header h3 {
+    color: var(--admin-ink);
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: -.015em;
+}
+
+.wine-admin-shell .app-content {
+    padding-top: .4rem;
+}
+
+.wine-admin-shell .app-footer {
+    background: transparent;
+    border-top: 1px solid var(--admin-line);
+    color: var(--admin-muted);
+    font-size: .76rem;
+    padding: .8rem 1.25rem;
+}
+
+/* Formulaires, listes et panneaux partagés entre les modules. */
+.wine-admin-shell #content-main .card,
+.wine-admin-shell #content-main .change-list .card,
+.wine-admin-shell #content-main .change-form .card,
+.wine-admin-shell #content-main .module,
+.wine-admin-shell #content-main .results,
+.wine-admin-shell #content-main .paginator,
+.wine-admin-shell #content-main .submit-row {
+    border-color: var(--admin-line);
+    border-radius: 13px;
+    box-shadow: 0 5px 20px rgba(43, 27, 32, .045);
+}
+
+.wine-admin-shell #content-main .card-header {
+    border-bottom-color: var(--admin-line);
+}
+
+.wine-admin-shell #content-main .table {
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: color-mix(in srgb, var(--admin-canvas) 75%, transparent);
+    --bs-table-hover-bg: color-mix(in srgb, var(--admin-gold) 8%, transparent);
+    margin-bottom: 0;
+}
+
+.wine-admin-shell #content-main .table thead th,
+.wine-admin-shell #content-main #result_list thead th {
+    color: var(--admin-muted);
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .035em;
+    text-transform: uppercase;
+}
+
+.wine-admin-shell #content-main .table td,
+.wine-admin-shell #content-main .table th {
+    border-color: var(--admin-line);
+    vertical-align: middle;
+}
+
+.wine-admin-shell #content-main #result_list tbody tr {
+    transition: background-color .15s ease;
+}
+
+.wine-admin-shell #content-main #result_list tbody tr:hover {
+    background: color-mix(in srgb, var(--admin-gold) 7%, var(--admin-surface));
+}
+
+.wine-admin-shell #content-main .form-control,
+.wine-admin-shell #content-main .form-select,
+.wine-admin-shell #content-main input[type="text"],
+.wine-admin-shell #content-main input[type="email"],
+.wine-admin-shell #content-main input[type="number"],
+.wine-admin-shell #content-main input[type="date"],
+.wine-admin-shell #content-main input[type="tel"],
+.wine-admin-shell #content-main textarea,
+.wine-admin-shell #content-main select {
+    border-color: var(--admin-line);
+    border-radius: 8px;
+    min-height: 38px;
+}
+
+.wine-admin-shell #content-main .form-control:focus,
+.wine-admin-shell #content-main .form-select:focus,
+.wine-admin-shell #content-main input:focus,
+.wine-admin-shell #content-main textarea:focus,
+.wine-admin-shell #content-main select:focus {
+    border-color: var(--admin-gold);
+    box-shadow: 0 0 0 .2rem rgba(201, 155, 59, .14);
+}
+
+.wine-admin-shell #content-main .btn-primary,
+.wine-admin-shell #content-main .btn-warning {
+    background: var(--admin-gold);
+    border-color: var(--admin-gold);
+    color: #2b1b20;
+    font-weight: 750;
+}
+
+.wine-admin-shell #content-main .btn-primary:hover,
+.wine-admin-shell #content-main .btn-warning:hover {
+    background: #b4862d;
+    border-color: #b4862d;
+    color: #fff;
+}
+
+.wine-admin-shell #content-main .pagination .page-link {
+    border-radius: 7px;
+    margin-inline: 2px;
+}
+
+.wine-admin-shell #content-main .pagination .page-item.active .page-link {
+    background: var(--admin-wine);
+    border-color: var(--admin-wine);
+}
+
+.wine-admin-shell #content-main .alert,
+.wine-admin-shell .messagelist li {
+    border-radius: 10px;
+}
+
+.wine-admin-shell a:focus-visible,
+.wine-admin-shell button:focus-visible,
+.wine-admin-shell input:focus-visible,
+.wine-admin-shell select:focus-visible,
+.wine-admin-shell textarea:focus-visible {
+    outline: 2px solid var(--admin-gold);
+    outline-offset: 2px;
+}
+
+/* Les pages métier conservent leurs couleurs et composants spécifiques. */
+.wine-admin-shell.wine-home .app-content-header,
+.wine-admin-shell.wine-reports-page .app-content-header,
+.wine-admin-shell.wine-params-page .app-content-header {
+    display: none;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell {
+    --admin-ink: #f3f3f3;
+    --admin-muted: #b1b1b1;
+    --admin-line: #3c3c3c;
+    --admin-surface: #1c1c1c;
+    --admin-canvas: #151515;
+    --lb-ink: #f3f3f3;
+    --lb-ink-800: #e6e6e6;
+    --lb-ink-700: #dcdcdc;
+    --lb-ink-500: #b1b1b1;
+    --lb-ink-300: #878787;
+    --lb-ink-100: #3f3f3f;
+    --lb-line: #3c3c3c;
+    --lb-line-soft: rgba(82, 111, 143, .25);
+    --lb-surface: #1c1c1c;
+    --lb-canvas: #151515;
+    --lb-canvas-2: #242424;
+    --lb-gold: #efbd4f;
+    --lb-gold-100: rgba(239, 189, 79, .13);
+    --lb-gold-200: rgba(239, 189, 79, .28);
+    background: var(--admin-canvas) !important;
+    color: var(--admin-ink);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell,
+html[data-bs-theme="dark"] .wine-admin-shell .app-wrapper,
+html[data-bs-theme="dark"] .wine-admin-shell .app-main,
+html[data-bs-theme="dark"] .wine-admin-shell .app-content {
+    background: var(--admin-canvas) !important;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell #content-main .card,
+html[data-bs-theme="dark"] .wine-admin-shell #content-main .module,
+html[data-bs-theme="dark"] .wine-admin-shell #content-main .results,
+html[data-bs-theme="dark"] .wine-admin-shell #content-main .paginator,
+html[data-bs-theme="dark"] .wine-admin-shell #content-main .submit-row {
+    background: linear-gradient(145deg, #1c1c1c, #181818);
+    border-color: var(--admin-line);
+    color: var(--admin-ink);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell #content-main .card-header {
+    background: rgba(16, 34, 56, .82);
+    border-color: var(--admin-line);
+    color: var(--admin-ink);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell #content-main .table,
+html[data-bs-theme="dark"] .wine-admin-shell #content-main #result_list {
+    color: var(--admin-ink);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell #content-main .form-control,
+html[data-bs-theme="dark"] .wine-admin-shell #content-main .form-select,
+html[data-bs-theme="dark"] .wine-admin-shell #content-main input,
+html[data-bs-theme="dark"] .wine-admin-shell #content-main textarea,
+html[data-bs-theme="dark"] .wine-admin-shell #content-main select {
+    background-color: #171717;
+    border-color: #4a4a4a;
+    color: #f6f6f6;
+}
+
+/* Composants communs des listes métier : ventes, catalogue, stocks et promos. */
+html[data-bs-theme="dark"] .wine-admin-shell .lb-hero {
+    background:
+        radial-gradient(ellipse at 92% 5%, rgba(239, 189, 79, .13), transparent 34%),
+        linear-gradient(110deg, #1c1c1c, #242424 68%, #191919);
+    border-color: #444444;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .2);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .lb-hero h1 {
+    color: #f7f7f7;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .lb-hero h1 .lb-hero-icon {
+    color: var(--lb-gold);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .lb-hero p,
+html[data-bs-theme="dark"] .wine-admin-shell .lb-eyebrow {
+    color: #cecece;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .lb-kpi,
+html[data-bs-theme="dark"] .wine-admin-shell .lb-panel {
+    background: linear-gradient(145deg, #1c1c1c, #181818);
+    border-color: var(--admin-line);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .16);
+    color: var(--admin-ink);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .lb-kpi:hover,
+html[data-bs-theme="dark"] .wine-admin-shell .lb-panel:hover {
+    border-color: rgba(239, 189, 79, .45);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .24);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .lb-kpi small,
+html[data-bs-theme="dark"] .wine-admin-shell .lb-kpi .lb-kpi-sub,
+html[data-bs-theme="dark"] .wine-admin-shell .lb-fact dt,
+html[data-bs-theme="dark"] .wine-admin-shell .lb-val-muted {
+    color: #b5b5b5;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .lb-kpi strong,
+html[data-bs-theme="dark"] .wine-admin-shell .lb-panel-head h2,
+html[data-bs-theme="dark"] .wine-admin-shell .lb-fact dd {
+    color: #f4f4f4;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .lb-kpi-ok strong,
+html[data-bs-theme="dark"] .wine-admin-shell .lb-val-sage {
+    color: #75c69a;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .lb-kpi-warn strong,
+html[data-bs-theme="dark"] .wine-admin-shell .lb-val-gold {
+    color: #f0c968;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .lb-kpi-danger strong,
+html[data-bs-theme="dark"] .wine-admin-shell .lb-val-wine {
+    color: #e58b9b;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .lb-kpi-neutral strong {
+    color: #e6e6e6;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .lb-panel-head {
+    background: linear-gradient(110deg, #242424, #1c1c1c);
+    border-color: var(--admin-line);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .lb-panel-head::after {
+    background: linear-gradient(90deg, transparent, rgba(239, 189, 79, .4), transparent);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .lb-panel-body,
+html[data-bs-theme="dark"] .wine-admin-shell .lb-fact {
+    border-color: var(--admin-line);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell #changelist-filter {
+    background: #191919;
+    border-color: var(--admin-line);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell #changelist-filter h2,
+html[data-bs-theme="dark"] .wine-admin-shell #changelist-filter h3 {
+    color: #d0d0d0;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell #changelist-filter li a {
+    border-radius: 7px;
+    color: #c3c3c3;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell #changelist-filter li a:hover,
+html[data-bs-theme="dark"] .wine-admin-shell #changelist-filter li.selected a {
+    background: rgba(239, 189, 79, .12);
+    color: #f3cb68;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell #changelist-search input[type="text"],
+html[data-bs-theme="dark"] .wine-admin-shell #changelist-search input[type="search"],
+html[data-bs-theme="dark"] .wine-admin-shell #changelist-search .form-control,
+html[data-bs-theme="dark"] .wine-admin-shell #changelist-form input,
+html[data-bs-theme="dark"] .wine-admin-shell #changelist-form select,
+html[data-bs-theme="dark"] .wine-admin-shell #changelist-form textarea,
+html[data-bs-theme="dark"] .wine-admin-shell #actions select {
+    background: #171717;
+    border-color: #4a4a4a;
+    color: #f3f3f3;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell #actions {
+    background: #242424;
+    border-color: var(--admin-line);
+    color: #e6e6e6;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell #result_list {
+    background: #1a1a1a;
+    border-color: var(--admin-line);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell #result_list thead th {
+    background: #272727;
+    border-color: var(--admin-line);
+    color: #c6c6c6;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell #result_list tbody td {
+    background: transparent;
+    border-color: rgba(82, 111, 143, .22);
+    color: #e6e6e6;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell #result_list tbody tr:nth-child(even) td {
+    background: rgba(16, 34, 56, .56);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell #result_list tbody tr:hover td {
+    background: rgba(239, 189, 79, .075);
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell #result_list tbody th.field-name a,
+html[data-bs-theme="dark"] .wine-admin-shell #result_list tbody td a {
+    color: #efc868;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .paginator,
+html[data-bs-theme="dark"] .wine-admin-shell .paginator a,
+html[data-bs-theme="dark"] .wine-admin-shell .paginator .this-page {
+    border-color: var(--admin-line);
+    color: #e9e9e9;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .paginator .this-page {
+    background: #641b2c;
+    border-color: #9b4258;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell .lb-workflow__etape {
+    background: #242424;
+    border-color: var(--admin-line);
+    color: #e6e6e6;
+}
+
+@media (max-width: 767.98px) {
+    .wine-admin-shell #jazzy-navbar .navbar-nav.ms-auto {
+        gap: .3rem;
+    }
+
+    .wine-admin-shell #jazzy-navbar .wine-account-trigger {
+        max-width: 210px;
+    }
+
+    .wine-admin-shell #jazzy-navbar .wine-account-role {
+        display: none;
+    }
+
+    .wine-admin-shell .app-content-header > .container-fluid,
+    .wine-admin-shell .app-content > .container-fluid {
+        padding-inline: .75rem;
+    }
+
+    .wine-admin-shell #content-main .card-body {
+        padding: .85rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .wine-admin-shell #jazzy-navbar .navbar-nav.ms-auto {
+        gap: .15rem;
+    }
+
+    .wine-admin-shell #jazzy-navbar .wine-account-trigger {
+        height: 42px;
+        padding: .2rem !important;
+        width: 42px !important;
+    }
+
+    .wine-admin-shell #jazzy-navbar .wine-account-txt,
+    .wine-admin-shell #jazzy-navbar .wine-account-caret {
+        display: none !important;
+    }
+
+    .wine-admin-shell #jazzy-navbar .wine-account-chip {
+        gap: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wine-admin-shell *,
+    .wine-admin-shell *::before,
+    .wine-admin-shell *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+    }
+}
+
+@media print {
+    .wine-admin-shell #jazzy-navbar,
+    .wine-admin-shell #jazzy-sidebar,
+    .wine-admin-shell .app-footer {
+        display: none !important;
+    }
+
+    .wine-admin-shell .app-main {
+        margin: 0 !important;
+    }
+}

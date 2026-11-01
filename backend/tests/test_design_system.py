@@ -15,6 +15,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from apps.clients.models import Client, ReglementClient
+from apps.produits.models import Produit
 
 User = get_user_model()
 
@@ -200,18 +201,41 @@ class GabaritsPartagesTests(TestCase):
                 self.assertIn('lb-kpis', html, f'{nom} : grille de KPI partagée manquante')
                 self.assertIn('wineadmin-design.css?v=13', html, f'{nom} : design system commun non chargé')
 
+    def test_catalogue_et_stocks_affichent_les_produits_en_cartes(self):
+        for url, version in (
+            ('/admin/produits/produit/', 'v=3'),
+            ('/admin/stocks/stock/', 'v=4'),
+        ):
+            with self.subTest(page=url):
+                reponse = self.client.get(url)
+                self.assertEqual(reponse.status_code, 200)
+                self.assertContains(reponse, f'wineadmin-product-cards.css?{version}')
+        styles = (RACINE / 'static' / 'css' / 'wineadmin-product-cards.css').read_text(encoding='utf-8')
+        self.assertIn('"image image"', styles)
+        self.assertIn('grid-template-columns: repeat(auto-fill, minmax(min(100%, 275px), 1fr));', styles)
+        self.assertIn('"image product product"', styles)
+        Produit.objects.create(nom='Vin de test', volume='75 cl', prix_vente=15000)
+        stocks = self.client.get('/admin/stocks/stock/')
+        self.assertContains(stocks, 'column-image_tag')
+
     def test_en_tetes_gardent_les_classes_de_colonnes_django(self):
         reponse = self.client.get('/admin/clients/client/')
         self.assertEqual(reponse.status_code, 200)
         html = reponse.content.decode('utf-8')
         self.assertIn('column-', html, 'classes de colonnes Django manquantes dans la page clients')
+        for colonne in ('field-contact_actions', 'field-_actions_col'):
+            self.assertIn(colonne, html)
 
     def test_une_action_impression_est_presente_sur_chaque_liste(self):
-        reponse = self.client.get('/admin/clients/client/')
-        self.assertEqual(reponse.status_code, 200)
-        html = reponse.content.decode('utf-8')
-        self.assertIn('Imprimer', html)
-        self.assertIn('window.print()', html)
+        for nom, url in self.LISTES + self.LISTES_SANS_KPIS:
+            with self.subTest(page=nom):
+                reponse = self.client.get(url)
+                self.assertEqual(reponse.status_code, 200)
+                html = reponse.content.decode('utf-8')
+                self.assertIn('data-admin-print-list', html)
+                self.assertIn('wineadmin-print-list.js?v=1', html)
+        html_script = (RACINE / 'static' / 'js' / 'wineadmin-print-list.js').read_text(encoding='utf-8')
+        self.assertIn('function ouvrirImpression(table)', html_script)
 
     def test_les_pages_allegees_gardent_le_design_system(self):
         for nom, url in self.LISTES_SANS_KPIS:
@@ -222,6 +246,52 @@ class GabaritsPartagesTests(TestCase):
                 self.assertIn('lb-hero', html, f'{nom} : en-tête partagé manquant')
                 self.assertIn('wineadmin-design.css?v=13', html, f'{nom} : design system commun non chargé')
                 self.assertNotIn('lb-kpis', html, f'{nom} : les KPI du jour font doublon')
+
+    def test_les_listes_administratives_n_affichent_que_les_colonnes_utiles(self):
+        listes = {
+            '/admin/categories/categorie/': (
+                ('column-nom', 'column-produits_count', 'column-statut'),
+                ('column-date_creation',),
+            ),
+            '/admin/stocks/stock/': (
+                ('column-produit', 'column-quantite', 'column-seuil_alerte', 'column-etat_stock_display'),
+                ('column-valeur_display',),
+            ),
+            '/admin/stocks/mouvementstock/': (
+                ('column-date_mouvement', 'column-produit', 'column-type_badge', 'column-quantite_display'),
+                ('column-reference_id',),
+            ),
+            '/admin/parametres/parametre/': (
+                ('column-section', 'column-libelle', 'column-valeur'),
+                ('column-cle', 'column-type', 'column-modifie_le'),
+            ),
+            '/admin/ventes/reservation/': (
+                ('column-reference', 'column-source_badge', 'column-statut_badge',
+                 'column-actions_reservation'),
+                ('column-solde_du', 'column-validation_badge', 'column-reception_badge',
+                 'column-date_expiration_badge'),
+            ),
+            '/admin/ventes/messageclient/': (
+                ('column-sujet', 'column-nom', 'column-telephone', 'column-statut'),
+                ('column-email',),
+            ),
+            '/admin/ventes/sessioncaisse/': (
+                ('column-date_ventes', 'column-statut_badge', 'column-ca_total_badge',
+                 'column-ecart_badge'),
+                ('column-nb_tickets',),
+            ),
+        }
+        for url, (attendues, retirees) in listes.items():
+            with self.subTest(page=url):
+                reponse = self.client.get(url)
+                self.assertEqual(reponse.status_code, 200)
+                colonnes = set(reponse.context['cl'].list_display)
+                for colonne in attendues:
+                    self.assertIn(colonne.removeprefix('column-'), colonnes,
+                                  f'{url} : colonne utile manquante {colonne}')
+                for colonne in retirees:
+                    self.assertNotIn(colonne.removeprefix('column-'), colonnes,
+                                     f'{url} : colonne secondaire encore affichée {colonne}')
 
     def test_aucune_feuille_de_style_inline_dans_les_gabarits(self):
         """Les couleurs vivent dans le design system, pas dans les templates."""
@@ -251,31 +321,35 @@ class PageClientTests(TestCase):
             max_credit=100000, solde_du=15000, points_fidelite=4200,
         )
 
-    def test_kpi_presents_sans_rang_de_segments(self):
+    def test_liste_clients_garde_les_actions_utiles_sans_cartes_kpi(self):
         reponse = self.client.get(reverse('admin:clients_client_changelist'))
         self.assertEqual(reponse.status_code, 200)
         html = reponse.content.decode('utf-8')
-        self.assertIn('Encours total', html)
-        self.assertIn('CA clients', html)
+        self.assertIn('class="client-list-toolbar"', html)
+        self.assertIn('Nouveau client', html)
+        self.assertIn('id="searchbar"', html)
+        self.assertIn('lb-searchbar-count', html)
+        for retire in ('Acheteurs actifs', 'Encours total', 'CA clients',
+                       'Revendeurs', 'Sans achat 90 j', 'lb-kpis'):
+            self.assertNotIn(retire, html)
         self.assertNotIn('lb-segment', html)
 
     def test_colonnes_metier_de_la_liste(self):
-        """Colonnes retenues après nettoyage : 5 au total, pas de place perdue."""
+        """Le tableau reste centré sur l'identité, le contact et l'activité."""
         reponse = self.client.get(reverse('admin:clients_client_changelist'))
         html = reponse.content.decode('utf-8')
-        for attendu in ('Client', 'Contact', 'Activité', 'Encours', 'Contact rapide'):
+        for attendu in ('Client', 'Contact', 'Activité', 'Contact rapide'):
             self.assertIn(attendu, html, f'colonne « {attendu} » manquante')
-        for retiree in ('Crédit dispo.',):
+        for retiree in ('Encours</th>', 'Crédit dispo.'):
             self.assertNotIn(retiree, html, f'colonne « {retiree} » à supprimer')
-        # « Fidélité » a disparu comme colonne, mais le niveau reste lisible
-        # en badge dans la cellule Client.
         self.assertNotIn('pts avant', html)
 
-    def test_le_niveau_reste_lisible_dans_la_cellule_client(self):
+    def test_le_niveau_client_n_est_pas_affiche_dans_la_liste(self):
         reponse = self.client.get(reverse('admin:clients_client_changelist'))
         html = reponse.content.decode('utf-8')
-        self.assertIn('lb-badge', html, 'le badge de niveau doit rester affiché')
-        self.assertIn(self.fiche.get_niveau_display(), html)
+        liste = html[html.index('<table'):html.index('</table>') + len('</table>')]
+        self.assertNotIn(self.fiche.get_niveau_display(), liste)
+        self.assertIn(self.fiche.get_type_client_display(), liste)
 
     def test_aucun_widget_de_selection_dans_la_liste_clients(self):
         """Le bandeau de critères et les menus déroulants jazzmin disparaissent."""

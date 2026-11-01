@@ -1,59 +1,48 @@
 {% extends "admin/change_list.html" %}
-{% load i18n lb_tags %}
+{% load i18n lb_tags static %}
 
 {% block content_title %}{% endblock %}
 
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/wineadmin-product-cards.css' %}?v=3">
+{% endblock %}
+
 {% block content %}
-<div class="lb-hero">
+<div class="lb-hero lb-hero--compact">
   <div class="lb-hero-body">
     <div class="lb-eyebrow">Catalogue</div>
     <h1><i class="fas fa-wine-bottle lb-hero-icon"></i>Produits</h1>
+    <p>Consultez les produits, leur prix et leur disponibilité.</p>
   </div>
   <div class="lb-hero-actions">
-    <a class="lb-btn" href="{% url 'admin:produits_produit_add' %}"><i class="fas fa-plus"></i> Nouveau produit</a>
-    <a class="lb-btn lb-btn-ghost" href="{% url 'admin:produits_etiquettes' %}"><i class="fas fa-tags"></i> Étiquettes</a>
-    {% comment %} Les catégories ont quitté le menu latéral : on les gère d'ici, sur la
-       page qui les utilise, plutôt que dans une section à part. {% endcomment %}
-    <a class="lb-btn lb-btn-ghost" href="{% url 'admin:categories_categorie_changelist' %}"><i class="fas fa-layer-group"></i> Catégories</a>
+    <a class="lb-btn" href="{% url 'admin:produits_produit_add' %}">
+      <i class="fas fa-plus" aria-hidden="true"></i> Nouveau produit
+    </a>
   </div>
 </div>
 
-<section class="lb-kpis">
+<section class="lb-kpis lb-kpis--simple" aria-label="Résumé du catalogue">
   <a class="lb-kpi is-clickable" href="{% url 'admin:produits_produit_changelist' %}">
-    <i class="fas fa-wine-bottle lb-kpi-icon"></i>
+    <i class="fas fa-wine-bottle lb-kpi-icon" aria-hidden="true"></i>
     <small>Références</small>
     <strong>{{ produits_kpis.total|intcomma }}</strong>
   </a>
-  <a class="lb-kpi lb-kpi-neutral is-clickable" href="?statut__exact=0">
-    <i class="fas fa-ban lb-kpi-icon"></i>
-    <small>Inactives</small>
-    <strong>{{ produits_kpis.inactifs|intcomma }}</strong>
-  </a>
-  <a class="lb-kpi lb-kpi-danger is-clickable" href="{% url 'admin:stocks_stock_changelist' %}">
-    <i class="fas fa-triangle-exclamation lb-kpi-icon"></i>
-    <small>Ruptures</small>
+  <div class="lb-kpi lb-kpi-danger">
+    <i class="fas fa-triangle-exclamation lb-kpi-icon" aria-hidden="true"></i>
+    <small>En rupture</small>
     <strong>{{ produits_kpis.ruptures|intcomma }}</strong>
-  </a>
+  </div>
   <div class="lb-kpi lb-kpi-warn">
-    <i class="fas fa-battery-quarter lb-kpi-icon"></i>
+    <i class="fas fa-battery-quarter lb-kpi-icon" aria-hidden="true"></i>
     <small>Stock faible</small>
     <strong>{{ produits_kpis.faibles|intcomma }}</strong>
   </div>
-  <div class="lb-kpi lb-kpi-ok">
-    <i class="fas fa-percent lb-kpi-icon"></i>
-    <small>En promotion</small>
-    <strong>{{ produits_kpis.en_promo|intcomma }}</strong>
-  </div>
-  <div class="lb-kpi lb-kpi-neutral">
-    <i class="fas fa-sack-dollar lb-kpi-icon"></i>
-    <small>Marge en stock</small>
-    <strong>{{ produits_kpis.marge_stock|floatformat:0|intcomma }}</strong>
-  </div>
 </section>
 
-<div class="lb-panel">
+<div class="lb-panel lb-panel--simple">
   <div class="lb-panel-head">
-    <h2><i class="fas fa-layer-group lb-kpi-icon"></i> Catalogue</h2>
+    <h2><i class="fas fa-list lb-kpi-icon" aria-hidden="true"></i> Catalogue produits</h2>
   </div>
   <div class="lb-panel-body lb-panel-body--flush">{{ block.super }}</div>
 </div>

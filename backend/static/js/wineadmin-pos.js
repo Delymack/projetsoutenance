@@ -12,6 +12,7 @@
     clients: '/api/clients/',
     categories: '/api/categories/',
     ventes: '/api/ventes/',
+    reservations: '/api/reservations/',
     simulerPromo: '/api/promotions/simuler/',
     caisseEtat: '/api/caisse/etat/',
     caisseRapport: '/api/caisse/rapport/',
@@ -20,12 +21,13 @@
   };
   const STORAGE = {
     sound: 'caveor-pos-sound',
-    dense: 'caveor-pos-dense',
+    dense: 'caveor-pos-dense-v2',
     seen: 'caveor-pos-first',
   };
   // Les moyens de paiement viennent du gabarit (Vente.ModePaiement.MODES_CAISSE) :
   // une seule source de vérité, le modèle.
   const MODES = [...document.querySelectorAll('#payment-pills button[data-mode]')].map((b) => b.dataset.mode);
+  const reservationDemandee = new URLSearchParams(window.location.search).get('reservation');
   const CATEGORIES_SANS_FILTRE = new Set(['liqueurs & apéritifs', 'mousseux']);
   const ICONES_MODE = { ESPECES: 'fa-money-bill-wave', MVOLA: 'fa-mobile-screen', ORANGE_MONEY: 'fa-mobile-screen',
                         AIRTEL_MONEY: 'fa-mobile-screen', MOBILE_MONEY: 'fa-mobile-screen', CHEQUE: 'fa-file-signature',
@@ -47,12 +49,15 @@
   let devisTmp = 'Ar';
   let sonActif = false;
   let venteCourante = null;
+  let commandeCaisse = null;
   let simulationPromo = null;
   let simulationEnCours = false;
   let simulationErreur = false;
   let simulationVersion = 0;
   let simulationMinuteur = null;
   let catalogueVersion = 0;
+  let confirmationPending = null;
+  let confirmationPreviousFocus = null;
   // Pavé numérique / coupures rapides dépliés ? Au montant exact ils restent
   // repliés : la caisse s'encaisse sans encombrer l'écran.
   let extrasOuverts = false;
@@ -117,6 +122,45 @@
     el.className = 'notice';
   }
 
+  function terminerConfirmation(confirmee) {
+    if (!confirmationPending) return;
+    const resolve = confirmationPending;
+    const focusRetour = confirmationPreviousFocus;
+    confirmationPending = null;
+    confirmationPreviousFocus = null;
+    $('pos-confirm-modal').classList.remove('open');
+    resolve(confirmee);
+    if (focusRetour?.isConnected) focusRetour.focus();
+  }
+
+  function demanderConfirmation(message, titre) {
+    if (confirmationPending) return Promise.resolve(false);
+    $('pos-confirm-title-text').textContent = titre;
+    $('pos-confirm-message').textContent = message;
+    confirmationPreviousFocus = document.activeElement;
+    $('pos-confirm-modal').classList.add('open');
+    return new Promise((resolve) => {
+      confirmationPending = resolve;
+      $('pos-confirm-cancel').focus();
+    });
+  }
+
+  $('pos-confirm-cancel').addEventListener('click', () => terminerConfirmation(false));
+  $('pos-confirm-close').addEventListener('click', () => terminerConfirmation(false));
+  $('pos-confirm-ok').addEventListener('click', () => terminerConfirmation(true));
+  $('pos-confirm-modal').addEventListener('keydown', (event) => {
+    if (event.key !== 'Tab') return;
+    const cancel = $('pos-confirm-cancel');
+    const confirm = $('pos-confirm-ok');
+    if (event.shiftKey && document.activeElement === cancel) {
+      event.preventDefault();
+      confirm.focus();
+    } else if (!event.shiftKey && document.activeElement === confirm) {
+      event.preventDefault();
+      cancel.focus();
+    }
+  });
+
   function toast(message, kind = 'info') {
     const el = document.createElement('div');
     el.className = 'pos-toast ' + kind;
@@ -169,8 +213,8 @@
 
   /* ------------------------------------------------------- mode DENSE/PHOTO */
   function appliquerDensite() {
-    let dense = true;
-    try { dense = localStorage.getItem(STORAGE.dense) !== '0'; } catch (e) {}
+    let dense = false;
+    try { dense = localStorage.getItem(STORAGE.dense) === '1'; } catch (e) {}
     $('pos-root').classList.toggle('dense', dense);
     $('layout-toggle').innerHTML = dense ? '<i class="fas fa-table-cells"></i>' : '<i class="fas fa-image"></i>';
     $('layout-toggle').title = dense ? 'Vue PHOTO (reconnaître les bouteilles)' : 'Vue DENSE (maximiser les références)';
@@ -203,7 +247,8 @@
       rendreCategories();
       rendreClients();
       rendreProduits();
-      majCompteurPromos();
+      await chargerCommandes();
+      if (reservationDemandee) await chargerCommandeCaisse(reservationDemandee);
       $('search-input').focus();
       if (!localStorage.getItem(STORAGE.seen)) {
         localStorage.setItem(STORAGE.seen, '1');
@@ -214,6 +259,184 @@
       notice(e.message);
     }
   }
+
+  async function chargerCommandeCaisse(id) {
+    if (!/^[1-9]\d*$/.test(id)) throw new Error('Identifiant de commande invalide.');
+    const reservation = await api(`${API.reservations}${id}/`);
+    if (['SOLDEE', 'ANNULEE', 'EXPIREE'].includes(reservation.statut)) {
+      throw new Error(`Cette commande est ${String(reservation.statut).toLowerCase()} et ne peut pas être encaissée.`);
+    }
+    if (reservation.source === 'SITE' && reservation.validation_statut !== 'VALIDEE') {
+      throw new Error('Cette commande en ligne doit être validée avant son encaissement.');
+    }
+    if (!reservation.lignes?.length) throw new Error('Cette commande ne contient aucun article.');
+    if (reservation.lignes.some((ligne) => !produit(Number(ligne.produit_id)))) {
+      throw new Error('Un produit de cette commande est absent du catalogue caisse.');
+    }
+
+    commandeCaisse = reservation;
+    panier = {};
+    simulationPromo = null;
+    simulationEnCours = false;
+    simulationErreur = false;
+    clearTimeout(simulationMinuteur);
+    for (const ligne of reservation.lignes) {
+      const idProduit = Number(ligne.produit_id);
+      panier[idProduit] = {
+        id: idProduit,
+        quantite: Number(ligne.quantite),
+        unite: ligne.unite || 'BOUTEILLE',
+        remise_manuelle: 0,
+        prix_unitaire: Number(ligne.prix_unitaire),
+      };
+    }
+    $('client-select').value = String(reservation.client.id);
+    $('client-select').disabled = true;
+    $('express-client').disabled = true;
+    $('cancel-sale').disabled = true;
+    $('cart-panel').classList.add('reservation-cart');
+    $('reservation-title').textContent = `Commande ${reservation.reference} prête à encaisser`;
+    const nomClient = `${reservation.client.prenom || ''} ${reservation.client.nom || ''}`.trim();
+    $('reservation-detail').textContent =
+      `${nomClient} · Commande ${dev(reservation.montant_total)} · Acompte ${dev(reservation.montant_acompte)} · Solde ${dev(reservation.solde_du)}`;
+    $('reservation-banner').hidden = false;
+    modePaiement = MODES[0] || 'ESPECES';
+    setMode(modePaiement);
+    majClient();
+    rendrePanier(false);
+    rendreCommandes();
+  }
+
+  let commandes = [];
+
+  async function chargerCommandes() {
+    try {
+      commandes = await fetchAll(`${API.reservations}?a_retirer=1`);
+      rendreCommandes();
+    } catch (e) {
+      $('reservation-queue').innerHTML =
+        `<p class="reservation-queue-empty"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i> Impossible de charger les commandes : ${esc(e.message)}</p>`;
+      $('reservation-queue-count').textContent = '!';
+    }
+  }
+
+  function rendreCommandes() {
+    const conteneur = $('reservation-queue');
+    const visibles = commandes.filter((commande) => (
+      commande.statut === 'EN_ATTENTE' || commande.statut === 'ACOMPTE'
+    ));
+    $('reservation-queue-count').textContent = String(visibles.length);
+    if (!visibles.length) {
+      conteneur.innerHTML = '<p class="reservation-queue-empty">Aucune commande en attente.</p>';
+      return;
+    }
+    conteneur.innerHTML = visibles.map((commande) => {
+      const selected = commandeCaisse?.id === commande.id;
+      const anotherSelected = Boolean(commandeCaisse && !selected);
+      const enLigne = commande.source === 'SITE';
+      const aValider = enLigne && commande.validation_statut !== 'VALIDEE';
+      const client = commande.client
+        ? `${commande.client.prenom || ''} ${commande.client.nom || ''}`.trim()
+        : 'Client';
+      const statut = aValider
+        ? 'À valider'
+        : commande.statut === 'ACOMPTE'
+          ? 'Acompte versé'
+          : enLigne ? 'Validée · à encaisser' : 'En attente';
+      const stateClass = aValider || (commande.statut === 'EN_ATTENTE' && !enLigne)
+        ? 'pending'
+        : commande.statut === 'ACOMPTE' ? 'deposit' : 'validated';
+      return `
+        <article class="reservation-card" data-reservation="${commande.id}" data-source="${esc(commande.source)}">
+          <div class="reservation-card-top">
+            <span class="reservation-ref">${esc(commande.reference)}</span>
+            <span class="reservation-origin ${enLigne ? 'site' : 'interne'}">${enLigne ? 'EN LIGNE' : 'MANUELLE'}</span>
+          </div>
+          <div class="reservation-card-title">${esc(client)}</div>
+          <div class="reservation-card-meta">${commande.mode_reception === 'LIVRAISON' ? 'Livraison' : 'Retrait en boutique'}</div>
+          <span class="reservation-state ${stateClass}">${esc(statut)}</span>
+          <div class="reservation-balance"><span>Reste à payer</span><strong>${dev(commande.solde_du)}</strong></div>
+          <div class="reservation-card-actions">
+            ${selected
+              ? '<button type="button" class="reserve-cash" data-reservation-action="encaisser"><i class="fas fa-cash-register"></i> Encaisser</button>'
+              : anotherSelected
+                ? '<button type="button" class="reserve-cash" disabled><i class="fas fa-lock"></i> Terminez la commande active</button>'
+              : aValider
+                ? '<button type="button" class="reserve-validate" data-reservation-action="valider"><i class="fas fa-check"></i> Valider</button>'
+                : '<button type="button" class="reserve-cash" data-reservation-action="encaisser"><i class="fas fa-cash-register"></i> Encaisser</button>'}
+              <button type="button" class="reserve-cancel" data-reservation-action="annuler" aria-label="Annuler la commande ${esc(commande.reference)}" title="Annuler la commande"><i class="fas fa-times"></i> Annuler</button>
+          </div>
+        </article>`;
+    }).join('');
+  }
+
+  $('reservation-queue').addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-reservation-action]');
+    if (!button || button.disabled) return;
+    const card = button.closest('[data-reservation]');
+    const id = Number(card.dataset.reservation);
+    const commande = commandes.find((item) => Number(item.id) === id);
+    if (!commande) return;
+
+    button.disabled = true;
+    try {
+        if (button.dataset.reservationAction === 'encaisser') {
+          if (Object.keys(panier).length && !commandeCaisse
+              && !await demanderConfirmation('Remplacer le panier de vente en cours par cette commande ?', 'Remplacer le panier ?')) {
+            button.disabled = false;
+            button.focus();
+            return;
+          }
+          await chargerCommandeCaisse(String(id));
+          ouvrirPaiement();
+        } else if (button.dataset.reservationAction === 'valider') {
+          await api(`${API.reservations}${id}/valider/`, {
+            method: 'POST',
+            headers: { ...CSRF() },
+            body: JSON.stringify({}),
+          });
+          await chargerCommandes();
+          toast(`<i class="fas fa-check-circle mr-1"></i>Commande ${esc(commande.reference)} validée.`, 'green');
+        } else if (button.dataset.reservationAction === 'annuler') {
+          if (!await demanderConfirmation(`Annuler la commande ${commande.reference} ?`, 'Annuler la commande ?')) {
+            button.disabled = false;
+            button.focus();
+            return;
+          }
+          await api(`${API.reservations}${id}/annuler/`, {
+            method: 'POST',
+            headers: { ...CSRF() },
+            body: JSON.stringify({}),
+          });
+          if (commandeCaisse?.id === id) {
+            commandeCaisse = null;
+            panier = {};
+            simulationPromo = null;
+            simulationEnCours = false;
+            simulationErreur = false;
+            clearTimeout(simulationMinuteur);
+            $('pay-modal').classList.remove('open');
+            $('reservation-banner').hidden = true;
+            $('cart-panel').classList.remove('reservation-cart');
+            $('client-select').disabled = false;
+            $('client-select').value = '';
+            $('express-client').disabled = false;
+            $('cancel-sale').disabled = false;
+            const urlPropre = new URL(window.location.href);
+            urlPropre.searchParams.delete('reservation');
+            window.history.replaceState({}, '', urlPropre);
+            majClient();
+            rendrePanier(false);
+          }
+          await chargerCommandes();
+          toast(`<i class="fas fa-ban mr-1"></i>Commande ${esc(commande.reference)} annulée.`, 'green');
+        }
+    } catch (e) {
+        notice(e.message);
+        toast(`<i class="fas fa-exclamation-triangle mr-1"></i>${esc(e.message)}`, 'red');
+        button.disabled = false;
+    }
+  });
 
   function infoPromo(p) {
     const promo = p && p.promotion_active;
@@ -227,11 +450,6 @@
       remise: prix - final,
       etiquette: promo.type === 'POURCENTAGE' ? `-${Number(promo.valeur)}%` : 'Promo',
     };
-  }
-
-  function majCompteurPromos() {
-    const n = produits.filter((p) => meta.get(p.id)?.promo).length;
-    $('hstat-promos').innerHTML = `<i class="fas fa-bolt"></i>${n} promo`;
   }
 
   async function actualiserCatalogueClient() {
@@ -252,7 +470,6 @@
         });
       });
       rendreProduits();
-      majCompteurPromos();
     } catch (e) {
       if (version === catalogueVersion) notice(`Prix du catalogue non actualisés : ${e.message}`);
     }
@@ -295,8 +512,11 @@
 
   function majEtatEncaissement() {
     const bloquant = sessionBloquee() || simulationEnCours || simulationErreur
-      || (Object.keys(panier).length > 0 && !simulationPromo);
+      || (!commandeCaisse && Object.keys(panier).length > 0 && !simulationPromo);
     $('checkout-btn').disabled = bloquant || !MODES.length || !Object.keys(panier).length;
+    $('checkout-btn').innerHTML = commandeCaisse
+      ? '<i class="fas fa-cash-register mr-1"></i> Encaisser cette commande'
+      : '<i class="fas fa-lock mr-1"></i> Encaisser la vente';
   }
 
   $('session-open').addEventListener('click', async () => {
@@ -328,8 +548,8 @@
     const visibles = categories.filter((c) => (
       c.statut && !CATEGORIES_SANS_FILTRE.has(String(c.nom || '').trim().toLocaleLowerCase('fr-FR'))
     ));
-    const html = ['<button type="button" class="category active" data-cat="">Tout le catalogue</button>']
-      .concat(visibles.map((c) => `<button type="button" class="category" data-cat="${c.id}">${esc(c.nom)}</button>`))
+    const html = ['<button type="button" class="category active" data-cat=""><i class="fas fa-th-large" aria-hidden="true"></i> Tout</button>']
+      .concat(visibles.map((c) => `<button type="button" class="category" data-cat="${c.id}"><i class="fas fa-wine-bottle" aria-hidden="true"></i> ${esc(c.nom)}</button>`))
       .join('');
     $('category-list').innerHTML = html;
   }
@@ -352,7 +572,7 @@
       if (categorieActive && p.categorie !== categorieActive) return false;
       if (!q) return true;
       const nomCategorie = categories.find((c) => String(c.id) === String(p.categorie))?.nom;
-      const cible = [p.nom, p.marque, p.millesime, p.code_barre, p.reference, p.conditionnement_libelle, nomCategorie]
+      const cible = [p.nom, p.marque, p.code_barre, p.reference, p.conditionnement_libelle, nomCategorie]
         .filter(Boolean).join(' ').toLowerCase();
       return cible.includes(q);
     });
@@ -378,6 +598,10 @@
       const dansPanier = panier[p.id];
       const stockCls = stock <= 0 ? 'out-stock' : stock <= 6 ? 'low-stock' : 'in-stock';
       const stockTxt = stock <= 0 ? 'Rupture' : `${stock} dispo`;
+      const marque = String(p.marque || '').trim().toLocaleLowerCase().replace(/[’']/g, '');
+      const precision = marque === 'lazani betsileo'
+        ? (p.conditionnement_libelle || '')
+        : (p.marque || p.conditionnement_libelle || '');
       const image = p.image_url
         ? `<img src="${esc(p.image_url)}" alt="" loading="lazy" onerror="this.closest('.product-thumb').innerHTML='<i class=\\'fas fa-wine-bottle\\'></i>'">`
         : '<i class="fas fa-wine-bottle"></i>';
@@ -389,7 +613,7 @@
           <span class="product-body">
             <span class="product-thumb${info.promo ? ' thumb-promo' : ''}">${image}${info.promo ? `<i>${info.promo.etiquette}</i>` : ''}</span>
             <span class="product-name">${esc(p.nom)}</span>
-            <span class="product-brand">${esc(p.marque || p.conditionnement_libelle || '')}</span>
+            ${precision ? `<span class="product-brand">${esc(precision)}</span>` : ''}
             <span class="product-bottom">
               <span class="price-wrap">
                 ${info.promo
@@ -398,6 +622,7 @@
               </span>
               <span class="stock ${stockCls}">${stockTxt}</span>
             </span>
+            <span class="product-add"><i class="fas fa-plus" aria-hidden="true"></i> Ajouter au panier</span>
           </span>
         </button>`;
     }).join('');
@@ -427,6 +652,10 @@
   function ajouter(id, quantite = 1) {
     const p = produit(id);
     if (!p) return;
+    if (commandeCaisse) {
+      notice('Le panier de cette commande est verrouillé. Encaissez la commande ou quittez la caisse.');
+      return;
+    }
     if (sessionBloquee()) { notice('Ouvrez la caisse avant d\'encaisser.'); bip(false); return; }
     const stock = stockDe(p);
     const ligne = panier[id];
@@ -466,6 +695,7 @@
   }
 
   function prixLigne(ligne) {
+    if (commandeCaisse) return Number(ligne.prix_unitaire || 0) * ligne.quantite;
     const simulation = simulationLigne(ligne.id);
     if (simulation) return Number(simulation.prix_ligne);
     const info = meta.get(ligne.id) || {};
@@ -474,6 +704,7 @@
   }
 
   function totalPanier() {
+    if (commandeCaisse) return Number(commandeCaisse.solde_du || 0);
     if (simulationPromo) return Number(simulationPromo.total);
     return Object.values(panier).reduce((s, l) => s + prixLigne(l), 0);
   }
@@ -502,6 +733,9 @@
       $('cart-items').innerHTML = lignes.map((l) => {
         const p = produit(l.id);
         const info = meta.get(l.id) || {};
+        const image = p.image_url
+          ? `<img src="${esc(p.image_url)}" alt="" loading="lazy" onerror="this.outerHTML='<i class=\\'fas fa-wine-bottle\\'></i>'">`
+          : '<i class="fas fa-wine-bottle" aria-hidden="true"></i>';
         const simulation = simulationLigne(l.id);
         const promoNom = simulationPromo
           ? (simulation?.promotion || '')
@@ -514,31 +748,39 @@
           : (info.prix || 0) * l.quantite;
         return `
           <div class="cart-item" data-id="${l.id}">
-            <div class="item-top">
-              <span>
-                <span class="item-name">${esc(p.nom)}</span>
-                ${promoNom ? `<div class="item-promo"><i class="fas fa-tag"></i> ${esc(promoNom)}</div>` : ''}
-                ${l.remise_manuelle > 0 ? `<div class="item-remise">Remise ${fmt(l.remise_manuelle)}</div>` : ''}
-              </span>
-              <button type="button" class="remove" data-action="remove" aria-label="Retirer"><i class="fas fa-times"></i></button>
+            <span class="cart-item-thumb">${image}</span>
+            <div class="cart-item-content">
+              <div class="item-top">
+                <span>
+                  <span class="item-name">${esc(p.nom)}</span>
+                  ${promoNom ? `<div class="item-promo"><i class="fas fa-tag"></i> ${esc(promoNom)}</div>` : ''}
+                  ${l.remise_manuelle > 0 ? `<div class="item-remise">Remise ${fmt(l.remise_manuelle)}</div>` : ''}
+                </span>
+                ${commandeCaisse ? '' : '<button type="button" class="remove" data-action="remove" aria-label="Retirer"><i class="fas fa-times"></i></button>'}
+              </div>
+              <div class="item-bottom">
+                ${commandeCaisse
+                  ? `<span class="quantity"><b>${l.quantite} ×</b></span>`
+                  : `<span class="quantity">
+                      <button type="button" class="qty-btn" data-action="minus" aria-label="Moins"><i class="fas fa-minus"></i></button>
+                      <input class="qty-input" type="number" min="1" value="${l.quantite}" aria-label="Quantité">
+                      <button type="button" class="qty-btn" data-action="plus" aria-label="Plus"><i class="fas fa-plus"></i></button>
+                    </span>`}
+                <span class="${isPromo ? 'subtotal-promo' : 'subtotal'}">${fmt(prixLigne(l))}</span>
+              </div>
+              ${commandeCaisse ? '' : `<details class="cart-line-actions">
+                <summary>Options de la ligne</summary>
+                <div class="line-tools">
+                  <button type="button" data-action="remise" ${contexte.peut_remettre ? '' : 'disabled'} title="Remise sur la ligne">
+                    <i class="fas fa-percent"></i> Remise
+                  </button>
+                  <button type="button" data-action="unite" title="Changer l'unité de vente">
+                    <i class="fas fa-cubes"></i> ${esc( uniteLabel(l.unite) )}
+                  </button>
+                </div>
+              </details>`}
+              ${brut !== prixLigne(l) ? `<div class="item-remise" style="margin-top:.25rem">Brut ${fmt(brut)}</div>` : ''}
             </div>
-            <div class="item-bottom">
-              <span class="quantity">
-                <button type="button" class="qty-btn" data-action="minus" aria-label="Moins"><i class="fas fa-minus"></i></button>
-                <input class="qty-input" type="number" min="1" value="${l.quantite}" aria-label="Quantité">
-                <button type="button" class="qty-btn" data-action="plus" aria-label="Plus"><i class="fas fa-plus"></i></button>
-              </span>
-              <span class="${isPromo ? 'subtotal-promo' : 'subtotal'}">${fmt(prixLigne(l))}</span>
-            </div>
-            <div class="line-tools">
-              <button type="button" data-action="remise" ${contexte.peut_remettre ? '' : 'disabled'} title="Remise sur la ligne">
-                <i class="fas fa-percent"></i> Remise
-              </button>
-              <button type="button" data-action="unite" title="Changer l'unité de vente">
-                <i class="fas fa-cubes"></i> ${esc( uniteLabel(l.unite) )}
-              </button>
-            </div>
-            ${brut !== prixLigne(l) ? `<div class="item-remise" style="margin-top:.25rem">Brut ${fmt(brut)}</div>` : ''}
           </div>`;
       }).join('');
     }
@@ -549,12 +791,9 @@
     $('cart-total').classList.toggle('is-promo', eco > 0);
     $('savings-row').style.display = eco > 0 ? '' : 'none';
     $('savings-amount').textContent = `- ${fmt(eco)}`;
-    $('hstat-savings').style.display = eco > 0 ? '' : 'none';
-    $('hstat-savings-txt').textContent = `-${fmt(eco)}`;
-
-    $('open-retour').disabled = false;
-    $('open-remise').disabled = !lignes.length || !contexte.peut_remettre;
-    if (simuler) programmerSimulationPromotions();
+    $('open-retour').disabled = !!commandeCaisse;
+    $('open-remise').disabled = !!commandeCaisse || !lignes.length || !contexte.peut_remettre;
+    if (simuler && !commandeCaisse) programmerSimulationPromotions();
     majEtatEncaissement();
     rendreProduits();
   }
@@ -624,8 +863,6 @@
     $('cart-total').classList.toggle('is-promo', eco > 0);
     $('savings-row').style.display = eco > 0 ? '' : 'none';
     $('savings-amount').textContent = `- ${fmt(eco)}`;
-    $('hstat-savings').style.display = eco > 0 ? '' : 'none';
-    $('hstat-savings-txt').textContent = `-${fmt(eco)}`;
   }
 
   function uniteLabel(code) {
@@ -690,6 +927,14 @@
 
   function majClient() {
     const c = clientCourant();
+    $('selected-client-name').textContent = c
+      ? [c.nom, c.prenom].filter(Boolean).join(' ')
+      : 'Client de passage';
+    $('selected-client-contact').textContent = c
+      ? (c.telephone || c.email || 'Coordonnées non renseignées')
+      : 'Aucune fiche client associée';
+    $('selected-client-badge').textContent = c ? (c.niveau_label || 'Client') : 'Passage';
+    $('selected-client-card').classList.toggle('is-guest', !c);
     // Pas de fiche sélectionnée = client de passage : on propose de nommer la
     // vente, et ni fidélité ni encours ne s'appliquent.
     $('client-libelle-row').style.display = c ? 'none' : '';
@@ -754,12 +999,16 @@
   });
 
   /* -------------------------------------------------------- annulation panier */
-  function annulerVente() {
+  async function annulerVente() {
+    if (commandeCaisse) {
+      notice('Cette commande ne peut pas être vidée depuis la caisse.');
+      return;
+    }
     if (!Object.keys(panier).length) {
       notice('Aucune vente en cours à annuler.');
       return;
     }
-    if (!confirm('Annuler la vente en cours ?')) return;
+    if (!await demanderConfirmation('Annuler la vente en cours ?', 'Annuler la vente ?')) return;
     panier = {};
     $('client-select').value = '';
     majClient();
@@ -986,16 +1235,36 @@
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Validation…';
     try {
-      const data = await api(API.ventes, {
+      const corps = commandeCaisse
+        ? (paiements?.length
+          ? { paiements }
+          : { mode_paiement: modePaiement, montant: totalPanier().toFixed(2) })
+        : corpsVente(paiements);
+      const url = commandeCaisse
+        ? `${API.reservations}${commandeCaisse.id}/encaisser/`
+        : API.ventes;
+      const data = await api(url, {
         method: 'POST',
         headers: { ...CSRF() },
-        body: JSON.stringify(corpsVente(paiements)),
+        body: JSON.stringify(corps),
       });
       venteCourante = data.data;
       bip(true);
       fermerPaiement();
       afficherRecu(venteCourante, paiements);
+      if (commandeCaisse) {
+        commandeCaisse = null;
+        const urlPropre = new URL(window.location.href);
+        urlPropre.searchParams.delete('reservation');
+        window.history.replaceState({}, '', urlPropre);
+        $('reservation-banner').hidden = true;
+        $('cart-panel').classList.remove('reservation-cart');
+        $('client-select').disabled = false;
+        $('express-client').disabled = false;
+        $('cancel-sale').disabled = false;
+      }
       viderPanier();
+      await chargerCommandes();
     } catch (e) {
       bip(false);
       notice(e.message);
@@ -1011,6 +1280,10 @@
       const total = totalPanier();
       const recu = num($('cash-received').value);
       if (recu < total) { notice('Montant reçu insuffisant pour encaisser.'); return; }
+      if (commandeCaisse && Math.abs(recu - total) > 0.005) {
+        notice('Saisissez le montant exact du solde restant à encaisser.');
+        return;
+      }
       validerVente(null);
       return;
     }
@@ -1174,6 +1447,8 @@
 
     $('receipt-print').href = vente.ticket_url;
     $('receipt-facture').href = `/admin/ventes/vente/${vente.id}/facture/`;
+    $('receipt-facture').target = '_blank';
+    $('receipt-facture').rel = 'noopener';
 
     const wa = $('receipt-wa');
     if (vente.whatsapp_url) {
@@ -1198,6 +1473,10 @@
   let ligneRemise = null;
 
   function ouvrirRemise(id) {
+    if (commandeCaisse) {
+      notice('La commande verrouillée ne peut pas être modifiée depuis la caisse.');
+      return;
+    }
     const lignes = Object.values(panier);
     if (!lignes.length) { notice('Aucune ligne à remiser.'); return; }
     if (!contexte.peut_remettre) { notice('Votre rôle ne permet pas la remise.'); return; }
@@ -1377,6 +1656,7 @@
   $('retour-close').addEventListener('click', () => $('retour-modal').classList.remove('open'));
   $('retour-modal').addEventListener('click', (e) => { if (e.target === $('retour-modal')) $('retour-modal').classList.remove('open'); });
   $('open-retour').addEventListener('click', () => {
+    if (commandeCaisse) return;
     venteRetour = null;
     $('retour-ref').value = '';
     $('retour-contenu').style.display = 'none';
@@ -1522,6 +1802,13 @@
 
   /* --------------------------------------------------------------- clavier */
   document.addEventListener('keydown', (e) => {
+    if (confirmationPending) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        terminerConfirmation(false);
+      }
+      return;
+    }
     const dansChamp = /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName);
     if (e.key === 'Escape') {
       if ($('receipt-overlay').classList.contains('open')) return fermerRecu();

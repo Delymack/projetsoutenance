@@ -10,7 +10,7 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.template.response import TemplateResponse
-from django.urls import path
+from django.urls import path, reverse
 from django.contrib import admin
 from django.utils import timezone
 from django.utils.html import format_html
@@ -332,11 +332,12 @@ class LigneReservationInline(admin.TabularInline):
 class ReservationAdmin(ActionsColonneMixin, admin.ModelAdmin):
     change_list_template = 'admin/ventes/reservation/change_list.html'
     change_form_template = 'admin/ventes/reservation/change_form.html'
-    # L'essentiel d'une commande reçue : son origine, qui, comment elle arrive, où
-    # elle en est, ce qu'il reste à payer et pour quand. Le vendeur qui l'a prise
-    # reste sur la fiche. L'origine est conservée : le site et le comptoir
-    # coexistent, la distinguer est vérifié par test_la_liste_affiche_les_deux_origines.
-    list_display = ('reference', 'source_badge', 'client_badge', 'reception_badge', 'statut_badge', 'validation_badge', 'solde_du', 'date_expiration_badge', 'actions_reservation')
+    # La liste montre le suivi immédiat. Le mode de réception et la date
+    # d'expiration restent accessibles dans la fiche de la commande.
+    list_display = (
+        'reference', 'source_badge', 'client_badge', 'statut_badge',
+        'actions_reservation',
+    )
     list_filter = ('statut', 'validation_statut', 'source', 'date_expiration', 'date_creation')
     search_fields = ('reference', 'client__nom', 'client__prenom', 'client__telephone', 'note')
     autocomplete_fields = ('client', 'utilisateur', 'vente')
@@ -414,7 +415,7 @@ class ReservationAdmin(ActionsColonneMixin, admin.ModelAdmin):
                 erreur = str(exc)
             else:
                 self.message_user(request, f'Commande {reservation.reference} créée.', level='success')
-                return redirect('admin:ventes_reservation_change', reservation.pk)
+                return redirect(reverse('admin:ventes_reservation_change', args=[reservation.pk]))
 
         context = {
             **self.admin_site.each_context(request),
@@ -540,7 +541,7 @@ class ReservationAdmin(ActionsColonneMixin, admin.ModelAdmin):
         elif encaissable:
             boutons.append(format_html(
                 '<a class="btn btn-sm btn-success" href="{}"><i class="fas fa-cash-register"></i> Encaisser</a>',
-                f'/admin/ventes/reservation/{obj.id}/encaisser/'),
+                f"{reverse('caisse-enregistreuse')}?reservation={obj.pk}"),
             )
         if obj.statut == Reservation.Statut.SOLDEE:
             boutons.append(format_html(
@@ -659,19 +660,74 @@ class ReservationAdmin(ActionsColonneMixin, admin.ModelAdmin):
 
 @admin.register(MessageClient)
 class MessageClientAdmin(ActionsColonneMixin, admin.ModelAdmin):
-    list_display = ('sujet', 'nom', 'telephone', 'email', 'statut', 'cree_le')
+    change_form_template = 'admin/ventes/messageclient/change_form.html'
+    list_display = ('sujet', 'nom', 'telephone', 'statut', 'cree_le', 'repondu_le')
     list_filter = ('statut', 'cree_le')
-    search_fields = ('nom', 'telephone', 'email', 'sujet', 'message')
-    readonly_fields = ('nom', 'telephone', 'email', 'sujet', 'message', 'cree_le')
-    # Un message reçu : qui écrit, ce qui est dit, où en est le traitement. Le
-    # seul champ qui se modifie est le statut.
+    search_fields = ('nom', 'telephone', 'email', 'sujet', 'message', 'reponse')
+    readonly_fields = (
+        'nom', 'telephone', 'email', 'compte_client', 'sujet',
+        'message_original_display', 'cree_le', 'repondu_le',
+    )
     fieldsets = (
-        ('Expéditeur', {'fields': ('nom', 'telephone', 'email', 'cree_le')}),
-        ('Message', {'fields': ('sujet', 'message')}),
-        ('Traitement', {'fields': ('statut',)}),
+        ('Coordonnées du client', {
+            'fields': ('nom', 'email', 'telephone', 'compte_client', 'cree_le'),
+            'classes': ('wine-message-sender',),
+        }),
+        ('Message reçu', {
+            'fields': ('sujet', 'message_original_display'),
+            'classes': ('wine-message-original',),
+        }),
+        ('Votre réponse', {
+            'fields': ('reponse', 'repondu_le', 'statut'),
+            'classes': ('wine-message-reply',),
+        }),
     )
     ordering = ('-cree_le',)
     date_hierarchy = 'cree_le'
+
+    def get_fieldsets(self, request, obj=None):
+        if request.GET.get('repondre') == '1':
+            return (
+                self.fieldsets[1],
+                ('Votre réponse', {'fields': ('reponse',), 'classes': ('wine-message-reply',)}),
+            )
+        return super().get_fieldsets(request, obj)
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name == 'reponse':
+            kwargs['widget'] = forms.Textarea(attrs={
+                'rows': 7,
+                'maxlength': 3000,
+                'placeholder': 'Rédigez une réponse claire et personnalisée au client…',
+                'class': 'wine-message-reply-input',
+                'data-message-reply': 'true',
+            })
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
+
+    @admin.display(description='Message du client')
+    def message_original_display(self, obj):
+        return format_html('<div class="wine-message-original-text">{}</div>', obj.message)
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        obj = self.get_object(request, object_id)
+        if obj is not None and self.has_view_or_change_permission(request, obj):
+            from apps.accounts.models import UserNotification
+
+            UserNotification.objects.update_or_create(
+                user=request.user,
+                key=f'message-client:{obj.pk}',
+                defaults={'etat': UserNotification.Etat.LUE},
+            )
+        return super().change_view(request, object_id, form_url, extra_context)
+
+    def save_model(self, request, obj, form, change):
+        if change and 'reponse' in form.changed_data:
+            from django.utils import timezone
+
+            obj.repondu_le = timezone.now() if obj.reponse.strip() else None
+            if obj.reponse.strip() and obj.statut == MessageClient.Statut.NOUVEAU:
+                obj.statut = MessageClient.Statut.TRAITE
+        super().save_model(request, obj, form, change)
 
     def has_add_permission(self, request):
         return False
@@ -682,7 +738,7 @@ class SessionCaisseAdmin(ActionsColonneMixin, admin.ModelAdmin):
     # Une session de caisse : quand, dans quel état, combien encaissé, combien de
     # tickets, l'écart, la clôture. Le fonds, l'attendu, les articles et le vendeur
     # sont sur la fiche.
-    list_display = ('date_ventes', 'statut_badge', 'ca_total_badge', 'nb_tickets', 'ecart_badge', 'date_cloture')
+    list_display = ('date_ventes', 'statut_badge', 'ca_total_badge', 'ecart_badge', 'date_cloture')
     list_filter = ('statut', 'date_ventes')
     search_fields = ('utilisateur__username', 'note')
     readonly_fields = [f.name for f in SessionCaisse._meta.fields] + ['duree_display', 'paiements_resume']

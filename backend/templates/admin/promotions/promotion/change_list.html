@@ -4,129 +4,40 @@
 {% block content_title %}{% endblock %}
 
 {% block content %}
-<div class="lb-hero">
+<div class="lb-hero lb-hero--compact">
   <div class="lb-hero-body">
-    <div class="lb-eyebrow">Marketing &amp; prix</div>
+    <div class="lb-eyebrow">Gestion commerciale</div>
     <h1><i class="fas fa-percent lb-hero-icon"></i>Promotions</h1>
+    <p>Consultez et gérez vos offres en un seul endroit.</p>
   </div>
   <div class="lb-hero-actions">
-    <a class="lb-btn" href="{% url 'admin:promotions_promotion_add' %}"><i class="fas fa-plus"></i> Nouvelle promotion</a>
+    <a class="lb-btn" href="{% url 'admin:promotions_promotion_add' %}">
+      <i class="fas fa-plus" aria-hidden="true"></i> Nouvelle promotion
+    </a>
   </div>
 </div>
 
-<section class="lb-kpis">
+<section class="lb-kpis lb-kpis--simple" aria-label="Résumé des promotions">
   <a class="lb-kpi is-clickable" href="{% url 'admin:promotions_promotion_changelist' %}">
-    <i class="fas fa-tags lb-kpi-icon"></i>
-    <small>Total</small>
+    <i class="fas fa-tags lb-kpi-icon" aria-hidden="true"></i>
+    <small>Toutes</small>
     <strong>{{ promotions_kpis.total|intcomma }}</strong>
   </a>
   <a class="lb-kpi lb-kpi-ok is-clickable" href="?statut__exact=1">
-    <i class="fas fa-check-circle lb-kpi-icon"></i>
+    <i class="fas fa-circle-check lb-kpi-icon" aria-hidden="true"></i>
     <small>Actives</small>
     <strong>{{ promotions_kpis.actives|intcomma }}</strong>
   </a>
-  <div class="lb-kpi">
-    <i class="fas fa-clock lb-kpi-icon"></i>
+  <a class="lb-kpi lb-kpi-warn is-clickable" href="?etat=a_venir">
+    <i class="fas fa-hourglass-half lb-kpi-icon" aria-hidden="true"></i>
     <small>À venir</small>
     <strong>{{ promotions_kpis.a_venir|intcomma }}</strong>
-  </div>
-  <div class="lb-kpi lb-kpi-neutral">
-    <i class="fas fa-history lb-kpi-icon"></i>
-    <small>Expirées</small>
-    <strong>{{ promotions_kpis.expirees|intcomma }}</strong>
-  </div>
-  <div class="lb-kpi lb-kpi-warn">
-    <i class="fas fa-hourglass-half lb-kpi-icon"></i>
-    <small>Échéance &lt; 7 j</small>
-    <strong>{{ promotions_kpis.bientot_expirees|intcomma }}</strong>
-  </div>
-  <div class="lb-kpi">
-    <i class="fas fa-mug-hot lb-kpi-icon"></i>
-    <small>Happy hour</small>
-    <strong>{{ promotions_kpis.avec_creneau|intcomma }}</strong>
-  </div>
-  <div class="lb-kpi">
-    <i class="fas fa-ticket-alt lb-kpi-icon"></i>
-    <small>Codes promo</small>
-    <strong>{{ promotions_kpis.avec_code|intcomma }}</strong>
-  </div>
-  <div class="lb-kpi lb-kpi-danger">
-    <i class="fas fa-wine-bottle lb-kpi-icon"></i>
-    <small>Sans cible</small>
-    <strong>{{ promotions_kpis.sans_produit|intcomma }}</strong>
-  </div>
+  </a>
 </section>
 
-{% if promotions_alerts %}
-  <section class="lb-kpis">
-    {% for alert in promotions_alerts %}
-      <div class="lb-kpi {% if alert.type == 'danger' %}lb-kpi-danger{% elif alert.type == 'warning' %}lb-kpi-warn{% else %}lb-kpi-neutral{% endif %}">
-        <i class="fas fa-{{ alert.icon }} lb-kpi-icon"></i>
-        <small>{{ alert.title }}</small>
-        <strong style="font-size:1.05rem;line-height:1.35">{{ alert.summary }}</strong>
-        {% if alert.items %}
-          <ul style="color:var(--lb-ink-500);font-size:.74rem;margin:.4rem 0 0;padding-left:1rem">
-            {% for item in alert.items %}
-              <li>{% if item.nom %}<strong>{{ item.nom }}</strong>{% endif %}{% if item.detail %} — {{ item.detail }}{% endif %}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </div>
-    {% endfor %}
-  </section>
-{% endif %}
-
-<div class="lb-grid" style="margin-bottom:1.15rem">
-  <div class="lb-col-6">
-    <section class="lb-panel" style="height:100%">
-      <div class="lb-panel-head">
-        <h2><i class="fas fa-chart-line lb-kpi-icon"></i> Impact réel · 30 jours</h2>
-      </div>
-      <div class="lb-panel-body">
-        <dl class="lb-facts">
-          <div class="lb-fact">
-            <dt>Remises accordées</dt>
-            <dd class="lb-val-wine">{{ promotions_kpis.remises_30j|floatformat:0|intcomma }} {{ societe.devise|default:"Ar" }}</dd>
-          </div>
-          <div class="lb-fact">
-            <dt>Ventes avec promo</dt>
-            <dd>{{ promotions_kpis.ventes_promo_30j }} <span class="lb-val-muted">sur {{ promotions_kpis.nb_ventes_30j }}</span></dd>
-          </div>
-          <div class="lb-fact">
-            <dt>Taux d'utilisation</dt>
-            <dd class="lb-val-sage">{{ promotions_kpis.taux_promo_30j }} %</dd>
-          </div>
-        </dl>
-      </div>
-    </section>
-  </div>
-  <div class="lb-col-6">
-    <section class="lb-panel" style="height:100%">
-      <div class="lb-panel-head">
-        <h2><i class="fas fa-trophy lb-kpi-icon"></i> Top promos · 30 jours</h2>
-      </div>
-      <div class="lb-panel-body">
-        {% if promotions_top_impact %}
-          <dl class="lb-facts">
-            {% for ligne in promotions_top_impact %}
-              <div class="lb-fact">
-                <dt>{{ ligne.promotion__nom }}</dt>
-                <dd><span class="lb-val-wine">-{{ ligne.remise|floatformat:0|intcomma }} {{ societe.devise|default:"Ar" }}</span>
-                  <span class="lb-val-muted">· {{ ligne.nb_ventes }} vente{{ ligne.nb_ventes|pluralize }}</span></dd>
-              </div>
-            {% endfor %}
-          </dl>
-        {% else %}
-          <p class="lb-facts-empty">Aucune remise appliquée récemment.</p>
-        {% endif %}
-      </div>
-    </section>
-  </div>
-</div>
-
-<div class="lb-panel">
+<div class="lb-panel lb-panel--simple">
   <div class="lb-panel-head">
-    <h2><i class="fas fa-layer-group lb-kpi-icon"></i> Campagnes</h2>
+    <h2><i class="fas fa-list lb-kpi-icon" aria-hidden="true"></i> Liste des promotions</h2>
   </div>
   <div class="lb-panel-body lb-panel-body--flush">{{ block.super }}</div>
 </div>

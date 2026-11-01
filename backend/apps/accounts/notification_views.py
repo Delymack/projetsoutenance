@@ -1,16 +1,26 @@
 import json
 
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods
 
 from apps.accounts.models import UserNotification
 from apps.accounts.notifications import notifications_pour_utilisateur
 
 
-@require_POST
+@require_http_methods(['GET', 'POST'])
 def notification_action(request):
     if not request.user.is_authenticated or not request.user.is_staff:
         return JsonResponse({'error': 'Accès refusé.'}, status=403)
+
+    if request.method == 'GET':
+        current = notifications_pour_utilisateur(request.user)
+        response = JsonResponse({
+            'success': True,
+            'unread_count': sum(item['non_lue'] for item in current),
+            'items': current,
+        })
+        response['Cache-Control'] = 'no-store'
+        return response
 
     try:
         payload = json.loads(request.body)
@@ -21,6 +31,8 @@ def notification_action(request):
 
     action = payload.get('action')
     key = payload.get('key')
+    if not isinstance(action, str):
+        return JsonResponse({'error': 'Action invalide.'}, status=400)
     visible = notifications_pour_utilisateur(request.user)
 
     if action == 'read_all':
@@ -43,11 +55,10 @@ def notification_action(request):
         return JsonResponse({'error': 'Action invalide.'}, status=400)
 
     current = notifications_pour_utilisateur(request.user)
-    return JsonResponse({
+    response = JsonResponse({
         'success': True,
         'unread_count': sum(item['non_lue'] for item in current),
-        'items': [
-            {'key': item['key'], 'etat': item['etat']}
-            for item in current
-        ],
+        'items': current,
     })
+    response['Cache-Control'] = 'no-store'
+    return response

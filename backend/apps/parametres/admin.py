@@ -6,7 +6,7 @@ from config.admin_mixins import ActionsColonneMixin
 
 @admin.register(Parametre)
 class ParametreAdmin(ActionsColonneMixin, admin.ModelAdmin):
-    list_display = ('cle', 'section', 'libelle', 'type', 'valeur', 'modifie_le')
+    list_display = ('section', 'libelle', 'valeur')
     list_filter = ('section', 'type')
     search_fields = ('cle', 'libelle', 'valeur')
     ordering = ('section', 'ordre', 'cle')

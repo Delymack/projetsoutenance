@@ -53,20 +53,15 @@
     {% endif %}
 
     <!-- Sidebar : chargé directement, versionné, garanti même en cas de cache -->
-    <link rel="stylesheet" href="{% static 'css/wineadmin-sidebar.css' %}?v=20">
+    <link rel="stylesheet" href="{% static 'css/wineadmin-sidebar.css' %}?v=24">
 
     <!-- Design system WineAdmin : tokens (3 couleurs) + composants partagés -->
     <link rel="stylesheet" href="{% static 'css/wineadmin-design.css' %}?v=13">
-    <link rel="stylesheet" href="{% static 'css/wineadmin-quickcreate.css' %}?v=10">
+    <link rel="stylesheet" href="{% static 'css/wineadmin-quickcreate.css' %}?v=11">
     <!-- Fenêtres flottantes d'ajout lié : modale et formulaire popup (toutes les tables) -->
-    <link rel="stylesheet" href="{% static 'css/wineadmin-popup.css' %}?v=2">
-    <link rel="stylesheet" href="{% static 'css/wineadmin-notifications.css' %}?v=2">
-    <style>
-        {# Filet de sécurité : le sidebar reste sombre bordeaux quoi qu'il arrive. #}
-        #jazzy-sidebar {
-            background: linear-gradient(180deg, #2a0f1a 0%, #1a0810 100%) !important;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/wineadmin-popup.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/wineadmin-notifications.css' %}?v=8">
+    <link rel="stylesheet" href="{% static 'css/wineadmin-pages.css' %}?v=5">
 
     <!-- favicons -->
     <link rel="shortcut icon" href="{% static jazzmin_settings.site_icon %}" type="image/png">
@@ -78,9 +73,10 @@
     {% endif %}
 
     {% block extrastyle %} {% endblock %}
+    <link rel="stylesheet" href="{% static 'css/wineadmin-dialogs.css' %}?v=2">
     {% block extrahead %} {% endblock %}
 </head>
-<body class="layout-fixed{% if jazzmin_settings.show_sidebar %} sidebar-expand-lg sidebar-open{% else %} no-sidebar{% endif %} bg-body-tertiary {% sidebar_status request %} {% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %} {{ jazzmin_ui.body_classes }}" data-admin-utc-offset="{% now "Z" %}">
+<body class="wine-admin-shell layout-fixed{% if jazzmin_settings.show_sidebar %} sidebar-expand-lg sidebar-open{% else %} no-sidebar{% endif %} bg-body-tertiary {% sidebar_status request %} {% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %} {{ jazzmin_ui.body_classes }}" data-admin-utc-offset="{% now "Z" %}">
 
     {# Premier élément atteignable au clavier : on saute le menu pour aller au contenu (WCAG 2.4.1). #}
     {% if not is_popup %}
@@ -111,28 +107,6 @@
                     </li>
                 {% endif %}
 
-                {% get_top_menu user request.current_app|default:"admin" as top_menu %}
-                {% for link in top_menu %}
-                    <li class="nav-item d-none d-sm-inline-block{% if link.children %} dropdown{% endif %}">
-                        {% if link.children %}
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                {% if link.icon %}<i class="{{ link.icon }}" aria-hidden="true"></i>{% endif %}
-                                {{ link.name }}
-                            </a>
-                            <div class="dropdown-menu">
-                                {% for child in link.children %}
-                                    <a class="dropdown-item" href="{{ child.url }}" {% if link.new_window %}target="_blank"{% endif %}>
-                                        {% if child.icon %}<i class="{{ child.icon }}" aria-hidden="true"></i>{% endif %}{{ child.name }}
-                                    </a>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            <a href="{{ link.url }}" class="nav-link" {% if link.new_window %}target="_blank"{% endif %}>
-                                {% if link.icon %}<i class="{{ link.icon }}" aria-hidden="true"></i>{% endif %}{{ link.name }}
-                            </a>
-                        {% endif %}
-                    </li>
-                {% endfor %}
             </ul>
 
             <!-- ===== Recherche globale — meilleur emplacement : centre de la navbar ===== -->
@@ -181,28 +155,43 @@
                     <section class="wine-notifications-menu" id="wine-notifications-menu" aria-labelledby="wine-notifications-trigger" data-action-url="{% url 'notifications-action' %}" hidden>
                         <form class="wine-notifications-csrf" aria-hidden="true">{% csrf_token %}</form>
                         <header class="wine-notifications-header">
-                            <div>
+                            <div class="wine-notifications-heading">
+                                <span class="wine-notifications-heading-icon"><i class="fas fa-bell" aria-hidden="true"></i></span>
+                                <span>
                                 <strong>Notifications</strong>
                                 <span class="wine-notifications-unread-label">{{ admin_notification_count }} non lue{{ admin_notification_count|pluralize }}</span>
+                                </span>
                             </div>
-                            {% if admin_notification_count %}
-                            <button class="wine-notification-mark-all" type="button" data-notification-action="read_all">Tout marquer comme lu</button>
-                            {% endif %}
+                            <div class="wine-notifications-toolbar">
+                                <button class="wine-notification-mark-all" type="button" data-notification-action="read_all" {% if not admin_notification_count %}hidden{% endif %}>
+                                    <i class="fas fa-check-double" aria-hidden="true"></i> Tout lire
+                                </button>
+                                <button class="wine-notification-refresh" type="button" data-notification-refresh aria-label="Actualiser les notifications" title="Actualiser les notifications">
+                                    <i class="fas fa-rotate" aria-hidden="true"></i>
+                                </button>
+                            </div>
                         </header>
                         <nav class="wine-notifications-filters" aria-label="Filtrer les notifications">
                             <button type="button" data-notification-filter="all" aria-pressed="true">Toutes</button>
                             <button type="button" data-notification-filter="unread" aria-pressed="false">Non lues</button>
+                            <button type="button" data-notification-filter="message" aria-pressed="false">Messages</button>
                             <button type="button" data-notification-filter="read" aria-pressed="false">Lues</button>
                         </nav>
                         {% if admin_notifications %}
-                            <ul class="wine-notifications-list" id="wine-notifications-list">
+                            <ul class="wine-notifications-list" id="wine-notifications-list" aria-live="polite">
                                 {% for notification in admin_notifications %}
-                                    <li class="wine-notification-row{% if notification.non_lue %} is-unread{% endif %}" data-notification-key="{{ notification.key }}" data-notification-state="{% if notification.non_lue %}unread{% else %}read{% endif %}">
+                                    <li class="wine-notification-row{% if notification.non_lue %} is-unread{% endif %}" data-notification-key="{{ notification.key }}" data-notification-kind="{{ notification.category }}" data-notification-state="{% if notification.non_lue %}unread{% else %}read{% endif %}">
                                         <div class="wine-notification-item is-{{ notification.level }}">
                                             <span class="wine-notification-icon"><i class="fas {{ notification.icon }}" aria-hidden="true"></i></span>
                                             <span class="wine-notification-copy">
                                                 <a href="{{ notification.url }}">{{ notification.title }}</a>
                                                 <span>{{ notification.summary }}</span>
+                                                {% if notification.action_label %}
+                                                <a class="wine-notification-reply" href="{{ notification.url }}">
+                                                    <i class="fas fa-reply" aria-hidden="true"></i>
+                                                    {{ notification.action_label }}
+                                                </a>
+                                                {% endif %}
                                             </span>
                                             <div class="wine-notification-actions">
                                                 <button type="button" data-notification-action="{% if notification.non_lue %}read{% else %}unread{% endif %}" title="{% if notification.non_lue %}Marquer comme lue{% else %}Marquer comme non lue{% endif %}" aria-label="{% if notification.non_lue %}Marquer comme lue{% else %}Marquer comme non lue{% endif %}">
@@ -426,7 +415,7 @@
 
             <aside class="app-sidebar bg-body-secondary shadow {{ jazzmin_ui.sidebar_classes }}" id="jazzy-sidebar" data-bs-theme="dark">
                 <a href="{% url 'admin:index' %}" class="wine-brand {{ jazzmin_ui.brand_classes }}" id="jazzy-logo" title="Accueil — {{ jazzmin_settings.site_header|default:"LAZAN'I BETSILEO" }}">
-                    <img class="wine-brand-mark" src="{% static 'img/logo.webp' %}" alt="Logo LAZAN'I BETSILEO" width="64" height="64">
+                    <img class="wine-brand-mark" src="{% static 'img/logo.webp' %}?v=2" alt="Logo LAZAN'I BETSILEO" width="104" height="48">
                     <span class="wine-brand-text">
                         <span class="wine-brand-title">{{ jazzmin_settings.site_header|default:"LAZAN'I BETSILEO" }}</span>
                         <span class="wine-brand-subtitle">Cave &amp; Boutique</span>
@@ -656,9 +645,10 @@ propre page de confirmation.
 <script src="{% static "vendor/adminlte/js/adminlte.min.js" %}"></script>
 <!-- Django customisations -->
 <script src="{% static "jazzmin/js/main.js" %}"></script>
-<script src="{% static 'js/wineadmin-quickcreate.js' %}?v=11"></script>
-<script src="{% static 'js/wineadmin-notifications.js' %}?v=2"></script>
+<script src="{% static 'js/wineadmin-quickcreate.js' %}?v=14"></script>
+<script src="{% static 'js/wineadmin-notifications.js' %}?v=5"></script>
 <script src="{% static 'js/wineadmin-confirm.js' %}?v=1"></script>
+<script src="{% static 'js/wineadmin-print-list.js' %}?v=1"></script>
 
 {% if jazzmin_settings.custom_js %}
     {% for script in jazzmin_settings.custom_js|to_list %}

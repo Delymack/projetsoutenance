@@ -1,20 +1,18 @@
-from django.conf import settings
 from django.contrib import admin
 from django.db.models import F
 
 from django.utils.html import format_html
 
 from apps.stocks.models import Stock, MouvementStock
-from apps.stocks.valorisation import valeur_stock, valeur_stock_totale
+from apps.stocks.valorisation import valeur_stock_totale
 from config.admin_mixins import ActionsColonneMixin
 
 
 @admin.register(Stock)
 class StockAdmin(ActionsColonneMixin, admin.ModelAdmin):
     change_list_template = 'admin/stocks/stock/change_list.html'
-    # Un stock se lit en une ligne : le vin, la quantité, le seuil, l'état et ce
-    # qu'il vaut. La date de dernière mise à jour est sur la fiche.
-    list_display = ('produit', 'quantite', 'seuil_alerte', 'etat_stock_display', 'valeur_display')
+    # La valeur totale est déjà visible dans les indicateurs du haut de page.
+    list_display = ('image_tag', 'produit', 'quantite', 'seuil_alerte', 'etat_stock_display')
     list_editable = ('quantite', 'seuil_alerte')
     search_fields = ('produit__nom', 'produit__marque')
     list_filter = ('date_mise_a_jour',)
@@ -32,6 +30,20 @@ class StockAdmin(ActionsColonneMixin, admin.ModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('produit')
+
+    @admin.display(description='Photo')
+    def image_tag(self, obj):
+        if obj.produit.image:
+            return format_html(
+                '<img src="{}" alt="Photo de {}">',
+                obj.produit.image.url,
+                obj.produit.nom,
+            )
+        return format_html(
+            '<span class="stock-product-placeholder" aria-hidden="true">'
+            '<i class="fas fa-wine-bottle">{}</i></span>',
+            '',
+        )
 
     def changelist_view(self, request, extra_context=None):
         stocks = Stock.objects.all()
@@ -53,20 +65,11 @@ class StockAdmin(ActionsColonneMixin, admin.ModelAdmin):
         }.get(etat, 'lb-badge-wine')
         return format_html('<span class="lb-badge {}">{}</span>', css, etat.replace('_', ' '))
 
-    @admin.display(description='Valeur au coût', ordering='quantite')
-    def valeur_display(self, obj):
-        devise = settings.SOCIETE.get('devise', 'Ar')
-        return format_html(
-            '<strong class="lb-val-wine">{} {}</strong>', valeur_stock(obj), devise,
-        )
-
-
 @admin.register(MouvementStock)
 class MouvementStockAdmin(ActionsColonneMixin, admin.ModelAdmin):
     change_list_template = 'admin/stocks/mouvementstock/change_list.html'
-    # Un mouvement est un fait daté : quand, quoi, dans quel sens, de quelle
-    # quantité et sur quelle pièce. Le vendeur qui l'a saisi est sur la fiche.
-    list_display = ('date_mouvement', 'produit', 'type_badge', 'quantite_display', 'reference_id')
+    # La référence détaillée reste consultable sur la fiche du mouvement.
+    list_display = ('date_mouvement', 'produit', 'type_badge', 'quantite_display')
     search_fields = ('produit__nom', 'reference_id', 'description')
     list_filter = ('type_mouvement', 'date_mouvement')
     ordering = ('-date_mouvement',)

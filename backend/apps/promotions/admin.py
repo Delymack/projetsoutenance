@@ -5,8 +5,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.conf import settings
-from django.db.models import Count, DecimalField, Q, Sum
-from django.db.models.functions import Coalesce
+from django.db.models import Count
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import path, reverse
@@ -129,15 +128,10 @@ class PromotionAdmin(ActionsColonneMixin, admin.ModelAdmin):
     change_list_template = 'admin/promotions/promotion/change_list.html'
     change_form_template = 'admin/promotions/promotion/change_form.html'
     form = PromotionAdminForm
-    # Une promotion se lit en trois temps : la règle, sa cible, son état — puis ce
-    # qu'elle rapporte. Le type (déjà dit par la règle), le créneau et les bornes
-    # de dates (dites par l'état) restent sur la fiche et dans les filtres. Les
-    # trois colonnes de résultat sont conservées : elles sont vérifiées
-    # (test_impact_promotions_utilise_le_champ_total_des_ventes).
+    # La liste reste centrée sur l'identification, la règle, la cible, l'état
+    # et l'action. Les statistiques d'impact restent disponibles dans le rapport.
     list_display = (
-        'nom', 'regle_display', 'cible_display', 'etat_display',
-        'ventes_stat_display', 'remise_stat_display', 'ca_stat_display',
-        'statut_toggle_display',
+        'nom', 'regle_display', 'cible_display', 'etat_display', 'statut_toggle_display',
     )
     search_fields = ('nom', 'code', 'produits__nom', 'categories__nom')
     search_help_text = "Nom, code, produit, catégorie"
@@ -220,33 +214,7 @@ class PromotionAdmin(ActionsColonneMixin, admin.ModelAdmin):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER') or reverse('admin:promotions_promotion_changelist'))
 
     def get_queryset(self, request):
-        from apps.ventes.models import Vente
-        qs = super().get_queryset(request).prefetch_related('produits', 'categories')
-        decimal_remise = DecimalField(max_digits=12, decimal_places=2)
-        decimal_ca = DecimalField(max_digits=14, decimal_places=2)
-        return qs.annotate(
-            nb_ventes_promo=Count(
-                'lignes_vente__vente',
-                filter=Q(lignes_vente__vente__statut=Vente.Statut.PAYEE, lignes_vente__remise__gt=0),
-                distinct=True
-            ),
-            remise_totale_promo=Coalesce(
-                Sum(
-                    'lignes_vente__remise',
-                    filter=Q(lignes_vente__vente__statut=Vente.Statut.PAYEE, lignes_vente__remise__gt=0)
-                ),
-                Decimal('0.00'),
-                output_field=decimal_remise
-            ),
-            ca_genere_promo=Coalesce(
-                Sum(
-                    'lignes_vente__sous_total',
-                    filter=Q(lignes_vente__vente__statut=Vente.Statut.PAYEE, lignes_vente__remise__gt=0)
-                ),
-                Decimal('0.00'),
-                output_field=decimal_ca
-            ),
-        )
+        return super().get_queryset(request).prefetch_related('produits', 'categories')
 
     # --- Contexte de la liste ------------------------------------------------
 
@@ -412,26 +380,6 @@ class PromotionAdmin(ActionsColonneMixin, admin.ModelAdmin):
         )
     etat_display.admin_order_field = 'statut'
 
-    @admin.display(description='Ventes promo', ordering='nb_ventes_promo')
-    def ventes_stat_display(self, obj):
-        return obj.nb_ventes_promo
-
-    @admin.display(description='Remise accordée', ordering='remise_totale_promo')
-    def remise_stat_display(self, obj):
-        return format_html(
-            '{} {}',
-            obj.remise_totale_promo,
-            settings.SOCIETE.get('devise', 'Ar'),
-        )
-
-    @admin.display(description='CA généré', ordering='ca_genere_promo')
-    def ca_stat_display(self, obj):
-        return format_html(
-            '{} {}',
-            obj.ca_genere_promo,
-            settings.SOCIETE.get('devise', 'Ar'),
-        )
-
     @admin.display(description='Action')
     def statut_toggle_display(self, obj):
         action = 'Désactiver' if obj.statut else 'Activer'
@@ -447,4 +395,3 @@ class PromotionAdmin(ActionsColonneMixin, admin.ModelAdmin):
             icone,
             action,
         )
-

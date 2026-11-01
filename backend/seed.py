@@ -121,7 +121,7 @@ def run_seed(reset_demo_data=False):
     print("Création de 3 Cuvées avec Stocks...")
     produits_data = [
         {
-            "nom": "Vin Rouge LAZAN'I BETSILEO 75cl", "type": "Rouge", "millesime": None,
+            "nom": "Vin Rouge LAZAN'I BETSILEO 75cl", "type": "Rouge",
             "cout_revenir": "18000.00", "prix_revendeur": "35000.00",
             "prix_vente": "38000.00",
             "appellation": "Fianarantsoa",
@@ -130,7 +130,7 @@ def run_seed(reset_demo_data=False):
             "desc": "Vin rouge 75 cl de la gamme LAZAN'I BETSILEO.",
         },
         {
-            "nom": "Vin Blanc Moelleux LAZAN'I BETSILEO 75cl", "type": "Blanche", "millesime": None,
+            "nom": "Vin Blanc Moelleux LAZAN'I BETSILEO 75cl", "type": "Blanche",
             "cout_revenir": "14000.00", "prix_revendeur": "27000.00",
             "prix_vente": "30000.00",
             "appellation": "Fianarantsoa",
@@ -139,7 +139,7 @@ def run_seed(reset_demo_data=False):
             "desc": "Vin blanc moelleux 75 cl de la gamme LAZAN'I BETSILEO.",
         },
         {
-            "nom": "Vin Rouge Doux LAZAN'I BETSILEO 75cl", "type": "Rouge", "millesime": None,
+            "nom": "Vin Rouge Doux LAZAN'I BETSILEO 75cl", "type": "Rouge",
             "cout_revenir": "20000.00", "prix_revendeur": "40000.00",
             "prix_vente": "45000.00",
             "appellation": "Fianarantsoa",
@@ -152,7 +152,7 @@ def run_seed(reset_demo_data=False):
     for i, p in enumerate(produits_data):
         prod = Produit.objects.create(
             nom=p["nom"], description=p["desc"], type_vin=p["type"],
-            marque=MARQUE, millesime=p["millesime"], volume="75cl",
+            marque=MARQUE, volume="75cl",
             appellation=p["appellation"], cepage=p["cepage"],
             degre_alcool=Decimal(p["degre_alcool"]), elevage=p["elevage"],
             temperature_service=int(p["temperature_service"]),
@@ -203,7 +203,7 @@ def run_seed(reset_demo_data=False):
         statut=True,
     )
     Promotion.objects.create(
-        nom="Fin de millésime",
+        nom="Offre de saison",
         description="Offre de fin d'année, désormais terminée.",
         type_promotion=Promotion.TypePromotion.POURCENTAGE,
         valeur=Decimal('20.00'),

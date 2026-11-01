@@ -1,0 +1,374 @@
+/* Presentation en fiches pour le catalogue et les niveaux de stock. */
+.wine-admin-shell.model-produit.change-list #result_list,
+.wine-admin-shell.model-stock.change-list #result_list {
+    display: block;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list thead,
+.wine-admin-shell.model-stock.change-list #result_list thead {
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list tbody,
+.wine-admin-shell.model-stock.change-list #result_list tbody {
+    align-items: stretch;
+    display: grid;
+    gap: 1.15rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 275px), 1fr));
+    padding: .35rem;
+}
+
+.wine-admin-shell.model-stock.change-list #result_list {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.wine-admin-shell.model-stock.change-list #result_list tbody {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+    width: 100%;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list tbody tr,
+.wine-admin-shell.model-stock.change-list #result_list tbody tr {
+    align-content: start;
+    background: var(--lb-surface);
+    border: 1px solid var(--lb-line);
+    border-radius: 20px;
+    box-shadow: var(--lb-shadow-sm);
+    display: grid;
+    min-width: 0;
+    overflow: hidden;
+    padding: .55rem;
+    position: relative;
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list tbody tr:hover,
+.wine-admin-shell.model-stock.change-list #result_list tbody tr:hover {
+    border-color: var(--lb-gold-300);
+    box-shadow: var(--lb-shadow);
+    transform: translateY(-3px);
+}
+
+.wine-admin-shell.model-produit.change-list #result_list tbody td,
+.wine-admin-shell.model-produit.change-list #result_list tbody th,
+.wine-admin-shell.model-stock.change-list #result_list tbody td,
+.wine-admin-shell.model-stock.change-list #result_list tbody th {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    color: var(--lb-ink);
+    display: flex;
+    min-width: 0;
+    padding: .55rem .65rem;
+    text-align: left;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list tbody tr:hover > *,
+.wine-admin-shell.model-stock.change-list #result_list tbody tr:hover > * {
+    background: transparent;
+}
+
+/* Produit : la bouteille domine, puis viennent le nom et les deux données clés. */
+.wine-admin-shell.model-produit.change-list #result_list tbody tr {
+    grid-template-areas:
+        "image image"
+        "name status"
+        "price stock"
+        "actions actions";
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: 190px minmax(58px, auto) minmax(75px, auto) auto;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .field-image_tag { grid-area: image; }
+.wine-admin-shell.model-produit.change-list #result_list .field-nom { grid-area: name; }
+.wine-admin-shell.model-produit.change-list #result_list .field-prix_vente { grid-area: price; }
+.wine-admin-shell.model-produit.change-list #result_list .field-stock_badge { grid-area: stock; }
+.wine-admin-shell.model-produit.change-list #result_list .field-statut_display { grid-area: status; }
+.wine-admin-shell.model-produit.change-list #result_list .field-_actions_col { grid-area: actions; }
+
+.wine-admin-shell.model-produit.change-list #result_list .field-image_tag {
+    padding: 0;
+    position: relative;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .field-image_tag img,
+.wine-admin-shell.model-produit.change-list #result_list .product-card-placeholder {
+    align-items: center;
+    background: linear-gradient(145deg, var(--lb-canvas), var(--lb-canvas-2));
+    border: 1px solid var(--lb-line);
+    border-radius: 15px;
+    color: var(--lb-wine);
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    min-height: 170px;
+    object-fit: cover;
+    overflow: hidden;
+    width: 100%;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .product-card-placeholder i,
+.wine-admin-shell.model-stock.change-list #result_list .stock-product-placeholder i {
+    font-size: 2rem;
+    opacity: .62;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .field-nom {
+    align-items: flex-start;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .field-nom a,
+.wine-admin-shell.model-stock.change-list #result_list .field-produit a {
+    color: var(--lb-wine);
+    font-size: 1rem;
+    font-weight: 850;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .field-prix_vente,
+.wine-admin-shell.model-produit.change-list #result_list .field-stock_badge {
+    align-content: center;
+    align-items: flex-start;
+    background: var(--lb-canvas);
+    border: 1px solid var(--lb-line-soft);
+    border-radius: 12px;
+    flex-direction: column;
+    gap: .3rem;
+    justify-content: center;
+    margin: .2rem;
+    min-width: 0;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .field-prix_vente::before,
+.wine-admin-shell.model-produit.change-list #result_list .field-stock_badge::before,
+.wine-admin-shell.model-produit.change-list #result_list .field-statut_display::before,
+.wine-admin-shell.model-stock.change-list #result_list .field-quantite::before,
+.wine-admin-shell.model-stock.change-list #result_list .field-seuil_alerte::before,
+.wine-admin-shell.model-stock.change-list #result_list .field-etat_stock_display::before {
+    color: var(--lb-ink-500);
+    font-size: .62rem;
+    font-weight: 850;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .field-prix_vente::before { content: "Prix de vente"; }
+.wine-admin-shell.model-produit.change-list #result_list .field-stock_badge::before { content: "En stock"; }
+.wine-admin-shell.model-produit.change-list #result_list .field-statut_display::before { content: "Disponibilité"; }
+
+.wine-admin-shell.model-produit.change-list #result_list .field-prix_vente {
+    color: var(--lb-wine);
+    font-size: 1.05rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 900;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .field-prix_vente input,
+.wine-admin-shell.model-stock.change-list #result_list .field-quantite input,
+.wine-admin-shell.model-stock.change-list #result_list .field-seuil_alerte input {
+    background: var(--lb-surface);
+    border: 1px solid var(--lb-line);
+    border-radius: 8px;
+    color: var(--lb-ink);
+    font-weight: 750;
+    max-width: 100%;
+    min-height: 36px;
+    padding: .35rem .5rem;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .field-statut_display {
+    align-items: flex-end;
+    justify-content: center;
+    padding-right: .75rem;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .field-statut_display::before {
+    content: "Disponible";
+    white-space: nowrap;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .field-statut_display img {
+    height: 20px;
+    width: 20px;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .field-_actions_col,
+.wine-admin-shell.model-stock.change-list #result_list .field-_actions_col {
+    border-top: 1px solid var(--lb-line-soft);
+    justify-content: flex-start;
+    margin-top: .2rem;
+    padding-top: .65rem;
+}
+
+/* Stock : fiche horizontale, avec la photo à gauche et les mesures à droite. */
+.wine-admin-shell.model-stock.change-list #result_list tbody tr {
+    grid-template-areas:
+        "image product product"
+        "image state state"
+        "image quantity threshold"
+        "actions actions actions";
+    grid-template-columns: 96px minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(54px, auto) minmax(38px, auto) minmax(72px, auto) auto;
+    padding: .65rem;
+}
+
+.wine-admin-shell.model-stock.change-list #result_list .field-image_tag { grid-area: image; }
+.wine-admin-shell.model-stock.change-list #result_list .field-produit { grid-area: product; }
+.wine-admin-shell.model-stock.change-list #result_list .field-quantite { grid-area: quantity; }
+.wine-admin-shell.model-stock.change-list #result_list .field-seuil_alerte { grid-area: threshold; }
+.wine-admin-shell.model-stock.change-list #result_list .field-etat_stock_display { grid-area: state; }
+.wine-admin-shell.model-stock.change-list #result_list .field-_actions_col { grid-area: actions; }
+
+.wine-admin-shell.model-stock.change-list #result_list .field-image_tag {
+    padding: 0;
+    grid-row: 1 / 4;
+}
+
+.wine-admin-shell.model-stock.change-list #result_list .field-image_tag img,
+.wine-admin-shell.model-stock.change-list #result_list .stock-product-placeholder {
+    align-items: center;
+    background: linear-gradient(145deg, var(--lb-canvas), var(--lb-canvas-2));
+    border: 1px solid var(--lb-line);
+    border-radius: 15px;
+    color: var(--lb-wine);
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    min-height: 175px;
+    object-fit: cover;
+    width: 100%;
+}
+
+.wine-admin-shell.model-stock.change-list #result_list .field-produit {
+    align-items: flex-end;
+    padding-bottom: .3rem;
+}
+
+.wine-admin-shell.model-stock.change-list #result_list .field-etat_stock_display,
+.wine-admin-shell.model-stock.change-list #result_list .field-quantite,
+.wine-admin-shell.model-stock.change-list #result_list .field-seuil_alerte {
+    align-items: flex-start;
+    background: var(--lb-canvas);
+    border: 1px solid var(--lb-line-soft);
+    border-radius: 12px;
+    flex-direction: column;
+    gap: .3rem;
+    justify-content: center;
+    margin: .2rem;
+    min-width: 0;
+}
+
+.wine-admin-shell.model-stock.change-list #result_list .field-etat_stock_display {
+    align-items: center;
+    border: 0;
+    flex-direction: row;
+    justify-content: flex-start;
+    margin: 0;
+    padding-top: 0;
+}
+
+.wine-admin-shell.model-stock.change-list #result_list .field-quantite::before { content: "Quantité"; }
+.wine-admin-shell.model-stock.change-list #result_list .field-seuil_alerte::before { content: "Seuil d'alerte"; }
+.wine-admin-shell.model-stock.change-list #result_list .field-etat_stock_display::before { content: "État du stock"; }
+
+.wine-admin-shell.model-stock.change-list #result_list .field-etat_stock_display .lb-badge {
+    font-size: .68rem;
+    line-height: 1.25;
+    padding: .35rem .55rem;
+    white-space: normal;
+}
+
+.wine-admin-shell.model-stock.change-list #result_list .field-quantite input,
+.wine-admin-shell.model-stock.change-list #result_list .field-seuil_alerte input {
+    width: 100%;
+}
+
+.wine-admin-shell.model-stock.change-list #result_list .field-quantite,
+.wine-admin-shell.model-stock.change-list #result_list .field-seuil_alerte {
+    margin: .15rem;
+    padding: .5rem;
+}
+
+.wine-admin-shell.model-stock.change-list #result_list .field-_actions_col {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .databtn-group,
+.wine-admin-shell.model-stock.change-list #result_list .databtn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .databtn,
+.wine-admin-shell.model-stock.change-list #result_list .databtn {
+    align-items: center;
+    border: 1px solid var(--lb-line);
+    border-radius: 9px;
+    display: inline-flex;
+    gap: .4rem;
+    min-height: 34px;
+    padding: .35rem .65rem;
+    position: static;
+    width: auto;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .databtn-label,
+.wine-admin-shell.model-stock.change-list #result_list .databtn-label {
+    display: inline;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .databtn::after,
+.wine-admin-shell.model-stock.change-list #result_list .databtn::after {
+    display: none;
+}
+
+.wine-admin-shell.model-produit.change-list #result_list .action-checkbox,
+.wine-admin-shell.model-stock.change-list #result_list .action-checkbox {
+    background: var(--lb-surface);
+    border: 1px solid var(--lb-line);
+    border-radius: 8px;
+    height: 28px;
+    justify-content: center;
+    left: .85rem;
+    padding: .2rem;
+    position: absolute;
+    top: .85rem;
+    width: 28px;
+    z-index: 1;
+}
+
+html[data-bs-theme="dark"] .wine-admin-shell.model-produit.change-list #result_list .field-nom a,
+html[data-bs-theme="dark"] .wine-admin-shell.model-stock.change-list #result_list .field-produit a {
+    color: var(--lb-gold);
+}
+
+@media (max-width: 575px) {
+    .wine-admin-shell.model-produit.change-list #result_list tbody,
+    .wine-admin-shell.model-stock.change-list #result_list tbody {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .wine-admin-shell.model-produit.change-list #result_list tbody tr {
+        grid-template-rows: 180px minmax(58px, auto) minmax(75px, auto) auto;
+    }
+
+    .wine-admin-shell.model-stock.change-list #result_list tbody tr {
+        grid-template-areas:
+            "image product product"
+            "image state state"
+            "image quantity threshold"
+            "actions actions actions";
+        grid-template-columns: 78px minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-rows: minmax(54px, auto) minmax(38px, auto) minmax(72px, auto) auto;
+    }
+}

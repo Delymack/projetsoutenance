@@ -19,7 +19,7 @@
     <div class="dash-hero__aurora" aria-hidden="true"><span></span><span></span><span></span></div>
     <div class="dash-hero__grid">
       <div class="dash-hero__intro">
-        <img class="dash-hero__logo" src="{% static 'img/logo.webp' %}" alt="LAZAN'I BETSILEO" width="56" height="56" decoding="async">
+        <img class="dash-hero__logo" src="{% static 'img/logo.webp' %}?v=2" alt="LAZAN'I BETSILEO" width="128" height="60" decoding="async">
         <span class="dash-hero__eyebrow"><i class="fas fa-wine-bottle" aria-hidden="true"></i> Cave &amp; Boutique · Fianarantsoa</span>
         <h1>Bonjour, <span class="dash-hero__name">{{ request.user.get_short_name|default:request.user.username }}</span></h1>
         <p class="dash-hero__date">{% now "l d F Y" %} · <span class="dash-live" id="dash-clock" aria-hidden="true">--:--</span></p>

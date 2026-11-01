@@ -7,6 +7,7 @@ from django.urls import reverse
 from apps.accounts.models import UserNotification
 from apps.produits.models import Produit
 from apps.stocks.models import Stock
+from apps.ventes.models import MessageClient
 
 
 class NotificationsPersistantesTests(TestCase):
@@ -86,6 +87,79 @@ class NotificationsPersistantesTests(TestCase):
             2,
         )
 
+    def test_nouveau_message_affiche_une_action_directe_pour_repondre(self):
+        message = MessageClient.objects.create(
+            nom='Miora',
+            email='miora@example.test',
+            sujet='Disponibilité',
+            message='Avez-vous ce vin en carton ?',
+        )
+        self.client.force_login(self.user)
+
+        page = self.client.get('/admin/')
+
+        self.assertContains(page, f'Nouveau message client : {message.sujet}')
+        self.assertContains(page, 'wine-notification-reply')
+        self.assertContains(
+            page,
+            reverse('admin:ventes_messageclient_change', args=[message.pk]),
+        )
+        self.assertEqual(page.context['admin_notification_count'], 3)
+
+    def test_clic_sur_notification_ouvre_fiche_de_reponse_et_marque_comme_lue(self):
+        message = MessageClient.objects.create(
+            nom='Miora',
+            email='miora@example.test',
+            sujet='Disponibilité',
+            message='Avez-vous ce vin en carton ?',
+        )
+        self.client.force_login(self.user)
+        url = reverse('admin:ventes_messageclient_change', args=[message.pk])
+
+        page = self.client.get(f'{url}?repondre=1')
+
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, 'wine-message-hero')
+        self.assertContains(page, 'wine-message-original-text')
+        self.assertContains(page, 'data-message-reply="true"')
+        self.assertContains(page, 'Rédigez une réponse claire et personnalisée au client')
+        self.assertContains(page, 'wine-message-send-button')
+        self.assertContains(page, 'Envoyer la réponse')
+        self.assertContains(page, 'field.scrollIntoView')
+        self.assertNotContains(page, 'Coordonnées du client')
+        self.assertNotContains(page, 'field-repondu_le')
+        self.assertNotContains(page, 'field-statut')
+        self.assertEqual(
+            UserNotification.objects.get(
+                user=self.user, key=f'message-client:{message.pk}',
+            ).etat,
+            UserNotification.Etat.LUE,
+        )
+
+    def test_actualisation_recupere_les_nouveaux_messages_et_leur_action(self):
+        message = MessageClient.objects.create(
+            nom='Miora',
+            telephone='0340000000',
+            sujet='Disponibilité',
+            message='Avez-vous ce vin en carton ?',
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload['unread_count'], 3)
+        notification = next(
+            item for item in payload['items']
+            if item['key'] == f'message-client:{message.pk}'
+        )
+        self.assertEqual(notification['action_label'], 'Répondre')
+        self.assertIn(
+            f"{reverse('admin:ventes_messageclient_change', args=[message.pk])}?repondre=1",
+            notification['url'],
+        )
+
     def test_action_refuse_un_utilisateur_non_staff(self):
         User = get_user_model()
         vendeur = User.objects.create_user(
@@ -105,3 +179,14 @@ class NotificationsPersistantesTests(TestCase):
         response = self.action('read', 'stock:rupture:999999')
 
         self.assertEqual(response.status_code, 404)
+
+    def test_action_mal_formee_est_rejetee_sans_erreur_serveur(self):
+        self.client.force_login(self.user)
+        response = self.client.post(
+            self.url,
+            data=json.dumps({'action': ['read']}),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), {'error': 'Action invalide.'})

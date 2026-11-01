@@ -69,6 +69,8 @@ class DocumentImpressionTests(TestCase):
         self.assertIn('FAC-', html)
         self.assertIn('Rakoto Hanta', html)
         self.assertIn('20', html)  # 2 × 10 000
+        self.assertIn('color:#000 !important', html)
+        self.assertIn('.inv-brand .logo, .qr-box', html)
 
     def test_facture_fige_tva_incluse_et_echeance(self):
         save_config({

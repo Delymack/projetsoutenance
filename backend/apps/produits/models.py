@@ -1,9 +1,16 @@
 from decimal import Decimal
 
+from django.core.files.storage import storages
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
 from apps.categories.models import Categorie
+
+
+def produit_image_storage():
+    return storages['product_images']
+
 
 class Produit(models.Model):
     class UniteVente(models.TextChoices):
@@ -26,7 +33,6 @@ class Produit(models.Model):
         max_length=100, choices=TypeVin.choices, default=TypeVin.ROUGE, verbose_name=_('Famille'),
     )
     marque = models.CharField(max_length=150, blank=True, default='', verbose_name=_('Marque'))
-    millesime = models.PositiveIntegerField(blank=True, null=True, verbose_name=_('Millésime'))
     volume = models.CharField(max_length=50, verbose_name=_('Volume'))
 
     # Fiche de cave : ce qui distingue une cuvée d'une autre sur une étiquette.
@@ -81,7 +87,10 @@ class Produit(models.Model):
         max_digits=10, decimal_places=2, default=0, verbose_name=_('Prix du lot'),
     )
 
-    image = models.ImageField(upload_to='produits/', blank=True, null=True, verbose_name=_('Image'))
+    image = models.ImageField(
+        upload_to='produits/', storage=produit_image_storage,
+        blank=True, null=True, verbose_name=_('Image'),
+    )
     statut = models.BooleanField(default=True, verbose_name=_('Statut'))
     
     categorie = models.ForeignKey(Categorie, on_delete=models.SET_NULL, null=True, related_name='produits', verbose_name=_('Catégorie'))
@@ -109,7 +118,7 @@ class Produit(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.nom} - {self.millesime if self.millesime else ''}"
+        return self.nom
 
     @property
     def marge_brute_unitaire(self):
